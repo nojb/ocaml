@@ -20,6 +20,7 @@ open Parsetree
 open Ast_helper
 
 let mktyp d = Typ.mk ~loc:(symbol_rloc()) d
+let mkdim d = Dim.mk ~loc:(symbol_rloc()) d
 let mkpat d = Pat.mk ~loc:(symbol_rloc()) d
 let mkexp d = Exp.mk ~loc:(symbol_rloc()) d
 let mkmty d = Mty.mk ~loc:(symbol_rloc()) d
@@ -1568,11 +1569,11 @@ type_declarations:
 ;
 
 type_declaration:
-    optional_type_parameters LIDENT type_kind constraints post_item_attributes
-      { let (kind, priv, manifest) = $3 in
-        Type.mk (mkrhs $2 2)
-          ~params:$1 ~cstrs:(List.rev $4)
-          ~kind ~priv ?manifest ~attrs:$5 ~loc:(symbol_rloc())
+    optional_type_parameters optional_dimension_parameters LIDENT type_kind constraints post_item_attributes
+      { let (kind, priv, manifest) = $4 in
+        Type.mk (mkrhs $3 3)
+          ~params:$1 ~cstrs:(List.rev $5)
+          ~kind ~priv ?manifest ~attrs:$6 ~loc:(symbol_rloc())
        }
 ;
 constraints:
@@ -1619,7 +1620,17 @@ optional_type_variable:
     QUOTE ident                                 { mktyp(Ptyp_var $2) }
   | UNDERSCORE                                  { mktyp(Ptyp_any) }
 ;
-
+optional_dimension_parameters:
+    /* empty */                                 { [] }
+  | LBRACKET dimension_parameter_list RBRACKET  { $2 }
+;
+dimension_parameter_list:
+    dimension_parameter                         { [$1] }
+  | dimension_parameter_list COMMA dimension_parameter    { $3 :: $1 }
+;
+dimension_parameter:
+    QUOTE ident                                 { mkdim(Pdim_var $2) }
+;
 
 type_parameters:
     /*empty*/                                   { [] }
@@ -1698,16 +1709,16 @@ label_declaration:
 /* Type Extensions */
 
 str_type_extension:
-  optional_type_parameters type_longident
+  optional_type_parameters optional_dimension_parameters type_longident
   PLUSEQ private_flag opt_bar str_extension_constructors post_item_attributes
-      { Te.mk (mkrhs $2 2) (List.rev $6)
-          ~params:$1 ~priv:$4 ~attrs:$7 }
+      { Te.mk (mkrhs $3 3) (List.rev $7)
+          ~params:$1 ~priv:$5 ~attrs:$8 }
 ;
 sig_type_extension:
-  optional_type_parameters type_longident
+  optional_type_parameters optional_dimension_parameters type_longident
   PLUSEQ private_flag opt_bar sig_extension_constructors post_item_attributes
-      { Te.mk (mkrhs $2 2) (List.rev $6)
-          ~params:$1 ~priv:$4 ~attrs:$7 }
+      { Te.mk (mkrhs $3 3) (List.rev $7)
+          ~params:$1 ~priv:$5 ~attrs:$8 }
 ;
 str_extension_constructors:
     extension_constructor_declaration                     { [$1] }

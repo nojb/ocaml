@@ -134,6 +134,28 @@ and row_field =
   | Rinherit of core_type
         (* [ T ] *)
 
+(* Dimensions *)
+
+and ratexpr =
+  { re_desc: ratexpr_desc;
+    re_loc: Location.t }
+
+and ratexpr_desc =
+  | Oper of string * ratexpr * ratexpr
+  | Neg of ratexpr
+  | Int of int
+
+and dimension =
+  { pdim_desc: dimension_desc;
+    pdim_loc: Location.t }
+
+and dimension_desc =
+  | Pdim_mul of string * dimension * dimension
+  | Pdim_exp of string * dimension * ratexpr
+  | Pdim_var of string
+  | Pdim_ident of Longident.t
+  | Pdim_int of int
+
 (* Patterns *)
 
 and pattern =

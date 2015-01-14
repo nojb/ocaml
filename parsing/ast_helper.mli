@@ -57,6 +57,12 @@ module Typ :
     val force_poly: core_type -> core_type
   end
 
+(** Dimensions *)
+module Dim:
+  sig
+    val mk: ?loc:loc -> dimension_desc -> dimension
+  end
+
 (** Patterns *)
 module Pat:
   sig

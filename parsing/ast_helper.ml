@@ -52,6 +52,10 @@ module Typ = struct
     | _ -> poly ~loc:t.ptyp_loc [] t (* -> ghost? *)
 end
 
+module Dim = struct
+  let mk ?(loc = !default_loc) d = {pdim_desc = d; pdim_loc = loc}
+end
+
 module Pat = struct
   let mk ?(loc = !default_loc) ?(attrs = []) d =
     {ppat_desc = d; ppat_loc = loc; ppat_attributes = attrs}
