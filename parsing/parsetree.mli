@@ -150,7 +150,7 @@ and dimension =
     pdim_loc: Location.t }
 
 and dimension_desc =
-  | Pdim_mul of string * dimension * dimension
+  | Pdim_mul of dimension * dimension
   | Pdim_exp of string * dimension * ratexpr
   | Pdim_var of string
   | Pdim_ident of Longident.t

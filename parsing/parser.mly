@@ -1827,6 +1827,24 @@ simple_core_type_no_attr:
       { match $2 with [sty] -> sty | _ -> raise Parse_error }
 ;
 
+opt_dim_par:
+    /* empty */                          { [] }
+  | LBRACKET dimension_comma_list RBRACKET     { $2 }
+;
+
+dimension_comma_list:
+    dimension                              { [$1] }
+  | dimension COMMA dimension_comma_list   { $1 :: $3 }
+;
+
+dimension:
+    dimension STAR dimension   { mkdim(Pdim_mul ($1, $3)) }
+  | type_longident                  { mkdim(Pdim_ident $1) }
+  | QUOTE ident              { mkdim(Pdim_var $2) }
+  | INT                        { mkdim(Pdim_int $1) }
+  | LPAREN dimension RPAREN    { $2 }
+;
+
 simple_core_type2:
     QUOTE ident
       { mktyp(Ptyp_var $2) }
@@ -1834,10 +1852,10 @@ simple_core_type2:
       { mktyp(Ptyp_any) }
   | type_longident
       { mktyp(Ptyp_constr(mkrhs $1 1, [])) }
-  | simple_core_type2 type_longident
-      { mktyp(Ptyp_constr(mkrhs $2 2, [$1])) }
-  | LPAREN core_type_comma_list RPAREN type_longident
-      { mktyp(Ptyp_constr(mkrhs $4 4, List.rev $2)) }
+  | simple_core_type2 opt_dim_par type_longident
+      { mktyp(Ptyp_constr(mkrhs $3 3, [$1])) }
+  | LPAREN core_type_comma_list RPAREN opt_dim_par type_longident
+      { mktyp(Ptyp_constr(mkrhs $5 5, List.rev $2)) }
   | LESS meth_list GREATER
       { let (f, c) = $2 in mktyp(Ptyp_object (f, c)) }
   | LESS GREATER
