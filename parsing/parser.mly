@@ -239,10 +239,10 @@ let varify_constructors var_names t =
       | Ptyp_arrow (label,core_type,core_type') ->
           Ptyp_arrow(label, loop core_type, loop core_type')
       | Ptyp_tuple lst -> Ptyp_tuple (List.map loop lst)
-      | Ptyp_constr( { txt = Lident s }, []) when List.mem s var_names ->
+      | Ptyp_constr( { txt = Lident s }, [], []) when List.mem s var_names ->
           Ptyp_var s
-      | Ptyp_constr(longident, lst) ->
-          Ptyp_constr(longident, List.map loop lst)
+      | Ptyp_constr(longident, lst, dims) ->
+          Ptyp_constr(longident, List.map loop lst, dims) (* FIXME *)
       | Ptyp_object (lst, o) ->
           Ptyp_object
             (List.map (fun (s, attrs, t) -> (s, attrs, loop t)) lst, o)
@@ -1843,7 +1843,7 @@ dimension:
     dimension STAR dimension
       { mkdim(Pdim_mul ($1, $3)) }
   | dimension_longident
-      { mkdim(Pdim_ident $1) }
+      { mkdim(Pdim_ident (mkrhs $1 1)) }
   | QUOTE ident
       { mkdim(Pdim_var $2) }
   | INT
@@ -1858,17 +1858,17 @@ simple_core_type2:
   | UNDERSCORE
       { mktyp(Ptyp_any) }
   | type_longident
-      { mktyp(Ptyp_constr(mkrhs $1 1, [])) }
+      { mktyp(Ptyp_constr(mkrhs $1 1, [], [])) }
   | LESS dimension_comma_list GREATER type_longident
-      { mktyp(Ptyp_constr(mkrhs $4 4, [])) }
+      { mktyp(Ptyp_constr(mkrhs $4 4, [], $2)) }
   | simple_core_type2 type_longident
-      { mktyp(Ptyp_constr(mkrhs $2 2, [$1])) }
+      { mktyp(Ptyp_constr(mkrhs $2 2, [$1], [])) }
   | simple_core_type2 LESS dimension_comma_list GREATER type_longident
-      { mktyp(Ptyp_constr(mkrhs $5 5, [$1])) }
+      { mktyp(Ptyp_constr(mkrhs $5 5, [$1], $3)) }
   | LPAREN core_type_comma_list RPAREN type_longident
-      { mktyp(Ptyp_constr(mkrhs $4 4, List.rev $2)) }
+      { mktyp(Ptyp_constr(mkrhs $4 4, List.rev $2, [])) }
   | LPAREN core_type_comma_list RPAREN LESS dimension_comma_list GREATER type_longident
-      { mktyp(Ptyp_constr(mkrhs $7 7, List.rev $2)) }
+      { mktyp(Ptyp_constr(mkrhs $7 7, List.rev $2, $5)) }
   | LESS meth_list GREATER
       { let (f, c) = $2 in mktyp(Ptyp_object (f, c)) }
   | LESS GREATER

@@ -445,7 +445,7 @@ let rec transl_type env policy styp =
     let ctys = List.map (transl_type env policy) stl in
     let ty = newty (Ttuple (List.map (fun ctyp -> ctyp.ctyp_type) ctys)) in
     ctyp (Ttyp_tuple ctys) ty
-  | Ptyp_constr(lid, stl) ->
+  | Ptyp_constr(lid, stl, _) -> (* FIXME dimensions *)
       let (path, decl) = find_type env styp.ptyp_loc lid.txt in
       let stl =
         match stl with

@@ -98,8 +98,9 @@ module T = struct
     | Ptyp_arrow (lab, t1, t2) ->
         arrow ~loc ~attrs lab (sub.typ sub t1) (sub.typ sub t2)
     | Ptyp_tuple tyl -> tuple ~loc ~attrs (List.map (sub.typ sub) tyl)
-    | Ptyp_constr (lid, tl) ->
+    | Ptyp_constr (lid, tl, dl) ->
         constr ~loc ~attrs (map_loc sub lid) (List.map (sub.typ sub) tl)
+          (List.map (sub.dimension sub) dl)
     | Ptyp_object (l, o) ->
         let f (s, a, t) = (s, sub.attributes sub a, sub.typ sub t) in
         object_ ~loc ~attrs (List.map f l) o

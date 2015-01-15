@@ -64,10 +64,13 @@ and core_type_desc =
 
            Invariant: n >= 2
         *)
-  | Ptyp_constr of Longident.t loc * core_type list
+  | Ptyp_constr of Longident.t loc * core_type list * dimension list
         (* tconstr
            T tconstr
            (T1, ..., Tn) tconstr
+           <D1, ..., Dn> tconstr
+           T <D1, ..., Dn> tconstr
+           (T1, ..., Tn) <D1, ..., Dn> tconstr
          *)
   | Ptyp_object of (string * attributes * core_type) list * closed_flag
         (* < l1:T1; ...; ln:Tn >     (flag = Closed)
@@ -153,7 +156,7 @@ and dimension_desc =
   | Pdim_mul of dimension * dimension
   | Pdim_exp of dimension * string * ratexpr
   | Pdim_var of string
-  | Pdim_ident of Longident.t
+  | Pdim_ident of Longident.t loc
   | Pdim_int of int
 
 (* Patterns *)

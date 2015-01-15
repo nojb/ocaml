@@ -573,7 +573,7 @@ and untype_core_type ct =
   | Ttyp_tuple list -> Ptyp_tuple (List.map untype_core_type list)
     | Ttyp_constr (_path, lid, list) ->
         Ptyp_constr (lid,
-          List.map untype_core_type list)
+          List.map untype_core_type list, []) (* FIXME dimen *)
     | Ttyp_object (list, o) ->
         Ptyp_object
           (List.map (fun (s, a, t) -> (s, a, untype_core_type t)) list, o)
@@ -629,7 +629,7 @@ and untype_class_field cf =
         in
         let exp = remove_fun_self exp in
         Pcf_method (lab, priv, Cfk_concrete (o, untype_expression exp))
-    | Tcf_initializer exp -> 
+    | Tcf_initializer exp ->
         let remove_fun_self = function
           | { exp_desc = Texp_function(Nolabel, [case], _) }
             when is_self_pat case.c_lhs && case.c_guard = None -> case.c_rhs

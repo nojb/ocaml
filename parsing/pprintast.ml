@@ -248,7 +248,7 @@ class printer  ()= object(self:'self)
     | Ptyp_any -> pp f "_";
     | Ptyp_var s -> self#tyvar f  s;
     | Ptyp_tuple l ->  pp f "(%a)" (self#list self#core_type1 ~sep:"*@;") l
-    | Ptyp_constr (li, l) ->
+    | Ptyp_constr (li, l, d) ->
         pp f (* "%a%a@;" *) "%a%a"
           (fun f l -> match l with
           |[] -> ()
@@ -312,6 +312,15 @@ class printer  ()= object(self:'self)
               (self#list aux  ~sep:"@ and@ ")  cstrs)
     | Ptyp_extension e -> self#extension f e
     | _ -> self#paren true self#core_type f x
+  method dimension f d =
+    match d.pdim_desc with
+    | Pdim_mul (d1, d2) ->
+        pp f "@[%a * %a@]" self#dimension d1 self#dimension d2
+    | Pdim_exp (d, op, _) ->
+        pp f "@[<hov2>%a %s@ %s@]" self#dimension d op "FIXME"
+    | Pdim_var v -> pp f "'%s" v
+    | Pdim_ident lid -> self#longident_loc f lid
+    | Pdim_int n -> pp f "%d" n
           (********************pattern********************)
           (* be cautious when use [pattern], [pattern1] is preferred *)
   method pattern f x =

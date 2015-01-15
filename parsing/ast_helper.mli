@@ -41,7 +41,8 @@ module Typ :
     val arrow: ?loc:loc -> ?attrs:attrs -> arg_label -> core_type -> core_type
                -> core_type
     val tuple: ?loc:loc -> ?attrs:attrs -> core_type list -> core_type
-    val constr: ?loc:loc -> ?attrs:attrs -> lid -> core_type list -> core_type
+    val constr: ?loc:loc -> ?attrs:attrs -> lid -> core_type list -> dimension list
+                -> core_type
     val object_: ?loc:loc -> ?attrs:attrs ->
                   (string * attributes * core_type) list -> closed_flag ->
                   core_type
@@ -64,7 +65,7 @@ module Dim:
     val mul: ?loc:loc -> dimension -> dimension -> dimension
     val exp: ?loc:loc -> dimension -> string -> ratexpr -> dimension
     val var: ?loc:loc -> string -> dimension
-    val ident: ?loc:loc -> Longident.t -> dimension
+    val ident: ?loc:loc -> lid -> dimension
     val int: ?loc:loc -> int -> dimension
   end
 

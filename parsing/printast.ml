@@ -151,9 +151,10 @@ let rec core_type i ppf x =
   | Ptyp_tuple l ->
       line i ppf "Ptyp_tuple\n";
       list i core_type ppf l;
-  | Ptyp_constr (li, l) ->
+  | Ptyp_constr (li, l, d) ->
       line i ppf "Ptyp_constr %a\n" fmt_longident_loc li;
       list i core_type ppf l;
+      list i dimension ppf d
   | Ptyp_variant (l, closed, low) ->
       line i ppf "Ptyp_variant closed=%a\n" fmt_closed_flag closed;
       list i label_x_bool_x_core_type_list ppf l;
@@ -184,6 +185,25 @@ let rec core_type i ppf x =
   | Ptyp_extension (s, arg) ->
       line i ppf "Ptyp_extension \"%s\"\n" s.txt;
       payload i ppf arg
+
+and dimension i ppf d =
+  line i ppf "dimension %a\n" fmt_location d.pdim_loc;
+  let i = i+1 in
+  match d.pdim_desc with
+  | Pdim_mul (d1, d2) ->
+      line i ppf "Pdim_mul\n";
+      dimension i ppf d1;
+      dimension i ppf d2
+  | Pdim_exp (d, op, r) ->
+      line i ppf "Pdim_exp\n";
+      dimension i ppf d;
+      (* COMPLETE *)
+  | Pdim_var v ->
+      line i ppf "Pdim_var %s\n" v
+  | Pdim_ident id ->
+      line i ppf "Pdim_ident %a\n" fmt_longident_loc id
+  | Pdim_int n ->
+      line i ppf "Pdim_int %d\n" n
 
 and package_with i ppf (s, t) =
   line i ppf "with type %a\n" fmt_longident_loc s;

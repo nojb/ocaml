@@ -251,7 +251,7 @@ let merge_constraint initial_env loc sg constr =
           match !real_id with None -> assert false | Some id -> id in
         let lid =
           try match sdecl.ptype_manifest with
-          | Some {ptyp_desc = Ptyp_constr (lid, stl)}
+          | Some {ptyp_desc = Ptyp_constr (lid, stl, _)} (* FIXME dimensions *)
             when List.length stl = List.length sdecl.ptype_params ->
               List.iter2 (fun x (y, _) ->
                 match x, y with
