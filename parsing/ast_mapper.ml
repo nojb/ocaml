@@ -40,6 +40,8 @@ type mapper = {
   class_type_field: mapper -> class_type_field -> class_type_field;
   constructor_declaration: mapper -> constructor_declaration
                            -> constructor_declaration;
+  dimension: mapper -> dimension -> dimension;
+  dimension_declaration: mapper -> dimension_declaration -> dimension_declaration;
   expr: mapper -> expression -> expression;
   extension: mapper -> extension -> extension;
   extension_constructor: mapper -> extension_constructor
@@ -243,6 +245,7 @@ module MT = struct
     | Psig_value vd -> value ~loc (sub.value_description sub vd)
     | Psig_type l -> type_ ~loc (List.map (sub.type_declaration sub) l)
     | Psig_typext te -> type_extension ~loc (sub.type_extension sub te)
+    | Psig_dimension dd -> dimension ~loc (sub.dimension_declaration sub dd)
     | Psig_exception ed -> exception_ ~loc (sub.extension_constructor sub ed)
     | Psig_module x -> module_ ~loc (sub.module_declaration sub x)
     | Psig_recmodule l ->
@@ -258,6 +261,17 @@ module MT = struct
     | Psig_attribute x -> attribute ~loc (sub.attribute sub x)
 end
 
+module D = struct
+  let map sub {pdim_loc = loc; pdim_desc = desc} =
+    let open Dim in
+    let loc = sub.location sub loc in
+    match desc with
+    | Pdim_mul (d1, d2) -> mul ~loc (sub.dimension sub d1) (sub.dimension sub d2)
+    | Pdim_exp (d, op, r) -> exp ~loc (sub.dimension sub d) op r
+    | Pdim_var v -> var ~loc v
+    | Pdim_ident id -> ident ~loc id
+    | Pdim_int i -> int ~loc i
+end
 
 module M = struct
   (* Value expressions for the module language *)
@@ -291,6 +305,7 @@ module M = struct
     | Pstr_primitive vd -> primitive ~loc (sub.value_description sub vd)
     | Pstr_type l -> type_ ~loc (List.map (sub.type_declaration sub) l)
     | Pstr_typext te -> type_extension ~loc (sub.type_extension sub te)
+    | Pstr_dimension dd -> dimension ~loc (sub.dimension_declaration sub dd)
     | Pstr_exception ed -> exception_ ~loc (sub.extension_constructor sub ed)
     | Pstr_module x -> module_ ~loc (sub.module_binding sub x)
     | Pstr_recmodule l -> rec_module ~loc (List.map (sub.module_binding sub) l)
@@ -582,6 +597,13 @@ let default_mapper =
           ?res:(map_opt (this.typ this) pcd_res)
           ~loc:(this.location this pcd_loc)
           ~attrs:(this.attributes this pcd_attributes)
+      );
+
+    dimension = D.map;
+
+    dimension_declaration =
+      (fun this {pdd_name; pdd_unit} ->
+         {pdd_name = map_loc this pdd_name; pdd_unit = map_loc this pdd_unit}
       );
 
     label_declaration =

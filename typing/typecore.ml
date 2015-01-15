@@ -197,6 +197,7 @@ let iter_expression f e =
     | Pstr_primitive _
     | Pstr_type _
     | Pstr_typext _
+    | Pstr_dimension _
     | Pstr_exception _
     | Pstr_modtype _
     | Pstr_open _

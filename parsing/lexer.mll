@@ -39,6 +39,7 @@ let keyword_table =
     "begin", BEGIN;
     "class", CLASS;
     "constraint", CONSTRAINT;
+    "dimension", DIMENSION;
     "do", DO;
     "done", DONE;
     "downto", DOWNTO;

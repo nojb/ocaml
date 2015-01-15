@@ -602,6 +602,8 @@ and transl_signature env sg =
               map_ext (fun es ext ->
                 Sig_typext(ext.ext_id, ext.ext_type, es)) constructors rem,
               final_env
+        | Psig_dimension _ ->
+            assert false
         | Psig_exception sext ->
             check_name check_typext names sext.pext_name;
             let (ext, newenv) = Typedecl.transl_exception env sext in
@@ -1244,6 +1246,8 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
            (fun es ext -> Sig_typext(ext.ext_id, ext.ext_type, es))
            tyext.tyext_constructors [],
          newenv)
+    | Pstr_dimension _ ->
+        assert false
     | Pstr_exception sext ->
         check_name check_typext names sext.pext_name;
         let (ext, newenv) = Typedecl.transl_exception env sext in

@@ -597,7 +597,7 @@ class printer  ()= object(self:'self)
         pp f "@[<hov2>assert@ %a@]" self#simple_expr e
     | Pexp_lazy (e) ->
         pp f "@[<hov2>lazy@ %a@]" self#simple_expr e
-    (* Pexp_poly: impossible but we should print it anyway, rather than assert false *) 
+    (* Pexp_poly: impossible but we should print it anyway, rather than assert false *)
     | Pexp_poly (e, None) ->
         pp f "@[<hov2>!poly!@ %a@]" self#simple_expr e
     | Pexp_poly (e, Some ct) ->
@@ -704,6 +704,9 @@ class printer  ()= object(self:'self)
 
   method item_extension f (s, e) =
     pp f "@[<2>[%%%%%s@ %a]@]" s.txt self#payload e
+
+  method dimension_declaration f dd =
+    pp f "@[<hov2>dimension@ %s(%s)@]" dd.pdd_name.txt dd.pdd_unit.txt
 
   method exception_declaration f ext =
     pp f "@[<hov2>exception@ %a@]" self#extension_constructor ext
@@ -930,6 +933,8 @@ class printer  ()= object(self:'self)
              self#item_attributes vd.pval_attributes
     | Psig_typext te ->
         self#type_extension f te
+    | Psig_dimension dd ->
+        self#dimension_declaration f dd
     | Psig_exception ed ->
         self#exception_declaration f ed
     | Psig_class l ->
@@ -1096,6 +1101,7 @@ class printer  ()= object(self:'self)
     | Pstr_value (rf, l) -> (* pp f "@[<hov2>let %a%a@]"  self#rec_flag rf self#bindings l *)
         pp f "@[<2>%a@]" self#bindings (rf,l)
     | Pstr_typext te -> self#type_extension f te
+    | Pstr_dimension dd -> self#dimension_declaration f dd
     | Pstr_exception ed -> self#exception_declaration f ed
     | Pstr_module x ->
         let rec module_helper me =

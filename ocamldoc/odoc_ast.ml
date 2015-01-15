@@ -1361,6 +1361,9 @@ module Analyser =
               new_te.te_constructors <- exts;
               (maybe_more, new_env, [ Element_type_extension new_te ])
 
+      | Parsetree.Pstr_dimension _ ->
+          assert false
+
       | Parsetree.Pstr_exception ext ->
           let name = ext.Parsetree.pext_name in
           (* a new exception is defined *)

@@ -653,6 +653,9 @@ and signature_item i ppf x =
   | Psig_typext te ->
       line i ppf "Psig_typext\n";
       type_extension i ppf te
+  | Psig_dimension dd ->
+      line i ppf "Psig_dimension\n";
+      dimension_declaration i ppf dd
   | Psig_exception ext ->
       line i ppf "Psig_exception\n";
       extension_constructor i ppf ext;
@@ -761,6 +764,9 @@ and structure_item i ppf x =
   | Pstr_typext te ->
       line i ppf "Pstr_typext\n";
       type_extension i ppf te
+  | Pstr_dimension d ->
+      line i ppf "Pstr_dimension\n";
+      dimension_declaration i ppf d
   | Pstr_exception ext ->
       line i ppf "Pstr_exception\n";
       extension_constructor i ppf ext;
@@ -801,6 +807,10 @@ and module_declaration i ppf pmd =
   string_loc i ppf pmd.pmd_name;
   attributes i ppf pmd.pmd_attributes;
   module_type (i+1) ppf pmd.pmd_type;
+
+and dimension_declaration i ppf dd =
+  string_loc (i+1) ppf dd.pdd_name;
+  string_loc (i+1) ppf dd.pdd_unit
 
 and module_binding i ppf x =
   string_loc i ppf x.pmb_name;

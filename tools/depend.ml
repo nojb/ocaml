@@ -249,6 +249,8 @@ and add_sig_item bv item =
       List.iter (add_type_declaration bv) dcls; bv
   | Psig_typext te ->
       add_type_extension bv te; bv
+  | Psig_dimension _ ->
+      assert false
   | Psig_exception pext ->
       add_extension_constructor bv pext; bv
   | Psig_module pmd ->
@@ -309,6 +311,8 @@ and add_struct_item bv item =
   | Pstr_typext te ->
       add_type_extension bv te;
       bv
+  | Pstr_dimension _ ->
+      assert false
   | Pstr_exception pext ->
       add_extension_constructor bv pext; bv
   | Pstr_module x ->

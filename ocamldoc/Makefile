@@ -158,7 +158,7 @@ all:
 	$(MAKE) exe
 	$(MAKE) lib
 	$(MAKE) generators
-	$(MAKE) manpages
+#        $(MAKE) manpages
 
 exe: $(OCAMLDOC)
 lib: $(OCAMLDOC_LIBCMA) $(OCAMLDOC_LIBCMI) $(ODOC_TEST)

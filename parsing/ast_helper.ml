@@ -54,6 +54,11 @@ end
 
 module Dim = struct
   let mk ?(loc = !default_loc) d = {pdim_desc = d; pdim_loc = loc}
+  let mul ?loc d1 d2 = mk ?loc (Pdim_mul (d1, d2))
+  let exp ?loc d op r = mk ?loc (Pdim_exp (d, op, r))
+  let var ?loc v = mk ?loc (Pdim_var v)
+  let ident ?loc id = mk ?loc (Pdim_ident id)
+  let int ?loc i = mk ?loc (Pdim_int i)
 end
 
 module Pat = struct
@@ -163,6 +168,7 @@ module Sig = struct
   let value ?loc a = mk ?loc (Psig_value a)
   let type_ ?loc a = mk ?loc (Psig_type a)
   let type_extension ?loc a = mk ?loc (Psig_typext a)
+  let dimension ?loc d = mk ?loc (Psig_dimension d)
   let exception_ ?loc a = mk ?loc (Psig_exception a)
   let module_ ?loc a = mk ?loc (Psig_module a)
   let rec_module ?loc a = mk ?loc (Psig_recmodule a)
@@ -183,6 +189,7 @@ module Str = struct
   let primitive ?loc a = mk ?loc (Pstr_primitive a)
   let type_ ?loc a = mk ?loc (Pstr_type a)
   let type_extension ?loc a = mk ?loc (Pstr_typext a)
+  let dimension ?loc d = mk ?loc (Pstr_dimension d)
   let exception_ ?loc a = mk ?loc (Pstr_exception a)
   let module_ ?loc a = mk ?loc (Pstr_module a)
   let rec_module ?loc a = mk ?loc (Pstr_recmodule a)

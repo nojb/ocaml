@@ -151,7 +151,7 @@ and dimension =
 
 and dimension_desc =
   | Pdim_mul of dimension * dimension
-  | Pdim_exp of string * dimension * ratexpr
+  | Pdim_exp of dimension * string * ratexpr
   | Pdim_var of string
   | Pdim_ident of Longident.t
   | Pdim_int of int
@@ -675,6 +675,8 @@ and signature_item_desc =
         (* type t1 = ... and ... and tn = ... *)
   | Psig_typext of type_extension
         (* type t1 += ... *)
+  | Psig_dimension of dimension_declaration
+        (* dimension d(u) *)
   | Psig_exception of extension_constructor
         (* exception C of T *)
   | Psig_module of module_declaration
@@ -705,6 +707,12 @@ and module_declaration =
      pmd_loc: Location.t;
     }
 (* S : MT *)
+
+and dimension_declaration =
+    {
+     pdd_name: string loc;
+     pdd_unit: string loc
+    }
 
 and module_type_declaration =
     {
@@ -802,6 +810,8 @@ and structure_item_desc =
         (* type t1 = ... and ... and tn = ... *)
   | Pstr_typext of type_extension
         (* type t1 += ... *)
+  | Pstr_dimension of dimension_declaration
+        (* dimension d(u) *)
   | Pstr_exception of extension_constructor
         (* exception C of T
            exception C = M.X *)

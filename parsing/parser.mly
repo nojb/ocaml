@@ -319,6 +319,7 @@ let mkctf_attrs d attrs =
 %token COLONGREATER
 %token COMMA
 %token CONSTRAINT
+%token DIMENSION
 %token DO
 %token DONE
 %token DOT
@@ -484,7 +485,6 @@ The precedences must be listed from low to high.
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LIDENT LPAREN
           NEW NATIVEINT PREFIXOP STRING TRUE UIDENT
           LBRACKETPERCENT LBRACKETPERCENTPERCENT
-
 
 /* Entry points */
 
@@ -657,6 +657,8 @@ structure_item:
       { mkstr(Pstr_type (List.rev $2) ) }
   | TYPE str_type_extension
       { mkstr(Pstr_typext $2) }
+  | DIMENSION dimension_declaration
+      { mkstr(Pstr_dimension $2) }
   | EXCEPTION str_exception_declaration
       { mkstr(Pstr_exception $2) }
   | MODULE module_binding
@@ -744,6 +746,8 @@ signature_item:
       { mksig(Psig_type (List.rev $2)) }
   | TYPE sig_type_extension
       { mksig(Psig_typext $2) }
+  | DIMENSION dimension_declaration
+      { mksig(Psig_dimension $2) }
   | EXCEPTION sig_exception_declaration
       { mksig(Psig_exception $2) }
   | MODULE UIDENT module_declaration post_item_attributes
@@ -1622,7 +1626,7 @@ optional_type_variable:
 ;
 optional_dimension_parameters:
     /* empty */                                 { [] }
-  | LBRACKET dimension_parameter_list RBRACKET  { $2 }
+  | LESS dimension_parameter_list GREATER      { $2 }
 ;
 dimension_parameter_list:
     dimension_parameter                         { [$1] }
@@ -1662,6 +1666,9 @@ constructor_declaration:
        let args,res = $3 in
        Type.constructor (mkrhs $1 1) ~args ?res ~loc:(symbol_rloc()) ~attrs:$2
       }
+;
+dimension_declaration:
+    LIDENT LPAREN LIDENT RPAREN { {pdd_name = mkrhs $1 1; pdd_unit = mkrhs $3 3} }
 ;
 str_exception_declaration:
   | extension_constructor_declaration post_item_attributes
@@ -1827,22 +1834,22 @@ simple_core_type_no_attr:
       { match $2 with [sty] -> sty | _ -> raise Parse_error }
 ;
 
-opt_dim_par:
-    /* empty */                          { [] }
-  | LBRACKET dimension_comma_list RBRACKET     { $2 }
-;
-
 dimension_comma_list:
     dimension                              { [$1] }
   | dimension COMMA dimension_comma_list   { $1 :: $3 }
 ;
 
 dimension:
-    dimension STAR dimension   { mkdim(Pdim_mul ($1, $3)) }
-  | type_longident                  { mkdim(Pdim_ident $1) }
-  | QUOTE ident              { mkdim(Pdim_var $2) }
-  | INT                        { mkdim(Pdim_int $1) }
-  | LPAREN dimension RPAREN    { $2 }
+    dimension STAR dimension
+      { mkdim(Pdim_mul ($1, $3)) }
+  | dimension_longident
+      { mkdim(Pdim_ident $1) }
+  | QUOTE ident
+      { mkdim(Pdim_var $2) }
+  | INT
+      { mkdim(Pdim_int $1) }
+  | LPAREN dimension RPAREN
+      { $2 }
 ;
 
 simple_core_type2:
@@ -1852,10 +1859,16 @@ simple_core_type2:
       { mktyp(Ptyp_any) }
   | type_longident
       { mktyp(Ptyp_constr(mkrhs $1 1, [])) }
-  | simple_core_type2 opt_dim_par type_longident
-      { mktyp(Ptyp_constr(mkrhs $3 3, [$1])) }
-  | LPAREN core_type_comma_list RPAREN opt_dim_par type_longident
-      { mktyp(Ptyp_constr(mkrhs $5 5, List.rev $2)) }
+  | LESS dimension_comma_list GREATER type_longident
+      { mktyp(Ptyp_constr(mkrhs $4 4, [])) }
+  | simple_core_type2 type_longident
+      { mktyp(Ptyp_constr(mkrhs $2 2, [$1])) }
+  | simple_core_type2 LESS dimension_comma_list GREATER type_longident
+      { mktyp(Ptyp_constr(mkrhs $5 5, [$1])) }
+  | LPAREN core_type_comma_list RPAREN type_longident
+      { mktyp(Ptyp_constr(mkrhs $4 4, List.rev $2)) }
+  | LPAREN core_type_comma_list RPAREN LESS dimension_comma_list GREATER type_longident
+      { mktyp(Ptyp_constr(mkrhs $7 7, List.rev $2)) }
   | LESS meth_list GREATER
       { let (f, c) = $2 in mktyp(Ptyp_object (f, c)) }
   | LESS GREATER
@@ -2069,6 +2082,10 @@ label_longident:
 type_longident:
     LIDENT                                      { Lident $1 }
   | mod_ext_longident DOT LIDENT                { Ldot($1, $3) }
+;
+dimension_longident:
+    LIDENT                                      { Lident $1 }
+  | mod_longident DOT LIDENT                    { Ldot($1, $3) }
 ;
 mod_longident:
     UIDENT                                      { Lident $1 }

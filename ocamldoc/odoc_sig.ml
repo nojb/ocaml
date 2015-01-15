@@ -330,6 +330,7 @@ module Analyser =
         | Parsetree.Psig_extension _
         | Parsetree.Psig_value _
         | Parsetree.Psig_typext _
+        | Parsetree.Psig_dimension _
         | Parsetree.Psig_exception _
         | Parsetree.Psig_open _
         | Parsetree.Psig_include _
@@ -699,6 +700,9 @@ module Analyser =
             in
               new_te.te_info <- merge_infos new_te.te_info info_after_opt ;
               (maybe_more + maybe_more2, new_env, [ Element_type_extension new_te ])
+
+        | Parsetree.Psig_dimension _ ->
+            assert false
 
         | Parsetree.Psig_exception ext ->
             let name = ext.Parsetree.pext_name in

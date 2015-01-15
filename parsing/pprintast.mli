@@ -44,6 +44,8 @@ class printer :
       Format.formatter -> Asttypes.direction_flag -> unit
     method directive_argument :
       Format.formatter -> Parsetree.directive_argument -> unit
+    method dimension_declaration :
+      Format.formatter -> Parsetree.dimension_declaration -> unit
     method exception_declaration :
       Format.formatter -> Parsetree.extension_constructor -> unit
     method expression : Format.formatter -> Parsetree.expression -> unit

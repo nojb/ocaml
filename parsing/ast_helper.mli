@@ -61,6 +61,11 @@ module Typ :
 module Dim:
   sig
     val mk: ?loc:loc -> dimension_desc -> dimension
+    val mul: ?loc:loc -> dimension -> dimension -> dimension
+    val exp: ?loc:loc -> dimension -> string -> ratexpr -> dimension
+    val var: ?loc:loc -> string -> dimension
+    val ident: ?loc:loc -> Longident.t -> dimension
+    val int: ?loc:loc -> int -> dimension
   end
 
 (** Patterns *)
@@ -217,6 +222,7 @@ module Sig:
     val value: ?loc:loc -> value_description -> signature_item
     val type_: ?loc:loc -> type_declaration list -> signature_item
     val type_extension: ?loc:loc -> type_extension -> signature_item
+    val dimension: ?loc:loc -> dimension_declaration -> signature_item
     val exception_: ?loc:loc -> extension_constructor -> signature_item
     val module_: ?loc:loc -> module_declaration -> signature_item
     val rec_module: ?loc:loc -> module_declaration list -> signature_item
@@ -239,6 +245,7 @@ module Str:
     val primitive: ?loc:loc -> value_description -> structure_item
     val type_: ?loc:loc -> type_declaration list -> structure_item
     val type_extension: ?loc:loc -> type_extension -> structure_item
+    val dimension: ?loc:loc -> dimension_declaration -> structure_item
     val exception_: ?loc:loc -> extension_constructor -> structure_item
     val module_: ?loc:loc -> module_binding -> structure_item
     val rec_module: ?loc:loc -> module_binding list -> structure_item

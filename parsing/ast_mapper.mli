@@ -66,6 +66,8 @@ type mapper = {
   class_type_field: mapper -> class_type_field -> class_type_field;
   constructor_declaration: mapper -> constructor_declaration
                            -> constructor_declaration;
+  dimension: mapper -> dimension -> dimension;
+  dimension_declaration: mapper -> dimension_declaration -> dimension_declaration;
   expr: mapper -> expression -> expression;
   extension: mapper -> extension -> extension;
   extension_constructor: mapper -> extension_constructor
