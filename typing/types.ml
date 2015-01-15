@@ -67,6 +67,19 @@ and commutable =
   | Cunknown
   | Clink of commutable ref
 
+(* Dimensions *)
+
+and dimension_desc =
+  | Dconst of Path.t * string
+  | Dlink of dimension
+  | Dnolink
+
+and dimension =
+  { mutable dim_desc: dimension_desc;
+    mutable dim_level: int }
+
+and dimension_expr = (dimension * int * int) list
+
 module TypeOps = struct
   type t = type_expr
   let compare t1 t2 = t1.id - t2.id

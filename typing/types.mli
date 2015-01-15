@@ -67,6 +67,20 @@ and commutable =
   | Cunknown
   | Clink of commutable ref
 
+(* Dimensions *)
+
+and dimension_desc =
+  | Dconst of Path.t * string
+  | Dlink of dimension
+  | Dnolink
+
+and dimension =
+  { mutable dim_desc: dimension_desc;
+    mutable dim_level: int }
+
+and dimension_expr = (dimension * int * int) list    (* rational exponents *)
+(* Dimensional variables appear before constant dimensions in the list *)
+
 module TypeOps : sig
   type t = type_expr
   val compare : t -> t -> int
