@@ -1576,7 +1576,7 @@ type_declaration:
     optional_type_parameters optional_dimension_parameters LIDENT type_kind constraints post_item_attributes
       { let (kind, priv, manifest) = $4 in
         Type.mk (mkrhs $3 3)
-          ~params:$1 ~cstrs:(List.rev $5)
+          ~params:$1 ~dim_params:$2 ~cstrs:(List.rev $5)
           ~kind ~priv ?manifest ~attrs:$6 ~loc:(symbol_rloc())
        }
 ;

@@ -395,6 +395,8 @@ and value_description i ppf x =
 
 and type_parameter i ppf (x, _variance) = core_type i ppf x
 
+and dimension_parameter i ppf d = dimension i ppf d
+
 and type_declaration i ppf x =
   line i ppf "type_declaration %a %a\n" fmt_string_loc x.ptype_name
        fmt_location x.ptype_loc;
@@ -402,6 +404,7 @@ and type_declaration i ppf x =
   let i = i+1 in
   line i ppf "ptype_params =\n";
   list (i+1) type_parameter ppf x.ptype_params;
+  list (i+1) dimension_parameter ppf x.ptype_dim_params;
   line i ppf "ptype_cstrs =\n";
   list (i+1) core_type_x_core_type_x_location ppf x.ptype_cstrs;
   line i ppf "ptype_kind =\n";

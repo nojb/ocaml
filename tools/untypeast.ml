@@ -114,6 +114,7 @@ and untype_type_declaration decl =
   {
     ptype_name = decl.typ_name;
     ptype_params = List.map untype_type_parameter decl.typ_params;
+    ptype_dim_params = []; (* FIXME dimen *)
     ptype_cstrs = List.map (fun (ct1, ct2, loc) ->
         (untype_core_type ct1,
           untype_core_type ct2, loc)

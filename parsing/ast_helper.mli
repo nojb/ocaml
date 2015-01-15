@@ -164,7 +164,7 @@ module Val:
 (** Type declarations *)
 module Type:
   sig
-    val mk: ?loc:loc -> ?attrs:attrs -> ?params:(core_type * variance) list -> ?cstrs:(core_type * core_type * loc) list -> ?kind:type_kind -> ?priv:private_flag -> ?manifest:core_type -> str -> type_declaration
+    val mk: ?loc:loc -> ?attrs:attrs -> ?params:(core_type * variance) list -> ?dim_params:dimension list -> ?cstrs:(core_type * core_type * loc) list -> ?kind:type_kind -> ?priv:private_flag -> ?manifest:core_type -> str -> type_declaration
 
     val constructor: ?loc:loc -> ?attrs:attrs -> ?args:constructor_arguments -> ?res:core_type -> str -> constructor_declaration
     val field: ?loc:loc -> ?attrs:attrs -> ?mut:mutable_flag -> str -> core_type -> label_declaration

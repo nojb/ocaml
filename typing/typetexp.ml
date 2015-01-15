@@ -312,6 +312,7 @@ let create_package_mty fake loc env (p, l) =
     (fun mty (s, t) ->
       let d = {ptype_name = mkloc (Longident.last s.txt) s.loc;
                ptype_params = [];
+               ptype_dim_params = [];
                ptype_cstrs = [];
                ptype_kind = Ptype_abstract;
                ptype_private = Asttypes.Public;

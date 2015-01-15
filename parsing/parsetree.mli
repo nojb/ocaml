@@ -376,6 +376,8 @@ and type_declaration =
      ptype_name: string loc;
      ptype_params: (core_type * variance) list;
            (* ('a1,...'an) t; None represents  _*)
+     ptype_dim_params: dimension list;
+           (* <'d1,...'dn> t *)
      ptype_cstrs: (core_type * core_type * Location.t) list;
            (* ... constraint T1=T1'  ... constraint Tn=Tn' *)
      ptype_kind: type_kind;

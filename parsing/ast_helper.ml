@@ -359,6 +359,7 @@ end
 module Type = struct
   let mk ?(loc = !default_loc) ?(attrs = [])
       ?(params = [])
+      ?(dim_params = [])
       ?(cstrs = [])
       ?(kind = Ptype_abstract)
       ?(priv = Public)
@@ -367,6 +368,7 @@ module Type = struct
     {
      ptype_name = name;
      ptype_params = params;
+     ptype_dim_params = dim_params;
      ptype_cstrs = cstrs;
      ptype_kind = kind;
      ptype_private = priv;
