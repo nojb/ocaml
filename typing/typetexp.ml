@@ -436,7 +436,7 @@ let rec transl_type env policy styp =
     let ty1 = cty1.ctyp_type in
     let ty1 =
       if Btype.is_optional l
-      then newty (Tconstr(Predef.path_option,[ty1], ref Mnil))
+      then newty (Tconstr(Predef.path_option,[ty1], assert false, ref Mnil)) (* FIXME dimen *)
       else ty1 in
     let ty = newty (Tarrow(l, ty1, cty2.ctyp_type, Cok)) in
     ctyp (Ttyp_arrow (l, cty1, cty2)) ty
@@ -496,7 +496,7 @@ let rec transl_type env policy styp =
             | Some ty ->
                 match (repr ty).desc with
                   Tvariant row when Btype.static_row row -> ()
-                | Tconstr (path, _, _) ->
+                | Tconstr (path, _, _, _) ->
                     check (Env.find_type path env)
                 | _ -> raise Not_found
           in check decl;
@@ -644,7 +644,7 @@ let rec transl_type env policy styp =
             let ty = cty.ctyp_type in
             let nm =
               match repr cty.ctyp_type with
-                {desc=Tconstr(p, tl, _)} -> Some(p, tl)
+                {desc=Tconstr(p, tl, _, _)} -> assert false; (* FIXME dimen *) Some(p, tl)
               | _                        -> None
             in
             begin try

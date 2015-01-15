@@ -191,8 +191,8 @@ let is_row_name s =
 
 let is_constr_row t =
   match t.desc with
-    Tconstr (Path.Pident id, _, _) -> is_row_name (Ident.name id)
-  | Tconstr (Path.Pdot (_, s, _), _, _) -> is_row_name s
+    Tconstr (Path.Pident id, _, _, _) -> is_row_name (Ident.name id)
+  | Tconstr (Path.Pdot (_, s, _), _, _, _) -> is_row_name s
   | _ -> false
 
 
@@ -219,7 +219,7 @@ let iter_type_expr f ty =
     Tvar _              -> ()
   | Tarrow (_, ty1, ty2, _) -> f ty1; f ty2
   | Ttuple l            -> List.iter f l
-  | Tconstr (_, l, _)   -> List.iter f l
+  | Tconstr (_, l, _, _) -> List.iter f l
   | Tobject(ty, {contents = Some (_, p)})
                         -> f ty; List.iter f p
   | Tobject (ty, _)     -> f ty
@@ -339,7 +339,7 @@ let type_iterators =
   and it_do_type_expr it ty =
     iter_type_expr (it.it_type_expr it) ty;
     match ty.desc with
-      Tconstr (p, _, _)
+      Tconstr (p, _, _, _)
     | Tobject (_, {contents=Some (p, _)})
     | Tpackage (p, _, _) ->
         it.it_path p
@@ -395,7 +395,7 @@ let rec copy_type_desc ?(keep_names=false) f = function
     Tvar _ as ty        -> if keep_names then ty else Tvar None
   | Tarrow (p, ty1, ty2, c)-> Tarrow (p, f ty1, f ty2, copy_commu c)
   | Ttuple l            -> Ttuple (List.map f l)
-  | Tconstr (p, l, _)   -> Tconstr (p, List.map f l, ref Mnil)
+  | Tconstr (p, l, _, _) -> Tconstr (p, List.map f l, assert false, ref Mnil) (* FIXME dimen *)
   | Tobject(ty, {contents = Some (p, tl)})
                         -> Tobject (f ty, ref (Some(p, List.map f tl)))
   | Tobject (ty, _)     -> Tobject (f ty, ref None)

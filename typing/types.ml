@@ -25,7 +25,7 @@ and type_desc =
     Tvar of string option
   | Tarrow of arg_label * type_expr * type_expr * commutable
   | Ttuple of type_expr list
-  | Tconstr of Path.t * type_expr list * abbrev_memo ref
+  | Tconstr of Path.t * type_expr list * dimension_expr list * abbrev_memo ref
   | Tobject of type_expr * (Path.t * type_expr list) option ref
   | Tfield of string * field_kind * type_expr * type_expr
   | Tnil
@@ -150,6 +150,7 @@ end
 
 type type_declaration =
   { type_params: type_expr list;
+    type_dim_params: dimension_expr list;
     type_arity: int;
     type_kind: type_kind;
     type_private: private_flag;

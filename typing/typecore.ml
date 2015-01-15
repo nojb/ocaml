@@ -114,7 +114,7 @@ let rp node =
 
 let is_recarg d =
   match (repr d.val_type).desc with
-  | Tconstr(p, _, _) -> Path.is_constructor_typath p
+  | Tconstr(p, _, _, _) -> Path.is_constructor_typath p
   | _ -> false
 
 type recarg =
@@ -254,18 +254,19 @@ let all_idents_cases el =
 (* Typing of constants *)
 
 let type_constant = function
-    Const_int _ -> instance_def Predef.type_int
+  (* FIXME dimen Const_int 0 -> polymorphic *)
+    Const_int _ -> instance_def (Predef.type_int [])
   | Const_char _ -> instance_def Predef.type_char
   | Const_string _ -> instance_def Predef.type_string
-  | Const_float _ -> instance_def Predef.type_float
-  | Const_int32 _ -> instance_def Predef.type_int32
-  | Const_int64 _ -> instance_def Predef.type_int64
-  | Const_nativeint _ -> instance_def Predef.type_nativeint
+  | Const_float _ -> instance_def (Predef.type_float [])
+  | Const_int32 _ -> instance_def (Predef.type_int32 [])
+  | Const_int64 _ -> instance_def (Predef.type_int64 [])
+  | Const_nativeint _ -> instance_def (Predef.type_nativeint [])
 
 (* Specific version of type_option, using newty rather than newgenty *)
 
 let type_option ty =
-  newty (Tconstr(Predef.path_option,[ty], ref Mnil))
+  newty (Tconstr(Predef.path_option,[ty], [], ref Mnil))
 
 let mkexp exp_desc exp_type exp_loc exp_env =
   { exp_desc; exp_type; exp_loc; exp_env; exp_extra = []; exp_attributes = [] }
@@ -283,8 +284,8 @@ let option_some texp =
     (type_option texp.exp_type) texp.exp_loc texp.exp_env
 
 let extract_option_type env ty =
-  match expand_head env ty with {desc = Tconstr(path, [ty], _)}
-    when Path.same path Predef.path_option -> ty
+  match expand_head env ty with {desc = Tconstr(path, [ty], _, _)}
+    when Path.same path Predef.path_option -> assert false; (* FIXME dimen *) ty
   | _ -> assert false
 
 let extract_concrete_record env ty =
@@ -534,7 +535,8 @@ let build_or_pat env loc lid =
   in
   let tyl = List.map (fun _ -> newvar()) decl.type_params in
   let row0 =
-    let ty = expand_head env (newty(Tconstr(path, tyl, ref Mnil))) in
+    let ty = expand_head env (newty(Tconstr(path, tyl, assert false, ref Mnil))) in
+    assert false; (* FIXME dimen *)
     match ty.desc with
       Tvariant row when static_row row -> row
     | _ -> raise(Error(loc, env, Not_a_variant_type lid))
@@ -587,7 +589,7 @@ let rec expand_path env p =
   match decl with
     Some {type_manifest = Some ty} ->
       begin match repr ty with
-        {desc=Tconstr(p,_,_)} -> expand_path env p
+        {desc=Tconstr(p,_,_,_)} -> expand_path env p
       | _ -> p
          (* PR#6394: recursive module may introduce incoherent manifest *)
       end
@@ -615,7 +617,7 @@ end) = struct
 
   let get_type_path env d =
     match (get_type d).desc with
-    | Tconstr(p, _, _) -> p
+    | Tconstr(p, _, _, _) -> p
     | _ -> assert false
 
   let lookup_from_type env tpath lid =
@@ -904,8 +906,9 @@ end)
 let unify_head_only loc env ty constr =
   let (_, ty_res) = instance_constructor constr in
   match (repr ty_res).desc with
-  | Tconstr(p,args,m) ->
-      ty_res.desc <- Tconstr(p,List.map (fun _ -> newvar ()) args,m);
+  | Tconstr(p,args,_,m) ->
+      assert false; (* FIXME dimen *)
+      ty_res.desc <- Tconstr(p,List.map (fun _ -> newvar ()) args,assert false,m); (* FIXME dimen *)
       enforce_constraints env ty_res;
       unify_pat_types loc env ty ty_res
   | _ -> assert false
@@ -1604,7 +1607,7 @@ let check_application_result env statement exp =
   | Tarrow _ ->
       Location.prerr_warning exp.exp_loc Warnings.Partial_application
   | Tvar _ -> ()
-  | Tconstr (p, _, _) when Path.same p Predef.path_unit -> ()
+  | Tconstr (p, _, _, _) when Path.same p Predef.path_unit -> ()
   | _ ->
       if statement then
         Location.prerr_warning loc Warnings.Statement_type
@@ -1832,7 +1835,7 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
       Path.(Pdot (Pident (Ident.create_persistent "CamlinternalFormatBasics"),
                   "format6", 0)) in
     let is_format = match ty_exp.desc with
-      | Tconstr(path, _, _) when Path.same path fmt6_path ->
+      | Tconstr(path, _, _, _) when Path.same path fmt6_path ->
         if !Clflags.principal && ty_exp.level <> generic_level then
           Location.prerr_warning loc
             (Warnings.Not_principal "this coercion to format6");
@@ -2225,13 +2228,13 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
         exp_attributes = sexp.pexp_attributes;
         exp_env = env }
   | Pexp_for(param, slow, shigh, dir, sbody) ->
-      let low = type_expect env slow Predef.type_int in
-      let high = type_expect env shigh Predef.type_int in
+      let low = type_expect env slow (Predef.type_int []) in
+      let high = type_expect env shigh (Predef.type_int []) in
       let id, new_env =
         match param.ppat_desc with
         | Ppat_any -> Ident.create "_for", env
         | Ppat_var {txt} ->
-            Env.enter_value txt {val_type = instance_def Predef.type_int;
+            Env.enter_value txt {val_type = instance_def (Predef.type_int []);
                                  val_attributes = [];
                                  val_kind = Val_reg; Types.val_loc = loc; } env
               ~check:(fun s -> Warnings.Unused_for_index s)
@@ -2290,7 +2293,7 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
             in
             begin match arg.exp_desc, !self_coercion, (repr ty').desc with
               Texp_ident(_, _, {val_kind=Val_self _}), (path,r) :: _,
-              Tconstr(path',_,_) when Path.same path path' ->
+              Tconstr(path',_,_,_) when Path.same path path' ->
                 (* prerr_endline "self coercion"; *)
                 r := loc :: !r;
                 force ()
@@ -2667,6 +2670,7 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
       let level = get_current_level () in
       let decl = {
         type_params = [];
+        type_dim_params = [];
         type_arity = 0;
         type_kind = Type_abstract;
         type_private = Public;
@@ -2690,7 +2694,7 @@ and type_expect_ ?in_function ?(recarg=Rejected) env sexp ty_expected =
         else begin
           Hashtbl.add seen t.id ();
           match t.desc with
-          | Tconstr (Path.Pident id', _, _) when id == id' -> link_type t ty
+          | Tconstr (Path.Pident id', _, _, _) when id == id' -> link_type t ty
           | _ -> Btype.iter_type_expr replace t
         end
       in
@@ -3465,7 +3469,7 @@ and type_statement env sexp =
   begin match ty.desc with
   | Tarrow _ ->
       Location.prerr_warning loc Warnings.Partial_application
-  | Tconstr (p, _, _) when Path.same p Predef.path_unit -> ()
+  | Tconstr (p, _, _, _) when Path.same p Predef.path_unit -> ()
   | Tvar _ when ty.level > tv.level ->
       Location.prerr_warning loc Warnings.Nonreturning_statement
   | Tvar _ ->

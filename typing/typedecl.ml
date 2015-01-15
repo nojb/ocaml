@@ -57,6 +57,7 @@ let enter_type env sdecl id =
   let decl =
     { type_params =
         List.map (fun _ -> Btype.newgenvar ()) sdecl.ptype_params;
+      type_dim_params = assert false; (* FIXME dimen *)
       type_arity = List.length sdecl.ptype_params;
       type_kind = Type_abstract;
       type_private = sdecl.ptype_private;
@@ -86,7 +87,7 @@ let update_type temp_env env id loc =
    to the manifest type of private abbreviations. *)
 let is_float env ty =
   match Ctype.repr (Ctype.expand_head_opt env ty) with
-    {desc = Tconstr(p, _, _)} -> Path.same p Predef.path_float
+    {desc = Tconstr(p, _, _, _)} -> Path.same p Predef.path_float
   | _ -> false
 
 (* Determine if a type definition defines a fixed type. (PW) *)
@@ -128,7 +129,7 @@ let set_fixed_row env loc p decl =
   in
   if not (Btype.is_Tvar rv) then
     raise (Error (loc, Bad_fixed_type "has no row variable"));
-  rv.desc <- Tconstr (p, decl.type_params, ref Mnil)
+  rv.desc <- Tconstr (p, decl.type_params, decl.type_dim_params, ref Mnil)
 
 (* Translate one type declaration *)
 
@@ -208,7 +209,7 @@ let make_constructor loc env type_path type_params sargs sret_type =
       let ret_type = tret_type.ctyp_type in
       begin
         match (Ctype.repr ret_type).desc with
-          Tconstr (p', _, _) when Path.same type_path p' -> ()
+          Tconstr (p', _, _, _) when Path.same type_path p' -> ()
         | _ ->
             raise (Error (sret_type.ptyp_loc, Constraint_failed
                             (ret_type, Ctype.newconstr type_path type_params)))
@@ -290,6 +291,7 @@ let transl_declaration env sdecl id =
     in
     let decl =
       { type_params = params;
+        type_dim_params = assert false; (* FIXME dimen *)
         type_arity = List.length params;
         type_kind = kind;
         type_private = sdecl.ptype_private;
@@ -355,7 +357,8 @@ let rec check_constraints_rec env loc visited ty =
   if TypeSet.mem ty !visited then () else begin
   visited := TypeSet.add ty !visited;
   match ty.desc with
-  | Tconstr (path, args, _) ->
+  | Tconstr (path, args, _, _) ->
+      assert false; (* FIXME dimen *)
       let args' = List.map (fun _ -> Ctype.newvar ()) args in
       let ty' = Ctype.newconstr path args' in
       begin try Ctype.enforce_constraints env ty'
@@ -451,7 +454,8 @@ let check_coherence env loc id decl =
     { type_kind = (Type_variant _ | Type_record _| Type_open);
       type_manifest = Some ty } ->
       begin match (Ctype.repr ty).desc with
-        Tconstr(path, args, _) ->
+        Tconstr(path, args, _, _) ->
+          assert false; (* FIXME dimen *)
           begin try
             let decl' = Env.find_type path env in
             let err =
@@ -488,7 +492,7 @@ let check_well_founded env loc path to_check ty =
     if TypeSet.mem ty exp_nodes then begin
       (*Format.eprintf "@[%a@]@." Printtyp.raw_type_expr ty;*)
       if match ty0.desc with
-      | Tconstr (p, _, _) -> Path.same p path
+      | Tconstr (p, _, _, _) -> Path.same p path
       | _ -> false
       then raise (Error (loc, Recursive_abbrev (Path.name path)))
       else raise (Error (loc, Cycle_in_def (Path.name path, ty0)))
@@ -505,8 +509,9 @@ let check_well_founded env loc path to_check ty =
     if fini then () else try
       visited := TypeMap.add ty exp_nodes !visited;
       match ty.desc with
-      | Tconstr(p, args, _)
+      | Tconstr(p, args, _, _)
         when not (TypeSet.is_empty exp_nodes) || to_check p ->
+          assert false; (* FIXME dimen *)
           let ty' = Ctype.try_expand_once_opt env ty in
           let ty0 = if TypeSet.is_empty exp_nodes then ty else ty0 in
           check ty0 (TypeSet.add ty exp_nodes) ty'
@@ -552,7 +557,9 @@ let check_recursion env loc path decl to_check =
     if not (List.memq ty !visited) then begin
       visited := ty :: !visited;
       match ty.desc with
-      | Tconstr(path', args', _) ->
+      | Tconstr(path', args', _, _) ->
+          assert false;
+          (* FIXME dimen *)
           if Path.same path path' then begin
             if not (Ctype.equal env false args args') then
               raise (Error(loc,
@@ -626,7 +633,8 @@ let compute_variance env visited vari ty =
         compute_same ty2
     | Ttuple tl ->
         List.iter compute_same tl
-    | Tconstr (path, tl, _) ->
+    | Tconstr (path, tl, _, _) ->
+        assert false; (* FIXME dimen *)
         let open Variance in
         if tl = [] then () else begin
           try
@@ -804,7 +812,8 @@ let compute_variance_gadt env check (required, loc as rloc) decl
         (for_constr tl)
   | Some ret_type ->
       match Ctype.repr ret_type with
-      | {desc=Tconstr (_, tyl, _)} ->
+      | {desc=Tconstr (_, tyl, _, _)} ->
+          assert false; (* FIXME dimen *)
           (* let tyl = List.map (Ctype.expand_head env) tyl in *)
           let tyl = List.map Ctype.repr tyl in
           let fvl = List.map (Ctype.free_variables ?env:None) tyl in
@@ -979,7 +988,7 @@ let name_recursion sdecl id decl =
     let ty = Ctype.repr ty in
     let ty' = Btype.newty2 ty.level ty.desc in
     if Ctype.deep_occur ty ty' then
-      let td = Tconstr(Path.Pident id, decl.type_params, ref Mnil) in
+      let td = Tconstr(Path.Pident id, decl.type_params, decl.type_dim_params, ref Mnil) in
       Btype.link_type ty (Btype.newty2 ty.level td);
       {decl with type_manifest = Some ty'}
     else decl
@@ -1164,19 +1173,19 @@ let transl_extension_constructor env type_path type_params
         (* Ensure that constructor's type matches the type being extended *)
         let cstr_type_path, cstr_type_params =
           match cdescr.cstr_res.desc with
-            Tconstr (p, _, _) ->
+            Tconstr (p, _, _, _) ->
               let decl = Env.find_type p env in
                 p, decl.type_params
           | _ -> assert false
         in
         let cstr_types =
           (Btype.newgenty
-             (Tconstr(cstr_type_path, cstr_type_params, ref Mnil)))
+             (Tconstr(cstr_type_path, cstr_type_params, assert false, ref Mnil))) (* FIXME dimen *)
           :: cstr_type_params
         in
         let ext_types =
           (Btype.newgenty
-             (Tconstr(type_path, type_params, ref Mnil)))
+             (Tconstr(type_path, type_params, assert false, ref Mnil))) (* FIXME dimen *)
           :: type_params
         in
         if not (Ctype.equal env true cstr_types ext_types) then
@@ -1201,7 +1210,7 @@ let transl_extension_constructor env type_path type_params
           | Some decl ->
               let tl =
                 match args with
-                | [ {desc=Tconstr(_, tl, _)} ] -> tl
+                | [ {desc=Tconstr(_, tl, _, _)} ] -> assert false; (* FIXME dimen *) tl
                 | _ -> assert false
               in
               let decl = Ctype.instance_declaration decl in
@@ -1423,6 +1432,7 @@ let transl_with_constraint env id row_path orig_decl sdecl =
       (Warnings.Deprecated "spurious use of private");
   let decl =
     { type_params = params;
+      type_dim_params = assert false; (* FIXME dimen *)
       type_arity = List.length params;
       type_kind =
         if arity_ok && man <> None then orig_decl.type_kind else Type_abstract;
@@ -1468,6 +1478,7 @@ let abstract_type_decl arity =
   Ctype.begin_def();
   let decl =
     { type_params = make_params arity;
+      type_dim_params = assert false; (* FIXME dimen *)
       type_arity = arity;
       type_kind = Type_abstract;
       type_private = Public;

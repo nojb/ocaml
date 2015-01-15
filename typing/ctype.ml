@@ -190,7 +190,8 @@ let new_global_var ?name () = newty2 !global_level (Tvar name)
 
 let newobj fields      = newty (Tobject (fields, ref None))
 
-let newconstr path tyl = newty (Tconstr (path, tyl, ref Mnil))
+let newconstr path tyl = newty (Tconstr (path, tyl, assert false, ref Mnil))
+(* FIXME dimen *)
 
 let none = newty (Ttuple [])                (* Clearly ill-formed type *)
 
@@ -377,7 +378,7 @@ let set_object_name id rv params ty =
 let remove_object_name ty =
   match (repr ty).desc with
     Tobject (_, nm)   -> set_name nm None
-  | Tconstr (_, _, _) -> ()
+  | Tconstr (_, _, _, _) -> ()
   | _                 -> fatal_error "Ctype.remove_object_name"
 
 (**** Hiding of private methods ****)
@@ -498,7 +499,8 @@ let rec free_vars_rec real ty =
     begin match ty.desc, !really_closed with
       Tvar _, _ ->
         free_variables := (ty, real) :: !free_variables
-    | Tconstr (path, tl, _), Some env ->
+    | Tconstr (path, tl, _, _), Some env ->
+        assert false (* FIXME dimen *);
         begin try
           let (_, body, _) = Env.find_type_expansion path env in
           if (repr body).level <> generic_level then
@@ -657,7 +659,7 @@ let rec iter_generalize tyl ty =
   if (ty.level > !current_level) && (ty.level <> generic_level) then begin
     set_level ty generic_level;
     begin match ty.desc with
-      Tconstr (_, _, abbrev) ->
+      Tconstr (_, _, _, abbrev) ->
         iter_abbrev (iter_generalize tyl) !abbrev
     | _ -> ()
     end;
@@ -689,7 +691,7 @@ let rec generalize_structure var_level ty =
     else if
       ty.level > !current_level &&
       match ty.desc with
-        Tconstr (p, _, abbrev) ->
+        Tconstr (p, _, _, abbrev) ->
           not (is_object_type p) && (abbrev := Mnil; true)
       | _ -> true
     then begin
@@ -719,7 +721,8 @@ let rec generalize_spine ty =
   | Tpackage (_, _, tyl) ->
       set_level ty generic_level;
       List.iter generalize_spine tyl
-  | Tconstr (p, tyl, memo) when not (is_object_type p) ->
+  | Tconstr (p, tyl, _, memo) when not (is_object_type p) ->
+      assert false ; (* FIXME dimen *)
       set_level ty generic_level;
       memo := Mnil;
       List.iter generalize_spine tyl
@@ -767,7 +770,8 @@ let rec update_level env level ty =
     | None -> ()
     end;
     match ty.desc with
-      Tconstr(p, tl, abbrev) when level < get_level env p ->
+      Tconstr(p, tl, _, abbrev) when level < get_level env p ->
+        assert false ; (* FIXME dimen *)
         (* Try first to replace an abbreviation by its expansion. *)
         begin try
           (* if is_newtype env p then raise Cannot_expand; *)
@@ -818,7 +822,8 @@ let rec generalize_expansive env var_level ty =
     if ty.level > var_level then begin
       set_level ty generic_level;
       match ty.desc with
-        Tconstr (path, tyl, abbrev) ->
+        Tconstr (path, tyl, _, abbrev) ->
+          assert false; (* FIXME dimen *)
           let variance =
             try (Env.find_type path env).type_variance
             with Not_found -> List.map (fun _ -> Variance.may_inv) tyl in
@@ -1006,7 +1011,8 @@ let rec copy ?env ?partial ?keep_names ty =
     ty.desc <- Tsubst t;
     t.desc <-
       begin match desc with
-      | Tconstr (p, tl, _) ->
+      | Tconstr (p, tl, _, _) ->
+          assert false ; (* FIXME dimen *)
           let abbrevs = proper_abbrevs p tl !abbreviations in
           begin match find_repr p !abbrevs with
             Some ty when repr ty != t -> (* XXX Commentaire... *)
@@ -1021,7 +1027,7 @@ let rec copy ?env ?partial ?keep_names ty =
              ation can be released by changing the content of just
              one reference.
           *)
-              Tconstr (p, List.map copy tl,
+              Tconstr (p, List.map copy tl, assert false, (* FIXME dimen *)
                        ref (match !(!abbreviations) with
                               Mcons _ -> Mlink !abbreviations
                             | abbrev  -> abbrev))
@@ -1140,6 +1146,7 @@ let get_new_abstract_name s =
 let new_declaration newtype manifest =
   {
     type_params = [];
+    type_dim_params = [];
     type_arity = 0;
     type_kind = Type_abstract;
     type_private = Public;
@@ -1164,7 +1171,7 @@ let instance_constructor ?in_pattern cstr =
         let (id, new_env) =
           Env.enter_type (get_new_abstract_name name) decl !env in
         env := new_env;
-        let to_unify = newty (Tconstr (Path.Pident id,[],ref Mnil)) in
+        let to_unify = newty (Tconstr (Path.Pident id,[],[],ref Mnil)) in
         let tv = copy existential in
         assert (is_Tvar tv);
         link_type tv to_unify
@@ -1344,7 +1351,8 @@ let subst env level priv abbrev ty params args body =
     let body0 = newvar () in          (* Stub *)
     begin match ty with
       None      -> ()
-    | Some ({desc = Tconstr (path, tl, _)} as ty) ->
+    | Some ({desc = Tconstr (path, tl, _, _)} as ty) ->
+        assert false (* FIXME dimen *);
         let abbrev = proper_abbrevs path tl abbrev in
         memorize_abbrev abbrev priv path ty body0
     | _ ->
@@ -1415,7 +1423,8 @@ let check_abbrev_env env =
 let expand_abbrev_gen kind find_type_expansion env ty =
   check_abbrev_env env;
   match ty with
-    {desc = Tconstr (path, args, abbrev); level = level} ->
+    {desc = Tconstr (path, args, _, abbrev); level = level} ->
+      assert false ; (* FIXME dimen *)
       let lookup_abbrev = proper_abbrevs path args abbrev in
       begin match find_expans kind path !lookup_abbrev with
         Some ty ->
@@ -1481,7 +1490,7 @@ let safe_abbrev env ty =
 let try_expand_once env ty =
   let ty = repr ty in
   match ty.desc with
-    Tconstr (p, _, _) -> repr (expand_abbrev env ty)
+    Tconstr (p, _, _, _) -> repr (expand_abbrev env ty)
   | _ -> raise Cannot_expand
 
 (* This one only raises Cannot_expand *)
@@ -1521,7 +1530,7 @@ let _ = forward_try_expand_once := try_expand_safe
 let rec extract_concrete_typedecl env ty =
   let ty = repr ty in
   match ty.desc with
-    Tconstr (p, _, _) ->
+    Tconstr (p, _, _, _) ->
       let decl = Env.find_type p env in
       if decl.type_kind <> Type_abstract then (p, p, decl) else
       let ty =
@@ -1566,7 +1575,7 @@ let expand_head_opt env ty =
    respect the type constraints *)
 let enforce_constraints env ty =
   match ty with
-    {desc = Tconstr (path, args, abbrev); level = level} ->
+    {desc = Tconstr (path, args, _, abbrev); level = level} ->
       begin try
         let decl = Env.find_type path env in
         ignore
@@ -1612,7 +1621,7 @@ let generic_private_abbrev env path =
 
 let is_contractive env ty =
   match (repr ty).desc with
-    Tconstr (p, _, _) ->
+    Tconstr (p, _, _, _) ->
       in_pervasives p ||
       (try is_datatype (Env.find_type p env) with Not_found -> false)
   | _ -> true
@@ -1672,7 +1681,8 @@ exception Occur
 let rec occur_rec env visited ty0 ty =
   if ty == ty0  then raise Occur;
   match ty.desc with
-    Tconstr(p, tl, abbrev) ->
+    Tconstr(p, tl, _, abbrev) ->
+      assert false; (* FIXME dimen *)
       begin try
         if List.memq ty visited || !Clflags.recursive_types then raise Occur;
         iter_type_expr (occur_rec env (ty::visited) ty0) ty
@@ -1785,8 +1795,9 @@ let occur_univar env ty =
       | Tpoly (ty, tyl) ->
           let bound = List.fold_right TypeSet.add (List.map repr tyl) bound in
           occur_rec bound  ty
-      | Tconstr (_, [], _) -> ()
-      | Tconstr (p, tl, _) ->
+      | Tconstr (_, [], _, _) -> assert false; (* FIXME dimen *) ()
+      | Tconstr (p, tl, _, _) ->
+          assert false; (* FIXME dimen *)
           begin try
             let td = Env.find_type p env in
             List.iter2
@@ -1834,8 +1845,8 @@ let univars_escape env univar_pairs vl ty =
           else occur t
       | Tunivar _ ->
           if TypeSet.mem t family then raise Occur
-      | Tconstr (_, [], _) -> ()
-      | Tconstr (p, tl, _) ->
+      | Tconstr (_, [], _, _) -> assert false; () (* FIXME dimen *)
+      | Tconstr (p, tl, _, _) -> (* FIXME dimen *) assert false;
           begin try
             let td = Env.find_type p env in
             List.iter2
@@ -1961,7 +1972,7 @@ let reify env t =
     let decl = new_declaration (Some (newtype_level, newtype_level)) None in
     let name = get_new_abstract_name name in
     let (id, new_env) = Env.enter_type name decl !env in
-    let t = newty2 lev (Tconstr (Path.Pident id,[],ref Mnil))  in
+    let t = newty2 lev (Tconstr (Path.Pident id,[],[],ref Mnil))  in
     env := new_env;
     t
   in
@@ -1990,7 +2001,7 @@ let reify env t =
             | _ -> assert false
           end;
           iter_row iterator r
-      | Tconstr (p, _, _) when is_object_type p ->
+      | Tconstr (p, _, _, _) when is_object_type p ->
           iter_type_expr iterator (full_expand !env ty)
       | _ ->
           iter_type_expr iterator ty
@@ -2014,7 +2025,7 @@ let non_aliasable p decl =
 let rec expands_to_datatype env ty =
   let ty = repr ty in
   match ty.desc with
-    Tconstr (p, _, _) ->
+    Tconstr (p, _, _, _) ->
       begin try
         is_datatype (Env.find_type p env) ||
         expands_to_datatype env (try_expand_once env ty)
@@ -2039,7 +2050,8 @@ let rec mcomp type_pairs env t1 t2 =
   | (Tvar _, _)
   | (_, Tvar _)  ->
       ()
-  | (Tconstr (p1, [], _), Tconstr (p2, [], _)) when Path.same p1 p2 ->
+  | (Tconstr (p1, [], _, _), Tconstr (p2, [], _, _)) when Path.same p1 p2 ->
+      assert false; (* FIXME dimen *)
       ()
   | _ ->
       let t1' = expand_head_opt env t1 in
@@ -2058,9 +2070,10 @@ let rec mcomp type_pairs env t1 t2 =
             mcomp type_pairs env u1 u2;
         | (Ttuple tl1, Ttuple tl2) ->
             mcomp_list type_pairs env tl1 tl2
-        | (Tconstr (p1, tl1, _), Tconstr (p2, tl2, _)) ->
+        | (Tconstr (p1, tl1, _, _), Tconstr (p2, tl2, _, _)) ->
+            assert false; (* FIXME dimen *)
             mcomp_type_decl type_pairs env p1 p2 tl1 tl2
-        | (Tconstr (p, _, _), _) | (_, Tconstr (p, _, _)) ->
+        | (Tconstr (p, _, _, _), _) | (_, Tconstr (p, _, _, _)) ->
             begin try
               let decl = Env.find_type p env in
               if non_aliasable p decl then raise (Unify [])
@@ -2350,18 +2363,20 @@ let rec unify (env:Env.t ref) t1 t2 =
         unify_univar t1 t2 !univar_pairs;
         update_level !env t1.level t2;
         link_type t1 t2
-    | (Tconstr (p1, [], a1), Tconstr (p2, [], a2))
+    | (Tconstr (p1, [], _, a1), Tconstr (p2, [], _, a2))
           when Path.same p1 p2 (* && actual_mode !env = Old *)
             (* This optimization assumes that t1 does not expand to t2
                (and conversely), so we fall back to the general case
                when any of the types has a cached expansion. *)
             && not (has_cached_expansion p1 !a1
                  || has_cached_expansion p2 !a2) ->
+        assert false ; (* FIXME dimen *)
         update_level !env t1.level t2;
         link_type t1 t2
-    | (Tconstr (p1, [], _), Tconstr (p2, [], _))
+    | (Tconstr (p1, [], _, _), Tconstr (p2, [], _, _))
       when Env.has_local_constraints !env
       && is_newtype !env p1 && is_newtype !env p2 ->
+        assert false ; (* FIXME dimen *)
         (* Do not use local constraints more than necessary *)
         begin try
           if find_newtype_level !env p1 < find_newtype_level !env p2 then
@@ -2408,8 +2423,8 @@ and unify2 env t1 t2 =
     && (find_lowest_level t1' < lv || find_lowest_level t2' < lv) then
       (* Expand abbreviations hiding a lower level *)
       (* Should also do it for parameterized types, after unification... *)
-      (match t1.desc with Tconstr (_, [], _) -> t1' | _ -> t1),
-      (match t2.desc with Tconstr (_, [], _) -> t2' | _ -> t2)
+      (match t1.desc with Tconstr (_, [], _, _) -> assert false ; (* FIXME dimen *) t1' | _ -> t1),
+      (match t2.desc with Tconstr (_, [], _, _) -> assert false ; (* FIXME dimen *) t2' | _ -> t2)
     else (t1, t2)
   in
   if unify_eq !env t1 t1' || not (unify_eq !env t2 t2') then
@@ -2458,7 +2473,8 @@ and unify3 env t1 t1' t2 t2' =
           end
       | (Ttuple tl1, Ttuple tl2) ->
           unify_list env tl1 tl2
-      | (Tconstr (p1, tl1, _), Tconstr (p2, tl2, _)) when Path.same p1 p2 ->
+      | (Tconstr (p1, tl1, _, _), Tconstr (p2, tl2, _, _)) when Path.same p1 p2 ->
+          assert false (* FIXME dimen *);
           if !umode = Expression || not !generate_equations then
             unify_list env tl1 tl2
           else if !assume_injective then
@@ -2484,26 +2500,29 @@ and unify3 env t1 t1' t2 t2' =
                       reify env t1; reify env t2
                   end)
               inj (List.combine tl1 tl2)
-      | (Tconstr ((Path.Pident p) as path,[],_),
-         Tconstr ((Path.Pident p') as path',[],_))
+      | (Tconstr ((Path.Pident p) as path,[],_,_),
+         Tconstr ((Path.Pident p') as path',[],_,_))
         when is_newtype !env path && is_newtype !env path'
         && !generate_equations ->
+          assert false; (* FIXME diemn *)
           let source,destination =
             if find_newtype_level !env path > find_newtype_level !env path'
             then  p,t2'
             else  p',t1'
           in add_gadt_equation env source destination
-      | (Tconstr ((Path.Pident p) as path,[],_), _)
+      | (Tconstr ((Path.Pident p) as path,[],_,_), _)
         when is_newtype !env path && !generate_equations ->
+          assert false; (* FIXME dimen *)
           reify env t2';
           (* local_non_recursive_abbrev !env (Path.Pident p) t2'; *)
           add_gadt_equation env p t2'
-      | (_, Tconstr ((Path.Pident p) as path,[],_))
+      | (_, Tconstr ((Path.Pident p) as path,[],_,_))
         when is_newtype !env path && !generate_equations ->
+          assert false; (* FIXME dimen *)
           reify env t1' ;
           (* local_non_recursive_abbrev !env (Path.Pident p) t1'; *)
           add_gadt_equation env p t1'
-      | (Tconstr (_,_,_), _) | (_, Tconstr (_,_,_)) when !umode = Pattern ->
+      | (Tconstr (_,_,_,_), _) | (_, Tconstr (_,_,_,_)) when !umode = Pattern ->
           reify env t1';
           reify env t2';
           if !generate_equations then mcomp !env t1' t2'
@@ -2559,7 +2578,8 @@ and unify3 env t1 t1' t2 t2' =
       (* XXX Commentaires + changer "create_recursion" *)
       if create_recursion then
         match t2.desc with
-          Tconstr (p, tl, abbrev) ->
+          Tconstr (p, tl, _, abbrev) ->
+            assert false; (* FIXME dimen *)
             forget_abbrev abbrev p;
             let t2'' = expand_head_unif !env t2 in
             if not (closed_parameterized_type tl t2'') then
@@ -2954,7 +2974,8 @@ let rec moregen inst_nongen type_pairs env t1 t2 =
         moregen_occur env t1.level t2;
         occur env t1 t2;
         link_type t1 t2
-    | (Tconstr (p1, [], _), Tconstr (p2, [], _)) when Path.same p1 p2 ->
+    | (Tconstr (p1, [], _, _), Tconstr (p2, [], _, _)) when Path.same p1 p2 ->
+        assert false; (* FIXME dimen *)
         ()
     | _ ->
         let t1' = expand_head env t1 in
@@ -2976,8 +2997,9 @@ let rec moregen inst_nongen type_pairs env t1 t2 =
               moregen inst_nongen type_pairs env u1 u2
           | (Ttuple tl1, Ttuple tl2) ->
               moregen_list inst_nongen type_pairs env tl1 tl2
-          | (Tconstr (p1, tl1, _), Tconstr (p2, tl2, _))
+          | (Tconstr (p1, tl1, _, _), Tconstr (p2, tl2, _, _))
                 when Path.same p1 p2 ->
+              assert false; (* FIXME dimen *)
               moregen_list inst_nongen type_pairs env tl1 tl2
           | (Tpackage (p1, n1, tl1), Tpackage (p2, n2, tl2)) ->
               begin try
@@ -3219,7 +3241,8 @@ let rec eqtype rename type_pairs subst env t1 t2 =
           if List.exists (fun (_, t) -> t == t2) !subst then raise (Unify []);
           subst := (t1, t2) :: !subst
         end
-    | (Tconstr (p1, [], _), Tconstr (p2, [], _)) when Path.same p1 p2 ->
+    | (Tconstr (p1, [], _, _), Tconstr (p2, [], _, _)) when Path.same p1 p2 ->
+        assert false; (* FIXME dimen *)
         ()
     | _ ->
         let t1' = expand_head_rigid env t1 in
@@ -3247,8 +3270,9 @@ let rec eqtype rename type_pairs subst env t1 t2 =
               eqtype rename type_pairs subst env u1 u2;
           | (Ttuple tl1, Ttuple tl2) ->
               eqtype_list rename type_pairs subst env tl1 tl2
-          | (Tconstr (p1, tl1, _), Tconstr (p2, tl2, _))
+          | (Tconstr (p1, tl1, _, _), Tconstr (p2, tl2, _, _))
                 when Path.same p1 p2 ->
+              assert false (* FIXME dimen *);
               eqtype_list rename type_pairs subst env tl1 tl2
           | (Tpackage (p1, n1, tl1), Tpackage (p2, n2, tl2)) ->
               begin try
@@ -3747,9 +3771,10 @@ let rec build_subtype env visited loops posi level t =
       let c = collect tlist' in
       if c > Unchanged then (newty (Ttuple (List.map fst tlist')), c)
       else (t, Unchanged)
-  | Tconstr(p, tl, abbrev)
+  | Tconstr(p, tl, _, abbrev)
     when level > 0 && generic_abbrev env p && safe_abbrev env t
     && not (has_constr_row' env t) ->
+      assert false ; (* FIXME dimen *)
       let t' = repr (expand_abbrev env t) in
       let level' = pred_expand level in
       begin try match t'.desc with
@@ -3787,9 +3812,10 @@ let rec build_subtype env visited loops posi level t =
         if c > Unchanged then (t'',c)
         else (t, Unchanged)
       end
-  | Tconstr(p, tl, abbrev) ->
+  | Tconstr(p, tl, _, abbrev) ->
       (* Must check recursion on constructors, since we do not always
          expand them *)
+      assert false; (* FIXME dimen *)
       if memq_warn t visited then (t, Unchanged) else
       let visited = t :: visited in
       begin try
@@ -3941,15 +3967,19 @@ let rec subtype_rec env trace t1 t2 cstrs =
         subtype_rec env ((u1, u2)::trace) u1 u2 cstrs
     | (Ttuple tl1, Ttuple tl2) ->
         subtype_list env trace tl1 tl2 cstrs
-    | (Tconstr(p1, [], _), Tconstr(p2, [], _)) when Path.same p1 p2 ->
+    | (Tconstr(p1, [], _, _), Tconstr(p2, [], _, _)) when Path.same p1 p2 ->
+        assert false; (* FIXME dimen *)
         cstrs
-    | (Tconstr(p1, tl1, abbrev1), _)
+    | (Tconstr(p1, tl1, _, abbrev1), _)
       when generic_abbrev env p1 && safe_abbrev env t1 ->
+        assert false; (* FIXME dimen *)
         subtype_rec env trace (expand_abbrev env t1) t2 cstrs
-    | (_, Tconstr(p2, tl2, abbrev2))
+    | (_, Tconstr(p2, tl2, _, abbrev2))
       when generic_abbrev env p2 && safe_abbrev env t2 ->
+        assert false; (* FIXME dimen *)
         subtype_rec env trace t1 (expand_abbrev env t2) cstrs
-    | (Tconstr(p1, tl1, _), Tconstr(p2, tl2, _)) when Path.same p1 p2 ->
+    | (Tconstr(p1, tl1, _, _), Tconstr(p2, tl2, _, _)) when Path.same p1 p2 ->
+        assert false; (* FIXME dimen *)
         begin try
           let decl = Env.find_type p1 env in
           List.fold_left2
@@ -3967,7 +3997,7 @@ let rec subtype_rec env trace t1 t2 cstrs =
         with Not_found ->
           (trace, t1, t2, !univar_pairs)::cstrs
         end
-    | (Tconstr(p1, _, _), _) when generic_private_abbrev env p1 ->
+    | (Tconstr(p1, _, _, _), _) when generic_private_abbrev env p1 ->
         subtype_rec env trace (expand_abbrev_opt env t1) t2 cstrs
 (*  | (_, Tconstr(p2, _, _)) when generic_private_abbrev false env p2 ->
         subtype_rec env trace t1 (expand_abbrev_opt env t2) cstrs *)
@@ -4067,7 +4097,7 @@ and subtype_row env trace row1 row2 cstrs =
   let more1 = repr row1.row_more
   and more2 = repr row2.row_more in
   match more1.desc, more2.desc with
-    Tconstr(p1,_,_), Tconstr(p2,_,_) when Path.same p1 p2 ->
+    Tconstr(p1,_,_,_), Tconstr(p2,_,_,_) when Path.same p1 p2 ->
       subtype_rec env ((more1,more2)::trace) more1 more2 cstrs
   | (Tvar _|Tconstr _|Tnil), (Tvar _|Tconstr _|Tnil)
     when row1.row_closed && r1 = [] ->
@@ -4162,7 +4192,8 @@ let cyclic_abbrev env id ty =
   let rec check_cycle seen ty =
     let ty = repr ty in
     match ty.desc with
-      Tconstr (p, tl, abbrev) ->
+      Tconstr (p, tl, _, abbrev) ->
+        assert false; (* FIXME dimen *)
         p = Path.Pident id || List.memq ty seen ||
         begin try
           check_cycle (ty :: seen) (expand_abbrev_opt env ty)
@@ -4216,7 +4247,8 @@ let rec normalize_type_rec env visited ty =
             | Tvar _ | Tunivar _ ->
                 if v' != v then set_name nm (Some (n, v' :: l))
             | Tnil ->
-                log_type ty; ty.desc <- Tconstr (n, l, ref Mnil)
+                log_type ty; ty.desc <- Tconstr (n, l, [], ref Mnil);
+                assert false; (* FIXME dimen *)
             | _ -> set_name nm None
             end
         | _ ->
@@ -4263,7 +4295,8 @@ let rec nondep_type_rec env id ty =
     TypeHash.add nondep_hash ty ty';
     ty'.desc <-
       begin match ty.desc with
-      | Tconstr(p, tl, abbrev) ->
+      | Tconstr(p, tl, _, abbrev) ->
+          assert false; (* FIXME dimen *)
           if Path.isfree id p then
             begin try
               Tlink (nondep_type_rec env id
@@ -4277,8 +4310,10 @@ let rec nondep_type_rec env id ty =
             with Cannot_expand | Unify _ ->
               raise Not_found
             end
-          else
-            Tconstr(p, List.map (nondep_type_rec env id) tl, ref Mnil)
+          else begin
+            assert false; (* FIXME dimen *)
+            Tconstr(p, List.map (nondep_type_rec env id) tl, [], ref Mnil)
+          end
       | Tpackage(p, nl, tl) when Path.isfree id p ->
           let p' = normalize_package_path env p in
           if Path.isfree id p' then raise Not_found;
@@ -4334,7 +4369,8 @@ let unroll_abbrev id tl ty =
     ty
   else
     let ty' = newty2 ty.level ty.desc in
-    link_type ty (newty2 ty.level (Tconstr (path, tl, ref Mnil)));
+    link_type ty (newty2 ty.level (Tconstr (path, tl, [], ref Mnil)));
+    assert false; (* FIXME dimen *)
     ty'
 
 (* Preserve sharing inside type declarations. *)
@@ -4359,6 +4395,7 @@ let nondep_type_decl env mid id is_covariant decl =
       | _ -> decl.type_private
     in
     { type_params = params;
+      type_dim_params = assert false; (* FIXME dimen *)
       type_arity = decl.type_arity;
       type_kind = tk;
       type_manifest = tm;
@@ -4379,11 +4416,12 @@ let nondep_extension_constructor env mid ext =
       if Path.isfree mid ext.ext_type_path then
         begin
           let ty =
-            newgenty (Tconstr(ext.ext_type_path, ext.ext_type_params, ref Mnil))
+            newgenty (Tconstr(ext.ext_type_path, ext.ext_type_params, [], ref Mnil))
           in
+          assert false; (* FIXME dimen *)
           let ty' = nondep_type_rec env mid ty in
             match (repr ty').desc with
-                Tconstr(p, tl, _) -> p, tl
+                Tconstr(p, tl, _, _) -> assert false; (* FIXME dimen *) p, tl
               | _ -> raise Not_found
         end
       else

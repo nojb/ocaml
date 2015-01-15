@@ -160,6 +160,7 @@ let merge_constraint initial_env loc sg constr =
         let decl_row =
           { type_params =
               List.map (fun _ -> Btype.newgenvar()) sdecl.ptype_params;
+            type_dim_params = assert false; (* FIXME dimen *)
             type_arity = List.length sdecl.ptype_params;
             type_kind = Type_abstract;
             type_private = Private;
@@ -1524,7 +1525,7 @@ let type_package env m p nl tl =
   in
   let tl' =
     List.map
-      (fun name -> Btype.newgenty (Tconstr (mkpath mp name,[],ref Mnil)))
+      (fun name -> Btype.newgenty (Tconstr (mkpath mp name,[],[],ref Mnil)))
       nl in
   (* go back to original level *)
   Ctype.end_def ();

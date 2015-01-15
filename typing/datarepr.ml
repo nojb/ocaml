@@ -44,7 +44,8 @@ let free_vars ?(param=false) ty =
   unmark_type ty;
   !ret
 
-let newgenconstr path tyl = newgenty (Tconstr (path, tyl, ref Mnil))
+let newgenconstr path tyl = newgenty (Tconstr (path, tyl, [], ref Mnil))
+(* FIXME dimen *)
 
 let constructor_args cd_args cd_res path rep =
   let tyl =
@@ -68,6 +69,7 @@ let constructor_args cd_args cd_res path rep =
       let tdecl =
         {
           type_params;
+          type_dim_params = assert false; (* FIXME dimen *)
           type_arity = List.length type_params;
           type_kind = Type_record (lbls, rep);
           type_private = Public;

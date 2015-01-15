@@ -500,7 +500,7 @@ and class_type env scty =
       let ty = cty.ctyp_type in
       let ty =
         if Btype.is_optional l
-        then Ctype.newty (Tconstr(Predef.path_option,[ty], ref Mnil))
+        then Ctype.newty (Tconstr(Predef.path_option,[ty], assert false, ref Mnil)) (* FIXME dimen *)
         else ty in
       let clty = class_type env scty in
       let typ = Cty_arrow (l, ty, clty.cltyp_type) in
@@ -1195,6 +1195,7 @@ let temp_abbrev loc env id arity =
   let env =
     Env.add_type ~check:true id
       {type_params = !params;
+       type_dim_params = assert false; (* FIXME dimen *)
        type_arity = arity;
        type_kind = Type_abstract;
        type_private = Public;
@@ -1440,6 +1441,7 @@ let class_infos define_class kind
   in
   let obj_abbr =
     {type_params = obj_params;
+     type_dim_params = assert false; (* FIXME dimen *)
      type_arity = List.length obj_params;
      type_kind = Type_abstract;
      type_private = Public;
@@ -1457,6 +1459,7 @@ let class_infos define_class kind
   Ctype.set_object_name obj_id (Ctype.row_variable cl_ty) cl_params cl_ty;
   let cl_abbr =
     {type_params = cl_params;
+     type_dim_params = assert false; (* FIXME dimen *)
      type_arity = List.length cl_params;
      type_kind = Type_abstract;
      type_private = Public;

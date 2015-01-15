@@ -126,8 +126,9 @@ let rec typexp s ty =
     ty.desc <- Tsubst ty';
     ty'.desc <-
       begin match desc with
-      | Tconstr(p, tl, abbrev) ->
-          Tconstr(type_path s p, List.map (typexp s) tl, ref Mnil)
+      | Tconstr(p, tl, _, abbrev) ->
+          Tconstr(type_path s p, List.map (typexp s) tl, assert false, ref Mnil)
+      (* FIXME dimen *)
       | Tpackage(p, n, tl) ->
           Tpackage(modtype_path s p, n, List.map (typexp s) tl)
       | Tobject (t1, name) ->
@@ -191,6 +192,9 @@ let type_expr s ty =
   cleanup_types ();
   ty'
 
+let dimexp s d =
+  assert false (* FIXME dimen *)
+
 let label_declaration s l =
   {
     ld_id = l.ld_id;
@@ -218,6 +222,7 @@ let constructor_declaration s c =
 let type_declaration s decl =
   let decl =
     { type_params = List.map (typexp s) decl.type_params;
+      type_dim_params = List.map (dimexp s) decl.type_dim_params;
       type_arity = decl.type_arity;
       type_kind =
         begin match decl.type_kind with

@@ -58,21 +58,21 @@ and path_int64 = Pident ident_int64
 and path_lazy_t = Pident ident_lazy_t
 and path_bytes = Pident ident_bytes
 
-let type_int = newgenty (Tconstr(path_int, [], ref Mnil))
-and type_char = newgenty (Tconstr(path_char, [], ref Mnil))
-and type_string = newgenty (Tconstr(path_string, [], ref Mnil))
-and type_float = newgenty (Tconstr(path_float, [], ref Mnil))
-and type_bool = newgenty (Tconstr(path_bool, [], ref Mnil))
-and type_unit = newgenty (Tconstr(path_unit, [], ref Mnil))
-and type_exn = newgenty (Tconstr(path_exn, [], ref Mnil))
-and type_array t = newgenty (Tconstr(path_array, [t], ref Mnil))
-and type_list t = newgenty (Tconstr(path_list, [t], ref Mnil))
-and type_option t = newgenty (Tconstr(path_option, [t], ref Mnil))
-and type_nativeint = newgenty (Tconstr(path_nativeint, [], ref Mnil))
-and type_int32 = newgenty (Tconstr(path_int32, [], ref Mnil))
-and type_int64 = newgenty (Tconstr(path_int64, [], ref Mnil))
-and type_lazy_t t = newgenty (Tconstr(path_lazy_t, [t], ref Mnil))
-and type_bytes = newgenty (Tconstr(path_bytes, [], ref Mnil))
+let type_int dim = newgenty (Tconstr(path_int, [], [dim], ref Mnil))
+and type_char = newgenty (Tconstr(path_char, [], [], ref Mnil))
+and type_string = newgenty (Tconstr(path_string, [], [], ref Mnil))
+and type_float dim = newgenty (Tconstr(path_float, [], [dim], ref Mnil))
+and type_bool = newgenty (Tconstr(path_bool, [], [], ref Mnil))
+and type_unit = newgenty (Tconstr(path_unit, [], [], ref Mnil))
+and type_exn = newgenty (Tconstr(path_exn, [], [], ref Mnil))
+and type_array t = newgenty (Tconstr(path_array, [t], [], ref Mnil))
+and type_list t = newgenty (Tconstr(path_list, [t], [], ref Mnil))
+and type_option t = newgenty (Tconstr(path_option, [t], [], ref Mnil))
+and type_nativeint dim = newgenty (Tconstr(path_nativeint, [], [dim], ref Mnil))
+and type_int32 dim = newgenty (Tconstr(path_int32, [], [dim], ref Mnil))
+and type_int64 dim = newgenty (Tconstr(path_int64, [], [dim], ref Mnil))
+and type_lazy_t t = newgenty (Tconstr(path_lazy_t, [t], [], ref Mnil))
+and type_bytes = newgenty (Tconstr(path_bytes, [], [], ref Mnil))
 
 let ident_match_failure = ident_create_predef_exn "Match_failure"
 and ident_out_of_memory = ident_create_predef_exn "Out_of_memory"
@@ -94,6 +94,7 @@ and path_undefined_recursive_module = Pident ident_undefined_recursive_module
 
 let decl_abstr =
   {type_params = [];
+   type_dim_params = [];
    type_arity = 0;
    type_kind = Type_abstract;
    type_loc = Location.none;
@@ -170,7 +171,7 @@ let common_initial_env add_type add_extension empty_env =
         ext_attributes = [] }
   in
   add_extension ident_match_failure
-                         [newgenty (Ttuple[type_string; type_int; type_int])] (
+                         [newgenty (Ttuple[type_string; type_int []; type_int []])] (
   add_extension ident_out_of_memory [] (
   add_extension ident_stack_overflow [] (
   add_extension ident_invalid_argument [type_string] (
@@ -181,9 +182,9 @@ let common_initial_env add_type add_extension empty_env =
   add_extension ident_end_of_file [] (
   add_extension ident_division_by_zero [] (
   add_extension ident_assert_failure
-                         [newgenty (Ttuple[type_string; type_int; type_int])] (
+                         [newgenty (Ttuple[type_string; type_int []; type_int []])] (
   add_extension ident_undefined_recursive_module
-                         [newgenty (Ttuple[type_string; type_int; type_int])] (
+                         [newgenty (Ttuple[type_string; type_int []; type_int []])] (
   add_type ident_int64 decl_abstr (
   add_type ident_int32 decl_abstr (
   add_type ident_nativeint decl_abstr (

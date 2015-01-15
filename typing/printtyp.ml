@@ -144,9 +144,10 @@ and raw_type_desc ppf = function
         (safe_commu_repr [] c)
   | Ttuple tl ->
       fprintf ppf "@[<1>Ttuple@,%a@]" raw_type_list tl
-  | Tconstr (p, tl, abbrev) ->
-      fprintf ppf "@[<hov1>Tconstr(@,%a,@,%a,@,%a)@]" path p
+  | Tconstr (p, tl, dl, abbrev) ->
+      fprintf ppf "@[<hov1>Tconstr(@,%a,@,%a,@,%a,@,%a)@]" path p
         raw_type_list tl
+        raw_dimension_list dl
         (raw_list path) (list_of_memo !abbrev)
   | Tobject (t, nm) ->
       fprintf ppf "@[<hov1>Tobject(@,%a,@,@[<1>ref%t@])@]" raw_type t
@@ -195,6 +196,9 @@ and raw_field ppf = function
           match !e with None -> fprintf ppf " None"
           | Some f -> fprintf ppf "@,@[<1>(%a)@]" raw_field f)
   | Rabsent -> fprintf ppf "Rabsent"
+
+and raw_dimension_list ppf = function
+  | _ -> assert false (* FIXME dimen *)
 
 let raw_type_expr ppf t =
   visited := [];
@@ -255,7 +259,8 @@ let rec normalize_type_path ?(cache=false) env p =
     let (params, ty, _) = Env.find_type_expansion p env in
     let params = List.map repr params in
     match repr ty with
-      {desc = Tconstr (p1, tyl, _)} ->
+      {desc = Tconstr (p1, tyl, _, _)} ->
+        assert false; (* FIXME dimen *)
         let tyl = List.map repr tyl in
         if List.length params = List.length tyl
         && List.for_all2 (==) params tyl
@@ -441,7 +446,7 @@ let add_alias ty =
 let aliasable ty =
   match ty.desc with
     Tvar _ | Tunivar _ | Tpoly _ -> false
-  | Tconstr (p, _, _) ->
+  | Tconstr (p, _, _, _) ->
       (match best_type_path p with (_, Nth _) -> false | _ -> true)
   | _ -> true
 
@@ -465,7 +470,8 @@ let rec mark_loops_rec visited ty =
     | Tarrow(_, ty1, ty2, _) ->
         mark_loops_rec visited ty1; mark_loops_rec visited ty2
     | Ttuple tyl -> List.iter (mark_loops_rec visited) tyl
-    | Tconstr(p, tyl, _) ->
+    | Tconstr(p, tyl, _, _) ->
+        assert false (* FIXME dimen *);
         let (p', s) = best_type_path p in
         List.iter (mark_loops_rec visited) (apply_subst s tyl)
     | Tpackage (_, _, tyl) ->
@@ -551,8 +557,9 @@ let rec tree_of_typexp sch ty =
           let t1 =
             if is_optional l then
               match (repr ty1).desc with
-              | Tconstr(path, [ty], _)
+              | Tconstr(path, [ty], _, _)
                 when Path.same path Predef.path_option ->
+                  assert false; (* FIXME dimen *)
                   tree_of_typexp sch ty
               | _ -> Otyp_stuff "<hidden>"
             else tree_of_typexp sch ty1 in
@@ -560,7 +567,8 @@ let rec tree_of_typexp sch ty =
         pr_arrow l ty1 ty2
     | Ttuple tyl ->
         Otyp_tuple (tree_of_typlist sch tyl)
-    | Tconstr(p, tyl, abbrev) ->
+    | Tconstr(p, tyl, _, abbrev) ->
+        assert false; (* FIXME dimen *)
         begin match best_type_path p with
           (_, Nth n) -> tree_of_typexp sch (List.nth tyl n)
         | (p', s) ->
@@ -1049,7 +1057,7 @@ let rec tree_of_class_type sch params =
       let ty =
        if is_optional l then
          match (repr ty).desc with
-         | Tconstr(path, [ty], _) when Path.same path Predef.path_option -> ty
+         | Tconstr(path, [ty], _, _) when Path.same path Predef.path_option -> assert false; (* FIXME dimen *) ty
          | _ -> newconstr (Path.Pident(Ident.create "<hidden>")) []
        else ty in
       let tr = tree_of_typexp sch ty in
@@ -1147,7 +1155,7 @@ let filter_rem_sig item rem =
       ([], rem)
 
 let dummy =
-  { type_params = []; type_arity = 0; type_kind = Type_abstract;
+  { type_params = []; type_dim_params = []; type_arity = 0; type_kind = Type_abstract;
     type_private = Public; type_manifest = None; type_variance = [];
     type_newtype_level = None; type_loc = Location.none;
     type_attributes = [];
@@ -1259,7 +1267,8 @@ let same_path t t' =
   let t = repr t and t' = repr t' in
   t == t' ||
   match t.desc, t'.desc with
-    Tconstr(p,tl,_), Tconstr(p',tl',_) ->
+    Tconstr(p,tl,_,_), Tconstr(p',tl',_,_) ->
+      assert false; (* FIXME dimen *)
       let (p1, s1) = best_type_path p and (p2, s2)  = best_type_path p' in
       begin match s1, s2 with
         Nth n1, Nth n2 when n1 = n2 -> true
@@ -1358,13 +1367,15 @@ let explanation unif t3 t4 ppf =
   match t3.desc, t4.desc with
   | Ttuple [], Tvar _ | Tvar _, Ttuple [] ->
       fprintf ppf "@,Self type cannot escape its class"
-  | Tconstr (p, tl, _), Tvar _
+  | Tconstr (p, tl, _, _), Tvar _
     when unif && t4.level < Path.binding_time p ->
+      assert false; (* FIXME dimen *)
       fprintf ppf
         "@,@[The type constructor@;<1 2>%a@ would escape its scope@]"
         path p
-  | Tvar _, Tconstr (p, tl, _)
+  | Tvar _, Tconstr (p, tl, _, _)
     when unif && t3.level < Path.binding_time p ->
+      assert false; (* FIXME dimen *)
       fprintf ppf
         "@,@[The type constructor@;<1 2>%a@ would escape its scope@]"
         path p
@@ -1436,7 +1447,8 @@ let rec path_same_name p1 p2 =
 
 let type_same_name t1 t2 =
   match (repr t1).desc, (repr t2).desc with
-    Tconstr (p1, _, _), Tconstr (p2, _, _) ->
+    Tconstr (p1, _, _, _), Tconstr (p2, _, _, _) ->
+      assert false; (* FIXME dimen *)
       path_same_name (fst (best_type_path p1)) (fst (best_type_path p2))
   | _ -> ()
 

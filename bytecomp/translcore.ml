@@ -917,7 +917,7 @@ and transl_exp0 e =
           | Tvariant _
               -> transl_exp e
           (* optimize predefined types (excepted float) *)
-          | Tconstr(_,_,_) ->
+          | Tconstr(_,_,_,_) ->
               if has_base_type e Predef.path_int
                 || has_base_type e Predef.path_char
                 || has_base_type e Predef.path_string
@@ -1144,7 +1144,7 @@ and transl_record env all_labels repres lbl_expr_list opt_init_expr =
         | Record_extension ->
             let path =
               match all_labels.(0).lbl_res.desc with
-              | Tconstr(p, _, _) -> p
+              | Tconstr(p, _, _, _) -> p
               | _ -> assert false
             in
             let slot = transl_path env path in

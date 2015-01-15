@@ -27,7 +27,7 @@ let is_function_type env ty =
 
 let is_base_type env ty base_ty_path =
   match scrape env ty with
-  | Tconstr(p, _, _) -> Path.same p base_ty_path
+  | Tconstr(p, _, _, _) -> Path.same p base_ty_path
   | _ -> false
 
 let has_base_type exp base_ty_path =
@@ -35,7 +35,8 @@ let has_base_type exp base_ty_path =
 
 let maybe_pointer_type env typ =
   match scrape env typ with
-  | Tconstr(p, args, abbrev) ->
+  | Tconstr(p, args, _, abbrev) ->
+      assert false; (* FIXME dimen *)
       not (Path.same p Predef.path_int) &&
       not (Path.same p Predef.path_char) &&
       begin try
@@ -57,7 +58,8 @@ let array_element_kind env ty =
   match scrape env ty with
   | Tvar _ | Tunivar _ ->
       Pgenarray
-  | Tconstr(p, args, abbrev) ->
+  | Tconstr(p, args, _, abbrev) ->
+      assert false; (* FIXME dimen *)
       if Path.same p Predef.path_int || Path.same p Predef.path_char then
         Pintarray
       else if Path.same p Predef.path_float then
@@ -90,8 +92,9 @@ let array_element_kind env ty =
 
 let array_type_kind env ty =
   match scrape env ty with
-  | Tconstr(p, [elt_ty], _) | Tpoly({desc = Tconstr(p, [elt_ty], _)}, _)
+  | Tconstr(p, [elt_ty], _, _) | Tpoly({desc = Tconstr(p, [elt_ty], _, _)}, _)
     when Path.same p Predef.path_array ->
+      assert false; (* FIXME dimen *)
       array_element_kind env elt_ty
   | _ ->
       (* This can happen with e.g. Obj.field *)
@@ -103,8 +106,9 @@ let array_pattern_kind pat = array_type_kind pat.pat_env pat.pat_type
 
 let bigarray_decode_type env ty tbl dfl =
   match scrape env ty with
-  | Tconstr(Pdot(Pident mod_id, type_name, _), [], _)
+  | Tconstr(Pdot(Pident mod_id, type_name, _), [], _, _)
     when Ident.name mod_id = "Bigarray" ->
+      assert false; (* FIXME dimen *)
       begin try List.assoc type_name tbl with Not_found -> dfl end
   | _ ->
       dfl
@@ -129,7 +133,8 @@ let layout_table =
 
 let bigarray_type_kind_and_layout env typ =
   match scrape env typ with
-  | Tconstr(p, [caml_type; elt_type; layout_type], abbrev) ->
+  | Tconstr(p, [caml_type; elt_type; layout_type], _, abbrev) ->
+      assert false; (* FIXME dimen *)
       (bigarray_decode_type env elt_type kind_table Pbigarray_unknown,
        bigarray_decode_type env layout_type layout_table
                             Pbigarray_unknown_layout)
