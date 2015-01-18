@@ -32,6 +32,16 @@ type regular_expression =
   | Repetition of regular_expression
   | Bind of regular_expression * (string * location)
 
+let rec seq = function
+  | [] -> Epsilon
+  | [r] -> r
+  | r :: rem -> Sequence (r, seq rem)
+
+let rec alt = function
+  | [] -> Eof
+  | [r] -> r
+  | r :: rem -> Alternative (r, alt rem)
+
 type ('arg,'action) entry =
   {name:string ;
    shortest : bool ;

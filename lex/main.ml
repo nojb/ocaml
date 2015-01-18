@@ -34,6 +34,7 @@ let specs =
   ["-ml", Arg.Set ml_automata,
     " Output code that does not use the Lexing module built-in automata \
      interpreter";
+   "-utf8", Arg.Set Utf8.utf8_mode, " Generate lexer for UTF-8-encoded text.";
    "-o", Arg.String (fun x -> output_name := Some x),
     " <file>  Set output file name to <file>";
    "-q", Arg.Set Common.quiet_mode, " Do not display informational messages";

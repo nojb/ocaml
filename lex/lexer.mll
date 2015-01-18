@@ -166,6 +166,20 @@ rule main = parse
     { raise_lexical_error lexbuf
         (Printf.sprintf "illegal escape sequence \\%c" c)
     }
+  | ['0'-'9']+
+  | '0' ['x''X'] ['0'-'9''a'-'f''A'-'F']+
+  | '0' ['o''O'] ['0'-'7']+
+  | '0' ['b''B'] ['0'-'1']+
+    { let s = Lexing.lexeme lexbuf in
+      try
+        let n = int_of_string s in
+        let n = if !Utf8.utf8_mode then n else n land 0xFF in
+        Tchar n
+      with
+      | Failure _ ->
+          raise_lexical_error lexbuf
+            (Printf.sprintf "illegal character code %S" s)
+    }
   | '{'
     { let p = Lexing.lexeme_end_p lexbuf in
       let f = p.Lexing.pos_fname in

@@ -76,7 +76,7 @@ let eof = singleton 256
 and all_chars = interval 0 255
 and all_chars_eof = interval 0 256
 
-let complement s = diff all_chars s
+(* let complement s = diff all_chars s *)
 
 let env_to_array env = match env with
 | []         -> assert false

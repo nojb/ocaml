@@ -127,7 +127,7 @@ case:
 ;
 regexp:
     Tunderscore
-        { Characters Cset.all_chars }
+        { Characters (if !Utf8.utf8_mode then Utf8.all_chars else [0, 255]) }
   | Teof
         { Eof }
   | Tchar
@@ -183,7 +183,7 @@ ident:
 
 char_class:
     Tcaret char_class1
-        { Cset.complement $2 }
+        { if !Utf8.utf8_mode then Cset.diff Utf8.all_chars $2 else Cset.diff [0, 255] $2 }
   | char_class1
         { $1 }
 ;

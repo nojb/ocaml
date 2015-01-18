@@ -481,12 +481,26 @@ let opt_regexp all_vars char_vars optional_vars double_vars r =
       all_vars [] in
   m,r, !loc_count
 
-
+let rec remove_utf8 = function
+  | Epsilon -> Epsilon
+  | Characters set ->
+      let rec loop = function
+        | [] -> Eof
+        | [r] -> r
+        | r :: rl -> Alternative (r, loop rl)
+      in
+      loop (List.concat (List.map (fun (a, b) -> Utf8.interval a b) set))
+  | Eof -> Eof
+  | Sequence (r1, r2) -> Sequence (remove_utf8 r1, remove_utf8 r2)
+  | Alternative (r1, r2) -> Alternative (remove_utf8 r1, remove_utf8 r2)
+  | Repetition r -> Repetition (remove_utf8 r)
+  | Bind (r, x) -> Bind (remove_utf8 r, x)
 
 let encode_casedef casedef =
   let r =
     List.fold_left
       (fun (reg,actions,count,ntags) (expr, act) ->
+        let expr = if !Utf8.utf8_mode then remove_utf8 expr else expr in
         let expr = remove_nested_as expr in
         let char_vars = find_chars expr in
         let r = encode_regexp char_vars count expr

@@ -13,7 +13,7 @@
 
 (* Set of characters encoded as list of intervals *)
 
-type t
+type t = (int * int) list
 
 val empty : t
 val is_empty : t -> bool
@@ -27,5 +27,5 @@ val interval : int -> int -> t
 val union : t -> t -> t
 val inter : t -> t -> t
 val diff : t -> t -> t
-val complement : t -> t
+(* val complement : t -> t *)
 val env_to_array : (t * 'a) list -> 'a array

@@ -29,6 +29,9 @@ type regular_expression =
   | Repetition of regular_expression
   | Bind of regular_expression * (string * location)
 
+val seq : regular_expression list -> regular_expression
+val alt : regular_expression list -> regular_expression
+
 type ('arg,'action) entry =
   {name:string ;
    shortest : bool ;
