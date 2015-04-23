@@ -2243,10 +2243,12 @@ ext_attributes:
   | PERCENT attr_id attributes { Some $2, $3 }
 ;
 extension:
-  LBRACKETPERCENT attr_id payload RBRACKET { ($2, $3) }
+    LBRACKETPERCENT attr_id payload RBRACKET { ($2, $3) }
+  | LBRACKETPERCENT payload RBRACKET { (ghloc "", $2) }
 ;
 item_extension:
-  LBRACKETPERCENTPERCENT attr_id payload RBRACKET { ($2, $3) }
+    LBRACKETPERCENTPERCENT attr_id payload RBRACKET { ($2, $3) }
+  | LBRACKETPERCENTPERCENT payload RBRACKET { (ghloc "", $2) }
 ;
 payload:
     structure { PStr $1 }
