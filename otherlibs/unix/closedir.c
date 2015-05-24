@@ -17,11 +17,15 @@
 #include "unixsupport.h"
 #include <errno.h>
 #include <sys/types.h>
+#ifndef HAS_NEWLIB
 #ifdef HAS_DIRENT
 #include <dirent.h>
 #else
 #include <sys/dir.h>
 #endif
+#endif
+
+#ifndef HAS_NEWLIB
 
 CAMLprim value unix_closedir(value vd)
 {
@@ -34,3 +38,10 @@ CAMLprim value unix_closedir(value vd)
   DIR_Val(vd) = (DIR *) NULL;
   CAMLreturn(Val_unit);
 }
+
+#else
+
+CAMLprim value unix_closedir(value vd)
+{ invalid_argument("closedir not implemented"); }
+
+#endif

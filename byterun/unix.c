@@ -33,10 +33,12 @@
 #ifdef HAS_UNISTD
 #include <unistd.h>
 #endif
+#ifndef HAS_NEWLIB
 #ifdef HAS_DIRENT
 #include <dirent.h>
 #else
 #include <sys/dir.h>
+#endif
 #endif
 #include "caml/memory.h"
 #include "caml/misc.h"
@@ -267,10 +269,11 @@ char * caml_dlerror(void)
 
 #endif
 
+#if 0
+
 /* Add to [contents] the (short) names of the files contained in
    the directory named [dirname].  No entries are added for [.] and [..].
    Return 0 on success, -1 on error; set errno in the case of error. */
-
 int caml_read_directory(char * dirname, struct ext_table * contents)
 {
   DIR * d;
@@ -292,6 +295,12 @@ int caml_read_directory(char * dirname, struct ext_table * contents)
   return 0;
 }
 
+#else
+
+int caml_read_directory(char * dirname, struct ext_table * contents)
+{ return -1; }
+
+#endif
 /* Recover executable name from /proc/self/exe if possible */
 
 #ifdef __linux__

@@ -532,14 +532,14 @@ if test "$?" -eq 0; then
 else
   # For cross-compilation, runtest always fails: add special handling.
   case "$target" in
-    i686-*-mingw*) inf "OK, this is a regular 32 bit architecture."
-                   echo "#undef ARCH_SIXTYFOUR" >> m.h
-                   set 4 4 4 2 8
-                   arch64=false;;
-    x86_64-*-mingw*) inf "Wow! A 64 bit architecture!"
-                     echo "#define ARCH_SIXTYFOUR" >> m.h
-                     set 4 4 8 2 8
-                     arch64=true;;
+    i686-*-mingw*|riscv32-*-*) inf "OK, this is a regular 32 bit architecture."
+                               echo "#undef ARCH_SIXTYFOUR" >> m.h
+                               set 4 4 4 2 8
+                               arch64=false;;
+    x86_64-*-mingw*|riscv64-*-*) inf "Wow! A 64 bit architecture!"
+                                 echo "#define ARCH_SIXTYFOUR" >> m.h
+                                 set 4 4 8 2 8
+                                 arch64=true;;
     *) err "Since datatype sizes cannot be guessed when cross-compiling,\n" \
            "a hardcoded list is used but your architecture isn't known yet.\n" \
            "You need to determine the sizes yourself.\n" \
@@ -576,8 +576,8 @@ case $? in
   2) err "This architecture seems to be neither big endian nor little endian.\n" \
          "OCaml won't run on this architecture.";;
   *) case $target in
-       *-*-mingw*) inf "This is a little-endian architecture."
-                   echo "#undef ARCH_BIG_ENDIAN" >> m.h;;
+       *-*-mingw*|riscv*-*-*) inf "This is a little-endian architecture."
+                              echo "#undef ARCH_BIG_ENDIAN" >> m.h;;
        *) wrn "Something went wrong during endianness determination.\n" \
               "You will have to figure out endianness yourself (option ARCH_BIG_ENDIAN in m.h).";;
      esac;;
@@ -602,6 +602,7 @@ case "$target" in
       inf "Doubles must be doubleword-aligned."
       echo "#define ARCH_ALIGN_DOUBLE" >> m.h
     fi;;
+  riscv*-*-*) true;;
   *)
     sh ./runtest dblalign.c
     case $? in
@@ -631,7 +632,7 @@ case "$target" in
       inf "64-bit integers must be doubleword-aligned."
       echo "#define ARCH_ALIGN_INT64" >> m.h
     fi;;
-  *-*-mingw*) true;; # Nothing is in config/m-nt.h so don't add anything.
+  *-*-mingw*|riscv*-*-*) true;; # Nothing is in config/m-nt.h so don't add anything.
   *)
     sh ./runtest int64align.c
     case $? in
@@ -869,6 +870,11 @@ case "$target" in
   x86_64-*-mingw*)              arch=amd64; system=mingw;;
   aarch64-*-linux*)             arch=arm64; system=linux;;
   x86_64-*-cygwin*)             arch=amd64; system=cygwin;;
+  riscv*-*-*)                   if $arch64; then
+                                    arch=riscv; model=riscv64
+                                else
+                                    arch=riscv; model=riscv32
+                                fi
 esac
 
 # Some platforms exist both in 32-bit and 64-bit variants, not distinguished
@@ -934,7 +940,7 @@ case "$arch,$system" in
                   aspp="${TOOLPREF}cc -c";;
   *,freebsd)      as="${TOOLPREF}as"
                   aspp="${TOOLPREF}cc -c";;
-  amd64,*|arm,*|arm64,*|i386,*|power,bsd*|sparc,*)
+  amd64,*|arm,*|arm64,*|i386,*|power,bsd*|sparc,*|riscv,*)
                   as="${TOOLPREF}as"
                   aspp="${TOOLPREF}gcc -c";;
 esac
@@ -1078,6 +1084,11 @@ echo "GRAPHLIB=$graphlib" >> Makefile
 otherlibraries="$unixlib str num dynlink bigarray"
 
 # For the Unix library
+
+if sh ./hasgot -i newlib.h; then
+  inf "You have Newlib."
+  echo "#define HAS_NEWLIB" >> s.h
+fi
 
 has_sockets=no
 if sh ./hasgot socket socketpair bind listen accept connect; then

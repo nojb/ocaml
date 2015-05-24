@@ -33,7 +33,7 @@
         lg      $0, lo16($1)($2)
 .endmacro
 .macro Storeglobal      /* reg,glob,tmp */
-        addis   $2, 0, ha16($1)
+        addis    $2, 0, ha16($1)
         stg     $0, lo16($1)($2)
 .endmacro
 .macro Loadglobal32       /* reg,glob,tmp */

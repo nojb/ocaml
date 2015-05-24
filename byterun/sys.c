@@ -132,7 +132,7 @@ CAMLprim value caml_sys_open(value path, value vflags, value vperm)
   caml_enter_blocking_section();
   fd = open(p, flags, perm);
   /* fcntl on a fd can block (PR#5069)*/
-#if defined(F_SETFD) && defined(FD_CLOEXEC)
+#if defined(F_SETFD) && defined(FD_CLOEXEC) && !defined(HAS_NEWLIB)
   if (fd != -1)
     fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
@@ -379,7 +379,7 @@ CAMLprim value caml_sys_random_seed (value unit)
 #else
     data[n++] = time(NULL);
 #endif
-#ifdef HAS_UNISTD
+#if defined(HAS_UNISTD) && !defined(HAS_NEWLIB)
     data[n++] = getpid();
     data[n++] = getppid();
 #endif

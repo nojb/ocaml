@@ -18,6 +18,7 @@
 #include "unixsupport.h"
 #include <errno.h>
 #include <sys/types.h>
+#ifndef HAS_NEWLIB
 #ifdef HAS_DIRENT
 #include <dirent.h>
 typedef struct dirent directory_entry;
@@ -25,6 +26,9 @@ typedef struct dirent directory_entry;
 #include <sys/dir.h>
 typedef struct direct directory_entry;
 #endif
+#endif
+
+#ifndef HAS_NEWLIB
 
 CAMLprim value unix_readdir(value vd)
 {
@@ -38,3 +42,10 @@ CAMLprim value unix_readdir(value vd)
   if (e == (directory_entry *) NULL) raise_end_of_file();
   return copy_string(e->d_name);
 }
+
+#else
+
+CAMLprim value unix_readdir(value vd)
+{ invalid_arg("readdir not implemented"); }
+
+#endif

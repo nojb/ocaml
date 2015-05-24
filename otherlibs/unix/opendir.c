@@ -17,11 +17,15 @@
 #include <caml/signals.h>
 #include "unixsupport.h"
 #include <sys/types.h>
+#ifndef HAS_NEWLIB
 #ifdef HAS_DIRENT
 #include <dirent.h>
 #else
 #include <sys/dir.h>
 #endif
+#endif
+
+#ifndef HAS_NEWLIB
 
 CAMLprim value unix_opendir(value path)
 {
@@ -40,3 +44,10 @@ CAMLprim value unix_opendir(value path)
   DIR_Val(res) = d;
   CAMLreturn(res);
 }
+
+#else
+
+CAMLprim value unix_opendir(value vd)
+{ invalid_argument("opendir not implemented"); }
+
+#endif
