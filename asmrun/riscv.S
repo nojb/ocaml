@@ -392,12 +392,14 @@ caml_callback3_exn:
         j	.Ljump_to_caml
         .size	caml_callback3_exn, .-caml_callback3_exn
 
+        .align	2
 	.globl	caml_ml_array_bound_error
 	.type	caml_ml_array_bound_error, @function
 caml_ml_array_bound_error:
-        /* save gp ? */
-        la	TMP1, caml_array_bound_error
-        call	caml_c_call	/* never returns, keep return address in ra for debugging ? */
+        /* Load address of [caml_array_bound_error] in ARG */
+        la	ARG, caml_array_bound_error
+        /* Call that function */
+        j	caml_c_call
 
 	.globl	caml_system__code_end
 caml_system__code_end:
