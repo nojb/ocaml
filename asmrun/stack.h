@@ -61,6 +61,11 @@
 #define Callback_link(sp) ((struct caml_context *)((sp) + 16))
 #endif
 
+#ifdef TARGET_mips
+#define Saved_return_address(sp) *((intnat *)((sp) - 4))
+#define Callback_link(sp) ((struct caml_context *)((sp) + 8))
+#endif
+
 /* Structure of OCaml callback contexts */
 
 struct caml_context {

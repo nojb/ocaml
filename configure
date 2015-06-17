@@ -433,8 +433,11 @@ case "$bytecc,$target" in
     echo "#ifndef __PIC__" >> m.h
     echo "#  define ARCH_CODE32" >> m.h
     echo "#endif" >> m.h;;
+  *gcc*,mips-*-linux-gnu)
+      bytecccompopts="-fno-defer-pop $gcc_warnings"
+      mathlib="";;
   *gcc*)
-    bytecccompopts="-fno-defer-pop $gcc_warnings";;
+      bytecccompopts="-fno-defer-pop $gcc_warnings";;
 esac
 
 # Configure compiler to use in further tests
@@ -647,7 +650,7 @@ if test $with_sharedlibs = "yes"; then
       mksharedlib="$flexlink"
       mkmaindll="$flexlink -maindll"
       shared_libraries_supported=true;;
-    *-*-linux-gnu|*-*-linux|*-*-freebsd[3-9]*|*-*-freebsd[1-9][0-9]*|*-*-openbsd*|*-*-netbsd*|*-*-gnu*|*-*-haiku*)
+    *-*-linux-gnu|*-*-linux|*-*-freebsd[3-9]*|*-*-freebsd[1-9][0-9]*|*-*-openbsd*|*-*-netbsd*|*-*-gnu*|*-*-haiku*|mips-*-linux*)
       sharedcccompopts="-fPIC"
       mksharedlib="$bytecc -shared"
       bytecclinkopts="$bytecclinkopts -Wl,-E"
@@ -828,6 +831,7 @@ case "$target" in
   x86_64-*-mingw*)              arch=amd64; system=mingw;;
   aarch64-*-linux*)             arch=arm64; system=linux;;
   x86_64-*-cygwin*)             arch=amd64; system=cygwin;;
+  mips-*-linux*)                arch=mips; sytem=linux;;
 esac
 
 # Some platforms exist both in 32-bit and 64-bit variants, not distinguished
@@ -896,6 +900,9 @@ case "$arch,$system" in
   amd64,*|arm,*|arm64,*|i386,*|power,bsd*|sparc,*)
                   as="${TOOLPREF}as"
                   aspp="${TOOLPREF}gcc -c";;
+  mips,*)
+                  as="${TOOLPREF}as -KPIC"
+                  aspp="${TOOLPREF}gcc -c -fPIC";;
 esac
 
 if test -n "$asoption"; then as="$asoption"; fi
