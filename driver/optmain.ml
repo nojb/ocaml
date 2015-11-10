@@ -56,6 +56,7 @@ module Options = Main_args.Make_optcomp_options (struct
   let _config_var = Misc.show_config_variable_and_exit
   let _for_pack s = for_package := Some s
   let _g = set debug
+  let _parse_only () = parse_only := true; compile_only := true
   let _i () = print_types := true; compile_only := true
   let _I dir = include_dirs := dir :: !include_dirs
   let _impl = impl
