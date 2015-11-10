@@ -36,6 +36,7 @@ let interface ppf sourcefile outputprefix =
 
     if !Clflags.dump_parsetree then fprintf ppf "%a@." Printast.interface ast;
     if !Clflags.dump_source then fprintf ppf "%a@." Pprintast.signature ast;
+    if !Clflags.parse_only then () else
     Profile.(record_call typing) (fun () ->
       let tsg = Typemod.type_interface sourcefile initial_env ast in
       if !Clflags.dump_typedtree then fprintf ppf "%a@." Printtyped.interface tsg;
@@ -72,16 +73,20 @@ let implementation ppf sourcefile outputprefix =
     let modulename = module_of_filename ppf sourcefile outputprefix in
     Env.set_unit_name modulename;
     let env = Compmisc.initial_env() in
+    let parsetree =
+      Pparse.parse_implementation ~tool_name ppf sourcefile
+      ++ print_if ppf Clflags.dump_parsetree Printast.implementation
+      ++ print_if ppf Clflags.dump_source Pprintast.structure
+    in
+    if !Clflags.parse_only then () else
     try
       let (typedtree, coercion) =
-        Pparse.parse_implementation ~tool_name ppf sourcefile
-        ++ print_if ppf Clflags.dump_parsetree Printast.implementation
-        ++ print_if ppf Clflags.dump_source Pprintast.structure
+        parsetree
         ++ Profile.(record typing)
             (Typemod.type_implementation sourcefile outputprefix modulename env)
         ++ print_if ppf Clflags.dump_typedtree
           Printtyped.implementation_with_coercion
-     in
+      in
       if !Clflags.print_types then begin
         Warnings.check_fatal ();
         Stypes.dump (Some (outputprefix ^ ".annot"))
