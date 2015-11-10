@@ -42,6 +42,7 @@ module Options = Main_args.Make_bytecomp_options (struct
   let _for_pack s = for_package := Some s
   let _g = set debug
   let _i () = print_types := true; compile_only := true
+  let _parse_only () = parse_only := true; compile_only := true
   let _I s = include_dirs := s :: !include_dirs
   let _impl = impl
   let _intf = intf
