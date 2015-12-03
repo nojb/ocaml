@@ -143,6 +143,8 @@ rule main = parse
       | "as"  -> Tas
       | "refill" -> Trefill
       | s -> Tident s }
+  | '~'
+    { Ttilde }
   | '"'
     { reset_string_buffer();
       handle_lexical_error string lexbuf;

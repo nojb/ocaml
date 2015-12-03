@@ -20,15 +20,24 @@ open Syntax
 let named_regexps =
   (Hashtbl.create 13 : (string, regular_expression) Hashtbl.t)
 
-let regexp_for_string s =
+let regexp_for_string s ci =
+  let chars c =
+    let s =
+      if ci then
+        Cset.union
+          (Cset.singleton (Char.code (Char.lowercase_ascii c)))
+          (Cset.singleton (Char.code (Char.uppercase_ascii c)))
+      else
+        Cset.singleton (Char.code c)
+    in
+    Characters s
+  in
   let rec re_string n =
     if n >= String.length s then Epsilon
     else if succ n = String.length s then
-      Characters (Cset.singleton (Char.code s.[n]))
+      chars s.[n]
     else
-      Sequence
-        (Characters(Cset.singleton (Char.code s.[n])),
-         re_string (succ n))
+      Sequence (chars s.[n], re_string (succ n))
   in re_string 0
 
 let rec remove_as = function
@@ -49,7 +58,7 @@ let as_cset = function
 %token <string> Tstring
 %token <Syntax.location> Taction
 %token Trule Tparse Tparse_shortest Tand Tequal Tend Tor Tunderscore Teof
-       Tlbracket Trbracket Trefill
+       Tlbracket Trbracket Trefill Ttilde
 %token Tstar Tmaybe Tplus Tlparen Trparen Tcaret Tdash Tlet Tas Tsharp
 
 %right Tas
@@ -132,8 +141,10 @@ regexp:
         { Eof }
   | Tchar
         { Characters (Cset.singleton $1) }
+  | Tstring Ttilde
+        { regexp_for_string $1 true }
   | Tstring
-        { regexp_for_string $1 }
+        { regexp_for_string $1 false }
   | Tlbracket char_class Trbracket
         { Characters $2 }
   | regexp Tstar

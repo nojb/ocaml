@@ -168,9 +168,10 @@ may be followed by more characters.  However, "ocamllex" will not
 correctly handle regular expressions that contain "eof" followed by
 something else.
 
-\item[@'"' { string-character } '"'@]
-A string constant, with the same syntax as OCaml string
-constants. Match the corresponding sequence of characters.
+\item[@'"' { string-character } '"' '~'?@]
+A string constant, with the same syntax as OCaml string constants. Match the
+corresponding sequence of characters.  If followed by @'~'@ then the string is
+matched in a case-insensitive fashion.
 
 \item[@'[' character-set ']'@]
 Match any single character belonging to the given

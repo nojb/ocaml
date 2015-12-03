@@ -247,6 +247,10 @@ OCamldep:
 - GRP#286: add support for module aliases
   (jacques Garrigue)
 
+OCamllex:
+- GPR#XXX: Add support for matching string literals in a case-insensitive fashion.
+  (Nicolas Ojeda Bar)
+
 Manual:
 - GPR#302: The OCaml reference manual is now included in the manual/
   subdirectory of the main OCaml source repository. Contributions to
