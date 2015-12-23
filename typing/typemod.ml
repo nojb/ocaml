@@ -1590,7 +1590,7 @@ let () =
 
 let type_implementation sourcefile outputprefix modulename initial_env ast =
   Cmt_format.clear ();
-  try
+  Misc.try_finally begin fun () ->
   Typecore.reset_delayed_checks ();
   Env.reset_required_globals ();
   begin
@@ -1649,12 +1649,12 @@ let type_implementation sourcefile outputprefix modulename initial_env ast =
       (str, coercion)
     end
     end
-  with e ->
-    Cmt_format.save_cmt  (outputprefix ^ ".cmt") modulename
-      (Cmt_format.Partial_implementation
-         (Array.of_list (Cmt_format.get_saved_types ())))
-      (Some sourcefile) initial_env None;
-    raise e
+  end
+    ~exceptionally:(fun () ->
+        Cmt_format.save_cmt  (outputprefix ^ ".cmt") modulename
+          (Cmt_format.Partial_implementation
+             (Array.of_list (Cmt_format.get_saved_types ())))
+          (Some sourcefile) initial_env None)
 
 let type_implementation sourcefile outputprefix modulename initial_env ast =
   ImplementationHooks.apply_hooks { Misc.sourcefile }

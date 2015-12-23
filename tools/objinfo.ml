@@ -223,8 +223,8 @@ let read_dyn_header filename ic =
             let ofs = Scanf.bscanf tc "%Ld" (fun x -> x) in
             LargeFile.seek_in ic ofs;
             Some(input_value ic : dynheader))
-          (fun () -> Scanf.Scanning.close_in tc))
-      (fun () -> remove_file tempfile)
+          ~always:(fun () -> Scanf.Scanning.close_in tc))
+      ~always:(fun () -> remove_file tempfile)
   with Failure _ | Sys_error _ -> None
 
 let dump_obj filename =

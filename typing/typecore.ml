@@ -1378,16 +1378,14 @@ let rec type_pat ~constrs ~labels ~no_existentials ~mode ~explode ~env
 let type_pat ?(allow_existentials=false) ?constrs ?labels ?(mode=Normal)
     ?(explode=0) ?(lev=get_current_level()) env sp expected_ty =
   newtype_level := Some lev;
-  try
+  Misc.try_finally begin fun () ->
     let r =
       type_pat ~no_existentials:(not allow_existentials) ~constrs ~labels
         ~mode ~explode ~env sp expected_ty (fun x -> x) in
     iter_pattern (fun p -> p.pat_env <- !env) r;
-    newtype_level := None;
     r
-  with e ->
-    newtype_level := None;
-    raise e
+  end
+    ~always:(fun () -> newtype_level := None)
 
 
 (* this function is passed to Partial.parmatch

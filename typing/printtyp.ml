@@ -321,7 +321,7 @@ let set_printing_env env =
 
 let wrap_printing_env env f =
   set_printing_env env;
-  try_finally f (fun () -> set_printing_env Env.empty)
+  try_finally f ~always:(fun () -> set_printing_env Env.empty)
 
 let is_unambiguous path env =
   let l = Env.find_shadowed_types path env in

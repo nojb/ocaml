@@ -129,14 +129,12 @@ let implementation ppf sourcefile outputprefix ~backend =
       end
     end;
     Warnings.check_fatal ();
-    Stypes.dump (Some (outputprefix ^ ".annot"))
   in
-  try comp (Pparse.parse_implementation ~tool_name ppf sourcefile)
-  with x ->
-    Stypes.dump (Some (outputprefix ^ ".annot"));
-    remove_file objfile;
-    remove_file cmxfile;
-    raise x
+  Misc.try_finally begin fun () ->
+    comp (Pparse.parse_implementation ~tool_name ppf sourcefile)
+  end
+    ~always:(fun () -> Stypes.dump (Some (outputprefix ^ ".annot")))
+    ~exceptionally:(fun () -> remove_file objfile; remove_file cmxfile)
 
 let c_file name =
   if Ccomp.compile_file name <> 0 then exit 2

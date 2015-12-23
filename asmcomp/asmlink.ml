@@ -336,7 +336,7 @@ let link ppf objfiles output_name =
   Misc.try_finally
     (fun () ->
       call_linker (List.map object_file_name objfiles) startup_obj output_name)
-    (fun () -> remove_file startup_obj)
+    ~always:(fun () -> remove_file startup_obj)
 
 (* Error report *)
 

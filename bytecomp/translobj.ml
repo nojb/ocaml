@@ -171,9 +171,12 @@ let oo_add_class id =
 let oo_wrap env req f x =
   if !wrapping then
     if !cache_required then f x else
-    try cache_required := true; let lam = f x in cache_required := false; lam
-    with exn -> cache_required := false; raise exn
-  else try
+      Misc.try_finally begin fun () ->
+        cache_required := true;
+        f x
+      end
+        ~always:(fun () -> cache_required := false)
+  else Misc.try_finally begin fun () ->
     wrapping := true;
     cache_required := req;
     top_env := env;
@@ -190,13 +193,11 @@ let oo_wrap env req f x =
                lambda))
         lambda !classes
     in
-    wrapping := false;
-    top_env := Env.empty;
     lambda
-  with exn ->
-    wrapping := false;
-    top_env := Env.empty;
-    raise exn
+    end
+      ~always:(fun () ->
+          wrapping := false;
+          top_env := Env.empty)
 
 let reset () =
   Hashtbl.clear consts;

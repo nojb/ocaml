@@ -67,7 +67,7 @@ let implementation ppf sourcefile outputprefix =
   let modulename = module_of_filename ppf sourcefile outputprefix in
   Env.set_unit_name modulename;
   let env = Compmisc.initial_env() in
-  try
+  Misc.try_finally begin fun () ->
     let (typedtree, coercion) =
       Pparse.parse_implementation ~tool_name ppf sourcefile
       ++ print_if ppf Clflags.dump_parsetree Printast.implementation
@@ -79,7 +79,6 @@ let implementation ppf sourcefile outputprefix =
    in
     if !Clflags.print_types then begin
       Warnings.check_fatal ();
-      Stypes.dump (Some (outputprefix ^ ".annot"))
     end else begin
       let bytecode, required_globals =
         (typedtree, coercion)
@@ -96,21 +95,17 @@ let implementation ppf sourcefile outputprefix =
       in
       let objfile = outputprefix ^ ".cmo" in
       let oc = open_out_bin objfile in
-      try
+      Misc.try_finally begin fun () ->
         bytecode
         ++ Timings.(accumulate_time (Generate sourcefile))
             (Emitcode.to_file oc modulename objfile ~required_globals);
-        Warnings.check_fatal ();
-        close_out oc;
-        Stypes.dump (Some (outputprefix ^ ".annot"))
-      with x ->
-        close_out oc;
-        remove_file objfile;
-        raise x
+        Warnings.check_fatal ()
+      end
+        ~always:(fun () -> close_out oc)
+        ~exceptionally:(fun () -> remove_file objfile);
     end
-  with x ->
-    Stypes.dump (Some (outputprefix ^ ".annot"));
-    raise x
+  end
+    ~always:(fun () -> Stypes.dump (Some (outputprefix ^ ".annot")))
 
 let c_file name =
   Location.input_name := name;

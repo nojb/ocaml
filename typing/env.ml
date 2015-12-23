@@ -1899,7 +1899,7 @@ let save_signature_with_imports ~deprecated sg modname filename imports =
     ]
   in
   let oc = open_out_bin filename in
-  try
+  Misc.try_finally begin fun () ->
     let cmi = {
       cmi_name = modname;
       cmi_sign = sg;
@@ -1907,7 +1907,6 @@ let save_signature_with_imports ~deprecated sg modname filename imports =
       cmi_flags = flags;
     } in
     let crc = output_cmi filename oc cmi in
-    close_out oc;
     (* Enter signature in persistent table so that imported_unit()
        will also return its crc *)
     let comps =
@@ -1924,10 +1923,9 @@ let save_signature_with_imports ~deprecated sg modname filename imports =
       } in
     save_pers_struct crc ps;
     sg
-  with exn ->
-    close_out oc;
-    remove_file filename;
-    raise exn
+  end
+    ~always:(fun () -> close_out oc)
+    ~exceptionally:(fun () -> remove_file filename)
 
 let save_signature ~deprecated sg modname filename =
   save_signature_with_imports ~deprecated sg modname filename (imports())

@@ -249,14 +249,13 @@ let package_files ppf initial_env files targetcmx ~backend =
   (* Set the name of the current compunit *)
   Compilenv.reset ~source_provenance:(Timings.Pack targetname)
     ?packname:!Clflags.for_package targetname;
-  try
+  Misc.try_finally begin fun () ->
     let coercion =
       Typemod.package_units initial_env files targetcmi targetname in
     package_object_files ppf files targetcmx targetobj targetname coercion
       ~backend
-  with x ->
-    remove_file targetcmx; remove_file targetobj;
-    raise x
+  end
+    ~exceptionally:(fun () -> remove_file targetcmx; remove_file targetobj)
 
 (* Error report *)
 

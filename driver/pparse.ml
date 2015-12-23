@@ -92,19 +92,14 @@ let apply_rewriter kind fn_in ppx =
 
 let read_ast (type a) (kind : a ast_kind) fn : a =
   let ic = open_in_bin fn in
-  try
+  Misc.try_finally begin fun () ->
     let magic = magic_of_kind kind in
     let buffer = really_input_string ic (String.length magic) in
     assert(buffer = magic); (* already checked by apply_rewriter *)
     Location.input_name := (input_value ic : string);
-    let ast = (input_value ic : a) in
-    close_in ic;
-    Misc.remove_file fn;
-    ast
-  with exn ->
-    close_in ic;
-    Misc.remove_file fn;
-    raise exn
+    (input_value ic : a)
+  end
+    ~always:(fun () -> close_in ic; Misc.remove_file fn)
 
 let rewrite kind ppxs ast =
   let fn = Filename.temp_file "camlppx" "" in
@@ -210,14 +205,12 @@ let () =
 let parse_file ~tool_name invariant_fun apply_hooks kind ppf sourcefile =
   Location.input_name := sourcefile;
   let inputfile = preprocess sourcefile in
-  let ast =
-    let parse_fun = Timings.(time (Parsing sourcefile)) (parse kind) in
-    try file_aux ppf ~tool_name inputfile parse_fun invariant_fun kind
-    with exn ->
-      remove_preprocessed inputfile;
-      raise exn
+  let parse_fun = Timings.(time (Parsing sourcefile)) (parse kind) in
+  let ast = Misc.try_finally begin fun () ->
+      file_aux ppf ~tool_name inputfile parse_fun invariant_fun kind
+    end
+      ~always:(fun () -> remove_preprocessed inputfile)
   in
-  remove_preprocessed inputfile;
   let ast = apply_hooks { Misc.sourcefile } ast in
   ast
 

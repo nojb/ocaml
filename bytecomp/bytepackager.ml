@@ -274,12 +274,12 @@ let package_files ppf initial_env files targetfile =
     let prefix = chop_extensions targetfile in
     let targetcmi = prefix ^ ".cmi" in
     let targetname = String.capitalize_ascii(Filename.basename prefix) in
-    try
+    Misc.try_finally begin fun () ->
       let coercion =
         Typemod.package_units initial_env files targetcmi targetname in
       package_object_files ppf files targetfile targetname coercion
-    with x ->
-      remove_file targetfile; raise x
+    end
+      ~exceptionally:(fun () -> remove_file targetfile)
 
 (* Error report *)
 

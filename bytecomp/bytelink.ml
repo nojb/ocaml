@@ -310,7 +310,7 @@ let link_bytecode ppf tolink exec_name standalone =
   let outchan =
     open_out_gen [Open_wronly; Open_trunc; Open_creat; Open_binary]
                  0o777 exec_name in
-  try
+  Misc.try_finally begin fun () ->
     if standalone then begin
       (* Copy the header *)
       try
@@ -384,11 +384,9 @@ let link_bytecode ppf tolink exec_name standalone =
     end;
     (* The table of contents and the trailer *)
     Bytesections.write_toc_and_trailer outchan;
-    close_out outchan
-  with x ->
-    close_out outchan;
-    remove_file exec_name;
-    raise x
+  end
+    ~always:(fun () -> close_out outchan)
+    ~exceptionally:(fun () -> remove_file exec_name)
 
 (* Output a string as a C array of unsigned ints *)
 
@@ -431,7 +429,7 @@ let output_cds_file outfile =
   let outchan =
     open_out_gen [Open_wronly; Open_trunc; Open_creat; Open_binary]
       0o777 outfile in
-  try
+  Misc.try_finally begin fun () ->
     Bytesections.init_record outchan;
     (* The map of global identifiers *)
     Symtable.output_global_map outchan;
@@ -441,17 +439,15 @@ let output_cds_file outfile =
     Bytesections.record outchan "DBUG";
     (* The table of contents and the trailer *)
     Bytesections.write_toc_and_trailer outchan;
-    close_out outchan
-  with x ->
-    close_out outchan;
-    remove_file outfile;
-    raise x
+  end
+    ~always:(fun () -> close_out outchan)
+    ~exceptionally:(fun () -> remove_file outfile)
 
 (* Output a bytecode executable as a C file *)
 
 let link_bytecode_as_c ppf tolink outfile =
   let outchan = open_out outfile in
-  begin try
+  Misc.try_finally begin fun () ->
     (* The bytecode *)
     output_string outchan "\
 #ifdef __cplusplus\
@@ -502,12 +498,9 @@ let link_bytecode_as_c ppf tolink outfile =
 \n#ifdef __cplusplus\
 \n}\
 \n#endif\n";
-    close_out outchan
-  with x ->
-    close_out outchan;
-    remove_file outfile;
-    raise x
-  end;
+  end
+    ~always:(fun () -> close_out outchan)
+    ~exceptionally:(fun () -> remove_file outfile);
   if !Clflags.debug then
     output_cds_file ((Filename.chop_extension outfile) ^ ".cds")
 
@@ -554,7 +547,7 @@ let link ppf objfiles output_name =
   else if not !Clflags.output_c_object then begin
     let bytecode_name = Filename.temp_file "camlcode" "" in
     let prim_name = Filename.temp_file "camlprim" ".c" in
-    try
+    Misc.try_finally begin fun () ->
       link_bytecode ppf tolink bytecode_name false;
       let poc = open_out prim_name in
       output_string poc "\
@@ -582,10 +575,10 @@ let link ppf objfiles output_name =
       if !Clflags.make_runtime
       then (remove_file bytecode_name; remove_file prim_name)
       else append_bytecode_and_cleanup bytecode_name exec_name prim_name
-    with x ->
-      remove_file bytecode_name;
-      remove_file prim_name;
-      raise x
+    end
+      ~exceptionally:(fun () ->
+          remove_file bytecode_name;
+          remove_file prim_name)
   end else begin
     let basename = Filename.chop_extension output_name in
     let c_file =
@@ -599,7 +592,7 @@ let link ppf objfiles output_name =
     in
     if Sys.file_exists c_file then raise(Error(File_exists c_file));
     let temps = ref [] in
-    try
+    Misc.try_finally begin fun () ->
       link_bytecode_as_c ppf tolink c_file;
       if not (Filename.check_suffix output_name ".c") then begin
         temps := c_file :: !temps;
@@ -621,10 +614,8 @@ let link ppf objfiles output_name =
            ) then raise (Error Custom_runtime);
         end
       end;
-      List.iter remove_file !temps
-    with x ->
-      List.iter remove_file !temps;
-      raise x
+    end
+      ~always:(fun () -> List.iter remove_file !temps)
   end
 
 (* Error report *)

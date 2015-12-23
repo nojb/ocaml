@@ -1139,7 +1139,7 @@ and transl_case_try {c_lhs; c_guard; c_rhs} =
       Hashtbl.replace try_ids id ();
       Misc.try_finally
         (fun () -> c_lhs, transl_guard c_guard c_rhs)
-        (fun () -> Hashtbl.remove try_ids id)
+        ~always:(fun () -> Hashtbl.remove try_ids id)
   | _ ->
       c_lhs, transl_guard c_guard c_rhs
 
