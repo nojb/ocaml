@@ -26,9 +26,9 @@ else
 export OCAML_FLEXLINK:=$(ROOTDIR)/boot/ocamlrun $(ROOTDIR)/flexdll/flexlink.exe
 endif
 
-CAMLC=$(CAMLRUN) $(ROOTDIR)/ocamlc -nostdlib -I $(ROOTDIR)/stdlib
+CAMLC=$(CAMLRUN) $(ROOTDIR)/ocamlc -nostdlib -I $(ROOTDIR)/stdlib $(EXTRACAMLCFLAGS)
 CAMLOPT=$(CAMLRUN) $(ROOTDIR)/ocamlopt -nostdlib \
-        -I $(ROOTDIR)/stdlib
+        -I $(ROOTDIR)/stdlib $(EXTRACAMLCFLAGS) $(EXTRACAMLOPTFLAGS)
 CFLAGS=-I$(ROOTDIR)/byterun $(SHAREDCCCOMPOPTS) $(EXTRACFLAGS)
 
 # Compilation options
