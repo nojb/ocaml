@@ -23,7 +23,11 @@ EXTRACAMLCFLAGS= \
 	-I $(ROOTDIR)/typing -I $(ROOTDIR)/toplevel
 CAMLOBJS= \
 	$(ROOTDIR)/utils/misc.cmo \
+	$(ROOTDIR)/utils/identifiable.cmo \
+	$(ROOTDIR)/utils/numbers.cmo \
+	$(ROOTDIR)/utils/arg_helper.cmo \
 	$(ROOTDIR)/utils/clflags.cmo \
+	$(ROOTDIR)/utils/terminfo.cmo \
 	$(ROOTDIR)/utils/warnings.cmo \
 	$(ROOTDIR)/utils/consistbl.cmo \
 	$(ROOTDIR)/parsing/location.cmo \
