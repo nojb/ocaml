@@ -18,15 +18,19 @@
 LIBNAME=print
 EXTRACAMLCFLAGS=-I $(ROOTDIR)/typing -I $(ROOTDIR)/toplevel
 CAMLOBJS= \
+	$(ROOTDIR)/utils/misc.cmo \
+	$(ROOTDIR)/utils/warnings.cmo \
+	$(ROOTDIR)/utils/consistbl.cmo \
 	$(ROOTDIR)/parsing/location.cmo \
 	$(ROOTDIR)/parsing/longident.cmo \
-	$(ROOTDIR)/utils/warnings.cmo \
 	$(ROOTDIR)/typing/ident.cmo $(ROOTDIR)/typing/path.cmo \
 	$(ROOTDIR)/typing/primitive.cmo $(ROOTDIR)/typing/types.cmo \
 	$(ROOTDIR)/typing/btype.cmo $(ROOTDIR)/typing/oprint.cmo \
 	$(ROOTDIR)/typing/subst.cmo $(ROOTDIR)/typing/predef.cmo \
 	$(ROOTDIR)/typing/datarepr.cmo $(ROOTDIR)/typing/cmi_format.cmo \
 	$(ROOTDIR)/typing/env.cmo \
+	$(ROOTDIR)/typing/typedtree.cmo $(ROOTDIR)/typing/printtyped.cmo \
+	$(ROOTDIR)/typing/ctype.cmo $(ROOTDIR)/typing/printtyp.cmo \
 	$(ROOTDIR)/toplevel/genprintval.cmo \
 	print.cmo
 CMIFILES=print.cmi
