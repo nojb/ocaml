@@ -16,6 +16,8 @@
 # Makefile for the "print" (exact rational arithmetic) library
 
 LIBNAME=print
+COBJS=printstubs.$(O)
+CLIBNAME=camlprint
 EXTRACAMLCFLAGS= \
 	-I $(ROOTDIR)/utils -I $(ROOTDIR)/parsing \
 	-I $(ROOTDIR)/typing -I $(ROOTDIR)/toplevel
