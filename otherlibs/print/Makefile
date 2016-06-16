@@ -16,7 +16,9 @@
 # Makefile for the "print" (exact rational arithmetic) library
 
 LIBNAME=print
-EXTRACAMLCFLAGS=-I $(ROOTDIR)/typing -I $(ROOTDIR)/toplevel
+EXTRACAMLCFLAGS= \
+	-I $(ROOTDIR)/utils -I $(ROOTDIR)/parsing \
+	-I $(ROOTDIR)/typing -I $(ROOTDIR)/toplevel
 CAMLOBJS= \
 	$(ROOTDIR)/utils/misc.cmo \
 	$(ROOTDIR)/utils/warnings.cmo \
