@@ -29,7 +29,8 @@ module Printval = Genprintval.Make (Obj) (EvalPath)
 let max_printer_steps = ref 10
 let max_printer_depth = ref 10
 
-let internal_print_value env te ppf v =
+let internal_print_value str ppf v =
+  let env, te = Marshal.from_string str 0 in
   let oval =
     Printval.outval_of_value !max_printer_steps !max_printer_depth
       (fun _ _ _ -> None) env v te

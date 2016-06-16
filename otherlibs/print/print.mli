@@ -18,4 +18,4 @@
 val print_value: Format.formatter -> 'a -> unit
 
 (** Internal *)
-val internal_print_value: Env.t -> Types.type_expr -> Format.formatter -> Obj.t -> unit
+val internal_print_value: string -> Format.formatter -> Obj.t -> unit

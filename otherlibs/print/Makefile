@@ -21,27 +21,26 @@ CLIBNAME=camlprint
 EXTRACAMLCFLAGS= \
 	-I $(ROOTDIR)/utils -I $(ROOTDIR)/parsing \
 	-I $(ROOTDIR)/typing -I $(ROOTDIR)/toplevel
-CAMLOBJS= \
-	$(ROOTDIR)/utils/misc.cmo \
-	$(ROOTDIR)/utils/identifiable.cmo \
-	$(ROOTDIR)/utils/numbers.cmo \
-	$(ROOTDIR)/utils/arg_helper.cmo \
-	$(ROOTDIR)/utils/clflags.cmo \
-	$(ROOTDIR)/utils/terminfo.cmo \
-	$(ROOTDIR)/utils/warnings.cmo \
-	$(ROOTDIR)/utils/consistbl.cmo \
-	$(ROOTDIR)/parsing/location.cmo \
-	$(ROOTDIR)/parsing/longident.cmo \
-	$(ROOTDIR)/typing/ident.cmo $(ROOTDIR)/typing/path.cmo \
-	$(ROOTDIR)/typing/primitive.cmo $(ROOTDIR)/typing/types.cmo \
-	$(ROOTDIR)/typing/btype.cmo $(ROOTDIR)/typing/oprint.cmo \
-	$(ROOTDIR)/typing/subst.cmo $(ROOTDIR)/typing/predef.cmo \
-	$(ROOTDIR)/typing/datarepr.cmo $(ROOTDIR)/typing/cmi_format.cmo \
-	$(ROOTDIR)/typing/env.cmo \
-	$(ROOTDIR)/typing/typedtree.cmo $(ROOTDIR)/typing/printtyped.cmo \
-	$(ROOTDIR)/typing/ctype.cmo $(ROOTDIR)/typing/printtyp.cmo \
-	$(ROOTDIR)/toplevel/genprintval.cmo \
-	print.cmo
+CAMLOBJS=print.cmo
+# $(ROOTDIR)/utils/misc.cmo \
+# $(ROOTDIR)/utils/identifiable.cmo \
+# $(ROOTDIR)/utils/numbers.cmo \
+# $(ROOTDIR)/utils/arg_helper.cmo \
+# $(ROOTDIR)/utils/clflags.cmo \
+# $(ROOTDIR)/utils/terminfo.cmo \
+# $(ROOTDIR)/utils/warnings.cmo \
+# $(ROOTDIR)/utils/consistbl.cmo \
+# $(ROOTDIR)/parsing/location.cmo \
+# $(ROOTDIR)/parsing/longident.cmo \
+# $(ROOTDIR)/typing/ident.cmo $(ROOTDIR)/typing/path.cmo \
+# $(ROOTDIR)/typing/primitive.cmo $(ROOTDIR)/typing/types.cmo \
+# $(ROOTDIR)/typing/btype.cmo $(ROOTDIR)/typing/oprint.cmo \
+# $(ROOTDIR)/typing/subst.cmo $(ROOTDIR)/typing/predef.cmo \
+# $(ROOTDIR)/typing/datarepr.cmo $(ROOTDIR)/typing/cmi_format.cmo \
+# $(ROOTDIR)/typing/env.cmo \
+# $(ROOTDIR)/typing/typedtree.cmo $(ROOTDIR)/typing/printtyped.cmo \
+# $(ROOTDIR)/typing/ctype.cmo $(ROOTDIR)/typing/printtyp.cmo \
+# $(ROOTDIR)/toplevel/genprintval.cmo \
 CMIFILES=print.cmi
 
 include ../Makefile
