@@ -1,6 +1,6 @@
 module type ARCH = sig
   (* Machine-specific command-line options *)
-  val command_line_options: Arg.spec
+  val command_line_options: (string * Arg.spec * string) list
 
   (* Specific operations for the AMD64 processor *)
   type addressing_mode
@@ -28,7 +28,7 @@ module type ARCH = sig
   (* Printing operations and addressing modes *)
 
   val print_addressing: (Format.formatter -> Reg.t -> unit) -> addressing_mode -> Format.formatter -> Reg.t array -> unit
-  val print_specific_operation: (Format.formatter -> Reg.t -> unit) -> specific_operation -> Format.formatter -> _ -> unit
+  val print_specific_operation: (Format.formatter -> Reg.t -> unit) -> specific_operation -> Format.formatter -> Reg.t array -> unit
 end
 
 module type MACH = sig
@@ -178,101 +178,10 @@ module type PROC = sig
 end
 
 module type SELECTION = sig
-  module Arch : ARCH
-  module Mach : MACH with module Arch = Arch
-
-  type environment = (Ident.t, Reg.t array) Tbl.t
-
-  val size_expr : environment -> Cmm.expression -> int
-
-  class virtual selector_generic : object
-    (* The following methods must or can be overridden by the processor
-       description *)
-    method virtual is_immediate : int -> bool
-    (* Must be defined to indicate whether a constant is a suitable
-       immediate operand to arithmetic instructions *)
-    method virtual select_addressing :
-      Cmm.memory_chunk -> Cmm.expression -> Arch.addressing_mode * Cmm.expression
-    (* Must be defined to select addressing modes *)
-    method is_simple_expr: Cmm.expression -> bool
-    (* Can be overridden to reflect special extcalls known to be pure *)
-    method select_operation :
-      Cmm.operation ->
-      Cmm.expression list -> Mach.operation * Cmm.expression list
-    (* Can be overridden to deal with special arithmetic instructions *)
-    method select_condition : Cmm.expression -> Mach.test * Cmm.expression
-    (* Can be overridden to deal with special test instructions *)
-    method select_store :
-      bool -> Arch.addressing_mode -> Cmm.expression ->
-      Mach.operation * Cmm.expression
-    (* Can be overridden to deal with special store constant instructions *)
-    method regs_for : Cmm.machtype -> Reg.t array
-    (* Return an array of fresh registers of the given type.
-       Default implementation is like Reg.createv.
-       Can be overridden if float values are stored as pairs of
-       integer registers. *)
-    method insert_op :
-      Mach.operation -> Reg.t array -> Reg.t array -> Reg.t array
-    (* Can be overridden to deal with 2-address instructions
-       or instructions with hardwired input/output registers *)
-    method insert_op_debug :
-      Mach.operation -> Debuginfo.t -> Reg.t array -> Reg.t array -> Reg.t array
-    (* Can be overridden to deal with 2-address instructions
-       or instructions with hardwired input/output registers *)
-    method emit_extcall_args :
-      environment -> Cmm.expression list -> Reg.t array * int
-    (* Can be overridden to deal with stack-based calling conventions *)
-    method emit_stores :
-      environment -> Cmm.expression list -> Reg.t array -> unit
-    (* Fill a freshly allocated block.  Can be overridden for architectures
-       that do not provide Arch.offset_addressing. *)
-
-    method mark_call : unit
-    (* informs the code emitter that the current function is non-leaf:
-       it may perform a (non-tail) call; by default, sets
-       [Proc.contains_calls := true] *)
-
-    method mark_tailcall : unit
-    (* informs the code emitter that the current function may end with
-       a tail-call; by default, does nothing *)
-
-    method mark_c_tailcall : unit
-    (* informs the code emitter that the current function may call
-       a C function that never returns; by default, does nothing.
-
-       It is unecessary to save the stack pointer in this situation
-       (which is the main purpose of tracking leaf functions) but some
-       architectures still need to ensure that the stack is properly
-       aligned when the C function is called. This is achieved by
-       overloading this method to set [Proc.contains_calls := true] *)
-
-    method mark_instr : Mach.instruction_desc -> unit
-    (* dispatches on instructions to call one of the marking function
-       above; overloading this is useful if Ispecific instructions need
-       marking *)
-
-    (* The following method is the entry point and should not be overridden *)
-    method emit_fundecl : Cmm.fundecl -> Mach.fundecl
-
-    (* The following methods should not be overridden.  They cannot be
-       declared "private" in the current implementation because they
-       are not always applied to "self", but ideally they should be private. *)
-    method extract : Mach.instruction
-    method insert : Mach.instruction_desc -> Reg.t array -> Reg.t array -> unit
-    method insert_debug : Mach.instruction_desc -> Debuginfo.t ->
-      Reg.t array -> Reg.t array -> unit
-    method insert_move : Reg.t -> Reg.t -> unit
-    method insert_move_args : Reg.t array -> Reg.t array -> int -> unit
-    method insert_move_results : Reg.t array -> Reg.t array -> int -> unit
-    method insert_moves : Reg.t array -> Reg.t array -> unit
-    method adjust_type : Reg.t -> Reg.t -> unit
-    method adjust_types : Reg.t array -> Reg.t array -> unit
-    method emit_expr :
-      (Ident.t, Reg.t array) Tbl.t -> Cmm.expression -> Reg.t array option
-    method emit_tail : (Ident.t, Reg.t array) Tbl.t -> Cmm.expression -> unit
-  end
-
-  val reset : unit -> unit
+  (* Selection of pseudo-instructions, assignment of pseudo-registers,
+     sequentialization. *)
+  module Mach : MACH
+  val fundecl: Cmm.fundecl -> Mach.fundecl
 end
 
 module type LIVENESS = sig
@@ -328,86 +237,22 @@ module type LINEARIZE = sig
 end
 
 module type RELOAD = sig
+  (* Insert load/stores for pseudoregs that got assigned to stack locations. *)
   module Mach : MACH
-
-  class reload_generic : object
-    method reload_operation :
-      Mach.operation -> Reg.t array -> Reg.t array -> Reg.t array * Reg.t array
-    method reload_test : Mach.test -> Reg.t array -> Reg.t array
-    (* Can be overridden to reflect instructions that can operate
-       directly on stack locations *)
-    method makereg : Reg.t -> Reg.t
-    (* Can be overridden to avoid creating new registers of some class
-       (i.e. if all "registers" of that class are actually on stack) *)
-    method fundecl : Mach.fundecl -> Mach.fundecl * bool
-    (* The entry point *)
-  end
+  val fundecl: Mach.fundecl -> Mach.fundecl * bool
 end
 
 module type SCHEDULING = sig
-  module Mach : MACH
-  module Linearize : LINEARIZE with module Mach = Mach
-
-  type code_dag_node =
-    { instr: Linearize.instruction;
-      delay: int;
-      mutable sons: (code_dag_node * int) list;
-      mutable date: int;
-      mutable length: int;
-      mutable ancestors: int;
-      mutable emitted_ancestors: int }
-
-  class virtual scheduler_generic : object
-    (* Can be overridden by processor description *)
-    method virtual oper_issue_cycles : Mach.operation -> int
-    (* Number of cycles needed to issue the given operation *)
-    method virtual oper_latency : Mach.operation -> int
-    (* Number of cycles needed to complete the given operation *)
-    method reload_retaddr_issue_cycles : int
-    (* Number of cycles needed to issue a Lreloadretaddr operation *)
-    method reload_retaddr_latency : int
-    (* Number of cycles needed to complete a Lreloadretaddr operation *)
-    method oper_in_basic_block : Mach.operation -> bool
-    (* Says whether the given operation terminates a basic block *)
-    method is_store : Mach.operation -> bool
-    (* Says whether the given operation is a memory store *)
-    method is_load : Mach.operation -> bool
-    (* Says whether the given operation is a memory load *)
-    method is_checkbound : Mach.operation -> bool
-    (* Says whether the given operation is a checkbound *)
-    (* Entry point *)
-    method schedule_fundecl : Linearize.fundecl -> Linearize.fundecl
-  end
-
-  val reset : unit -> unit
+  (* Instruction scheduling *)
+  module Linearize : LINEARIZE
+  val fundecl: Linearize.fundecl -> Linearize.fundecl
 end
 
 module type CSE = sig
   (* Common subexpression elimination by value numbering over extended
      basic blocks. *)
-
   module Mach : MACH
-
-  type op_class =
-    | Op_pure     (* pure, produce one result *)
-    | Op_checkbound     (* checkbound-style: no result, can raise an exn *)
-    | Op_load           (* memory load *)
-    | Op_store of bool  (* memory store, false = init, true = assign *)
-    | Op_other   (* anything else that does not allocate nor store in memory *)
-
-  class cse_generic : object
-    (* The following methods can be overriden to handle processor-specific
-       operations. *)
-
-    method class_of_operation: Mach.operation -> op_class
-
-    method is_cheap_operation: Mach.operation -> bool
-    (* Operations that are so cheap that it isn't worth factoring them. *)
-
-    (* The following method is the entry point and should not be overridden *)
-    method fundecl: Mach.fundecl -> Mach.fundecl
-
-  end
+  val fundecl: Mach.fundecl -> Mach.fundecl
 end
 
 module type SPILL = sig
@@ -439,7 +284,6 @@ module type INTERF = sig
   val build_graph: Mach.fundecl -> unit
 end
 
-
 module type COLORING = sig
   (* Register allocation by coloring of the interference graph *)
   module Proc : PROC
@@ -452,13 +296,22 @@ module type COMBALLOC = sig
   val fundecl: Mach.fundecl -> Mach.fundecl
 end
 
+module type EMIT = sig
+  (* Generation of assembly code *)
+  module Linearize : LINEARIZE
+  val fundecl: Linearize.fundecl -> unit
+  val data: Cmm.data_item list -> unit
+  val begin_assembly: unit -> unit
+  val end_assembly: unit -> unit
+end
+
 module type BACKEND = sig
   module Arch : ARCH
   module Proc : PROC
   module Mach : MACH with module Arch = Arch
   module CSE : CSE with module Mach = Mach
   module Linearize : LINEARIZE with module Mach = Mach
-  module Selection : SELECTION with module Arch = Arch and module Mach = Mach
+  module Selection : SELECTION with module Mach = Mach
   module Liveness : LIVENESS with module Mach = Mach
   module Reload : RELOAD with module Mach = Mach
   module Spill : SPILL with module Mach = Mach
@@ -467,5 +320,6 @@ module type BACKEND = sig
   module Interf : INTERF with module Mach = Mach
   module Coloring : COLORING with module Proc = Proc
   module Comballoc : COMBALLOC with module Mach = Mach
-  module Scheduling : SCHEDULING with module Mach = Mach and module Linearize = Linearize
+  module Scheduling : SCHEDULING with module Linearize = Linearize
+  module Emit : EMIT with module Linearize = Linearize
 end
