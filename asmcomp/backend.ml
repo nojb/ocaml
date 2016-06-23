@@ -344,7 +344,7 @@ module type RELOAD = sig
   end
 end
 
-module type SCHEDULE = sig
+module type SCHEDULING = sig
   module Mach : MACH
   module Linearize : LINEARIZE with module Mach = Mach
 
@@ -410,6 +410,48 @@ module type CSE = sig
   end
 end
 
+module type SPILL = sig
+(* Insertion of moves to suggest possible spilling / reloading points
+   before register allocation. *)
+module Mach : MACH
+val fundecl: Mach.fundecl -> Mach.fundecl
+val reset : unit -> unit
+end
+
+module type SPLIT = sig
+  (* Renaming of registers at reload points to split live ranges. *)
+  module Mach : MACH
+  val fundecl: Mach.fundecl -> Mach.fundecl
+  val reset : unit -> unit
+end
+
+module type DEADCODE = sig
+  (* Dead code elimination: remove pure instructions whose results are
+     not used. *)
+  module Mach : MACH
+  val fundecl: Mach.fundecl -> Mach.fundecl
+end
+
+module type INTERF = sig
+  (* Construction of the interference graph.
+     Annotate pseudoregs with interference lists and preference lists. *)
+  module Mach : MACH
+  val build_graph: Mach.fundecl -> unit
+end
+
+
+module type COLORING = sig
+  (* Register allocation by coloring of the interference graph *)
+  module Proc : PROC
+  val allocate_registers: unit -> unit
+end
+
+module type COMBALLOC = sig
+  (* Combine heap allocations occurring in the same basic block *)
+  module Mach : MACH
+  val fundecl: Mach.fundecl -> Mach.fundecl
+end
+
 module type BACKEND = sig
   module Arch : ARCH
   module Proc : PROC
@@ -419,4 +461,11 @@ module type BACKEND = sig
   module Selection : SELECTION with module Arch = Arch and module Mach = Mach
   module Liveness : LIVENESS with module Mach = Mach
   module Reload : RELOAD with module Mach = Mach
+  module Spill : SPILL with module Mach = Mach
+  module Split : SPLIT with module Mach = Mach
+  module Deadcode : DEADCODE with module Mach = Mach
+  module Interf : INTERF with module Mach = Mach
+  module Coloring : COLORING with module Proc = Proc
+  module Comballoc : COMBALLOC with module Mach = Mach
+  module Scheduling : SCHEDULING with module Mach = Mach and module Linearize = Linearize
 end
