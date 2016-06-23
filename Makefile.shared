@@ -106,6 +106,7 @@ endif
 
 ASMCOMP=\
   $(ARCH_SPECIFIC_ASMCOMP) \
+  asmcomp/backend.cmo \
   asmcomp/arch.cmo \
   asmcomp/cmm.cmo asmcomp/printcmm.cmo \
   asmcomp/reg.cmo asmcomp/mach.cmo asmcomp/proc.cmo \
