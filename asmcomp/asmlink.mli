@@ -17,9 +17,9 @@
 
 open Format
 
-val link: formatter -> string list -> string -> unit
+val link: (module Backend.BACKEND) -> formatter -> string list -> string -> unit
 
-val link_shared: formatter -> string list -> string -> unit
+val link_shared: (module Backend.BACKEND) -> formatter -> string list -> string -> unit
 
 val call_linker_shared: string list -> string -> unit
 

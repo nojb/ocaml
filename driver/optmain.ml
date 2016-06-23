@@ -35,14 +35,36 @@ module Backend = struct
 end
 let backend = (module Backend : Backend_intf.S)
 
+module B = struct
+  module Arch = Arch
+  module Proc = Proc
+  module Mach = Mach
+  module Printmach = Printmach
+  module CSE = CSE
+  module Linearize = Linearize
+  module Selection = Selection
+  module Liveness = Liveness
+  module Reload = Reload
+  module Spill = Spill
+  module Split = Split
+  module Deadcode = Deadcode
+  module Interf = Interf
+  module Coloring = Coloring
+  module Comballoc = Comballoc
+  module Scheduling = Scheduling
+  module Emit = Emit
+end
+
+module Asmgen = Asmgen.Make (B)
+
 let process_interface_file ppf name =
   let opref = output_prefix name in
-  Optcompile.interface ppf name opref;
+  Optcompile.interface (module B) ppf name opref;
   if !make_package then objfiles := (opref ^ ".cmi") :: !objfiles
 
 let process_implementation_file ppf name =
   let opref = output_prefix name in
-  Optcompile.implementation ppf name opref ~backend;
+  Optcompile.implementation (module B) ppf name opref ~backend;
   objfiles := (opref ^ ".cmx") :: !objfiles
 
 let cmxa_present = ref false;;
@@ -315,14 +337,14 @@ let main () =
     else if !make_package then begin
       Compmisc.init_path true;
       let target = extract_output !output_name in
-      Asmpackager.package_files ppf (Compmisc.initial_env ())
+      Asmpackager.package_files (module B) ppf (Compmisc.initial_env ())
         (get_objfiles ()) target ~backend;
       Warnings.check_fatal ();
     end
     else if !shared then begin
       Compmisc.init_path true;
       let target = extract_output !output_name in
-      Asmlink.link_shared ppf (get_objfiles ()) target;
+      Asmlink.link_shared (module B) ppf (get_objfiles ()) target;
       Warnings.check_fatal ();
     end
     else if not !compile_only && !objfiles <> [] then begin
@@ -342,7 +364,7 @@ let main () =
           default_output !output_name
       in
       Compmisc.init_path true;
-      Asmlink.link ppf (get_objfiles ()) target;
+      Asmlink.link (module B) ppf (get_objfiles ()) target;
       Warnings.check_fatal ();
     end;
   with x ->

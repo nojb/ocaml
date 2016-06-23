@@ -17,7 +17,8 @@
    original compilation units as sub-modules. *)
 
 val package_files
-   : Format.formatter
+   : (module Backend.BACKEND)
+  -> Format.formatter
   -> Env.t
   -> string list
   -> string

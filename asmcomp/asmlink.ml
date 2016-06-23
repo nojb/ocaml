@@ -203,7 +203,8 @@ let scan_file obj_name tolink = match read_file obj_name with
 
 (* Second pass: generate the startup file and link it with everything else *)
 
-let make_startup_file ppf units_list =
+let make_startup_file (module B : Backend.BACKEND) ppf units_list =
+  let module Asmgen = Asmgen.Make (B) in
   let compile_phrase p = Asmgen.compile_phrase ppf p in
   Location.input_name := "caml_startup"; (* set name of "current" input *)
   Compilenv.reset ~source_provenance:Timings.Startup "_startup";
@@ -237,7 +238,8 @@ let make_startup_file ppf units_list =
     (Cmmgen.frame_table("_startup" :: "_system" :: name_list));
   Emit.end_assembly ()
 
-let make_shared_startup_file ppf units =
+let make_shared_startup_file (module B : Backend.BACKEND) ppf units =
+  let module Asmgen = Asmgen.Make (B) in
   let compile_phrase p = Asmgen.compile_phrase ppf p in
   Location.input_name := "caml_startup";
   Compilenv.reset ~source_provenance:Timings.Startup "_shared_startup";
@@ -256,7 +258,8 @@ let call_linker_shared file_list output_name =
   if not (Ccomp.call_linker Ccomp.Dll output_name file_list "")
   then raise(Error Linking_error)
 
-let link_shared ppf objfiles output_name =
+let link_shared (module B : Backend.BACKEND) ppf objfiles output_name =
+  let module Asmgen = Asmgen.Make (B) in
   let units_tolink = List.fold_right scan_file objfiles [] in
   List.iter
     (fun (info, file_name, crc) -> check_consistency file_name info crc)
@@ -274,7 +277,7 @@ let link_shared ppf objfiles output_name =
   Asmgen.compile_unit ~source_provenance:Timings.Startup output_name
     startup !Clflags.keep_startup_file startup_obj
     (fun () ->
-       make_shared_startup_file ppf
+       make_shared_startup_file (module B) ppf
          (List.map (fun (ui,_,crc) -> (ui,crc)) units_tolink)
     );
   call_linker_shared (startup_obj :: objfiles) output_name;
@@ -304,7 +307,8 @@ let call_linker file_list startup_file output_name =
 
 (* Main entry point *)
 
-let link ppf objfiles output_name =
+let link (module B : Backend.BACKEND) ppf objfiles output_name =
+  let module Asmgen = Asmgen.Make (B) in
   let stdlib =
     if !Clflags.gprofile then "stdlib.p.cmxa" else "stdlib.cmxa" in
   let stdexit =
@@ -332,7 +336,7 @@ let link ppf objfiles output_name =
   let startup_obj = Filename.temp_file "camlstartup" ext_obj in
   Asmgen.compile_unit ~source_provenance:Timings.Startup output_name
     startup !Clflags.keep_startup_file startup_obj
-    (fun () -> make_startup_file ppf units_tolink);
+    (fun () -> make_startup_file (module B) ppf units_tolink);
   Misc.try_finally
     (fun () ->
       call_linker (List.map object_file_name objfiles) startup_obj output_name)

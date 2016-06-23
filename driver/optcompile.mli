@@ -20,7 +20,8 @@ open Format
 val interface: formatter -> string -> string -> unit
 
 val implementation
-   : formatter
+   : (module Backend.BACKEND)
+  -> formatter
   -> string
   -> string
   -> backend:(module Backend_intf.S)

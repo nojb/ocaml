@@ -116,6 +116,27 @@ module type MACH = sig
   val instr_iter: (instruction -> unit) -> instruction -> unit
 end
 
+module type PRINTMACH = sig
+  (* Pretty-printing of pseudo machine code *)
+
+  module Mach : MACH
+  open Format
+
+  val reg: formatter -> Reg.t -> unit
+  val regs: formatter -> Reg.t array -> unit
+  val regset: formatter -> Reg.Set.t -> unit
+  val regsetaddr: formatter -> Reg.Set.t -> unit
+  val operation: Mach.operation -> Reg.t array -> formatter -> Reg.t array -> unit
+  val test: Mach.test -> formatter -> Reg.t array -> unit
+  val instr: formatter -> Mach.instruction -> unit
+  val fundecl: formatter -> Mach.fundecl -> unit
+  val phase: string -> formatter -> Mach.fundecl -> unit
+  val interferences: formatter -> unit -> unit
+  val preferences: formatter -> unit -> unit
+
+  val print_live: bool ref
+end
+
 module type PROC = sig
   (* Processor descriptions *)
   module Mach : MACH
@@ -309,6 +330,7 @@ module type BACKEND = sig
   module Arch : ARCH
   module Proc : PROC
   module Mach : MACH with module Arch = Arch
+  module Printmach : PRINTMACH with module Mach = Mach
   module CSE : CSE with module Mach = Mach
   module Linearize : LINEARIZE with module Mach = Mach
   module Selection : SELECTION with module Mach = Mach

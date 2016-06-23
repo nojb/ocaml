@@ -15,6 +15,7 @@
 
 (* From lambda to assembly code *)
 
+module Make (B : Backend.BACKEND) : sig
 val compile_implementation_flambda :
     ?toplevel:(string -> bool) ->
     source_provenance:Timings.source_provenance ->
@@ -41,3 +42,4 @@ val compile_unit:
   string(*prefixname*) ->
   string(*asm file*) -> bool(*keep asm*) ->
   string(*obj file*) -> (unit -> unit) -> unit
+end

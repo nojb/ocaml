@@ -17,11 +17,13 @@
 
 [@@@ocaml.warning "+a-4-9-40-41-42"]
 
+module Make (B : Backend.BACKEND) = struct
 open Format
 open Config
 open Clflags
 open Misc
 open Cmm
+open B
 
 type error = Assembler_error of string
 
@@ -36,8 +38,8 @@ let dump_if ppf flag message phrase =
 let pass_dump_if ppf flag message phrase =
   dump_if ppf flag message phrase; phrase
 
-let pass_dump_linear_if ppf flag message phrase =
-  if !flag then fprintf ppf "*** %s@.%a@." message Printlinear.fundecl phrase;
+let pass_dump_linear_if _ppf _flag _message phrase =
+  (* if !flag then fprintf ppf "*** %s@.%a@." message Printlinear.fundecl phrase; *)
   phrase
 
 let flambda_raw_clambda_dump_if ppf
@@ -266,3 +268,4 @@ let () =
       | Error err -> Some (Location.error_of_printer_file report_error err)
       | _ -> None
     )
+end
