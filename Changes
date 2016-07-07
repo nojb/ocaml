@@ -173,9 +173,15 @@ OCaml 4.04.0:
   native-code versions of the tools, if those versions were built.
   (Demi Obenour)
 
-- GPR#324: Compiler developers: Adding new primitives to the
+- GPR#324: Compiler developers: Adding new C primitives to the
   standard runtime doesn't require anymore to run `make bootstrap`
   (François Bobot)
+
+- GPR#374: Compiler developers: The prototype of `Misc.try_finally`
+  has changed by using optional arguments. Cleanup in exceptional case
+  have been added (`~exceptionally`). It uses
+  `Printexc.raise_with_backtrace` for preserving backtraces.
+  (François Bobot and Gabriel Scherer)
 
 - GPR#384: Fix compilation using old Microsoft C Compilers not
   supporting secure CRT functions (SDK Visual Studio 2005 compiler and
