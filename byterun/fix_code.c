@@ -125,6 +125,7 @@ int* caml_init_opcode_nargs(void)
       l[OFFSETREF] = l[OFFSETCLOSURE] = l[PUSHOFFSETCLOSURE] = 1;
 
     /* Instructions with two operands */
+    l[GRAB_SCHEME] =
     l[APPTERM] = l[CLOSURE] = l[PUSHGETGLOBALFIELD] =
       l[GETGLOBALFIELD] = l[MAKEBLOCK] = l[C_CALLN] =
       l[BEQ] = l[BNEQ] = l[BLTINT] = l[BLEINT] = l[BGTINT] = l[BGEINT] =

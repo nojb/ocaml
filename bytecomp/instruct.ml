@@ -103,6 +103,7 @@ type instruction =
   | Kgetdynmet
   | Kevent of debug_event
   | Kstop
+  | Kgrab_scheme of int * label
 
 let immed_min = -0x40000000
 and immed_max = 0x3FFFFFFF

@@ -104,6 +104,7 @@ let instruction ppf = function
                          ev.ev_loc.Location.loc_start.Lexing.pos_fname
                          ev.ev_loc.Location.loc_start.Lexing.pos_cnum
                          ev.ev_loc.Location.loc_end.Lexing.pos_cnum
+  | Kgrab_scheme (n, lbl) -> fprintf ppf "\tgrab_scheme %i, L%i" n lbl
 
 let rec instruction_list ppf = function
     [] -> ()

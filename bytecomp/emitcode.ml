@@ -279,6 +279,7 @@ let emit_instr = function
   | Kgetdynmet -> out opGETDYNMET
   | Kevent ev -> record_event ev
   | Kstop -> out opSTOP
+  | Kgrab_scheme (n, lbl) -> out opGRAB_SCHEME; out_int n; out_label lbl
 
 (* Emission of a list of instructions. Include some peephole optimization. *)
 

@@ -123,6 +123,7 @@ type instruction =
   | Kgetdynmet
   | Kevent of debug_event
   | Kstop
+  | Kgrab_scheme of int * label
 
 val immed_min: int
 val immed_max: int

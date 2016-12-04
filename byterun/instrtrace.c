@@ -59,6 +59,7 @@ void caml_disasm_instr(pc)
   case OFFSETCLOSURE: case PUSHOFFSETCLOSURE:
     printf(" %d\n", pc[0]); break;
     /* Instructions with two operands */
+  case GRAB_SCHEME:
   case APPTERM: case CLOSURE: case CLOSUREREC: case PUSHGETGLOBALFIELD:
   case GETGLOBALFIELD: case MAKEBLOCK:
   case BEQ: case BNEQ: case BLTINT: case BLEINT: case BGTINT: case BGEINT:
@@ -132,6 +133,7 @@ char * caml_instr_string (code_t pc)
     snprintf(buf, sizeof(buf), "%s %d", nam, pc[0]);
     break;
     /* Instructions with two operands */
+  case GRAB_SCHEME:
   case APPTERM:
   case CLOSURE:
   case CLOSUREREC:

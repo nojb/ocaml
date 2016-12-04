@@ -524,6 +524,11 @@ value caml_interprete(code_t prog, asize_t prog_size)
       Next;
     }
 
+    Instruct(GRAB_SCHEME): {
+        exit (23);
+        Next;
+    }
+
     Instruct(CLOSURE): {
       int nvars = *pc++;
       int i;
