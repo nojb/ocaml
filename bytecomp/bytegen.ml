@@ -282,7 +282,8 @@ type function_to_compile =
     free_vars: Ident.t list;            (* free variables of the function *)
     num_defs: int;            (* number of mutually recursive definitions *)
     rec_vars: Ident.t list;             (* mutually recursive fn names *)
-    rec_pos: int }                      (* rank in recursive definition *)
+    rec_pos: int;                       (* rank in recursive definition *)
+    scheme_cc: bool }
 
 let functions_to_compile  = (Stack.create () : function_to_compile Stack.t)
 
@@ -503,12 +504,13 @@ let rec comp_expr env exp sz cont =
           comp_args env args' (sz + 3)
             (getmethod :: Kapply nargs :: cont1)
         end
-  | Lfunction{params; body} -> (* assume kind = Curried *)
+  | Lfunction{params; body; attr = {scheme_calling_convention}} -> (* assume kind = Curried *)
       let lbl = new_label() in
       let fv = IdentSet.elements(free_variables exp) in
       let to_compile =
         { params = params; body = body; label = lbl;
-          free_vars = fv; num_defs = 1; rec_vars = []; rec_pos = 0 } in
+          free_vars = fv; num_defs = 1; rec_vars = []; rec_pos = 0;
+          scheme_cc = scheme_calling_convention } in
       Stack.push to_compile functions_to_compile;
       comp_args env (List.map (fun n -> Lvar n) fv) sz
         (Kclosure(lbl, List.length fv) :: cont)
@@ -526,11 +528,12 @@ let rec comp_expr env exp sz cont =
         let rec_idents = List.map (fun (id, _lam) -> id) decl in
         let rec comp_fun pos = function
             [] -> []
-          | (_id, Lfunction{params; body}) :: rem ->
+          | (_id, Lfunction{params; body; attr = {scheme_calling_convention}}) :: rem ->
               let lbl = new_label() in
               let to_compile =
                 { params = params; body = body; label = lbl; free_vars = fv;
-                  num_defs = ndecl; rec_vars = rec_idents; rec_pos = pos} in
+                  num_defs = ndecl; rec_vars = rec_idents; rec_pos = pos;
+                  scheme_cc = scheme_calling_convention } in
               Stack.push to_compile functions_to_compile;
               lbl :: comp_fun (pos + 1) rem
           | _ -> assert false in
@@ -934,7 +937,9 @@ let comp_function tc cont =
       ce_rec = positions (-2 * tc.rec_pos) 2 tc.rec_vars } in
   let cont =
     comp_block env tc.body arity (Kreturn arity :: cont) in
-  if arity > 1 then
+  if tc.scheme_cc then
+    failwith "scheme_cc not implemented"
+  else if arity > 1 then
     Krestart :: Klabel tc.label :: Kgrab(arity - 1) :: cont
   else
     Klabel tc.label :: cont
