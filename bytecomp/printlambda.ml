@@ -459,15 +459,15 @@ let rec lam ppf = function
         match kind with
         | Curried ->
             List.iter (fun param -> fprintf ppf "@ %a" Ident.print param) params
-        | Tupled ->
-            fprintf ppf " (";
+        | Tupled | Scheme ->
+            fprintf ppf (if kind = Scheme then " [" else " (");
             let first = ref true in
             List.iter
               (fun param ->
                 if !first then first := false else fprintf ppf ",@ ";
                 Ident.print ppf param)
               params;
-            fprintf ppf ")" in
+            fprintf ppf (if kind = Scheme then "]" else ")") in
       fprintf ppf "@[<2>(function%a@ %a%a)@]" pr_params params
         function_attribute attr lam body
   | Llet(str, k, id, arg, body) ->

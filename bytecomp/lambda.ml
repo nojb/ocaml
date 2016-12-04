@@ -86,7 +86,7 @@ type primitive =
   | Paddfloat | Psubfloat | Pmulfloat | Pdivfloat
   | Pfloatcomp of comparison
   (* String operations *)
-  | Pstringlength | Pstringrefu  | Pstringrefs 
+  | Pstringlength | Pstringrefu  | Pstringrefs
   | Pbyteslength | Pbytesrefu | Pbytessetu | Pbytesrefs | Pbytessets
   (* Array operations *)
   | Pmakearray of array_kind * mutable_flag
@@ -201,7 +201,7 @@ type specialise_attribute =
   | Never_specialise (* [@specialise never] *)
   | Default_specialise (* no [@specialise] attribute *)
 
-type function_kind = Curried | Tupled
+type function_kind = Curried | Tupled | Scheme
 
 type let_kind = Strict | Alias | StrictOpt | Variable
 

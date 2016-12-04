@@ -575,6 +575,8 @@ and close_functions t external_env function_declarations : Flambda.named =
       in
       Variable.Map.add unboxed_version fun_decl
         (Variable.Map.add closure_bound_var generic_function_stub map)
+    | Scheme ->
+        Misc.fatal_error "Closure_conversion: Scheme-style functions not supported"
   in
   let function_decls =
     Flambda.create_function_declarations
