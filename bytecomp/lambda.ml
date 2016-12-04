@@ -201,7 +201,7 @@ type specialise_attribute =
   | Never_specialise (* [@specialise never] *)
   | Default_specialise (* no [@specialise] attribute *)
 
-type function_kind = Curried | Tupled | Scheme
+type function_kind = Curried | Tupled
 
 type let_kind = Strict | Alias | StrictOpt | Variable
 
@@ -213,6 +213,7 @@ type function_attribute = {
   inline : inline_attribute;
   specialise : specialise_attribute;
   is_a_functor: bool;
+  scheme_calling_convention : bool;
 }
 
 type lambda =
@@ -286,6 +287,7 @@ let default_function_attribute = {
   inline = Default_inline;
   specialise = Default_specialise;
   is_a_functor = false;
+  scheme_calling_convention = false;
 }
 
 (* Build sharing keys *)

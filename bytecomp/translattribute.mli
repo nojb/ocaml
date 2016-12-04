@@ -58,3 +58,7 @@ val get_and_remove_specialised_attribute
 val get_tailcall_attribute
    : Typedtree.expression
   -> bool * Typedtree.expression
+
+val get_scheme_fun_attribute
+   : Typedtree.attributes
+  -> bool

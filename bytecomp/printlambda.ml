@@ -412,7 +412,7 @@ let name_of_primitive = function
   | Pint_as_pointer -> "Pint_as_pointer"
   | Popaque -> "Popaque"
 
-let function_attribute ppf { inline; specialise; is_a_functor } =
+let function_attribute ppf { inline; specialise; is_a_functor; scheme_calling_convention } =
   if is_a_functor then
     fprintf ppf "is_a_functor@ ";
   begin match inline with
@@ -425,6 +425,10 @@ let function_attribute ppf { inline; specialise; is_a_functor } =
   | Default_specialise -> ()
   | Always_specialise -> fprintf ppf "always_specialise@ "
   | Never_specialise -> fprintf ppf "never_specialise@ "
+  end;
+  begin match scheme_calling_convention with
+  | true -> fprintf ppf "scheme_cc@ "
+  | false -> ()
   end
 
 let apply_tailcall_attribute ppf tailcall =
@@ -459,15 +463,15 @@ let rec lam ppf = function
         match kind with
         | Curried ->
             List.iter (fun param -> fprintf ppf "@ %a" Ident.print param) params
-        | Tupled | Scheme ->
-            fprintf ppf (if kind = Scheme then " [" else " (");
+        | Tupled ->
+            fprintf ppf " (";
             let first = ref true in
             List.iter
               (fun param ->
                 if !first then first := false else fprintf ppf ",@ ";
                 Ident.print ppf param)
               params;
-            fprintf ppf (if kind = Scheme then "]" else ")") in
+            fprintf ppf ")" in
       fprintf ppf "@[<2>(function%a@ %a%a)@]" pr_params params
         function_attribute attr lam body
   | Llet(str, k, id, arg, body) ->

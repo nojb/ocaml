@@ -34,6 +34,10 @@ let is_specialised_attribute = function
   | {txt=("specialised"|"ocaml.specialised")}, _ when Config.flambda -> true
   | _ -> false
 
+let is_scheme_fun_attribute = function
+  | {txt="scheme.fun"}, _ -> true
+  | _ -> false
+
 let find_attribute p attributes =
   let inline_attribute, other_attributes =
     List.partition p attributes
@@ -140,6 +144,12 @@ let get_inline_attribute l =
 let get_specialise_attribute l =
   let attr, _ = find_attribute is_specialise_attribute l in
   parse_specialise_attribute attr
+
+let get_scheme_fun_attribute l =
+  let attr, _ = find_attribute is_scheme_fun_attribute l in
+  match attr with
+  | None -> false
+  | Some _ -> true
 
 let add_inline_attribute expr loc attributes =
   match expr, get_inline_attribute attributes with
