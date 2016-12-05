@@ -526,12 +526,28 @@ value caml_interprete(code_t prog, asize_t prog_size)
 
     Instruct(GRAB_SCHEME): {
       int required = *pc++;
-      fprintf (stderr, "extra_args=%ld required=%d\n", extra_args, required);
-      if (extra_args < required) {
+      int nargs = 1 + extra_args;
+      fprintf (stderr, "nargs=%d required=%d\n", nargs, required);
+      if (nargs < required) {
         pc += *pc;
       } else {
+        int i, n;
+        value rest = Val_emptylist;
+        n = nargs - required;
+        fprintf (stderr, "n = %d\n", n);
+        for (i = n - 1; i >= 0; i --) {
+          value tail = rest;
+          fprintf (stderr, "Alloc_small i = %d\n", i);
+          Alloc_small (rest, 2, 0);
+          Field (rest, 0) = sp[required + i];
+          Field (rest, 1) = tail;
+        }
+        fprintf (stderr, "done collecting\n");
+        sp[required+n-1] = rest;
+        for (i = 0; i < required; i ++) sp[i+n-1] = sp[i];
+        sp += n-1;
         pc++;
-        extra_args -= required;
+        extra_args = 0;
       }
       Next;
     }
