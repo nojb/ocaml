@@ -935,14 +935,21 @@ let comp_function tc cont =
     { ce_stack = positions arity (-1) tc.params;
       ce_heap = positions (2 * (tc.num_defs - tc.rec_pos) - 1) 1 tc.free_vars;
       ce_rec = positions (-2 * tc.rec_pos) 2 tc.rec_vars } in
-  let cont =
-    comp_block env tc.body arity (Kreturn arity :: cont) in
   if tc.scheme_cc then
-    failwith "scheme_cc not implemented"
-  else if arity > 1 then
-    Krestart :: Klabel tc.label :: Kgrab(arity - 1) :: cont
+    let arg =
+      Lprim(Pmakeblock(0, Immutable, None), [transl_normal_path Predef.path_bad_arity], Location.none)
+    in
+    let bad_arity_lbl, cont =
+      label_code (comp_expr env arg arity (Kraise Raise_regular :: discard_dead_code cont))
+    in
+    let cont = comp_block env tc.body arity (Kreturn arity :: cont) in
+    Klabel tc.label :: Kgrab_scheme(arity - 1, bad_arity_lbl) :: cont
   else
-    Klabel tc.label :: cont
+    let cont = comp_block env tc.body arity (Kreturn arity :: cont) in
+    if arity > 1 then
+      Krestart :: Klabel tc.label :: Kgrab(arity - 1) :: cont
+    else
+      Klabel tc.label :: cont
 
 let comp_remainder cont =
   let c = ref cont in

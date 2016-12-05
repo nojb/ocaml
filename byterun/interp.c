@@ -525,8 +525,15 @@ value caml_interprete(code_t prog, asize_t prog_size)
     }
 
     Instruct(GRAB_SCHEME): {
-        exit (23);
-        Next;
+      int required = *pc++;
+      fprintf (stderr, "extra_args=%ld required=%d\n", extra_args, required);
+      if (extra_args < required) {
+        pc += *pc;
+      } else {
+        pc++;
+        extra_args -= required;
+      }
+      Next;
     }
 
     Instruct(CLOSURE): {

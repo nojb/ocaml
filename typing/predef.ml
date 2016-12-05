@@ -113,6 +113,7 @@ let all_predef_exns = [
 let path_match_failure = Pident ident_match_failure
 and path_assert_failure = Pident ident_assert_failure
 and path_undefined_recursive_module = Pident ident_undefined_recursive_module
+and path_bad_arity = Pident ident_not_found
 
 let decl_abstr =
   {type_params = [];
