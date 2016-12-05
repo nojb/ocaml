@@ -542,9 +542,15 @@ value caml_interprete(code_t prog, asize_t prog_size)
           Field (rest, 1) = tail;
         }
         fprintf (stderr, "done collecting\n");
-        sp[required+n] = rest;
-        for (i = 0; i < required; i ++) sp[i+n] = sp[i];
-        sp += n;
+        if (n >= 0) {
+          sp[required+n] = rest;
+          for (i = 0; i < required; i ++) sp[i+n] = sp[i];
+          sp += n;
+        } else {
+          --sp;
+          sp[0] = sp[1];
+          sp[1] = rest;
+        }
         pc++;
         extra_args = 0;
       }
