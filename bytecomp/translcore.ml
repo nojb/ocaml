@@ -744,7 +744,7 @@ and transl_exp0 e =
         inline = Translattribute.get_inline_attribute e.exp_attributes;
         specialise = Translattribute.get_specialise_attribute e.exp_attributes;
         scheme_calling_convention =
-          Translattribute.get_scheme_fun_attribute e.exp_attributes;
+          Translattribute.get_scheme_attribute e.exp_attributes;
       }
       in
       let loc = e.exp_loc in

@@ -59,6 +59,6 @@ val get_tailcall_attribute
    : Typedtree.expression
   -> bool * Typedtree.expression
 
-val get_scheme_fun_attribute
+val get_scheme_attribute
    : Typedtree.attributes
   -> bool

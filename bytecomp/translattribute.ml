@@ -34,8 +34,8 @@ let is_specialised_attribute = function
   | {txt=("specialised"|"ocaml.specialised")}, _ when Config.flambda -> true
   | _ -> false
 
-let is_scheme_fun_attribute = function
-  | {txt="scheme.fun"}, _ -> true
+let is_scheme_attribute = function
+  | {txt="scheme"}, _ -> true
   | _ -> false
 
 let find_attribute p attributes =
@@ -145,8 +145,8 @@ let get_specialise_attribute l =
   let attr, _ = find_attribute is_specialise_attribute l in
   parse_specialise_attribute attr
 
-let get_scheme_fun_attribute l =
-  let attr, _ = find_attribute is_scheme_fun_attribute l in
+let get_scheme_attribute l =
+  let attr, _ = find_attribute is_scheme_attribute l in
   match attr with
   | None -> false
   | Some _ -> true
