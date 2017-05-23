@@ -16,31 +16,38 @@
 /* The parser definition */
 
 %{
-open Location
 open Asttypes
 open Longident
 open Parsetree
 open Ast_helper
 open Docstrings
+open Docstrings.WithMenhir
 
-let mktyp d = Typ.mk ~loc:(symbol_rloc()) d
-let mkpat d = Pat.mk ~loc:(symbol_rloc()) d
-let mkexp d = Exp.mk ~loc:(symbol_rloc()) d
-let mkmty ?attrs d = Mty.mk ~loc:(symbol_rloc()) ?attrs d
-let mksig d = Sig.mk ~loc:(symbol_rloc()) d
-let mkmod ?attrs d = Mod.mk ~loc:(symbol_rloc()) ?attrs d
-let mkstr d = Str.mk ~loc:(symbol_rloc()) d
-let mkclass ?attrs d = Cl.mk ~loc:(symbol_rloc()) ?attrs d
-let mkcty ?attrs d = Cty.mk ~loc:(symbol_rloc()) ?attrs d
-let mkctf ?attrs ?docs d =
-  Ctf.mk ~loc:(symbol_rloc()) ?attrs ?docs d
-let mkcf ?attrs ?docs d =
-  Cf.mk ~loc:(symbol_rloc()) ?attrs ?docs d
+let mkloc = Location.mkloc
+let mknoloc = Location.mknoloc
+
+let mktyp ~loc d = Typ.mk ~loc d
+let mkpat ~loc d = Pat.mk ~loc d
+let mkexp ~loc d = Exp.mk ~loc d
+let mkmty ~loc ?attrs d = Mty.mk ~loc ?attrs d
+let mksig ~loc d = Sig.mk ~loc d
+let mkmod ~loc ?attrs d = Mod.mk ~loc ?attrs d
+let mkstr ~loc d = Str.mk ~loc d
+let mkclass ~loc ?attrs d = Cl.mk ~loc ?attrs d
+let mkcty ~loc ?attrs d = Cty.mk ~loc ?attrs d
+
+let mkctf ~loc ?attrs ?docs d =
+  Ctf.mk ~loc ?attrs ?docs d
+let mkcf ~loc ?attrs ?docs d =
+  Cf.mk ~loc ?attrs ?docs d
+
+(* for now silently turn positions into locations *)
+let rhs_loc pos = pos
 
 let mkrhs rhs pos = mkloc rhs (rhs_loc pos)
 
-let reloc_pat x = { x with ppat_loc = symbol_rloc () };;
-let reloc_exp x = { x with pexp_loc = symbol_rloc () };;
+let reloc_pat ~loc x = { x with ppat_loc = loc };;
+let reloc_exp ~loc x = { x with pexp_loc = loc };;
 
 let mkoperator name pos =
   let loc = rhs_loc pos in
@@ -66,37 +73,39 @@ let mkpatvar name pos =
   AST node, then the location must be real; in all other cases,
   it must be ghost.
 *)
-let ghexp d = Exp.mk ~loc:(symbol_gloc ()) d
-let ghpat d = Pat.mk ~loc:(symbol_gloc ()) d
-let ghtyp d = Typ.mk ~loc:(symbol_gloc ()) d
-let ghloc d = { txt = d; loc = symbol_gloc () }
-let ghstr d = Str.mk ~loc:(symbol_gloc()) d
-let ghsig d = Sig.mk ~loc:(symbol_gloc()) d
+let ghexp ~loc d = Exp.mk ~loc:{ loc with Location.loc_ghost = true } d
+let ghpat ~loc d = Pat.mk ~loc:{ loc with Location.loc_ghost = true } d
+let ghtyp ~loc d = Typ.mk ~loc:{ loc with Location.loc_ghost = true } d
+let ghloc ~loc d = { txt = d; loc = { loc with Location.loc_ghost = true } }
+let ghstr ~loc d = Str.mk ~loc:{ loc with Location.loc_ghost = true } d
+let ghsig ~loc d = Sig.mk ~loc:{ loc with Location.loc_ghost = true } d
 
-let mkinfix arg1 name arg2 =
-  mkexp(Pexp_apply(mkoperator name 2, [Nolabel, arg1; Nolabel, arg2]))
+let mkinfix ~loc ~oploc arg1 name arg2 =
+  mkexp ~loc (Pexp_apply(mkoperator name oploc, [Nolabel, arg1; Nolabel, arg2]))
 
 let neg_string f =
   if String.length f > 0 && f.[0] = '-'
   then String.sub f 1 (String.length f - 1)
   else "-" ^ f
 
-let mkuminus name arg =
+let mkuminus ~loc ~oploc name arg =
+  let mkexp = mkexp ~loc in
   match name, arg.pexp_desc with
   | "-", Pexp_constant(Pconst_integer (n,m)) ->
       mkexp(Pexp_constant(Pconst_integer(neg_string n,m)))
   | ("-" | "-."), Pexp_constant(Pconst_float (f, m)) ->
       mkexp(Pexp_constant(Pconst_float(neg_string f, m)))
   | _ ->
-      mkexp(Pexp_apply(mkoperator ("~" ^ name) 1, [Nolabel, arg]))
+      mkexp(Pexp_apply(mkoperator ("~" ^ name) oploc, [Nolabel, arg]))
 
-let mkuplus name arg =
+let mkuplus ~loc ~oploc name arg =
+  let mkexp = mkexp ~loc in
   let desc = arg.pexp_desc in
   match name, desc with
   | "+", Pexp_constant(Pconst_integer _)
   | ("+" | "+."), Pexp_constant(Pconst_float _) -> mkexp desc
   | _ ->
-      mkexp(Pexp_apply(mkoperator ("~" ^ name) 1, [Nolabel, arg]))
+      mkexp (Pexp_apply(mkoperator ("~" ^ name) oploc, [Nolabel, arg]))
 
 let mkexp_cons consloc args loc =
   Exp.mk ~loc (Pexp_construct(mkloc (Lident "::") consloc, Some args))
@@ -104,7 +113,7 @@ let mkexp_cons consloc args loc =
 let mkpat_cons consloc args loc =
   Pat.mk ~loc (Ppat_construct(mkloc (Lident "::") consloc, Some args))
 
-let rec mktailexp nilloc = function
+let rec mktailexp nilloc = let open Location in function
     [] ->
       let loc = { nilloc with loc_ghost = true } in
       let nil = { txt = Lident "[]"; loc = loc } in
@@ -118,7 +127,7 @@ let rec mktailexp nilloc = function
       let arg = Exp.mk ~loc (Pexp_tuple [e1; exp_el]) in
       mkexp_cons {loc with loc_ghost = true} arg loc
 
-let rec mktailpat nilloc = function
+let rec mktailpat nilloc = let open Location in function
     [] ->
       let loc = { nilloc with loc_ghost = true } in
       let nil = { txt = Lident "[]"; loc = loc } in
@@ -135,22 +144,23 @@ let rec mktailpat nilloc = function
 let mkstrexp e attrs =
   { pstr_desc = Pstr_eval (e, attrs); pstr_loc = e.pexp_loc }
 
-let mkexp_constraint e (t1, t2) =
+let mkexp_constraint ~loc e (t1, t2) =
+  let ghexp = ghexp ~loc in
   match t1, t2 with
   | Some t, None -> ghexp(Pexp_constraint(e, t))
   | _, Some t -> ghexp(Pexp_coerce(e, t1, t))
   | None, None -> assert false
 
-let mkexp_opt_constraint e = function
+let mkexp_opt_constraint ~loc e = function
   | None -> e
-  | Some constraint_ -> mkexp_constraint e constraint_
+  | Some constraint_ -> mkexp_constraint ~loc e constraint_
 
-let mkpat_opt_constraint p = function
+let mkpat_opt_constraint ~loc p = function
   | None -> p
-  | Some typ -> mkpat (Ppat_constraint(p, typ))
+  | Some typ -> mkpat ~loc (Ppat_constraint(p, typ))
 
-let array_function str name =
-  ghloc (Ldot(Lident str, (if !Clflags.fast then "unsafe_" ^ name else name)))
+let array_function ~loc str name =
+  ghloc ~loc (Ldot(Lident str, (if !Clflags.fast then "unsafe_" ^ name else name)))
 
 let syntax_error () =
   raise Syntaxerr.Escape_error
@@ -165,14 +175,16 @@ let expecting pos nonterm =
 let not_expecting pos nonterm =
     raise Syntaxerr.(Error(Not_expecting(rhs_loc pos, nonterm)))
 
-let bigarray_function str name =
-  ghloc (Ldot(Ldot(Lident "Bigarray", str), name))
+let bigarray_function ~loc str name =
+  ghloc ~loc (Ldot(Ldot(Lident "Bigarray", str), name))
 
 let bigarray_untuplify = function
     { pexp_desc = Pexp_tuple explist; pexp_loc = _ } -> explist
   | exp -> [exp]
 
-let bigarray_get arr arg =
+let bigarray_get ~loc arr arg =
+  let mkexp, ghexp = mkexp ~loc, ghexp ~loc in
+  let bigarray_function = bigarray_function ~loc in
   let get = if !Clflags.fast then "unsafe_get" else "get" in
   match bigarray_untuplify arg with
     [c1] ->
@@ -188,7 +200,9 @@ let bigarray_get arr arg =
       mkexp(Pexp_apply(ghexp(Pexp_ident(bigarray_function "Genarray" "get")),
                        [Nolabel, arr; Nolabel, ghexp(Pexp_array coords)]))
 
-let bigarray_set arr arg newval =
+let bigarray_set ~loc arr arg newval =
+  let mkexp, ghexp = mkexp ~loc, ghexp ~loc in
+  let bigarray_function = bigarray_function ~loc in
   let set = if !Clflags.fast then "unsafe_set" else "set" in
   match bigarray_untuplify arg with
     [c1] ->
@@ -211,75 +225,79 @@ let bigarray_set arr arg newval =
 let lapply p1 p2 =
   if !Clflags.applicative_functors
   then Lapply(p1, p2)
-  else raise (Syntaxerr.Error(Syntaxerr.Applicative_path (symbol_rloc())))
+  else raise (Syntaxerr.Error(Syntaxerr.Applicative_path Location.(symbol_rloc())))
 
-let exp_of_label lbl pos =
-  mkexp (Pexp_ident(mkrhs (Lident(Longident.last lbl)) pos))
+let exp_of_label ~loc lbl pos =
+  mkexp ~loc (Pexp_ident(mkrhs (Lident(Longident.last lbl)) pos))
 
-let pat_of_label lbl pos =
-  mkpat (Ppat_var (mkrhs (Longident.last lbl) pos))
+let pat_of_label ~loc lbl pos =
+  mkpat ~loc (Ppat_var (mkrhs (Longident.last lbl) pos))
 
-let mk_newtypes newtypes exp =
+let mk_newtypes ~loc newtypes exp =
+  let mkexp = mkexp ~loc in
   List.fold_right (fun newtype exp -> mkexp (Pexp_newtype (newtype, exp)))
     newtypes exp
 
-let wrap_type_annotation newtypes core_type body =
+let wrap_type_annotation ~loc newtypes core_type body =
+  let mkexp, ghtyp = mkexp ~loc, ghtyp ~loc in
+  let mk_newtypes = mk_newtypes ~loc in
   let exp = mkexp(Pexp_constraint(body,core_type)) in
   let exp = mk_newtypes newtypes exp in
   (exp, ghtyp(Ptyp_poly(newtypes, Typ.varify_constructors newtypes core_type)))
 
-let wrap_exp_attrs body (ext, attrs) =
+let wrap_exp_attrs ~loc body (ext, attrs) =
+  let ghexp = ghexp ~loc in
   (* todo: keep exact location for the entire attribute *)
   let body = {body with pexp_attributes = attrs @ body.pexp_attributes} in
   match ext with
   | None -> body
   | Some id -> ghexp(Pexp_extension (id, PStr [mkstrexp body []]))
 
-let mkexp_attrs d attrs =
-  wrap_exp_attrs (mkexp d) attrs
+let mkexp_attrs ~loc d attrs =
+  wrap_exp_attrs ~loc (mkexp ~loc d) attrs
 
-let wrap_typ_attrs typ (ext, attrs) =
+let wrap_typ_attrs ~loc typ (ext, attrs) =
   (* todo: keep exact location for the entire attribute *)
   let typ = {typ with ptyp_attributes = attrs @ typ.ptyp_attributes} in
   match ext with
   | None -> typ
-  | Some id -> ghtyp(Ptyp_extension (id, PTyp typ))
+  | Some id -> ghtyp ~loc (Ptyp_extension (id, PTyp typ))
 
-let mktyp_attrs d attrs =
-  wrap_typ_attrs (mktyp d) attrs
+let mktyp_attrs ~loc d attrs =
+  wrap_typ_attrs ~loc (mktyp ~loc d) attrs
 
-let wrap_pat_attrs pat (ext, attrs) =
+let wrap_pat_attrs ~loc pat (ext, attrs) =
   (* todo: keep exact location for the entire attribute *)
   let pat = {pat with ppat_attributes = attrs @ pat.ppat_attributes} in
   match ext with
   | None -> pat
-  | Some id -> ghpat(Ppat_extension (id, PPat (pat, None)))
+  | Some id -> ghpat ~loc (Ppat_extension (id, PPat (pat, None)))
 
-let mkpat_attrs d attrs =
-  wrap_pat_attrs (mkpat d) attrs
+let mkpat_attrs ~loc d attrs =
+  wrap_pat_attrs ~loc (mkpat ~loc d) attrs
 
-let wrap_class_attrs body attrs =
+let wrap_class_attrs ~loc:_ body attrs =
   {body with pcl_attributes = attrs @ body.pcl_attributes}
-let wrap_mod_attrs body attrs =
+let wrap_mod_attrs ~loc:_ body attrs =
   {body with pmod_attributes = attrs @ body.pmod_attributes}
-let wrap_mty_attrs body attrs =
+let wrap_mty_attrs ~loc:_ body attrs =
   {body with pmty_attributes = attrs @ body.pmty_attributes}
 
-let wrap_str_ext body ext =
+let wrap_str_ext ~loc body ext =
   match ext with
   | None -> body
-  | Some id -> ghstr(Pstr_extension ((id, PStr [body]), []))
+  | Some id -> ghstr ~loc (Pstr_extension ((id, PStr [body]), []))
 
-let mkstr_ext d ext =
-  wrap_str_ext (mkstr d) ext
+let mkstr_ext ~loc d ext =
+  wrap_str_ext ~loc (mkstr ~loc d) ext
 
-let wrap_sig_ext body ext =
+let wrap_sig_ext ~loc body ext =
   match ext with
   | None -> body
-  | Some id -> ghsig(Psig_extension ((id, PSig [body]), []))
+  | Some id -> ghsig ~loc (Psig_extension ((id, PSig [body]), []))
 
-let mksig_ext d ext =
-  wrap_sig_ext (mksig d) ext
+let mksig_ext ~loc d ext =
+  wrap_sig_ext ~loc (mksig ~loc d) ext
 
 let text_str pos = Str.text (rhs_text pos)
 let text_sig pos = Sig.text (rhs_text pos)
@@ -287,20 +305,19 @@ let text_cstr pos = Cf.text (rhs_text pos)
 let text_csig pos = Ctf.text (rhs_text pos)
 let text_def pos = [Ptop_def (Str.text (rhs_text pos))]
 
-let extra_text text pos items =
-  let pre_extras = rhs_pre_extra_text pos in
-  let post_extras = rhs_post_extra_text pos in
+let extra_text startpos endpos text items =
+  let pre_extras = rhs_pre_extra_text startpos in
+  let post_extras = rhs_post_extra_text endpos in
     text pre_extras @ items @ text post_extras
 
-let extra_str pos items = extra_text Str.text pos items
-let extra_sig pos items = extra_text Sig.text pos items
-let extra_cstr pos items = extra_text Cf.text pos items
-let extra_csig pos items = extra_text Ctf.text pos items
-let extra_def pos items =
-  extra_text (fun txt -> [Ptop_def (Str.text txt)]) pos items
+let extra_str p1 p2 items = extra_text p1 p2 Str.text items
+let extra_sig p1 p2 items = extra_text p1 p2 Sig.text items
+let extra_cstr p1 p2 items = extra_text p1 p2 Cf.text items
+let extra_csig p1 p2 items = extra_text p1 p2 Ctf.text  items
+let extra_def p1 p2 items =
+  extra_text p1 p2 (fun txt -> [Ptop_def (Str.text txt)]) items
 
-let extra_rhs_core_type ct pos =
-  let docs = rhs_info pos in
+let extra_rhs_core_type ct docs =
   { ct with ptyp_attributes = add_info_attrs docs ct.ptyp_attributes }
 
 type let_binding =
@@ -317,25 +334,28 @@ type let_bindings =
     lbs_extension: string Asttypes.loc option;
     lbs_loc: Location.t }
 
-let mklb first (p, e) attrs =
-  { lb_pattern = p;
+let mklb first ~loc (p, e) attrs =
+  let open Location in {
+    lb_pattern = p;
     lb_expression = e;
     lb_attributes = attrs;
-    lb_docs = symbol_docs_lazy ();
-    lb_text = if first then empty_text_lazy
-              else symbol_text_lazy ();
-    lb_loc = symbol_rloc (); }
+    lb_docs = symbol_docs_lazy loc.loc_start loc.loc_end;
+    lb_text = (if first then empty_text_lazy else symbol_text_lazy loc.loc_start);
+    lb_loc = loc;
+  }
 
-let mklbs ext rf lb =
-  { lbs_bindings = [lb];
+let mklbs ~loc ext rf lb =
+  {
+    lbs_bindings = [lb];
     lbs_rec = rf;
     lbs_extension = ext ;
-    lbs_loc = symbol_rloc (); }
+    lbs_loc = loc;
+  }
 
 let addlb lbs lb =
   { lbs with lbs_bindings = lb :: lbs.lbs_bindings }
 
-let val_of_let_bindings lbs =
+let val_of_let_bindings ~loc lbs =
   let bindings =
     List.map
       (fun lb ->
@@ -345,12 +365,12 @@ let val_of_let_bindings lbs =
            lb.lb_pattern lb.lb_expression)
       lbs.lbs_bindings
   in
-  let str = mkstr(Pstr_value(lbs.lbs_rec, List.rev bindings)) in
+  let str = mkstr ~loc (Pstr_value(lbs.lbs_rec, List.rev bindings)) in
   match lbs.lbs_extension with
   | None -> str
-  | Some id -> ghstr (Pstr_extension((id, PStr [str]), []))
+  | Some id -> ghstr ~loc (Pstr_extension((id, PStr [str]), []))
 
-let expr_of_let_bindings lbs body =
+let expr_of_let_bindings ~loc lbs body =
   let bindings =
     List.map
       (fun lb ->
@@ -358,10 +378,10 @@ let expr_of_let_bindings lbs body =
            lb.lb_pattern lb.lb_expression)
       lbs.lbs_bindings
   in
-    mkexp_attrs (Pexp_let(lbs.lbs_rec, List.rev bindings, body))
+    mkexp_attrs ~loc (Pexp_let(lbs.lbs_rec, List.rev bindings, body))
       (lbs.lbs_extension, [])
 
-let class_of_let_bindings lbs body =
+let class_of_let_bindings ~loc lbs body =
   let bindings =
     List.map
       (fun lb ->
@@ -371,8 +391,13 @@ let class_of_let_bindings lbs body =
   in
     if lbs.lbs_extension <> None then
       raise Syntaxerr.(Error(Not_expecting(lbs.lbs_loc, "extension")));
-    mkclass(Pcl_let (lbs.lbs_rec, List.rev bindings, body))
+    mkclass ~loc (Pcl_let (lbs.lbs_rec, List.rev bindings, body))
 
+let make_loc startpos endpos = {
+  Location.loc_start = startpos;
+  Location.loc_end = endpos;
+  Location.loc_ghost = false;
+}
 
 (* Alternatively, we could keep the generic module type in the Parsetree
    and extract the package type during type-checking. In that case,
@@ -410,26 +435,112 @@ let package_type_of_module_type pmty =
   | _ ->
       err pmty.pmty_loc
         "only module type identifier and 'with type' constraints are supported"
-
-(* these currified versions form a compatibility
-   layer with the Menhir grammar port which uses
-   cpp macros for location handling. The rule of
-   thumb is that functions that take arguments that
-   are symbol positions to be passed to the Parsing module
-   should be currified -- on the Menhir side, they are
-   represented by macro calls that must be curified as well. *)
-let mark_rhs_docs(a, b) = mark_rhs_docs a b
-let mkrhs(a, p) = mkrhs a p
-let unclosed (a, pa, b, pb) = unclosed a pa b pb
-let expecting (p, n) = expecting p n
-let not_expecting (p, n) = not_expecting p n
-let mkoperator (a, p) = mkoperator a p
-let mkpatvar (a, p) = mkpatvar a p
-let exp_of_label (a, p) = exp_of_label a p
-let pat_of_label (a, p) = pat_of_label a p
-let extra_rhs_core_type (a, p) = extra_rhs_core_type a p
-
 %}
+
+#define $loc (make_loc $symbolstartpos $endpos)
+#define $locof(p) (make_loc $startpos($ ## p) $endpos($ ## p))
+
+#define symbol_rloc() ($loc)
+#define symbol_docs() (symbol_docs $symbolstartpos $endpos)
+#define symbol_info() (symbol_info $endpos)
+#define symbol_text() (symbol_text $startpos)
+#define symbol_text_lazy() (symbol_text_lazy $startpos)
+#define rhs_loc(p)     ($locof(p))
+#define rhs_info(p)    (rhs_info $endpos($ ## p))
+#define rhs_text(p)    (rhs_text $startpos($ ## p))
+#define rhs_text_lazy(p)    (rhs_text_lazy $startpos($ ## p))
+#define symbol_pre_extra_text() (symbol_pre_extra_text $startpos)
+#define symbol_post_extra_text() (symbol_post_extra_text $endpos)
+#define rhs_pre_extra_text(p) (rhs_pre_extra_text $startpos($ ## p))
+#define rhs_post_extra_text(p) (rhs_post_extra_text $endpos($ ## p))
+
+#define extra_rhs_core_type(a, p) (extra_rhs_core_type a rhs_info(p))
+
+#define rhs_docs(p1, p2) (rhs_docs $startpos($ ## p1) $endpos($ ## p2))
+#define mark_symbol_docs() (mark_symbol_docs $symbolstartpos $endpos)
+
+#define mark_rhs_docs(p1, p2) (mark_rhs_docs $startpos($ ## p1) $endpos($ ## p2))
+
+#define mkrhs(s, p) (mkrhs s $locof(p))
+
+#define mktyp (mktyp ~loc:$loc)
+#define mkpat (mkpat ~loc:$loc)
+#define mkexp (mkexp ~loc:$loc)
+#define mkmty (mkmty ~loc:$loc)
+#define mksig (mksig ~loc:$loc)
+#define mkmod (mkmod ~loc:$loc)
+#define mkstr (mkstr ~loc:$loc)
+#define mkcty (mkcty ~loc:$loc)
+#define mkctf (mkctf ~loc:$loc)
+#define mkcf  (mkcf  ~loc:$loc)
+#define mklb  (mklb  ~loc:$loc)
+#define mklbs (mklbs ~loc:$loc)
+#define mkclass (mkclass ~loc:$loc)
+
+#define mkexp_attrs (mkexp_attrs ~loc:$loc)
+#define mkpat_attrs (mkpat_attrs ~loc:$loc)
+#define mktyp_attrs (mktyp_attrs ~loc:$loc)
+#define mkexp_constraint (mkexp_constraint ~loc:$loc)
+#define mkoperator(s, p) (mkoperator s $locof(p))
+#define mkuplus (mkuplus ~loc:$loc ~oploc:$locof(1))
+#define mkuminus (mkuminus ~loc:$loc ~oploc:$locof(1))
+#define mkinfix (mkinfix ~loc:$loc ~oploc:$locof(2))
+
+#define array_function (array_function ~loc:$loc)
+#define bigarray_function (bigarray_function ~loc:$loc)
+#define bigarray_get (bigarray_get ~loc:$loc)
+#define bigarray_set (bigarray_set ~loc:$loc)
+
+#define ghexp (ghexp ~loc:$loc)
+#define ghpat (ghpat ~loc:$loc)
+#define ghtyp (ghtyp ~loc:$loc)
+#define ghloc (ghloc ~loc:$loc)
+#define ghstr (ghstr ~loc:$loc)
+
+#define mk_newtypes (mk_newtypes ~loc:$loc)
+#define val_of_let_bindings (val_of_let_bindings ~loc:$loc)
+#define expr_of_let_bindings (expr_of_let_bindings ~loc:$loc)
+#define class_of_let_bindings (class_of_let_bindings ~loc:$loc)
+
+#define reloc_exp (reloc_exp ~loc:$loc)
+#define reloc_pat (reloc_pat ~loc:$loc)
+
+#define wrap_exp_attrs (wrap_exp_attrs ~loc:$loc)
+#define wrap_typ_attrs (wrap_typ_attrs ~loc:$loc)
+#define wrap_mod_attrs (wrap_mod_attrs ~loc:$loc)
+#define wrap_mty_attrs (wrap_mty_attrs ~loc:$loc)
+#define wrap_class_attrs (wrap_class_attrs ~loc:$loc)
+#define wrap_type_annotation (wrap_type_annotation ~loc:$loc)
+
+#define mkstr_ext (mkstr_ext ~loc:$loc)
+#define wrap_str_ext (wrap_str_ext ~loc:$loc)
+#define mksig_ext (mksig_ext ~loc:$loc)
+#define wrap_sig_ext (wrap_sig_ext ~loc:$loc)
+
+#define mkpatvar(s, p) (mkpatvar s $locof(p))
+#define pat_of_label(s, p) (pat_of_label ~loc:$loc s $locof(p))
+#define exp_of_label(s, p) (exp_of_label ~loc:$loc s $locof(p))
+
+#define mkpat_opt_constraint (mkpat_opt_constraint ~loc:$loc)
+#define mkexp_opt_constraint (mkexp_opt_constraint ~loc:$loc)
+
+#define unclosed(s1, p1, s2, p2) (unclosed s1 ($locof(p1)) s2 ($locof(p2)))
+#define expecting(p, s) (expecting $locof(p) s)
+#define not_expecting(p, s) (not_expecting $locof(p) s)
+
+#define text_str(p) (text_str $startpos($ ## p))
+#define text_sig(p) (text_sig $startpos($ ## p))
+#define text_cstr(p) (text_cstr $startpos($ ## p))
+#define text_csig(p) (text_csig $startpos($ ## p))
+#define text_def(p) (text_def $startpos($ ## p))
+
+#define extra_text(p) (extra_text $startpos($ ## p) $endpos($ ## p))
+#define extra_str(p) (extra_str $startpos($ ## p) $endpos($ ## p))
+#define extra_sig(p) (extra_sig $startpos($ ## p) $endpos($ ## p))
+#define extra_cstr(p) (extra_cstr $startpos($ ## p) $endpos($ ## p))
+#define extra_csig(p) (extra_csig $startpos($ ## p) $endpos($ ## p))
+#define extra_def(p) (extra_def $startpos($ ## p) $endpos($ ## p))
+
 
 /* Tokens */
 
