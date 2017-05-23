@@ -1,0 +1,38 @@
+MENHIR ?= menhir
+
+MENHIRFLAGS=--explain --ocamlc "$(CAMLC) $(COMPFLAGS)" --infer\
+	--table --external-tokens Parser
+
+.PHONY: import-menhirLib
+
+import-menhirLib:
+	mkdir -p boot/menhir
+	cp $(addprefix `$(MENHIR) --suggest-menhirLib`/menhirLib.,ml mli) boot/menhir
+
+# The import-menhirLib invocation ensures that each call to $(MENHIR)
+# is paired with an update of the imported menhirLib; otherwise it
+# would be easy to generate a parser and keep an incompatible version of
+# menhirLib, which would fail at compile-time.
+#
+# We assume that parser.ml and parser_menhir.ml depend
+# on the same modules, so that the dependency on
+# parsing/parser.cmo makes --infer work: the .cmi
+# of all modules that parser{_menhir}.mly semantic
+# actions depend on have already been built.
+promote-menhir: parsing/parser_menhir.mly parsing/parser.cmo
+	$(MAKE) import-menhirLib
+	$(MENHIR) $(MENHIRFLAGS) parsing/parser_menhir.mly
+	cp $(addprefix parsing/parser_menhir.,ml mli) boot/menhir
+
+partialclean-menhir::
+	rm -f \
+	  $(addprefix parsing/parser_menhir.,ml mli) \
+	  $(addprefix parsing/menhirLib.,ml mli)
+
+parsing/parser_menhir.mly: parsing/parser_menhir.mlyp
+	gcc -E -x c -P parsing/parser_menhir.mlyp > parsing/parser_menhir.mly
+
+partialclean-menhir::
+	rm -f parsing/parser_menhir.mly
+
+clean-menhir: partialclean-menhir
