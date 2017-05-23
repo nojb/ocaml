@@ -94,6 +94,7 @@ UTILS=utils/config.cmo utils/misc.cmo \
 PARSING=parsing/location.cmo parsing/longident.cmo \
   parsing/docstrings.cmo parsing/syntaxerr.cmo \
   parsing/ast_helper.cmo parsing/parser.cmo \
+  parsing/menhirLib.cmo parsing/parser_menhir.cmo \
   parsing/lexer.cmo parsing/parse.cmo parsing/printast.cmo \
   parsing/pprintast.cmo \
   parsing/ast_mapper.cmo parsing/ast_iterator.cmo parsing/attr_helper.cmo \
@@ -963,10 +964,10 @@ subdirs := asmrun byterun debugger lex ocamldoc ocamltest stdlib tools \
 
 .PHONY: alldepend
 ifeq "$(TOOLCHAIN)" "msvc"
-alldepend:
+alldepend::
 	$(error Dependencies cannot be regenerated using the MSVC ports)
 else
-alldepend: depend
+alldepend:: depend
 	for dir in $(subdirs); do \
 	  $(MAKE) -C $$dir depend || exit; \
 	done
@@ -1023,6 +1024,29 @@ ocamlyacc:
 
 clean::
 	$(MAKE) -C yacc clean
+
+# The Menhir-generated parser
+
+# In order to avoid a build-time dependency on Menhir,
+# we store the result of the parser generator (which
+# are OCaml source files) and Menhir's runtime libraries
+# (that the parser files rely on) in boot/
+parsing/parser_menhir.ml: boot/menhir/parser_menhir.ml
+	cp $< parsing
+parsing/parser_menhir.mli: boot/menhir/parser_menhir.mli
+	cp $< parsing
+parsing/menhirLib.ml: boot/menhir/menhirLib.ml
+	cp $< parsing
+parsing/menhirLib.mli: boot/menhir/menhirLib.mli
+	cp $< parsing
+
+# Makefile.menhir exports an promote-menhir rule that calls Menhir on
+# the current grammar and refreshes the boot/ files. It must be called
+# for any modification of the grammar to be taken into account by the
+# compiler.
+include Makefile.menhir
+
+partialclean:: partialclean-menhir
 
 # OCamldoc
 
