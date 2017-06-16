@@ -720,3 +720,146 @@ char *caml_secure_getenv (char const *var)
   /* Win32 doesn't have a notion of setuid bit, so getenv is safe. */
   return CAML_SYS_GETENV (var);
 }
+
+/* Windows Unicode support */
+
+static uintnat windows_unicode_enabled = 1;
+static uintnat windows_unicode_strict = 1;
+
+CAMLexport int win_multi_byte_to_wide_char(const char *s, int slen, wchar_t *out, int outlen)
+{
+  int retcode;
+
+  if (slen == 0) return 0;
+
+  if (windows_unicode_enabled) {
+    retcode = MultiByteToWideChar(CP_UTF8, windows_unicode_strict ? MB_ERR_INVALID_CHARS : 0, s, slen, out, outlen);
+    if (! retcode)
+      retcode = MultiByteToWideChar(CP_THREAD_ACP, 0, s, slen, out, outlen);
+  } else {
+    retcode = MultiByteToWideChar(CP_THREAD_ACP, 0, s, slen, out, outlen);
+  }
+
+  if (! retcode)
+    caml_win32_sys_error(GetLastError());
+
+  return retcode;
+}
+
+#ifndef WC_ERR_INVALID_CHARS /* For old versions of Windows we simply ignore the flag */
+#define WC_ERR_INVALID_CHARS 0
+#endif
+
+CAMLexport int win_wide_char_to_multi_byte(const wchar_t *s, int slen, char *out, int outlen)
+{
+  if (windows_unicode_enabled)
+    return WideCharToMultiByte(CP_UTF8, windows_unicode_strict ? WC_ERR_INVALID_CHARS : 0, s, slen, out, outlen, NULL, NULL);
+  else
+    return WideCharToMultiByte(CP_THREAD_ACP, 0, s, slen, out, outlen, NULL, NULL);
+}
+
+static inline caml_stat_block convert_to_utf16_noexc(UINT codepage, DWORD dwFlags, const char *s)
+{
+    wchar_t* out;
+    int outlen;
+
+    outlen = MultiByteToWideChar(codepage, dwFlags, s, -1, NULL, 0);
+
+    if (outlen == 0) {
+      return NULL;
+    }
+
+    out = caml_stat_alloc(outlen*sizeof(wchar_t));
+    outlen = MultiByteToWideChar(codepage, dwFlags, s, -1, out, outlen);
+    CAMLassert(outlen != 0);
+
+    return out;
+}
+
+static inline caml_stat_block convert_to_utf16(UINT codepage, DWORD dwFlags, const char *s)
+{
+  caml_stat_block ws = convert_to_utf16_noexc(codepage, dwFlags, s);
+
+  if (ws == NULL)
+    caml_win32_sys_error(GetLastError());
+
+  return ws;
+}
+
+static inline int convert_from_utf16_length(UINT codepage, DWORD dwFlags, const wchar_t* s)
+{
+  int outlen = WideCharToMultiByte(codepage, dwFlags, s, -1, NULL, 0, NULL, NULL);
+
+  if (outlen == 0)
+    caml_win32_sys_error(GetLastError());
+
+  return outlen;
+}
+
+static inline void convert_from_utf16(UINT codepage, DWORD dwFlags, const wchar_t* s, char *out, int outlen)
+{
+  int res = WideCharToMultiByte(codepage, dwFlags, s, -1, out, outlen, NULL, NULL);
+  CAMLassert(res != 0);
+}
+
+CAMLexport value caml_copy_string_of_utf16(const wchar_t *s)
+{
+  UINT codepage;
+  DWORD dwFlags;
+  int outlen;
+  value v;
+
+  CAMLassert(s != NULL);
+
+  if (windows_unicode_enabled) {
+    codepage = CP_UTF8;
+    dwFlags = WC_ERR_INVALID_CHARS;
+  } else {
+    codepage = CP_THREAD_ACP;
+    dwFlags = 0;
+  }
+
+  outlen = convert_from_utf16_length(codepage, dwFlags, s) - 1; /* do not include final NULL */
+  v = caml_alloc_string(outlen);
+  convert_from_utf16(codepage, dwFlags, s, String_val(v), outlen);
+
+  return v;
+}
+
+CAMLexport inline wchar_t* caml_stat_strdup_to_utf16(const char *s)
+{
+  wchar_t * ws;
+  if (windows_unicode_enabled) {
+    ws = convert_to_utf16_noexc(CP_UTF8, windows_unicode_strict ? MB_ERR_INVALID_CHARS : 0, s);
+    if (ws == NULL)
+      return convert_to_utf16(CP_THREAD_ACP, 0, s);
+    else
+      return ws;
+  } else {
+    return convert_to_utf16(CP_THREAD_ACP, 0, s);
+  }
+}
+
+CAMLexport caml_stat_string caml_stat_strdup_of_utf16(const wchar_t *s)
+{
+  UINT codepage;
+  DWORD dwFlags;
+  caml_stat_string out;
+  int outlen;
+
+  CAMLassert(s != NULL);
+
+  if (windows_unicode_enabled) {
+    codepage = CP_UTF8;
+    dwFlags = windows_unicode_strict ? WC_ERR_INVALID_CHARS : 0;
+  } else {
+    codepage = CP_THREAD_ACP;
+    dwFlags = 0;
+  }
+
+  outlen = convert_from_utf16_length(codepage, dwFlags, s);
+  out = caml_stat_alloc(outlen);
+  convert_from_utf16(codepage, dwFlags, s, out, outlen);
+
+  return out;
+}
