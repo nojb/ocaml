@@ -32,11 +32,11 @@ CAMLprim value unix_rename(value path1, value path2)
       && (VersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT);
   }
   if (supports_MoveFileEx > 0)
-    ok = MoveFileEx(String_val(path1), String_val(path2),
-                    MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH |
-                    MOVEFILE_COPY_ALLOWED);
+    ok = MoveFileExA(String_val(path1), String_val(path2),
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH |
+                     MOVEFILE_COPY_ALLOWED);
   else
-    ok = MoveFile(String_val(path1), String_val(path2));
+    ok = MoveFileA(String_val(path1), String_val(path2));
   if (! ok) {
     win32_maperr(GetLastError());
     uerror("rename", path1);
