@@ -41,17 +41,17 @@ extern int caml_write_fd(int fd, int flags, void * buf, int n);
 
 /* Decompose the given path into a list of directories, and add them
    to the given table. */
-extern caml_stat_string caml_decompose_path(struct ext_table * tbl, char * path);
+extern _TCHAR * caml_decompose_path(struct ext_table * tbl, _TCHAR * path);
 
 /* Search the given file in the given list of directories.
    If not found, return a copy of [name]. */
-extern caml_stat_string caml_search_in_path(struct ext_table * path, char * name);
+extern _TCHAR * caml_search_in_path(struct ext_table * path, _TCHAR * name);
 
 /* Same, but search an executable name in the system path for executables. */
-CAMLextern caml_stat_string caml_search_exe_in_path(char * name);
+CAMLextern _TCHAR * caml_search_exe_in_path(_TCHAR * name);
 
 /* Same, but search a shared library in the given path. */
-extern caml_stat_string caml_search_dll_in_path(struct ext_table * path, char * name);
+extern _TCHAR * caml_search_dll_in_path(struct ext_table * path, _TCHAR * name);
 
 /* Open a shared library and return a handle on it.
    If [for_execution] is true, perform full symbol resolution and
@@ -62,7 +62,7 @@ extern caml_stat_string caml_search_dll_in_path(struct ext_table * path, char * 
    If [global] is true, symbols from the shared library can be used
    to resolve for other libraries to be opened later on.
    Return [NULL] on error. */
-extern void * caml_dlopen(char * libname, int for_execution, int global);
+extern void * caml_dlopen(_TCHAR * libname, int for_execution, int global);
 
 /* Close a shared library handle */
 extern void caml_dlclose(void * handle);
@@ -84,12 +84,12 @@ extern int caml_read_directory(char * dirname, struct ext_table * contents);
 /* Recover executable name if possible (/proc/sef/exe under Linux,
    GetModuleFileName under Windows).  Return NULL on error,
    string allocated with [caml_stat_alloc] on success. */
-extern char * caml_executable_name(void);
+extern _TCHAR * caml_executable_name(void);
 
 /* Secure version of [getenv]: returns NULL if the process has special
    privileges (setuid bit, setgid bit, capabilities).
 */
-extern char *caml_secure_getenv(char const *var);
+extern _TCHAR *caml_secure_getenv(_TCHAR const *var);
 
 #endif /* CAML_INTERNALS */
 
