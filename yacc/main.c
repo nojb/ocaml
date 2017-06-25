@@ -101,7 +101,7 @@ char *nullable;
 extern char *mktemp(char *);
 #endif
 #ifdef _WIN32
-extern char *getenv(const char *);
+extern __declspec(dllimport) char *getenv(const char *);
 #endif
 
 
