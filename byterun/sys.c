@@ -267,13 +267,13 @@ CAMLprim value caml_sys_remove(value name)
 
 CAMLprim value caml_sys_rename(value oldname, value newname)
 {
-  char * p_old;
-  char * p_new;
+  _TCHAR * p_old;
+  _TCHAR * p_new;
   int ret;
   caml_sys_check_path(oldname);
   caml_sys_check_path(newname);
-  p_old = caml_stat_strdup(String_val(oldname));
-  p_new = caml_stat_strdup(String_val(newname));
+  p_old = caml_stat_strdup_to_utf16(String_val(oldname));
+  p_new = caml_stat_strdup_to_utf16(String_val(newname));
   caml_enter_blocking_section();
   ret = CAML_SYS_RENAME(p_old, p_new);
   caml_leave_blocking_section();
