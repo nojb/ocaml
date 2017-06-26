@@ -565,12 +565,12 @@ CAMLprim value caml_sys_read_directory(value path)
   CAMLparam1(path);
   CAMLlocal1(result);
   struct ext_table tbl;
-  char * p;
+  _TCHAR * p;
   int ret;
 
   caml_sys_check_path(path);
   caml_ext_table_init(&tbl, 50);
-  p = caml_stat_strdup(String_val(path));
+  p = caml_stat_strdup_to_utf16(String_val(path));
   caml_enter_blocking_section();
   ret = CAML_SYS_READ_DIRECTORY(p, &tbl);
   caml_leave_blocking_section();
