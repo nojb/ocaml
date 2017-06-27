@@ -110,7 +110,7 @@ AFL_INSTRUMENT=false
 ### Which C compiler to use for the bytecode interpreter.
 CC = $(TOOLPREF)gcc
 CFLAGS = -O -mms-bitfields -Wall -Wno-unused
-CPPFLAGS = -DCAML_NAME_SPACE
+CPPFLAGS = -DCAML_NAME_SPACE -DUNICODE -D_UNICODE
 OCAMLC_CFLAGS = -O -mms-bitfields
 BYTECCDBGCOMPOPTS=-g
 
