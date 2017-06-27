@@ -723,7 +723,7 @@ char *caml_secure_getenv (char const *var)
 
 /* Windows Unicode support */
 
-static uintnat windows_unicode_enabled = 1;
+static uintnat windows_unicode_enabled = WINDOWS_UNICODE;
 static uintnat windows_unicode_strict = 1;
 
 CAMLexport int win_multi_byte_to_wide_char(const char *s, int slen, wchar_t *out, int outlen)
