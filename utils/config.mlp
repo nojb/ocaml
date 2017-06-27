@@ -63,6 +63,7 @@ let mkdll, mkexe, mkmaindll =
 let profiling = %%PROFILING%%
 let flambda = %%FLAMBDA%%
 let safe_string = %%SAFE_STRING%%
+let windows_unicode = %%WINDOWS_UNICODE%% != 0
 
 let afl_instrument = %%AFL_INSTRUMENT%%
 
@@ -171,6 +172,7 @@ let print_config oc =
   p_bool "flambda" flambda;
   p_bool "spacetime" spacetime;
   p_bool "safe_string" safe_string;
+  p_bool "windows_unicode" windows_unicode;
 
   (* print the magic number *)
   p "exec_magic_number" exec_magic_number;
