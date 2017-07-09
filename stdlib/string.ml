@@ -224,3 +224,58 @@ let capitalize s =
   B.capitalize (bos s) |> bts
 let uncapitalize s =
   B.uncapitalize (bos s) |> bts
+
+let utf_8_len = (* uchar byte length according to first UTF-8 byte. *) "\
+  \001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\
+  \001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\
+  \001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\
+  \001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\
+  \001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\
+  \001\001\001\001\001\001\001\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
+  \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
+  \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
+  \000\000\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\
+  \002\002\002\002\002\002\002\002\003\003\003\003\003\003\003\003\003\003\003\003\003\003\003\003\
+  \004\004\004\004\004\000\000\000\000\000\000\000\000\000\000\000"
+
+let get_utf_8 s j k =
+  let malformed () = invalid_arg "get_utf_8" in
+  let unsafe_byte s j = Char.code (unsafe_get s j) in
+  if j < 0 || length s <= j then malformed ();
+  let l = unsafe_byte utf_8_len (unsafe_byte s j) in
+  if length s < j + l then malformed ();
+  let uchar c m = k (Uchar.unsafe_of_int c) m in
+  match l with
+  | 1 -> uchar (unsafe_byte s j) (j + 1)
+  | 2 ->
+      let b0 = unsafe_byte s j in let b1 = unsafe_byte s (j + 1) in
+      if b1 lsr 6 != 0b10 then malformed () else
+        uchar (((b0 land 0x1F) lsl 6) lor (b1 land 0x3F)) (j + 2)
+  | 3 ->
+      let b0 = unsafe_byte s j in let b1 = unsafe_byte s (j + 1) in
+      let b2 = unsafe_byte s (j + 2) in
+      let c = ((b0 land 0x0F) lsl 12) lor
+              ((b1 land 0x3F) lsl 6) lor
+              (b2 land 0x3F)
+      in
+      if b2 lsr 6 != 0b10 then malformed () else
+        begin match b0 with
+        | 0xE0 -> if b1 < 0xA0 || 0xBF < b1 then malformed () else uchar c (j + 3)
+        | 0xED -> if b1 < 0x80 || 0x9F < b1 then malformed () else uchar c (j + 3)
+        | _ -> if b1 lsr 6 != 0b10 then malformed () else uchar c (j + 3)
+        end
+  | 4 ->
+      let b0 = unsafe_byte s j in let b1 = unsafe_byte s (j + 1) in
+      let b2 = unsafe_byte s (j + 2) in let b3 = unsafe_byte s (j + 3) in
+      let c = (((b0 land 0x07) lsl 18) lor
+               ((b1 land 0x3F) lsl 12) lor
+               ((b2 land 0x3F) lsl 6) lor
+               (b3 land 0x3F))
+      in
+      if b3 lsr 6 != 0b10 || b2 lsr 6 != 0b10 then malformed () else
+        begin match b0 with
+        | 0xF0 -> if b1 < 0x90 || 0xBF < b1 then malformed () else uchar c (j + 4)
+        | 0xF4 -> if b1 < 0x80 || 0x8F < b1 then malformed () else uchar c (j + 4)
+        | _ -> if b1 lsr 6 != 0b10 then malformed () else uchar c (j + 4)
+        end
+  | _ -> assert false

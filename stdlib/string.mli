@@ -57,6 +57,16 @@ external get : string -> int -> char = "%string_safe_get"
 
    Raise [Invalid_argument] if [n] not a valid index in [s]. *)
 
+val get_utf_8 : string -> int -> (Uchar.t -> int -> 'a) -> 'a
+(** [String.get_utf_8 s n k] is [k u m] where [u] is the Unicode character
+    corresponding to the {{:https://tools.ietf.org/html/rfc3629}UTF-8} encoding
+    starting at index [n] in [s], and [m] is the next index after the end of
+    this encoding.
+
+    Raise [Invalid_argument] if there is no valid UTF-8 encoding starting at
+    index [n] in [s].
+
+    @since 4.06.0 *)
 
 external set : bytes -> int -> char -> unit = "%string_safe_set"
   [@@ocaml.deprecated "Use Bytes.set instead."]
