@@ -62,6 +62,9 @@ run:
 	    printf " ... testing '$$fn':"; \
 	    if [ $$ul -eq 1 ] ; then \
 	      ./$${fn}$(EXE) >$$fn.result 2>&1 || true; \
+	      echo "****"; \
+	      cat $$fn.result; \
+	      echo "****"; \
 	      DIFF="$(DIFF)" sh $$fn.checker \
 	      && echo " => passed" || echo " => failed"; \
 	    else \
