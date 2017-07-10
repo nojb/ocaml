@@ -40,7 +40,7 @@ pr7563:
 	@echo "exception Alias" >> f.ml
 	@echo "let alias = Alias" >> f.ml
 	@echo "exit (if F.Alias = F.alias then 0 else 1)" > g.ml
-	@$(OCAMLC) f.ml g.ml -o test && ./test && echo " => passed" || echo " => failed"
+	@$(OCAMLC) f.ml g.ml -o test && $(OCAMLRUN) ./test && echo " => passed" || echo " => failed"
 
 clean: defaultclean
 	@rm -f $(GENERATED)
