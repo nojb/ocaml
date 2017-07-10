@@ -33,6 +33,9 @@ environment:
 cache:
   - C:\cygwin64\var\cache\setup
 
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 install:
   - mkdir "%OCAMLROOT%/bin/flexdll"
   - appveyor DownloadFile "http://alain.frisch.fr/flexdll/flexdll-bin-0.35.zip" -FileName "flexdll.zip"
