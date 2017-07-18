@@ -81,7 +81,7 @@ let make ~name ~alloc ~native_name ~native_repr_args ~native_repr_res =
    prim_native_repr_args = native_repr_args;
    prim_native_repr_res = native_repr_res}
 
-let parse_declaration valdecl ~native_repr_args ~native_repr_res =
+let parse_declaration state valdecl ~native_repr_args ~native_repr_res =
   let arity = List.length native_repr_args in
   let name, native_name, old_style_noalloc, old_style_float =
     match valdecl.pval_prim with
@@ -110,10 +110,10 @@ let parse_declaration valdecl ~native_repr_args ~native_repr_res =
      explicit now (GPR#167): *)
   let old_style_noalloc = old_style_noalloc || old_style_float in
   if old_style_float then
-    Location.deprecated valdecl.pval_loc
+    Location.deprecated valdecl.pval_loc state
       "[@@unboxed] + [@@noalloc] should be used instead of \"float\""
   else if old_style_noalloc then
-    Location.deprecated valdecl.pval_loc
+    Location.deprecated valdecl.pval_loc state
       "[@@noalloc] should be used instead of \"noalloc\"";
   if native_name = "" &&
      not (List.for_all is_ocaml_repr native_repr_args &&

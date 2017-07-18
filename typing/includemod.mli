@@ -20,16 +20,16 @@ open Types
 open Format
 
 val modtypes:
-  loc:Location.t -> Env.t ->
+  loc:Location.t -> Warnings.state -> Env.t ->
   module_type -> module_type -> module_coercion
 
-val signatures: Env.t -> signature -> signature -> module_coercion
+val signatures: Warnings.state -> Env.t -> signature -> signature -> module_coercion
 
 val compunit:
-      Env.t -> string -> signature -> string -> signature -> module_coercion
+  Warnings.state -> Env.t -> string -> signature -> string -> signature -> module_coercion
 
 val type_declarations:
-  loc:Location.t -> Env.t ->
+  loc:Location.t -> Warnings.state -> Env.t ->
   Ident.t -> type_declaration -> type_declaration -> unit
 
 val print_coercion: formatter -> module_coercion -> unit

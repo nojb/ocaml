@@ -106,7 +106,7 @@ let fresh_name s env =
   let rec aux i =
     let name = s ^ string_of_int i in
     try
-      let _ = Env.lookup_value (Lident name) env in
+      let _ = Env.lookup_value Warnings.empty (Lident name) env in
       name
     with
       | Not_found -> aux (i+1)

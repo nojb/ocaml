@@ -454,7 +454,7 @@ let copy_local ~from env =
     gadt_instances = from.gadt_instances;
     flags = from.flags }
 
-let same_constr = ref (fun _ _ _ -> assert false)
+let same_constr = ref (fun _ _ _ _ -> assert false)
 
 (* Helper to decide whether to report an identifier shadowing
    by some 'open'. For labels and constructors, we do not report
@@ -463,12 +463,12 @@ let same_constr = ref (fun _ _ _ -> assert false)
    Later, one could also interpret some attributes on value and
    type declarations to silence the shadowing warnings. *)
 
-let check_shadowing env = function
+let check_shadowing warns env = function
   | `Constructor (Some (c1, c2))
-    when not (!same_constr env c1.cstr_res c2.cstr_res) ->
+    when not (!same_constr warns env c1.cstr_res c2.cstr_res) ->
       Some "constructor"
   | `Label (Some (l1, l2))
-    when not (!same_constr env l1.lbl_res l2.lbl_res) ->
+    when not (!same_constr warns env l1.lbl_res l2.lbl_res) ->
       Some "label"
   | `Value (Some _) -> Some "value"
   | `Type (Some _) -> Some "type"
@@ -538,8 +538,8 @@ let components_of_functor_appl' =
           functor_components -> t -> Path.t -> Path.t -> module_components)
 let check_modtype_inclusion =
   (* to be filled with Includemod.check_modtype_inclusion *)
-  ref ((fun ~loc:_ _env _mty1 _path1 _mty2 -> assert false) :
-          loc:Location.t -> t -> module_type -> Path.t -> module_type -> unit)
+  ref ((fun ~loc:_ _warns _env _mty1 _path1 _mty2 -> assert false) :
+          loc:Location.t -> Warnings.state -> t -> module_type -> Path.t -> module_type -> unit)
 let strengthen =
   (* to be filled with Mtype.strengthen *)
   ref ((fun ~aliasable:_ _env _mty _path -> assert false) :
@@ -699,17 +699,17 @@ let find_pers_struct check name =
       acknowledge_pers_struct check name ps
 
 (* Emits a warning if there is no valid cmi for name *)
-let check_pers_struct name =
+let check_pers_struct warns name =
   try
     ignore (find_pers_struct false name)
   with
   | Not_found ->
       let warn = Warnings.No_cmi_file(name, None) in
-        Location.prerr_warning Location.none warn
+        Location.prerr_warning Location.none warns warn
   | Cmi_format.Error err ->
       let msg = Format.asprintf "%a" Cmi_format.report_error err in
       let warn = Warnings.No_cmi_file(name, Some msg) in
-        Location.prerr_warning Location.none warn
+        Location.prerr_warning Location.none warns warn
   | Error err ->
       let msg =
         match err with
@@ -730,7 +730,7 @@ let check_pers_struct name =
         | Illegal_value_name _ -> assert false
       in
       let warn = Warnings.No_cmi_file(name, Some msg) in
-        Location.prerr_warning Location.none warn
+        Location.prerr_warning Location.none warns warn
 
 let read_pers_struct modname filename =
   read_pers_struct true modname filename
@@ -738,15 +738,15 @@ let read_pers_struct modname filename =
 let find_pers_struct name =
   find_pers_struct true name
 
-let check_pers_struct name =
+let check_pers_struct warns name =
   if not (Hashtbl.mem persistent_structures name) then begin
     (* PR#6843: record the weak dependency ([add_import]) regardless of
        whether the check suceeds, to help make builds more
        deterministic. *)
     add_import name;
-    if (Warnings.is_active (Warnings.No_cmi_file("", None))) then
+    if Warnings.is_active warns (Warnings.No_cmi_file("", None)) then
       !add_delayed_check_forward
-        (fun () -> check_pers_struct name)
+        (fun () -> check_pers_struct warns name)
   end
 
 let reset_cache () =
@@ -1022,11 +1022,11 @@ let rec is_functor_arg path env =
 
 exception Recmodule
 
-let report_deprecated ?loc p deprecated =
+let report_deprecated ?loc warns p deprecated =
   match loc, deprecated with
   | Some loc, Some txt ->
       let txt = if txt = "" then "" else "\n" ^ txt in
-      Location.deprecated loc (Printf.sprintf "module %s%s" (Path.name p) txt)
+      Location.deprecated loc warns (Printf.sprintf "module %s%s" (Path.name p) txt)
   | _ -> ()
 
 let mark_module_used env name loc =
@@ -1034,7 +1034,7 @@ let mark_module_used env name loc =
     try Hashtbl.find module_declarations (name, loc) ()
     with Not_found -> ()
 
-let rec lookup_module_descr_aux ?loc lid env =
+let rec lookup_module_descr_aux ?loc warns lid env =
   match lid with
     Lident s ->
       begin try
@@ -1045,7 +1045,7 @@ let rec lookup_module_descr_aux ?loc lid env =
         (Pident(Ident.create_persistent s), ps.ps_comps)
       end
   | Ldot(l, s) ->
-      let (p, descr) = lookup_module_descr ?loc l env in
+      let (p, descr) = lookup_module_descr ?loc warns l env in
       begin match get_components descr with
         Structure_comps c ->
           let (descr, pos) = Tbl.find_str s c.comp_components in
@@ -1054,29 +1054,29 @@ let rec lookup_module_descr_aux ?loc lid env =
           raise Not_found
       end
   | Lapply(l1, l2) ->
-      let (p1, desc1) = lookup_module_descr ?loc l1 env in
-      let p2 = lookup_module ~load:true ?loc l2 env in
+      let (p1, desc1) = lookup_module_descr ?loc warns l1 env in
+      let p2 = lookup_module ~load:true ?loc warns l2 env in
       let {md_type=mty2} = find_module p2 env in
       begin match get_components desc1 with
         Functor_comps f ->
           let loc = match loc with Some l -> l | None -> Location.none in
-          Misc.may (!check_modtype_inclusion ~loc env mty2 p2) f.fcomp_arg;
+          Misc.may (!check_modtype_inclusion ~loc warns env mty2 p2) f.fcomp_arg;
           (Papply(p1, p2), !components_of_functor_appl' f env p1 p2)
       | Structure_comps _ ->
           raise Not_found
       end
 
-and lookup_module_descr ?loc lid env =
-  let (p, comps) as res = lookup_module_descr_aux ?loc lid env in
+and lookup_module_descr ?loc warns lid env =
+  let (p, comps) as res = lookup_module_descr_aux ?loc warns lid env in
   mark_module_used env (Path.last p) comps.loc;
 (*
   Format.printf "USE module %s at %a@." (Path.last p)
     Location.print comps.loc;
 *)
-  report_deprecated ?loc p comps.deprecated;
+  report_deprecated ?loc warns p comps.deprecated;
   res
 
-and lookup_module ~load ?loc lid env : Path.t =
+and lookup_module ~load ?loc warns lid env : Path.t =
   match lid with
     Lident s ->
       begin try
@@ -1091,52 +1091,52 @@ and lookup_module ~load ?loc lid env : Path.t =
           raise Recmodule
         | _ -> ()
         end;
-        report_deprecated ?loc p
+        report_deprecated ?loc warns p
           (Builtin_attributes.deprecated_of_attrs md_attributes);
         p
       with Not_found ->
         if s = !current_unit then raise Not_found;
         let p = Pident(Ident.create_persistent s) in
-        if !Clflags.transparent_modules && not load then check_pers_struct s
+        if !Clflags.transparent_modules && not load then check_pers_struct warns s
         else begin
           let ps = find_pers_struct s in
-          report_deprecated ?loc p ps.ps_comps.deprecated
+          report_deprecated ?loc warns p ps.ps_comps.deprecated
         end;
         p
       end
   | Ldot(l, s) ->
-      let (p, descr) = lookup_module_descr ?loc l env in
+      let (p, descr) = lookup_module_descr ?loc warns l env in
       begin match get_components descr with
         Structure_comps c ->
           let (_data, pos) = Tbl.find_str s c.comp_modules in
           let (comps, _) = Tbl.find_str s c.comp_components in
           mark_module_used env s comps.loc;
           let p = Pdot(p, s, pos) in
-          report_deprecated ?loc p comps.deprecated;
+          report_deprecated ?loc warns p comps.deprecated;
           p
       | Functor_comps _ ->
           raise Not_found
       end
   | Lapply(l1, l2) ->
-      let (p1, desc1) = lookup_module_descr ?loc l1 env in
-      let p2 = lookup_module ~load:true ?loc l2 env in
+      let (p1, desc1) = lookup_module_descr ?loc warns l1 env in
+      let p2 = lookup_module ~load:true ?loc warns l2 env in
       let {md_type=mty2} = find_module p2 env in
       let p = Papply(p1, p2) in
       begin match get_components desc1 with
         Functor_comps f ->
           let loc = match loc with Some l -> l | None -> Location.none in
-          Misc.may (!check_modtype_inclusion ~loc env mty2 p2) f.fcomp_arg;
+          Misc.may (!check_modtype_inclusion ~loc warns env mty2 p2) f.fcomp_arg;
           p
       | Structure_comps _ ->
           raise Not_found
       end
 
-let lookup proj1 proj2 ?loc lid env =
+let lookup proj1 proj2 ?loc warns lid env =
   match lid with
     Lident s ->
       IdTbl.find_name s (proj1 env)
   | Ldot(l, s) ->
-      let (p, desc) = lookup_module_descr ?loc l env in
+      let (p, desc) = lookup_module_descr ?loc warns l env in
       begin match get_components desc with
         Structure_comps c ->
           let (data, pos) = Tbl.find_str s (proj2 c) in
@@ -1147,7 +1147,7 @@ let lookup proj1 proj2 ?loc lid env =
   | Lapply _ ->
       raise Not_found
 
-let lookup_all_simple proj1 proj2 shadow ?loc lid env =
+let lookup_all_simple proj1 proj2 shadow ?loc warns lid env =
   match lid with
     Lident s ->
       let xl = TycompTbl.find_all s (proj1 env) in
@@ -1160,7 +1160,7 @@ let lookup_all_simple proj1 proj2 shadow ?loc lid env =
       in
         do_shadow xl
   | Ldot(l, s) ->
-      let (_p, desc) = lookup_module_descr ?loc l env in
+      let (_p, desc) = lookup_module_descr ?loc warns l env in
       begin match get_components desc with
         Structure_comps c ->
           let comps =
@@ -1249,13 +1249,13 @@ let set_type_used_callback name td callback =
   in
   Hashtbl.replace type_declarations key (fun () -> callback old)
 
-let lookup_value ?loc lid env =
-  let (_, desc) as r = lookup_value ?loc lid env in
+let lookup_value ?loc warns lid env =
+  let (_, desc) as r = lookup_value ?loc warns lid env in
   mark_value_used env (Longident.last lid) desc;
   r
 
-let lookup_type ?loc lid env =
-  let (path, (decl, _)) = lookup_type ?loc lid env in
+let lookup_type ?loc warns lid env =
+  let (path, (decl, _)) = lookup_type ?loc warns lid env in
   mark_type_used env (Longident.last lid) decl;
   path
 
@@ -1270,8 +1270,8 @@ let ty_path t =
   | {desc=Tconstr(path, _, _)} -> path
   | _ -> assert false
 
-let lookup_constructor ?loc lid env =
-  match lookup_all_constructors ?loc lid env with
+let lookup_constructor ?loc warns lid env =
+  match lookup_all_constructors ?loc warns lid env with
     [] -> raise Not_found
   | (desc, use) :: _ ->
       mark_type_path env (ty_path desc.cstr_res);
@@ -1282,9 +1282,9 @@ let is_lident = function
     Lident _ -> true
   | _ -> false
 
-let lookup_all_constructors ?loc lid env =
+let lookup_all_constructors ?loc warns lid env =
   try
-    let cstrs = lookup_all_constructors ?loc lid env in
+    let cstrs = lookup_all_constructors ?loc warns lid env in
     let wrap_use desc use () =
       mark_type_path env (ty_path desc.cstr_res);
       use ()
@@ -1309,17 +1309,17 @@ let mark_constructor usage env name desc =
       let ty_name = Path.last ty_path in
       mark_constructor_used usage env ty_name ty_decl name
 
-let lookup_label ?loc lid env =
-  match lookup_all_labels ?loc lid env with
+let lookup_label ?loc warns lid env =
+  match lookup_all_labels ?loc warns lid env with
     [] -> raise Not_found
   | (desc, use) :: _ ->
       mark_type_path env (ty_path desc.lbl_res);
       use ();
       desc
 
-let lookup_all_labels ?loc lid env =
+let lookup_all_labels ?loc warns lid env =
   try
-    let lbls = lookup_all_labels ?loc lid env in
+    let lbls = lookup_all_labels ?loc warns lid env in
     let wrap_use desc use () =
       mark_type_path env (ty_path desc.lbl_res);
       use ()
@@ -1328,16 +1328,16 @@ let lookup_all_labels ?loc lid env =
   with
     Not_found when is_lident lid -> []
 
-let lookup_class ?loc lid env =
-  let (_, desc) as r = lookup_class ?loc lid env in
+let lookup_class ?loc warns lid env =
+  let (_, desc) as r = lookup_class ?loc warns lid env in
   (* special support for Typeclass.unbound_class *)
-  if Path.name desc.cty_path = "" then ignore (lookup_type ?loc lid env)
+  if Path.name desc.cty_path = "" then ignore (lookup_type ?loc warns lid env)
   else mark_type_path env desc.cty_path;
   r
 
-let lookup_cltype ?loc lid env =
-  let (_, desc) as r = lookup_cltype ?loc lid env in
-  if Path.name desc.clty_path = "" then ignore (lookup_type ?loc lid env)
+let lookup_cltype ?loc warns lid env =
+  let (_, desc) as r = lookup_cltype ?loc warns lid env in
+  if Path.name desc.clty_path = "" then ignore (lookup_type ?loc warns lid env)
   else mark_type_path env desc.clty_path;
   mark_type_path env desc.clty_path;
   r
@@ -1652,7 +1652,7 @@ and components_of_module_maker (env, sub, path, mty) =
             in
             c.comp_components <-
               Tbl.add (Ident.name id) (comps, !pos) c.comp_components;
-            env := store_module ~check:false id md !env;
+            env := store_module Warnings.empty id md !env;
             incr pos
         | Sig_modtype(id, decl) ->
             let decl' = Subst.modtype_declaration sub decl in
@@ -1692,8 +1692,8 @@ and components_of_module_maker (env, sub, path, mty) =
 
 (* Insertion of bindings by identifier + path *)
 
-and check_usage loc id warn tbl =
-  if not loc.Location.loc_ghost && Warnings.is_active (warn "") then begin
+and check_usage loc warns id warn tbl =
+  if not loc.Location.loc_ghost && Warnings.is_active warns (warn "") then begin
     let name = Ident.name id in
     let key = (name, loc) in
     if Hashtbl.mem tbl key then ()
@@ -1702,7 +1702,7 @@ and check_usage loc id warn tbl =
     if not (name = "" || name.[0] = '_' || name.[0] = '#')
     then
       !add_delayed_check_forward
-        (fun () -> if not !used then Location.prerr_warning loc (warn name))
+        (fun () -> if not !used then Location.prerr_warning loc warns (warn name))
   end;
 
 and check_value_name name loc =
@@ -1716,26 +1716,23 @@ and check_value_name name loc =
         raise (Error(Illegal_value_name(loc, name)))
     done
 
-
-and store_value ?check id decl env =
+and store_value ?check warns id decl env =
   check_value_name (Ident.name id) decl.val_loc;
-  may (fun f -> check_usage decl.val_loc id f value_declarations) check;
+  may (fun f -> check_usage decl.val_loc warns id f value_declarations) check;
   { env with
     values = IdTbl.add id decl env.values;
     summary = Env_value(env.summary, id, decl) }
 
-and store_type ~check id info env =
+and store_type warns id info env =
   let loc = info.type_loc in
-  if check then
-    check_usage loc id (fun s -> Warnings.Unused_type_declaration s)
-      type_declarations;
+  check_usage loc warns id (fun s -> Warnings.Unused_type_declaration s) type_declarations;
   let path = Pident id in
   let constructors = Datarepr.constructors_of_type path info in
   let labels = Datarepr.labels_of_type path info in
   let descrs = (List.map snd constructors, List.map snd labels) in
 
-  if check && not loc.Location.loc_ghost &&
-    Warnings.is_active (Warnings.Unused_constructor ("", false, false))
+  if not loc.Location.loc_ghost &&
+    Warnings.is_active warns (Warnings.Unused_constructor ("", false, false))
   then begin
     let ty = Ident.name id in
     List.iter
@@ -1748,7 +1745,7 @@ and store_type ~check id info env =
           then !add_delayed_check_forward
               (fun () ->
                 if not (is_in_signature env) && not used.cu_positive then
-                  Location.prerr_warning loc
+                  Location.prerr_warning loc warns
                     (Warnings.Unused_constructor
                        (c, used.cu_pattern, used.cu_privatize)))
       end
@@ -1780,10 +1777,10 @@ and store_type_infos id info env =
         env.types;
     summary = Env_type(env.summary, id, info) }
 
-and store_extension ~check id ext env =
+and store_extension warns id ext env =
   let loc = ext.ext_loc in
-  if check && not loc.Location.loc_ghost &&
-    Warnings.is_active (Warnings.Unused_extension ("", false, false, false))
+  if not loc.Location.loc_ghost &&
+    Warnings.is_active warns (Warnings.Unused_extension ("", false, false, false))
   then begin
     let is_exception = Path.same ext.ext_type_path Predef.path_exn in
     let ty = Path.last ext.ext_type_path in
@@ -1795,7 +1792,7 @@ and store_extension ~check id ext env =
       !add_delayed_check_forward
         (fun () ->
           if not (is_in_signature env) && not used.cu_positive then
-            Location.prerr_warning loc
+            Location.prerr_warning loc warns
               (Warnings.Unused_extension
                  (n, is_exception, used.cu_pattern, used.cu_privatize)
               )
@@ -1808,11 +1805,10 @@ and store_extension ~check id ext env =
                 env.constrs;
     summary = Env_extension(env.summary, id, ext) }
 
-and store_module ~check id md env =
+and store_module warns id md env =
   let loc = md.md_loc in
-  if check then
-    check_usage loc id (fun s -> Warnings.Unused_module s)
-      module_declarations;
+  check_usage loc warns id (fun s -> Warnings.Unused_module s)
+    module_declarations;
 
   let deprecated = Builtin_attributes.deprecated_of_attrs md.md_attributes in
   { env with
@@ -1868,17 +1864,17 @@ let add_functor_arg id env =
    functor_args = Ident.add id () env.functor_args;
    summary = Env_functor_arg (env.summary, id)}
 
-let add_value ?check id desc env =
-  store_value ?check id desc env
+let add_value ?check warns id desc env =
+  store_value ?check warns id desc env
 
-let add_type ~check id info env =
-  store_type ~check id info env
+let add_type warns id info env =
+  store_type warns id info env
 
-and add_extension ~check id ext env =
-  store_extension ~check id ext env
+and add_extension warns id ext env =
+  store_extension warns id ext env
 
-and add_module_declaration ?(arg=false) ~check id md env =
-  let env = store_module ~check id md env in
+and add_module_declaration ?(arg=false) warns id md env =
+  let env = store_module warns id md env in
   if arg then add_functor_arg id env else env
 
 and add_modtype id info env =
@@ -1891,7 +1887,7 @@ and add_cltype id ty env =
   store_cltype id ty env
 
 let add_module ?arg id mty env =
-  add_module_declaration ~check:false ?arg id (md mty) env
+  add_module_declaration ?arg Warnings.empty id (md mty) env
 
 let add_local_type path info env =
   { env with
@@ -1911,37 +1907,37 @@ let add_local_constraint path info elv env =
 let enter store_fun name data env =
   let id = Ident.create name in (id, store_fun id data env)
 
-let enter_value ?check = enter (store_value ?check)
-and enter_type = enter (store_type ~check:true)
-and enter_extension = enter (store_extension ~check:true)
-and enter_module_declaration ?arg id md env =
-  add_module_declaration ?arg ~check:true id md env
+let enter_value ?check warns = enter (store_value ?check warns)
+and enter_type warns = enter (store_type warns)
+and enter_extension warns = enter (store_extension warns)
+and enter_module_declaration ?arg warns id md env =
+  add_module_declaration ?arg warns id md env
   (* let (id, env) = enter store_module name md env in
   (id, add_functor_arg ?arg id env) *)
 and enter_modtype = enter store_modtype
 and enter_class = enter store_class
 and enter_cltype = enter store_cltype
 
-let enter_module ?arg s mty env =
+let enter_module ?arg warns s mty env =
   let id = Ident.create s in
-  (id, enter_module_declaration ?arg id (md mty) env)
+  (id, enter_module_declaration ?arg warns id (md mty) env)
 
 (* Insertion of all components of a signature *)
 
-let add_item comp env =
+let add_item warns comp env =
   match comp with
-    Sig_value(id, decl)     -> add_value id decl env
-  | Sig_type(id, decl, _)   -> add_type ~check:false id decl env
-  | Sig_typext(id, ext, _)  -> add_extension ~check:false id ext env
-  | Sig_module(id, md, _)   -> add_module_declaration ~check:false id md env
+    Sig_value(id, decl)     -> add_value warns id decl env
+  | Sig_type(id, decl, _)   -> add_type Warnings.empty id decl env
+  | Sig_typext(id, ext, _)  -> add_extension Warnings.empty id ext env
+  | Sig_module(id, md, _)   -> add_module_declaration Warnings.empty id md env
   | Sig_modtype(id, decl)   -> add_modtype id decl env
   | Sig_class(id, decl, _)  -> add_class id decl env
   | Sig_class_type(id, decl, _) -> add_cltype id decl env
 
-let rec add_signature sg env =
+let rec add_signature warns sg env =
   match sg with
     [] -> env
-  | comp :: rem -> add_signature rem (add_item comp env)
+  | comp :: rem -> add_signature warns rem (add_item warns comp env)
 
 (* Open a signature path *)
 
@@ -2008,21 +2004,21 @@ let open_pers_signature name env =
   | Some env -> env
   | None -> assert false (* a compilation unit cannot refer to a functor *)
 
-let open_signature ?(loc = Location.none) ?(toplevel = false) ovf root env =
+let open_signature ?(loc = Location.none) ?(toplevel = false) warns ovf root env =
   if not toplevel && ovf = Asttypes.Fresh && not loc.Location.loc_ghost
-     && (Warnings.is_active (Warnings.Unused_open "")
-         || Warnings.is_active (Warnings.Open_shadow_identifier ("", ""))
-         || Warnings.is_active (Warnings.Open_shadow_label_constructor ("","")))
+     && (Warnings.is_active warns (Warnings.Unused_open "")
+         || Warnings.is_active warns (Warnings.Open_shadow_identifier ("", ""))
+         || Warnings.is_active warns (Warnings.Open_shadow_label_constructor ("","")))
   then begin
     let used = ref false in
     !add_delayed_check_forward
       (fun () ->
         if not !used then
-          Location.prerr_warning loc (Warnings.Unused_open (Path.name root))
+          Location.prerr_warning loc warns (Warnings.Unused_open (Path.name root))
       );
     let shadowed = ref [] in
     let slot s b =
-      begin match check_shadowing env b with
+      begin match check_shadowing warns env b with
       | Some kind when not (List.mem (kind, s) !shadowed) ->
           shadowed := (kind, s) :: !shadowed;
           let w =
@@ -2031,7 +2027,7 @@ let open_signature ?(loc = Location.none) ?(toplevel = false) ovf root env =
                 Warnings.Open_shadow_label_constructor (kind, s)
             | _ -> Warnings.Open_shadow_identifier (kind, s)
           in
-          Location.prerr_warning loc w
+          Location.prerr_warning loc warns w
       | _ -> ()
       end;
       used := true
@@ -2121,14 +2117,14 @@ let save_signature ~deprecated sg modname filename =
 
 (* Folding on environments *)
 
-let find_all proj1 proj2 f lid env acc =
+let find_all proj1 proj2 f warns lid env acc =
   match lid with
     | None ->
       IdTbl.fold_name
         (fun name (p, data) acc -> f name p data acc)
         (proj1 env) acc
     | Some l ->
-      let p, desc = lookup_module_descr l env in
+      let p, desc = lookup_module_descr warns l env in
       begin match get_components desc with
           Structure_comps c ->
             Tbl.fold
@@ -2138,14 +2134,14 @@ let find_all proj1 proj2 f lid env acc =
             acc
       end
 
-let find_all_simple_list proj1 proj2 f lid env acc =
+let find_all_simple_list proj1 proj2 f warns lid env acc =
   match lid with
     | None ->
       TycompTbl.fold_name
         (fun data acc -> f data acc)
         (proj1 env) acc
     | Some l ->
-      let (_p, desc) = lookup_module_descr l env in
+      let (_p, desc) = lookup_module_descr warns l env in
       begin match get_components desc with
           Structure_comps c ->
             Tbl.fold
@@ -2159,7 +2155,7 @@ let find_all_simple_list proj1 proj2 f lid env acc =
             acc
       end
 
-let fold_modules f lid env acc =
+let fold_modules f warns lid env acc =
   match lid with
     | None ->
       let acc =
@@ -2181,7 +2177,7 @@ let fold_modules f lid env acc =
         persistent_structures
         acc
     | Some l ->
-      let p, desc = lookup_module_descr l env in
+      let p, desc = lookup_module_descr warns l env in
       begin match get_components desc with
           Structure_comps c ->
             Tbl.fold
@@ -2213,8 +2209,8 @@ and fold_cltypes f =
 (* Make the initial environment *)
 let (initial_safe_string, initial_unsafe_string) =
   Predef.build_initial_env
-    (add_type ~check:false)
-    (add_extension ~check:false)
+    (add_type Warnings.empty)
+    (add_extension Warnings.empty)
     empty
 
 (* Return the environment summary *)

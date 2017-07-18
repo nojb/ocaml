@@ -81,7 +81,7 @@ and strengthen_sig ~aliasable env sg p pos =
       in
       Sig_module(id, str, rs)
       :: strengthen_sig ~aliasable
-        (Env.add_module_declaration ~check:false id md env) rem p (pos+1)
+        (Env.add_module_declaration Warnings.empty id md env) rem p (pos+1)
       (* Need to add the module in case it defines manifest module types *)
   | Sig_modtype(id, decl) :: rem ->
       let newdecl =
@@ -113,7 +113,7 @@ let () = Env.strengthen := strengthen
 
 type variance = Co | Contra | Strict
 
-let nondep_supertype env mid mty =
+let nondep_supertype warns env mid mty =
 
   let rec nondep_mty env va mty =
     match mty with
@@ -142,13 +142,13 @@ let nondep_supertype env mid mty =
       match item with
         Sig_value(id, d) ->
           Sig_value(id,
-                    {d with val_type = Ctype.nondep_type env mid d.val_type})
+                    {d with val_type = Ctype.nondep_type warns env mid d.val_type})
           :: rem'
       | Sig_type(id, d, rs) ->
-          Sig_type(id, Ctype.nondep_type_decl env mid id (va = Co) d, rs)
+          Sig_type(id, Ctype.nondep_type_decl warns env mid id (va = Co) d, rs)
           :: rem'
       | Sig_typext(id, ext, es) ->
-          Sig_typext(id, Ctype.nondep_extension_constructor env mid ext, es)
+          Sig_typext(id, Ctype.nondep_extension_constructor warns env mid ext, es)
           :: rem'
       | Sig_module(id, md, rs) ->
           Sig_module(id, {md with md_type=nondep_mty env va md.md_type}, rs)
@@ -163,10 +163,10 @@ let nondep_supertype env mid mty =
             | _  -> raise Not_found
           end
       | Sig_class(id, d, rs) ->
-          Sig_class(id, Ctype.nondep_class_declaration env mid d, rs)
+          Sig_class(id, Ctype.nondep_class_declaration warns env mid d, rs)
           :: rem'
       | Sig_class_type(id, d, rs) ->
-          Sig_class_type(id, Ctype.nondep_cltype_declaration env mid d, rs)
+          Sig_class_type(id, Ctype.nondep_cltype_declaration warns env mid d, rs)
           :: rem'
 
   and nondep_modtype_decl env mtd =
@@ -224,7 +224,7 @@ and type_paths_sig env p pos sg =
       Pdot(p, Ident.name id, nopos) :: type_paths_sig env p pos rem
   | Sig_module(id, md, _) :: rem ->
       type_paths env (Pdot(p, Ident.name id, pos)) md.md_type @
-      type_paths_sig (Env.add_module_declaration ~check:false id md env)
+      type_paths_sig (Env.add_module_declaration Warnings.empty id md env)
         p (pos+1) rem
   | Sig_modtype(id, decl) :: rem ->
       type_paths_sig (Env.add_modtype id decl env) p pos rem
@@ -252,7 +252,7 @@ and no_code_needed_sig env sg =
   | Sig_module(id, md, _) :: rem ->
       no_code_needed env md.md_type &&
       no_code_needed_sig
-        (Env.add_module_declaration ~check:false id md env) rem
+        (Env.add_module_declaration Warnings.empty id md env) rem
   | (Sig_type _ | Sig_modtype _ | Sig_class_type _) :: rem ->
       no_code_needed_sig env rem
   | (Sig_typext _ | Sig_class _) :: _ ->

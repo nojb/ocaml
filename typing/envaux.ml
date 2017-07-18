@@ -37,18 +37,18 @@ let rec env_from_summary sum subst =
         Env_empty ->
           Env.empty
       | Env_value(s, id, desc) ->
-          Env.add_value id (Subst.value_description subst desc)
+          Env.add_value Warnings.empty id (Subst.value_description subst desc)
                         (env_from_summary s subst)
       | Env_type(s, id, desc) ->
-          Env.add_type ~check:false id
+          Env.add_type Warnings.empty id
             (Subst.type_declaration subst desc)
             (env_from_summary s subst)
       | Env_extension(s, id, desc) ->
-          Env.add_extension ~check:false id
+          Env.add_extension Warnings.empty id
             (Subst.extension_constructor subst desc)
             (env_from_summary s subst)
       | Env_module(s, id, desc) ->
-          Env.add_module_declaration ~check:false id
+          Env.add_module_declaration Warnings.empty id
             (Subst.module_declaration subst desc)
             (env_from_summary s subst)
       | Env_modtype(s, id, desc) ->
@@ -63,12 +63,12 @@ let rec env_from_summary sum subst =
       | Env_open(s, path) ->
           let env = env_from_summary s subst in
           let path' = Subst.module_path subst path in
-          begin match Env.open_signature Asttypes.Override path' env with
+          begin match Env.open_signature Warnings.empty Asttypes.Override path' env with
           | Some env -> env
           | None -> assert false
           end
       | Env_functor_arg(Env_module(s, id, desc), id') when Ident.same id id' ->
-          Env.add_module_declaration ~check:false
+          Env.add_module_declaration Warnings.empty
             id (Subst.module_declaration subst desc)
             ~arg:true (env_from_summary s subst)
       | Env_functor_arg _ -> assert false

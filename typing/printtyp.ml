@@ -53,7 +53,7 @@ let printing_env = ref Env.empty
 let non_shadowed_pervasive = function
   | Pdot(Pident id, s, _pos) as path ->
       Ident.same id ident_pervasives &&
-      (try Path.same path (Env.lookup_type (Lident s) !printing_env)
+      (try Path.same path (Env.lookup_type Warnings.empty (Lident s) !printing_env)
        with Not_found -> true)
   | _ -> false
 
@@ -361,7 +361,7 @@ let is_unambiguous path env =
       (* also allow repeatedly defining and opening (for toplevel) *)
       let id = lid_of_path p in
       List.for_all (fun p -> lid_of_path p = id) rem &&
-      Path.same p (Env.lookup_type id env)
+      Path.same p (Env.lookup_type Warnings.empty id env)
 
 let rec get_best_path r =
   match !r with
@@ -558,7 +558,7 @@ let rec mark_loops_rec visited ty =
     | Tunivar _ -> add_named_var ty
 
 let mark_loops ty =
-  normalize_type Env.empty ty;
+  normalize_type Warnings.empty Env.empty ty;
   mark_loops_rec [] ty;;
 
 let reset_loop_marks () =
@@ -1214,7 +1214,7 @@ let hide_rec_items = function
       let ids = id :: get_ids rem in
       set_printing_env
         (List.fold_right
-           (fun id -> Env.add_type ~check:false (Ident.rename id) dummy)
+           (fun id -> Env.add_type Warnings.empty (Ident.rename id) dummy)
            ids !printing_env)
   | _ -> ()
 
@@ -1252,7 +1252,7 @@ and tree_of_signature_rec env' in_type_group = function
       let (sg, rem) = filter_rem_sig item rem in
       hide_rec_items items;
       let trees = trees_of_sigitem item in
-      let env' = Env.add_signature (item :: sg) env' in
+      let env' = Env.add_signature Warnings.empty (item :: sg) env' in
       trees @ tree_of_signature_rec env' in_type_group rem
 
 and trees_of_sigitem = function
@@ -1451,7 +1451,7 @@ let explanation unif t3 t4 ppf =
         type_expr (if is_Tunivar t3 then t3 else t4)
   | Tvar _, _ | _, Tvar _ ->
       let t, t' = if is_Tvar t3 then (t3, t4) else (t4, t3) in
-      if occur_in Env.empty t t' then
+      if occur_in Warnings.empty Env.empty t t' then
         fprintf ppf "@,@[<hov>The type variable %a occurs inside@ %a@]"
           type_expr t type_expr t'
       else

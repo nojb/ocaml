@@ -99,30 +99,30 @@ val add_gadt_instance_chain: t -> int -> type_expr -> unit
 (* ?loc is used to report 'deprecated module' warnings *)
 
 val lookup_value:
-  ?loc:Location.t -> Longident.t -> t -> Path.t * value_description
+  ?loc:Location.t -> Warnings.state -> Longident.t -> t -> Path.t * value_description
 val lookup_constructor:
-  ?loc:Location.t -> Longident.t -> t -> constructor_description
+  ?loc:Location.t -> Warnings.state -> Longident.t -> t -> constructor_description
 val lookup_all_constructors:
-  ?loc:Location.t ->
+  ?loc:Location.t -> Warnings.state ->
   Longident.t -> t -> (constructor_description * (unit -> unit)) list
 val lookup_label:
-  ?loc:Location.t -> Longident.t -> t -> label_description
+  ?loc:Location.t -> Warnings.state -> Longident.t -> t -> label_description
 val lookup_all_labels:
-  ?loc:Location.t ->
+  ?loc:Location.t -> Warnings.state ->
   Longident.t -> t -> (label_description * (unit -> unit)) list
 val lookup_type:
-  ?loc:Location.t -> Longident.t -> t -> Path.t
+  ?loc:Location.t -> Warnings.state -> Longident.t -> t -> Path.t
   (* Since 4.04, this function no longer returns [type_description].
      To obtain it, you should either call [Env.find_type], or replace
      it by [Typetexp.find_type] *)
 val lookup_module:
-  load:bool -> ?loc:Location.t -> Longident.t -> t -> Path.t
+  load:bool -> ?loc:Location.t -> Warnings.state -> Longident.t -> t -> Path.t
 val lookup_modtype:
-  ?loc:Location.t -> Longident.t -> t -> Path.t * modtype_declaration
+  ?loc:Location.t -> Warnings.state -> Longident.t -> t -> Path.t * modtype_declaration
 val lookup_class:
-  ?loc:Location.t -> Longident.t -> t -> Path.t * class_declaration
+  ?loc:Location.t -> Warnings.state -> Longident.t -> t -> Path.t * class_declaration
 val lookup_cltype:
-  ?loc:Location.t -> Longident.t -> t -> Path.t * class_type_declaration
+  ?loc:Location.t -> Warnings.state -> Longident.t -> t -> Path.t * class_type_declaration
 
 val copy_types: string list -> t -> t
   (* Used only in Typecore.duplicate_ident_types. *)
@@ -135,11 +135,11 @@ exception Recmodule
 (* Insertion by identifier *)
 
 val add_value:
-    ?check:(string -> Warnings.t) -> Ident.t -> value_description -> t -> t
-val add_type: check:bool -> Ident.t -> type_declaration -> t -> t
-val add_extension: check:bool -> Ident.t -> extension_constructor -> t -> t
+    ?check:(string -> Warnings.t) -> Warnings.state -> Ident.t -> value_description -> t -> t
+val add_type: Warnings.state -> Ident.t -> type_declaration -> t -> t
+val add_extension: Warnings.state -> Ident.t -> extension_constructor -> t -> t
 val add_module: ?arg:bool -> Ident.t -> module_type -> t -> t
-val add_module_declaration: ?arg:bool -> check:bool -> Ident.t ->
+val add_module_declaration: ?arg:bool -> Warnings.state -> Ident.t ->
   module_declaration -> t -> t
 val add_modtype: Ident.t -> modtype_declaration -> t -> t
 val add_class: Ident.t -> class_declaration -> t -> t
@@ -149,14 +149,14 @@ val add_local_type: Path.t -> type_declaration -> t -> t
 
 (* Insertion of all fields of a signature. *)
 
-val add_item: signature_item -> t -> t
-val add_signature: signature -> t -> t
+val add_item: Warnings.state -> signature_item -> t -> t
+val add_signature: Warnings.state -> signature -> t -> t
 
 (* Insertion of all fields of a signature, relative to the given path.
    Used to implement open. Returns None if the path refers to a functor,
    not a structure. *)
 val open_signature:
-    ?loc:Location.t -> ?toplevel:bool -> Asttypes.override_flag -> Path.t ->
+    ?loc:Location.t -> ?toplevel:bool -> Warnings.state -> Asttypes.override_flag -> Path.t ->
       t -> t option
 
 val open_pers_signature: string -> t -> t
@@ -164,13 +164,13 @@ val open_pers_signature: string -> t -> t
 (* Insertion by name *)
 
 val enter_value:
-    ?check:(string -> Warnings.t) ->
+    ?check:(string -> Warnings.t) -> Warnings.state ->
     string -> value_description -> t -> Ident.t * t
-val enter_type: string -> type_declaration -> t -> Ident.t * t
-val enter_extension: string -> extension_constructor -> t -> Ident.t * t
-val enter_module: ?arg:bool -> string -> module_type -> t -> Ident.t * t
+val enter_type: Warnings.state -> string -> type_declaration -> t -> Ident.t * t
+val enter_extension: Warnings.state -> string -> extension_constructor -> t -> Ident.t * t
+val enter_module: ?arg:bool -> Warnings.state -> string -> module_type -> t -> Ident.t * t
 val enter_module_declaration:
-    ?arg:bool -> Ident.t -> module_declaration -> t -> t
+    ?arg:bool -> Warnings.state -> Ident.t -> module_declaration -> t -> t
 val enter_modtype: string -> modtype_declaration -> t -> Ident.t * t
 val enter_class: string -> class_declaration -> t -> Ident.t * t
 val enter_cltype: string -> class_type_declaration -> t -> Ident.t * t
@@ -268,44 +268,44 @@ val set_type_used_callback:
 
 (* Forward declaration to break mutual recursion with Includemod. *)
 val check_modtype_inclusion:
-      (loc:Location.t -> t -> module_type -> Path.t -> module_type -> unit) ref
+      (loc:Location.t -> Warnings.state -> t -> module_type -> Path.t -> module_type -> unit) ref
 (* Forward declaration to break mutual recursion with Typecore. *)
 val add_delayed_check_forward: ((unit -> unit) -> unit) ref
 (* Forward declaration to break mutual recursion with Mtype. *)
 val strengthen:
     (aliasable:bool -> t -> module_type -> Path.t -> module_type) ref
 (* Forward declaration to break mutual recursion with Ctype. *)
-val same_constr: (t -> type_expr -> type_expr -> bool) ref
+val same_constr: (Warnings.state -> t -> type_expr -> type_expr -> bool) ref
 
 (** Folding over all identifiers (for analysis purpose) *)
 
 val fold_values:
   (string -> Path.t -> value_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_types:
   (string -> Path.t -> type_declaration * type_descriptions -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_constructors:
   (constructor_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_labels:
   (label_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  Warnings.state -> Longident.t option -> t -> 'a -> 'a
 
 (** Persistent structures are only traversed if they are already loaded. *)
 val fold_modules:
   (string -> Path.t -> module_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  Warnings.state -> Longident.t option -> t -> 'a -> 'a
 
 val fold_modtypes:
   (string -> Path.t -> modtype_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_classs:
   (string -> Path.t -> class_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_cltypes:
   (string -> Path.t -> class_type_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  Warnings.state -> Longident.t option -> t -> 'a -> 'a
 
 (** Utilities *)
 val scrape_alias: t -> module_type -> module_type

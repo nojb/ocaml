@@ -84,11 +84,6 @@ type t =
   | Constraint_on_gadt                      (* 62 *)
 ;;
 
-val parse_options : bool -> string -> unit;;
-
-val is_active : t -> bool;;
-val is_error : t -> bool;;
-
 val defaults_w : string;;
 val defaults_warn_error : string;;
 
@@ -99,8 +94,6 @@ type reporting_information =
   ; sub_locs : (loc * string) list;
   }
 
-val report : t -> [ `Active of reporting_information | `Inactive ]
-
 exception Errors;;
 
 val check_fatal : unit -> unit;;
@@ -109,5 +102,12 @@ val reset_fatal: unit -> unit
 val help_warnings: unit -> unit
 
 type state
-val backup: unit -> state
-val restore: state -> unit
+
+val empty: state
+
+val report: state -> t -> [ `Active of reporting_information | `Inactive ]
+
+val parse_options: bool -> state -> string -> state
+
+val is_active: state -> t -> bool
+val is_error: state -> t -> bool

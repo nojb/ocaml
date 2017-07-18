@@ -50,7 +50,8 @@ val make
   -> description
 
 val parse_declaration
-  :  Parsetree.value_description
+  :  Warnings.state
+  -> Parsetree.value_description
   -> native_repr_args:native_repr list
   -> native_repr_res:native_repr
   -> description

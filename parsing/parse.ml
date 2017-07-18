@@ -35,13 +35,13 @@ let maybe_skip_phrase lexbuf =
   then ()
   else skip_phrase lexbuf
 
-let wrap parsing_fun lexbuf =
+let wrap parsing_fun state lexbuf =
   try
     Docstrings.init ();
     Lexer.init ();
     let ast = parsing_fun Lexer.token lexbuf in
     Parsing.clear_parser();
-    Docstrings.warn_bad_docstrings ();
+    Docstrings.warn_bad_docstrings state;
     ast
   with
   | Lexer.Error(Lexer.Illegal_character _, _) as err

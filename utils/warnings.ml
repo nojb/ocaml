@@ -205,19 +205,14 @@ type state =
     error: bool array;
   }
 
-let current =
-  ref
-    {
-      active = Array.make (last_warning_number + 1) true;
-      error = Array.make (last_warning_number + 1) false;
-    }
+let empty =
+  {
+    active = Array.init last_warning_number (fun _ -> false);
+    error = Array.init last_warning_number (fun _ -> false);
+  }
 
-let backup () = !current
-
-let restore x = current := x
-
-let is_active x = (!current).active.(number x);;
-let is_error x = (!current).error.(number x);;
+let is_active {active; _} x = active.(number x);;
+let is_error {error; _} x = error.(number x);;
 
 let parse_opt error active flags s =
   let set i = flags.(i) <- true in
@@ -270,18 +265,18 @@ let parse_opt error active flags s =
   loop 0
 ;;
 
-let parse_options errflag s =
-  let error = Array.copy (!current).error in
-  let active = Array.copy (!current).active in
+let parse_options errflag {error; active} s =
+  let error = Array.copy error in
+  let active = Array.copy active in
   parse_opt error active (if errflag then error else active) s;
-  current := {error; active}
+  {error; active}
 
 (* If you change these, don't forget to change them in man/ocamlc.m *)
 let defaults_w = "+a-4-6-7-9-27-29-32..39-41..42-44-45-48-50-60";;
 let defaults_warn_error = "-a+31";;
 
-let () = parse_options false defaults_w;;
-let () = parse_options true defaults_warn_error;;
+(* let () = parse_options false defaults_w;;
+let () = parse_options true defaults_warn_error;; *)
 
 let message = function
   | Comment_start -> "this is the start of a comment."
@@ -512,15 +507,14 @@ type reporting_information =
   ; sub_locs : (loc * string) list;
   }
 
-let report w =
-  match is_active w with
+let report warns w =
+  match is_active warns w with
   | false -> `Inactive
   | true ->
-     if is_error w then incr nerrors;
-     `Active { number = number w; message = message w; is_error = is_error w;
+     if is_error warns w then incr nerrors;
+     `Active { number = number w; message = message w; is_error = is_error warns w;
                sub_locs = sub_locs w;
              }
-;;
 
 exception Errors;;
 

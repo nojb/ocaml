@@ -68,15 +68,15 @@ let rec deprecated_of_attrs = function
       Some (string_of_opt_payload p)
   | _ :: tl -> deprecated_of_attrs tl
 
-let check_deprecated loc attrs s =
+let check_deprecated loc warns attrs s =
   match deprecated_of_attrs attrs with
   | None -> ()
-  | Some txt -> Location.deprecated loc (cat s txt)
+  | Some txt -> Location.deprecated loc warns (cat s txt)
 
-let check_deprecated_inclusion ~def ~use loc attrs1 attrs2 s =
+let check_deprecated_inclusion ~def ~use loc warns attrs1 attrs2 s =
   match deprecated_of_attrs attrs1, deprecated_of_attrs attrs2 with
   | None, _ | Some _, Some _ -> ()
-  | Some txt, None -> Location.deprecated ~def ~use loc (cat s txt)
+  | Some txt, None -> Location.deprecated ~def ~use loc warns (cat s txt)
 
 let rec deprecated_mutable_of_attrs = function
   | [] -> None
@@ -84,19 +84,19 @@ let rec deprecated_mutable_of_attrs = function
       Some (string_of_opt_payload p)
   | _ :: tl -> deprecated_mutable_of_attrs tl
 
-let check_deprecated_mutable loc attrs s =
+let check_deprecated_mutable loc warns attrs s =
   match deprecated_mutable_of_attrs attrs with
   | None -> ()
   | Some txt ->
-      Location.deprecated loc (Printf.sprintf "mutating field %s" (cat s txt))
+      Location.deprecated loc warns (Printf.sprintf "mutating field %s" (cat s txt))
 
-let check_deprecated_mutable_inclusion ~def ~use loc attrs1 attrs2 s =
+let check_deprecated_mutable_inclusion ~def ~use loc warns attrs1 attrs2 s =
   match deprecated_mutable_of_attrs attrs1,
         deprecated_mutable_of_attrs attrs2
   with
   | None, _ | Some _, Some _ -> ()
   | Some txt, None ->
-      Location.deprecated ~def ~use loc
+      Location.deprecated ~def ~use loc warns
         (Printf.sprintf "mutating field %s" (cat s txt))
 
 let rec deprecated_of_sig = function
@@ -117,7 +117,7 @@ let rec deprecated_of_str = function
   | _ -> None
 
 
-let emit_external_warnings =
+let emit_external_warnings warns =
   (* Note: this is run as a preliminary pass when type-checking an
      interface or implementation.  This allows to cover all kinds of
      attributes, but the drawback is that it doesn't take local
@@ -135,60 +135,39 @@ let emit_external_warnings =
           PStr[{pstr_desc=Pstr_eval({pexp_desc=Pexp_constant
                                          (Pconst_string (s, _))},_);
                 pstr_loc}] ->
-            Location.prerr_warning pstr_loc (Warnings.Preprocessor s)
+            Location.prerr_warning pstr_loc warns (Warnings.Preprocessor s)
         | _ -> ()
       )
   }
 
 
-let warning_scope = ref []
-
-let warning_enter_scope () =
-  warning_scope := (Warnings.backup ()) :: !warning_scope
-let warning_leave_scope () =
-  match !warning_scope with
-  | [] -> assert false
-  | hd :: tl ->
-      Warnings.restore hd;
-      warning_scope := tl
-
-let warning_attribute attrs =
-  let process loc txt errflag payload =
+let warning_attribute warns attrs =
+  let process loc warns txt errflag payload =
     match string_of_payload payload with
     | Some s ->
-        begin try Warnings.parse_options errflag s
+        begin try Warnings.parse_options errflag warns s
         with Arg.Bad _ ->
-          Location.prerr_warning loc
+          Location.prerr_warning loc warns
             (Warnings.Attribute_payload
-               (txt, "Ill-formed list of warnings"))
+               (txt, "Ill-formed list of warnings"));
+          warns
         end
     | None ->
-        Location.prerr_warning loc
+        Location.prerr_warning loc warns
           (Warnings.Attribute_payload
-             (txt, "A single string literal is expected"))
+             (txt, "A single string literal is expected"));
+        warns
   in
-  List.iter
-    (function
-      | ({txt = ("ocaml.warning"|"warning") as txt; loc}, payload) ->
-          process loc txt false payload
-      | ({txt = ("ocaml.warnerror"|"warnerror") as txt; loc}, payload) ->
-          process loc txt true payload
-      | _ ->
-          ()
-    )
-    attrs
-
-let with_warning_attribute attrs f =
-  try
-    warning_enter_scope ();
-    warning_attribute attrs;
-    let ret = f () in
-    warning_leave_scope ();
-    ret
-  with exn ->
-    warning_leave_scope ();
-    raise exn
-
+  List.fold_left
+    (fun warns attr ->
+       match attr with
+       | ({txt = ("ocaml.warning"|"warning") as txt; loc}, payload) ->
+           process loc warns txt false payload
+       | ({txt = ("ocaml.warnerror"|"warnerror") as txt; loc}, payload) ->
+           process loc warns txt true payload
+       | _ ->
+           warns
+    ) warns attrs
 
 let warn_on_literal_pattern =
   List.exists

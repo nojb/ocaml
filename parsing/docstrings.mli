@@ -19,7 +19,7 @@
 val init : unit -> unit
 
 (** Emit warnings for unattached and ambiguous docstrings *)
-val warn_bad_docstrings : unit -> unit
+val warn_bad_docstrings: Warnings.state -> unit
 
 (** {3 Docstrings} *)
 

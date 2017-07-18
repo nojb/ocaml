@@ -307,8 +307,8 @@ let print_error ppf loc =
 
 let print_error_cur_file ppf () = print_error ppf (in_file !input_name);;
 
-let default_warning_printer loc ppf w =
-  match Warnings.report w with
+let default_warning_printer loc warns ppf w =
+  match Warnings.report warns w with
   | `Inactive -> ()
   | `Active { Warnings. number; message; is_error; sub_locs } ->
     setup_colors ();
@@ -327,12 +327,12 @@ let default_warning_printer loc ppf w =
 
 let warning_printer = ref default_warning_printer ;;
 
-let print_warning loc ppf w =
-  print_updating_num_loc_lines ppf (!warning_printer loc) w
+let print_warning loc warns ppf w =
+  print_updating_num_loc_lines ppf (!warning_printer loc warns) w
 ;;
 
 let formatter_for_warnings = ref err_formatter;;
-let prerr_warning loc w = print_warning loc !formatter_for_warnings w;;
+let prerr_warning loc warns w = print_warning loc warns !formatter_for_warnings w;;
 
 let echo_eof () =
   print_newline ();
@@ -480,5 +480,5 @@ let raise_errorf ?(loc = none) ?(sub = []) ?(if_highlight = "") =
     ~before:print_phanton_error_prefix
     (fun msg -> raise (Error ({loc; msg; sub; if_highlight})))
 
-let deprecated ?(def = none) ?(use = none) loc msg =
-  prerr_warning loc (Warnings.Deprecated (msg, def, use))
+let deprecated ?(def = none) ?(use = none) loc warns msg =
+  prerr_warning loc warns (Warnings.Deprecated (msg, def, use))

@@ -57,19 +57,19 @@ val get_pos_info: Lexing.position -> string * int * int (* file, line, char *)
 val print_loc: formatter -> t -> unit
 val print_error: formatter -> t -> unit
 val print_error_cur_file: formatter -> unit -> unit
-val print_warning: t -> formatter -> Warnings.t -> unit
+val print_warning: t -> Warnings.state -> formatter -> Warnings.t -> unit
 val formatter_for_warnings : formatter ref
-val prerr_warning: t -> Warnings.t -> unit
+val prerr_warning: t -> Warnings.state -> Warnings.t -> unit
 val echo_eof: unit -> unit
 val reset: unit -> unit
 
 val default_printer : formatter -> t -> unit
 val printer : (formatter -> t -> unit) ref
 
-val warning_printer : (t -> formatter -> Warnings.t -> unit) ref
+val warning_printer: (t -> Warnings.state -> formatter -> Warnings.t -> unit) ref
 (** Hook for intercepting warnings. *)
 
-val default_warning_printer : t -> formatter -> Warnings.t -> unit
+val default_warning_printer: t -> Warnings.state -> formatter -> Warnings.t -> unit
 (** Original warning printer for use in hooks. *)
 
 val highlight_locations: formatter -> t list -> bool
@@ -141,4 +141,4 @@ val default_error_reporter : formatter -> error -> unit
 val report_exception: formatter -> exn -> unit
 (** Reraise the exception if it is unknown. *)
 
-val deprecated: ?def:t -> ?use:t -> t -> string -> unit
+val deprecated: ?def:t -> ?use:t -> t -> Warnings.state -> string -> unit
