@@ -20,13 +20,13 @@ open Ctype
 open Format
 
 val class_types:
-  Warnings.state -> Env.t -> class_type -> class_type -> class_match_failure list
+  Env.t -> class_type -> class_type -> class_match_failure list
 val class_type_declarations:
   loc:Location.t -> Warnings.state ->
   Env.t -> class_type_declaration -> class_type_declaration ->
   class_match_failure list
 val class_declarations:
-  Warnings.state -> Env.t -> class_declaration -> class_declaration ->
+  Env.t -> class_declaration -> class_declaration ->
   class_match_failure list
 
 val report_error: formatter -> class_match_failure list -> unit

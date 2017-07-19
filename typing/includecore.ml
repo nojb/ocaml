@@ -33,7 +33,7 @@ let value_descriptions ~loc warns env name
     loc warns
     vd1.val_attributes vd2.val_attributes
     name;
-  if Ctype.moregeneral warns env true vd1.val_type vd2.val_type then begin
+  if Ctype.moregeneral env true vd1.val_type vd2.val_type then begin
     match (vd1.val_kind, vd2.val_kind) with
         (Val_prim p1, Val_prim p2) ->
           if p1 = p2 then Tcoerce_none else raise Dont_match
@@ -57,21 +57,21 @@ let private_flags decl1 decl2 =
 
 (* Inclusion between manifest types (particularly for private row types) *)
 
-let is_absrow warns env ty =
+let is_absrow env ty =
   match ty.desc with
     Tconstr(Pident _, _, _) ->
-      begin match Ctype.expand_head warns env ty with
+      begin match Ctype.expand_head env ty with
         {desc=Tobject _|Tvariant _} -> true
       | _ -> false
       end
   | _ -> false
 
-let type_manifest warns env ty1 params1 ty2 params2 priv2 =
-  let ty1' = Ctype.expand_head warns env ty1 and ty2' = Ctype.expand_head warns env ty2 in
+let type_manifest env ty1 params1 ty2 params2 priv2 =
+  let ty1' = Ctype.expand_head env ty1 and ty2' = Ctype.expand_head env ty2 in
   match ty1'.desc, ty2'.desc with
-    Tvariant row1, Tvariant row2 when is_absrow warns env (Btype.row_more row2) ->
+    Tvariant row1, Tvariant row2 when is_absrow env (Btype.row_more row2) ->
       let row1 = Btype.row_repr row1 and row2 = Btype.row_repr row2 in
-      Ctype.equal warns env true (ty1::params1) (row2.row_more::params2) &&
+      Ctype.equal env true (ty1::params1) (row2.row_more::params2) &&
       begin match row1.row_more with
         {desc=Tvar _|Tconstr _|Tnil} -> true
       | _ -> false
@@ -99,24 +99,24 @@ let type_manifest warns env ty1 params1 ty2 params2 priv2 =
           | _ -> false)
         pairs &&
       let tl1, tl2 = List.split !to_equal in
-      Ctype.equal warns env true tl1 tl2
+      Ctype.equal env true tl1 tl2
   | Tobject (fi1, _), Tobject (fi2, _)
-    when is_absrow warns env (snd(Ctype.flatten_fields fi2)) ->
+    when is_absrow env (snd(Ctype.flatten_fields fi2)) ->
       let (fields2,rest2) = Ctype.flatten_fields fi2 in
-      Ctype.equal warns env true (ty1::params1) (rest2::params2) &&
+      Ctype.equal env true (ty1::params1) (rest2::params2) &&
       let (fields1,rest1) = Ctype.flatten_fields fi1 in
       (match rest1 with {desc=Tnil|Tvar _|Tconstr _} -> true | _ -> false) &&
       let pairs, _miss1, miss2 = Ctype.associate_fields fields1 fields2 in
       miss2 = [] &&
       let tl1, tl2 =
         List.split (List.map (fun (_,_,t1,_,t2) -> t1, t2) pairs) in
-      Ctype.equal warns env true (params1 @ tl1) (params2 @ tl2)
+      Ctype.equal env true (params1 @ tl1) (params2 @ tl2)
   | _ ->
       let rec check_super ty1 =
-        Ctype.equal warns env true (ty1 :: params1) (ty2 :: params2) ||
+        Ctype.equal env true (ty1 :: params1) (ty2 :: params2) ||
         priv2 = Private &&
         try check_super
-              (Ctype.try_expand_once_opt warns env (Ctype.expand_head warns env ty1))
+              (Ctype.try_expand_once_opt env (Ctype.expand_head env ty1))
         with Ctype.Cannot_expand -> false
       in check_super ty1
 
@@ -181,7 +181,7 @@ let rec compare_constructor_arguments ~loc warns env cstr params1 params2 arg1 a
       if List.length arg1 <> List.length arg2 then [Field_arity cstr]
       else if
         (* Ctype.equal must be called on all arguments at once, cf. PR#7378 *)
-        Ctype.equal warns env true (params1 @ arg1) (params2 @ arg2)
+        Ctype.equal env true (params1 @ arg1) (params2 @ arg2)
       then [] else [Field_type cstr]
   | Types.Cstr_record l1, Types.Cstr_record l2 ->
       compare_records warns env ~loc params1 params2 0 l1 l2
@@ -207,7 +207,7 @@ and compare_variants ~loc warns env params1 params2 n
         let r =
           match cd1.cd_res, cd2.cd_res with
           | Some r1, Some r2 ->
-              if Ctype.equal warns env true [r1] [r2] then
+              if Ctype.equal env true [r1] [r2] then
                 compare_constructor_arguments ~loc warns env cd1.cd_id [r1] [r2]
                   cd1.cd_args cd2.cd_args
               else [Field_type cd1.cd_id]
@@ -239,7 +239,7 @@ and compare_records ~loc warns env params1 params2 n
           loc warns
           ld1.ld_attributes ld2.ld_attributes
           (Ident.name ld1.ld_id);
-        if Ctype.equal warns env true (ld1.ld_type::params1)(ld2.ld_type::params2)
+        if Ctype.equal env true (ld1.ld_type::params1)(ld2.ld_type::params2)
         then (* add arguments to the parameters, cf. PR#7378 *)
           compare_records ~loc warns env
             (ld1.ld_type::params1) (ld2.ld_type::params2)
@@ -260,18 +260,18 @@ let type_declarations ?(equality = false) ~loc warns env name decl1 id decl2 =
   if not (private_flags decl1 decl2) then [Privacy] else
   let err = match (decl1.type_manifest, decl2.type_manifest) with
       (_, None) ->
-        if Ctype.equal warns env true decl1.type_params decl2.type_params
+        if Ctype.equal env true decl1.type_params decl2.type_params
         then [] else [Constraint]
     | (Some ty1, Some ty2) ->
-        if type_manifest warns env ty1 decl1.type_params ty2 decl2.type_params
+        if type_manifest env ty1 decl1.type_params ty2 decl2.type_params
             decl2.type_private
         then [] else [Manifest]
     | (None, Some ty2) ->
         let ty1 =
           Btype.newgenty (Tconstr(Pident id, decl2.type_params, ref Mnil))
         in
-        if Ctype.equal warns env true decl1.type_params decl2.type_params then
-          if Ctype.equal warns env false [ty1] [ty2] then []
+        if Ctype.equal env true decl1.type_params decl2.type_params then
+          if Ctype.equal env false [ty1] [ty2] then []
           else [Manifest]
         else [Constraint]
   in
@@ -355,7 +355,7 @@ let extension_constructors ~loc warns env id ext1 ext2 =
   let ty2 =
     Btype.newgenty (Tconstr(ext2.ext_type_path, ext2.ext_type_params, ref Mnil))
   in
-  if Ctype.equal warns env true
+  if Ctype.equal env true
        (ty1 :: ext1.ext_type_params)
        (ty2 :: ext2.ext_type_params)
   then
@@ -363,7 +363,7 @@ let extension_constructors ~loc warns env id ext1 ext2 =
         ext1.ext_type_params ext2.ext_type_params
         ext1.ext_args ext2.ext_args = [] then
       if match ext1.ext_ret_type, ext2.ext_ret_type with
-          Some r1, Some r2 when not (Ctype.equal warns env true [r1] [r2]) -> false
+          Some r1, Some r2 when not (Ctype.equal env true [r1] [r2]) -> false
         | Some _, None | None, Some _ -> false
         | _ -> true
       then

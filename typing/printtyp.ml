@@ -558,7 +558,7 @@ let rec mark_loops_rec visited ty =
     | Tunivar _ -> add_named_var ty
 
 let mark_loops ty =
-  normalize_type Warnings.empty Env.empty ty;
+  normalize_type Env.empty ty;
   mark_loops_rec [] ty;;
 
 let reset_loop_marks () =
@@ -1451,7 +1451,7 @@ let explanation unif t3 t4 ppf =
         type_expr (if is_Tunivar t3 then t3 else t4)
   | Tvar _, _ | _, Tvar _ ->
       let t, t' = if is_Tvar t3 then (t3, t4) else (t4, t3) in
-      if occur_in Warnings.empty Env.empty t t' then
+      if occur_in Env.empty t t' then
         fprintf ppf "@,@[<hov>The type variable %a occurs inside@ %a@]"
           type_expr t type_expr t'
       else

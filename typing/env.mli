@@ -275,7 +275,7 @@ val add_delayed_check_forward: ((unit -> unit) -> unit) ref
 val strengthen:
     (aliasable:bool -> t -> module_type -> Path.t -> module_type) ref
 (* Forward declaration to break mutual recursion with Ctype. *)
-val same_constr: (Warnings.state -> t -> type_expr -> type_expr -> bool) ref
+val same_constr: (t -> type_expr -> type_expr -> bool) ref
 
 (** Folding over all identifiers (for analysis purpose) *)
 

@@ -454,7 +454,7 @@ let copy_local ~from env =
     gadt_instances = from.gadt_instances;
     flags = from.flags }
 
-let same_constr = ref (fun _ _ _ _ -> assert false)
+let same_constr = ref (fun _ _ _ -> assert false)
 
 (* Helper to decide whether to report an identifier shadowing
    by some 'open'. For labels and constructors, we do not report
@@ -463,12 +463,12 @@ let same_constr = ref (fun _ _ _ _ -> assert false)
    Later, one could also interpret some attributes on value and
    type declarations to silence the shadowing warnings. *)
 
-let check_shadowing warns env = function
+let check_shadowing env = function
   | `Constructor (Some (c1, c2))
-    when not (!same_constr warns env c1.cstr_res c2.cstr_res) ->
+    when not (!same_constr env c1.cstr_res c2.cstr_res) ->
       Some "constructor"
   | `Label (Some (l1, l2))
-    when not (!same_constr warns env l1.lbl_res l2.lbl_res) ->
+    when not (!same_constr env l1.lbl_res l2.lbl_res) ->
       Some "label"
   | `Value (Some _) -> Some "value"
   | `Type (Some _) -> Some "type"
@@ -2018,7 +2018,7 @@ let open_signature ?(loc = Location.none) ?(toplevel = false) warns ovf root env
       );
     let shadowed = ref [] in
     let slot s b =
-      begin match check_shadowing warns env b with
+      begin match check_shadowing env b with
       | Some kind when not (List.mem (kind, s) !shadowed) ->
           shadowed := (kind, s) :: !shadowed;
           let w =

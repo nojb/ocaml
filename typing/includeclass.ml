@@ -27,16 +27,16 @@ let class_type_declarations ~loc warns env cty1 cty2 =
     loc warns
     cty1.clty_attributes cty2.clty_attributes
     (Path.last cty1.clty_path);
-  Ctype.match_class_declarations warns env
+  Ctype.match_class_declarations env
     cty1.clty_params cty1.clty_type
     cty2.clty_params cty2.clty_type
 
-let class_declarations warns env cty1 cty2 =
+let class_declarations env cty1 cty2 =
   match cty1.cty_new, cty2.cty_new with
     None, Some _ ->
       [Ctype.CM_Virtual_class]
   | _ ->
-      Ctype.match_class_declarations warns env
+      Ctype.match_class_declarations env
         cty1.cty_params cty1.cty_type
         cty2.cty_params cty2.cty_type
 
