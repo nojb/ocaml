@@ -777,6 +777,12 @@ partialclean::
 
 # The toplevel
 
+ifneq ($(filter $(UNIX_OR_WIN32), $(OTHERLIBRARIES)),)
+tools/ledit.cmo: tools/ledit.mli tools/ledit.ml library ocaml
+	$(MAKE) -C otherlibs/$(UNIX_OR_WIN32) all
+	$(CAMLC) -I stdlib -I toplevel -I otherlibs/$(UNIX_OR_WIN32) -I tools -c tools/ledit.mli tools/ledit.ml
+endif
+
 compilerlibs/ocamltoplevel.cma: $(TOPLEVEL)
 	$(CAMLC) -a -o $@ $^
 partialclean::
