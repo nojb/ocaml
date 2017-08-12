@@ -649,6 +649,9 @@ endif
 	   $(LN) ocamlc.byte$(EXE) ocamlc$(EXE); \
 	   $(LN) ocamllex.byte$(EXE) ocamllex$(EXE); \
 	fi
+	if test -f tools/ledit.cmo; then \
+	   cp tools/ledit.cm* $(INSTALL_LIBDIR); \
+	fi
 
 # Installation of the native-code compiler
 .PHONY: installopt
