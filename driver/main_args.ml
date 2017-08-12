@@ -763,6 +763,11 @@ let mk__ f =
   "<file>  Treat <file> as a file name (even if it starts with `-')"
 ;;
 
+let mk_no_ledit f =
+  "-no-ledit", Arg.Unit f,
+  "Do not use readline functionality"
+;;
+
 module type Common_options = sig
   val _absname : unit -> unit
   val _I : string -> unit
@@ -888,7 +893,7 @@ end;;
 module type Bytetop_options = sig
   include Toplevel_options
   val _dinstr : unit -> unit
-
+  val _no_ledit : unit -> unit
 end;;
 
 module type Optcommon_options = sig
@@ -1135,6 +1140,8 @@ struct
 
     mk_args F._args;
     mk_args0 F._args0;
+
+    mk_no_ledit F._no_ledit;
   ]
 end;;
 

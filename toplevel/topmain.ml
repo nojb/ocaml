@@ -94,6 +94,8 @@ let wrap_expand f s =
   expand_position start (Array.length arr);
   arr
 
+let use_ledit = ref true
+
 module Options = Main_args.Make_bytetop_options (struct
   let set r () = r := true
   let clear r () = r := false
@@ -152,6 +154,8 @@ module Options = Main_args.Make_bytetop_options (struct
   let _args0 = wrap_expand Arg.read_arg0
 
   let anonymous s = file_argument s
+
+  let _no_ledit = clear use_ledit
 end);;
 
 
@@ -168,6 +172,8 @@ let main () =
   end;
   Compenv.readenv ppf Before_link;
   if not (prepare ppf) then exit 2;
-  ignore (Topdirs.load_file ppf "unix.cma");
-  ignore (Topdirs.load_file ppf "ledit.cmo");
+  if !use_ledit then begin
+    ignore (Topdirs.load_file ppf "unix.cma");
+    ignore (Topdirs.load_file ppf "ledit.cmo");
+  end;
   Toploop.loop Format.std_formatter
