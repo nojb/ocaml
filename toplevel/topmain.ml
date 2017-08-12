@@ -168,4 +168,6 @@ let main () =
   end;
   Compenv.readenv ppf Before_link;
   if not (prepare ppf) then exit 2;
+  ignore (Topdirs.load_file ppf "unix.cma");
+  ignore (Topdirs.load_file ppf "ledit.cmo");
   Toploop.loop Format.std_formatter
