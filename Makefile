@@ -517,6 +517,9 @@ all: runtime
 	$(MAKE) coreall
 	$(MAKE) ocaml
 	$(MAKE) otherlibraries $(WITH_DEBUGGER) $(WITH_OCAMLDOC)
+ifneq ($(filter $(UNIX_OR_WIN32), $(OTHERLIBRARIES)),)
+	$(MAKE) tools/ledit.cmo
+endif
 
 # Bootstrap and rebuild the whole system.
 # The compilation of ocaml will fail if the runtime has changed.
@@ -781,6 +784,7 @@ partialclean::
 # The toplevel
 
 ifneq ($(filter $(UNIX_OR_WIN32), $(OTHERLIBRARIES)),)
+.PHONY: tools/ledit.cmo
 tools/ledit.cmo: tools/ledit.mli tools/ledit.ml library ocaml
 	$(MAKE) -C otherlibs/$(UNIX_OR_WIN32) all
 	$(CAMLC) -I stdlib -I toplevel -I otherlibs/$(UNIX_OR_WIN32) -I tools -c tools/ledit.mli tools/ledit.ml
