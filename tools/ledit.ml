@@ -1585,3 +1585,24 @@ let (set_prompt, get_prompt, input_a_char) =
   set_prompt, get_prompt, input_a_char
 
 let input_char ic = A.Char.to_string (input_a_char ic)
+
+let read_input prompt buffer len =
+  output_string Pervasives.stdout prompt; flush Pervasives.stdout;
+  let i = ref 0 in
+  try
+    while true do
+      if !i + 4 >= len then raise Exit;
+      let c = input_char Pervasives.stdin in
+      Bytes.blit_string c 0 buffer !i (String.length c);
+      i := !i + String.length c;
+      if c = "\n" then raise Exit;
+    done;
+    (!i, false)
+  with
+  | End_of_file ->
+      (!i, true)
+  | Exit ->
+      (!i, false)
+
+let () =
+  Toploop.read_interactive_input := read_input
