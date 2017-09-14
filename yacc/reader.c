@@ -1805,8 +1805,14 @@ void print_grammar(void)
 
 void reader(void)
 {
+#ifdef _WIN32
+    size_t len = wcstombs(NULL, input_file_name, 0);
+    if ((virtual_input_file_name = MALLOC (len)) != NULL)
+        wcstombs(virtual_input_file_name, input_file_name, len);
+#else
     virtual_input_file_name = substring (input_file_name, 0,
                                          strlen (input_file_name));
+#endif
     create_symbol_table();
     read_declarations();
     output_token_type();

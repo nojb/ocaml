@@ -19,13 +19,21 @@
 #define NDEBUG
 #endif
 
+#define CAML_INTERNALS
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "caml/misc.h"
+#include "caml/config.h"
+#include "caml/mlvalues.h"
+#include "caml/osdeps.h"
+#ifdef _WIN32
+/* For _wunlink (and perhaps other things) */
+#include <io.h>
+#endif
 
 /*  machine-dependent definitions                              */
 /*  the following definitions are for the Tahoe                */
@@ -71,9 +79,9 @@
 
 #define CODE_SUFFIX        ".code.c"
 #define        DEFINES_SUFFIX        ".tab.h"
-#define        OUTPUT_SUFFIX        ".ml"
-#define        VERBOSE_SUFFIX        ".output"
-#define INTERFACE_SUFFIX ".mli"
+#define        OUTPUT_SUFFIX        _T(".ml")
+#define        VERBOSE_SUFFIX        _T(".output")
+#define INTERFACE_SUFFIX _T(".mli")
 
 /* keyword codes */
 
@@ -214,21 +222,21 @@ extern char sflag;
 extern char eflag;
 extern char big_endian;
 
-extern char *myname;
+extern char_os *myname;
 extern char *cptr;
 extern char *line;
 extern int lineno;
 extern char *virtual_input_file_name;
 extern int outline;
 
-extern char *action_file_name;
-extern char *entry_file_name;
-extern char *code_file_name;
-extern char *input_file_name;
-extern char *output_file_name;
-extern char *text_file_name;
-extern char *verbose_file_name;
-extern char *interface_file_name;
+extern char_os *action_file_name;
+extern char_os *entry_file_name;
+extern char_os *code_file_name;
+extern char_os *input_file_name;
+extern char_os *output_file_name;
+extern char_os *text_file_name;
+extern char_os *verbose_file_name;
+extern char_os *interface_file_name;
 
 extern FILE *action_file;
 extern FILE *entry_file;
@@ -320,7 +328,7 @@ extern void lr0 (void);
 extern void make_parser (void);
 extern void no_grammar (void) Noreturn;
 extern void no_space (void) Noreturn;
-extern void open_error (char *filename) Noreturn;
+extern void open_error (char_os *filename) Noreturn;
 extern void output (void);
 extern void prec_redeclared (void);
 extern void polymorphic_entry_point(char *s) Noreturn;

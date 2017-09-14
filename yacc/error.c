@@ -21,21 +21,21 @@
 
 void fatal(char *msg)
 {
-    fprintf(stderr, "%s: f - %s\n", myname, msg);
+    fprintf(stderr, "%s: f - %s\n", caml_stat_strdup_of_os(myname), msg);
     done(2);
 }
 
 
 void no_space(void)
 {
-    fprintf(stderr, "%s: f - out of space\n", myname);
+    fprintf(stderr, "%s: f - out of space\n", caml_stat_strdup_of_os(myname));
     done(2);
 }
 
 
-void open_error(char *filename)
+void open_error(char_os *filename)
 {
-    fprintf(stderr, "%s: f - cannot open \"%s\"\n", myname, filename);
+    fprintf(stderr, "%s: f - cannot open \"%s\"\n", caml_stat_strdup_of_os(myname), caml_stat_strdup_of_os(filename));
     done(2);
 }
 
@@ -269,37 +269,34 @@ production\n",
 
 void undefined_goal(char *s)
 {
-    fprintf(stderr, "%s: e - the start symbol `%s' is undefined\n", myname, s);
+    fprintf(stderr, "%s: e - the start symbol `%s' is undefined\n", caml_stat_strdup_of_os(myname), s);
     done(1);
 }
 
 void undefined_symbol(char *s)
 {
-    fprintf(stderr, "%s: e - the symbol `%s' is undefined\n", myname, s);
+    fprintf(stderr, "%s: e - the symbol `%s' is undefined\n", caml_stat_strdup_of_os(myname), s);
     done(1);
 }
 
 
 void entry_without_type(char *s)
 {
-    fprintf(stderr,
-            "%s: e - no type has been declared for the start symbol `%s'\n",
-            myname, s);
+    fprintf(stderr, "%s: e - no type has been declared for the start symbol `%s'\n",
+            caml_stat_strdup_of_os(myname), s);
     done(1);
 }
 
 void polymorphic_entry_point(char *s)
 {
-    fprintf(stderr,
-            "%s: e - the start symbol `%s' has a polymorphic type\n",
-            myname, s);
+    fprintf(stderr, "%s: e - the start symbol `%s' has a polymorphic type\n",
+            caml_stat_strdup_of_os(myname), s);
     done(1);
 }
 
 void forbidden_conflicts(void)
 {
-    fprintf(stderr,
-            "%s: the grammar has conflicts, but --strict was specified\n",
-            myname);
+    fprintf(stderr, "%s: the grammar has conflicts, but --strict was specified\n",
+            caml_stat_strdup_of_os(myname));
     done(1);
 }
