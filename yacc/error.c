@@ -21,21 +21,21 @@
 
 void fatal(char *msg)
 {
-    fprintf(stderr, "%s: f - %s\n", myname, msg);
+    fprintf(stderr, "%" ARCH_CHARNATSTR_PRINTF_FORMAT ": f - %s\n", myname, msg);
     done(2);
 }
 
 
 void no_space(void)
 {
-    fprintf(stderr, "%s: f - out of space\n", myname);
+    fprintf(stderr, "%" ARCH_CHARNATSTR_PRINTF_FORMAT ": f - out of space\n", myname);
     done(2);
 }
 
 
-void open_error(char *filename)
+void open_error(charnat *filename)
 {
-    fprintf(stderr, "%s: f - cannot open \"%s\"\n", myname, filename);
+    fprintf(stderr, "%" ARCH_CHARNATSTR_PRINTF_FORMAT ": f - cannot open \"%" ARCH_CHARNATSTR_PRINTF_FORMAT "\"\n", myname, filename);
     done(2);
 }
 
@@ -269,13 +269,13 @@ production\n",
 
 void undefined_goal(char *s)
 {
-    fprintf(stderr, "%s: e - the start symbol `%s' is undefined\n", myname, s);
+    fprintf(stderr, "%" ARCH_CHARNATSTR_PRINTF_FORMAT ": e - the start symbol `%s' is undefined\n", myname, s);
     done(1);
 }
 
 void undefined_symbol(char *s)
 {
-    fprintf(stderr, "%s: e - the symbol `%s' is undefined\n", myname, s);
+    fprintf(stderr, "%" ARCH_CHARNATSTR_PRINTF_FORMAT ": e - the symbol `%s' is undefined\n", myname, s);
     done(1);
 }
 
@@ -283,7 +283,7 @@ void undefined_symbol(char *s)
 void entry_without_type(char *s)
 {
     fprintf(stderr,
-            "%s: e - no type has been declared for the start symbol `%s'\n",
+            "%" ARCH_CHARNATSTR_PRINTF_FORMAT ": e - no type has been declared for the start symbol `%s'\n",
             myname, s);
     done(1);
 }
@@ -291,7 +291,7 @@ void entry_without_type(char *s)
 void polymorphic_entry_point(char *s)
 {
     fprintf(stderr,
-            "%s: e - the start symbol `%s' has a polymorphic type\n",
+            "%" ARCH_CHARNATSTR_PRINTF_FORMAT ": e - the start symbol `%s' has a polymorphic type\n",
             myname, s);
     done(1);
 }
@@ -299,7 +299,7 @@ void polymorphic_entry_point(char *s)
 void forbidden_conflicts(void)
 {
     fprintf(stderr,
-            "%s: the grammar has conflicts, but --strict was specified\n",
+            "%" ARCH_CHARNATSTR_PRINTF_FORMAT ": the grammar has conflicts, but --strict was specified\n",
             myname);
     done(1);
 }

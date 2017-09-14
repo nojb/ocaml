@@ -191,6 +191,11 @@ typedef wchar_t charnat;
 #define _tcscmp wcscmp
 #define _tcslen wcslen
 #define _stscanf swscanf
+#define _tcscpy wcscpy
+#define _tmktemp _wmktemp
+#define _tfopen _wfopen
+
+#define tmain wmain
 
 #define caml_stat_tcsdup caml_stat_wcsdup
 #define caml_stat_tcsconcat caml_stat_wcsconcat
@@ -223,6 +228,11 @@ typedef char charnat;
 #define _tcscmp strcmp
 #define _tcslen strlen
 #define _stscanf sscanf
+#define _tcscpy strcpy
+#define _tmktemp mktemp
+#define _tfopen fopen
+
+#define tmain main
 
 #define caml_stat_tcsdup caml_stat_strdup
 #define caml_stat_tcsconcat caml_stat_strconcat

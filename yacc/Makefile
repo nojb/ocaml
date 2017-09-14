@@ -23,8 +23,18 @@ OBJS= closure.$(O) error.$(O) lalr.$(O) lr0.$(O) main.$(O) \
 
 all: ocamlyacc$(EXE)
 
+ifeq ($(TOOLCHAIN),msvc)
+WIN_LDFLAGS=-link /ENTRY:wmainCRTStartup
+else
+ifeq ($(TOOLCHAIN),mingw)
+WIN_LDFLAGS=-link -municode
+else
+WIN_LDFLAGS=
+endif
+endif
+
 ocamlyacc$(EXE): $(OBJS)
-	$(MKEXE) -o ocamlyacc$(EXE) $(OBJS) $(EXTRALIBS)
+	$(MKEXE) $(WIN_LDFLAGS) -o ocamlyacc$(EXE) $(OBJS) $(EXTRALIBS)
 
 version.h : ../VERSION
 	echo "#define OCAML_VERSION \"`sed -e 1q $^ | tr -d '\r'`\"" > $@
