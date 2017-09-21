@@ -1503,14 +1503,14 @@ which will override the default "main" function provided by the OCaml
 runtime system. Execution will start in the user-defined "main" function
 just like for a regular C program.
 
-\item At some point, the C code must call "caml_main(argv)" to
-initialize the OCaml code. The "argv" argument is a C array of strings
-(type "char **"), terminated with a "NULL" pointer,
-which represents the command-line arguments, as
-passed as second argument to "main". The OCaml array "Sys.argv" will
-be initialized from this parameter. For the bytecode compiler,
-"argv[0]" and "argv[1]" are also consulted to find the file containing
-the bytecode.
+\item At some point, the C code must call "caml_main(argv)" to initialize the
+OCaml code. The "argv" argument is a C array of strings (type "char **") under
+Unix or a C array of wide strings (type "wchar_t **") under Windows, terminated
+with a "NULL" pointer. It represents the command-line arguments, as passed as
+second argument to "main" under Unix or "wmain" under Windows. The OCaml array
+"Sys.argv" will be initialized from this parameter. For the bytecode compiler,
+"argv[0]" and "argv[1]" are also consulted to find the file containing the
+bytecode.
 
 \item The call to "caml_main" initializes the OCaml runtime system,
 loads the bytecode (in the case of the bytecode compiler), and
