@@ -849,15 +849,3 @@ CAMLexport inline wchar_t* caml_stat_strdup_to_utf16(const char *s)
 
   return ws;
 }
-
-CAMLexport caml_stat_string caml_stat_strdup_of_utf16(const wchar_t *s)
-{
-  caml_stat_string out;
-  int retcode;
-
-  retcode = win_wide_char_to_multi_byte(s, -1, NULL, 0);
-  out = caml_stat_alloc(retcode);
-  win_wide_char_to_multi_byte(s, -1, out, retcode);
-
-  return out;
-}
