@@ -262,9 +262,9 @@ static void find_code_fragment(code_t pc, int *index, struct code_fragment **cf)
   for (int i = 0; i < caml_code_fragments_table.size; i++) {
     cfi = (struct code_fragment *) caml_code_fragments_table.contents[i];
     if ((char*) pc >= cfi->code_start && (char*) pc < cfi->code_end) {
-      if (index)
+      if (index != NULL)
         *index = i;
-      if (cf)
+      if (cf != NULL)
         *cf = cfi;
       return;
     }
@@ -275,8 +275,8 @@ static void find_code_fragment(code_t pc, int *index, struct code_fragment **cf)
 
   /* GCC detects that, without the lines below,
      the out variables may be uninitialized */
-  if (index) *index = -1;
-  if (cf) *cf = NULL;
+  if (index != NULL) *index = -1;
+  if (cf != NULL) *cf = NULL;
 }
 
 struct breakpoint {
@@ -298,7 +298,7 @@ static struct breakpoint *find_breakpoint(code_t pc)
 
 static void save_instruction(code_t pc)
 {
-  if (find_breakpoint(pc)) {
+  if (find_breakpoint(pc) != NULL) {
     /* Already saved. Nothing to do. */
     return;
   }

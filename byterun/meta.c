@@ -55,14 +55,14 @@ static struct code_fragment *find_code_fragment(code_t prog, size_t len, int *in
     struct code_fragment *cf = (struct code_fragment *) caml_code_fragments_table.contents[i];
     if (cf->code_start == (char *) prog &&
         cf->code_end == (char *) prog + len) {
-      if (index) *index = i;
+      if (index != NULL) *index = i;
       return cf;
     }
   }
 
   /* GCC detects that, without the lines below,
      the out variables may be unitialized */
-  if (index) *index = (-1);
+  if (index != NULL) *index = (-1);
   return NULL;
 }
 
@@ -76,7 +76,7 @@ CAMLprim value caml_reify_bytecode(value prog, value len)
      don't re-register.
 
      I'm weeping right now. */
-  if (!find_code_fragment((code_t) prog, Long_val(len), NULL)) {
+  if (find_code_fragment((code_t) prog, Long_val(len), NULL) == NULL) {
     struct code_fragment * cf = caml_stat_alloc(sizeof(struct code_fragment));
     cf->code_start = (char *) prog;
     cf->code_end = (char *) prog + Long_val(len);
