@@ -39,7 +39,7 @@ void caml_debugger_init(void)
 {
 }
 
-void caml_debugger(enum event_kind event)
+void caml_debugger(enum event_kind event, value param)
 {
 }
 
@@ -94,6 +94,8 @@ static struct channel * dbg_in; /* Input channel on the socket */
 static struct channel * dbg_out;/* Output channel on the socket */
 
 static char *dbg_addr = NULL;
+
+static struct ext_table breakpoints_table = {0};
 
 static void open_connection(void)
 {
@@ -180,6 +182,8 @@ void caml_debugger_init(void)
   if (dbg_addr != NULL) caml_stat_free(dbg_addr);
   dbg_addr = address;
 
+  caml_ext_table_init(&breakpoints_table, 16);
+
 #ifdef _WIN32
   winsock_startup();
   (void)atexit(winsock_cleanup);
@@ -252,16 +256,128 @@ static void safe_output_value(struct channel *chan, value val)
   caml_external_raise = saved_external_raise;
 }
 
+static void find_code_fragment(code_t pc, int *index, struct code_fragment **cf)
+{
+  struct code_fragment *cfi;
+  for (int i = 0; i < caml_code_fragments_table.size; i++) {
+    cfi = (struct code_fragment *) caml_code_fragments_table.contents[i];
+    if ((char*) pc >= cfi->code_start && (char*) pc < cfi->code_end) {
+      if (index)
+        *index = i;
+      if (cf)
+        *cf = cfi;
+      return;
+    }
+  }
+
+  /* Invoked with pc not belonging to any registered code fragment. Impossible. */
+  CAMLassert(0);
+
+  /* GCC detects that, without the lines below,
+     the out variables may be uninitialized */
+  if (index) *index = -1;
+  if (cf) *cf = NULL;
+}
+
+struct breakpoint {
+  code_t pc;
+  opcode_t saved;
+};
+
+static struct breakpoint *find_breakpoint(code_t pc)
+{
+  struct breakpoint *bpti;
+  for (int i = 0; i < breakpoints_table.size; i++) {
+    bpti = (struct breakpoint *) breakpoints_table.contents[i];
+    if (bpti->pc == pc)
+      return bpti;
+  }
+
+  return NULL;
+}
+
+static void save_instruction(code_t pc)
+{
+  if (find_breakpoint(pc)) {
+    /* Already saved. Nothing to do. */
+    return;
+  }
+
+  struct breakpoint *bpt = caml_stat_alloc(sizeof(struct breakpoint));
+  bpt->pc = pc;
+  bpt->saved = *pc;
+  caml_ext_table_add(&breakpoints_table, bpt);
+}
+
+static void set_instruction(code_t pc, opcode_t opcode)
+{
+  save_instruction(pc);
+  caml_set_instruction(pc, opcode);
+}
+
+static void restore_instruction(code_t pc)
+{
+  struct breakpoint *bpt = find_breakpoint(pc);
+  CAMLassert(bpt);
+
+  *pc = bpt->saved;
+  caml_ext_table_remove(&breakpoints_table, bpt);
+}
+
+static code_t pc_from_pos(int frag, intnat pos)
+{
+  CAMLassert(frag >= 0);
+  CAMLassert(frag < caml_code_fragments_table.size);
+  CAMLassert(pos >= 0);
+  CAMLassert(pos < caml_code_size);
+
+  struct code_fragment *cf = (struct code_fragment *) caml_code_fragments_table.contents[frag];
+  return (code_t) (cf->code_start + pos);
+}
+
+opcode_t caml_debugger_saved_instruction(code_t pc)
+{
+  struct breakpoint *bpt = find_breakpoint(pc);
+  CAMLassert(bpt);
+
+  return bpt->saved;
+}
+
+void caml_debugger_code_unloaded(int index)
+{
+  if (!caml_debugger_in_use) return;
+
+  caml_putch(dbg_out, REP_CODE_UNLOADED);
+  caml_putword(dbg_out, index);
+
+  struct code_fragment *cf =
+    (struct code_fragment *) caml_code_fragments_table.contents[index];
+
+  struct breakpoint *bpti;
+  for (int i = 0; i < breakpoints_table.size; i++) {
+redo:
+    bpti = (struct breakpoint *) breakpoints_table.contents[i];
+    if ((char*) bpti->pc >= cf->code_start && (char*) bpti->pc < cf->code_end) {
+      caml_ext_table_remove(&breakpoints_table, bpti);
+      /* caml_ext_table_remove has shifted the next element in place
+         of the one we just removed; re-iterate */
+      goto redo;
+    }
+  }
+}
+
 #define Pc(sp) ((code_t)((sp)[0]))
 #define Env(sp) ((sp)[1])
 #define Extra_args(sp) (Long_val(((sp)[2])))
 #define Locals(sp) ((sp) + 3)
 
-void caml_debugger(enum event_kind event)
+void caml_debugger(enum event_kind event, value param)
 {
   value * frame;
   intnat i, pos;
   value val;
+  int frag;
+  struct code_fragment *cf;
 
   if (dbg_socket == -1) return;  /* Not connected to a debugger. */
 
@@ -287,14 +403,29 @@ void caml_debugger(enum event_kind event)
   case UNCAUGHT_EXC:
     caml_putch(dbg_out, REP_UNCAUGHT_EXC);
     break;
+  case DEBUG_INFO_ADDED:
+    caml_putch(dbg_out, REP_CODE_DEBUG_INFO);
+    caml_output_val(dbg_out, /* debug info */ param, Val_emptylist);
+    break;
+  case CODE_LOADED:
+    caml_putch(dbg_out, REP_CODE_LOADED);
+    caml_putword(dbg_out, /* index */ Long_val(param));
+    break;
+  case CODE_UNLOADED:
+    caml_putch(dbg_out, REP_CODE_UNLOADED);
+    caml_putword(dbg_out, /* index */ Long_val(param));
+    break;
   }
   caml_putword(dbg_out, caml_event_count);
   if (event == EVENT_COUNT || event == BREAKPOINT) {
     caml_putword(dbg_out, caml_stack_high - frame);
-    caml_putword(dbg_out, (Pc(frame) - caml_start_code) * sizeof(opcode_t));
+    find_code_fragment(Pc(frame), &frag, &cf);
+    caml_putword(dbg_out, frag);
+    caml_putword(dbg_out, (char*) Pc(frame) - cf->code_start);
   } else {
     /* No PC and no stack frame associated with other events */
     caml_putword(dbg_out, 0);
+    caml_putword(dbg_out, -1);
     caml_putword(dbg_out, 0);
   }
   caml_flush(dbg_out);
@@ -305,23 +436,19 @@ void caml_debugger(enum event_kind event)
   while(1) {
     switch(caml_getch(dbg_in)) {
     case REQ_SET_EVENT:
+      frag = caml_getword(dbg_in);
       pos = caml_getword(dbg_in);
-      CAMLassert (pos >= 0);
-      CAMLassert (pos < caml_code_size);
-      caml_set_instruction(caml_start_code + pos / sizeof(opcode_t), EVENT);
+      set_instruction(pc_from_pos(frag, pos), EVENT);
       break;
     case REQ_SET_BREAKPOINT:
+      frag = caml_getword(dbg_in);
       pos = caml_getword(dbg_in);
-      CAMLassert (pos >= 0);
-      CAMLassert (pos < caml_code_size);
-      caml_set_instruction(caml_start_code + pos / sizeof(opcode_t), BREAK);
+      set_instruction(pc_from_pos(frag, pos), BREAK);
       break;
     case REQ_RESET_INSTR:
+      frag = caml_getword(dbg_in);
       pos = caml_getword(dbg_in);
-      CAMLassert (pos >= 0);
-      CAMLassert (pos < caml_code_size);
-      pos = pos / sizeof(opcode_t);
-      caml_set_instruction(caml_start_code + pos, caml_saved_code[pos]);
+      restore_instruction(pc_from_pos(frag, pos));
       break;
     case REQ_CHECKPOINT:
 #ifndef _WIN32
@@ -357,10 +484,13 @@ void caml_debugger(enum event_kind event)
       /* Fall through */
     case REQ_GET_FRAME:
       caml_putword(dbg_out, caml_stack_high - frame);
-      if (frame < caml_stack_high){
-        caml_putword(dbg_out, (Pc(frame) - caml_start_code) * sizeof(opcode_t));
-      }else{
-        caml_putword (dbg_out, 0);
+      if (frame < caml_stack_high) {
+        find_code_fragment(Pc(frame), &frag, &cf);
+        caml_putword(dbg_out, frag);
+        caml_putword(dbg_out, (char*) Pc(frame) - cf->code_start);
+      } else {
+        caml_putword(dbg_out, 0);
+        caml_putword(dbg_out, 0);
       }
       caml_flush(dbg_out);
       break;
@@ -375,7 +505,9 @@ void caml_debugger(enum event_kind event)
       } else {
         frame += Extra_args(frame) + i + 3;
         caml_putword(dbg_out, caml_stack_high - frame);
-        caml_putword(dbg_out, (Pc(frame) - caml_start_code) * sizeof(opcode_t));
+        find_code_fragment(Pc(frame), &frag, &cf);
+        caml_putword(dbg_out, frag);
+        caml_putword(dbg_out, (char*) Pc(frame) - cf->code_start);
       }
       caml_flush(dbg_out);
       break;
@@ -427,7 +559,9 @@ void caml_debugger(enum event_kind event)
       break;
     case REQ_GET_CLOSURE_CODE:
       val = getval(dbg_in);
-      caml_putword(dbg_out, (Code_val(val)-caml_start_code) * sizeof(opcode_t));
+      find_code_fragment(Code_val(val), &frag, &cf);
+      caml_putword(dbg_out, frag);
+      caml_putword(dbg_out, (char*) Code_val(val) - cf->code_start);
       caml_flush(dbg_out);
       break;
     case REQ_SET_FORK_MODE:

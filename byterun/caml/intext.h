@@ -185,18 +185,7 @@ CAMLextern void caml_deserialize_error(char * msg);
 
 #ifdef CAML_INTERNALS
 
-/* Auxiliary stuff for sending code pointers */
-
-struct code_fragment {
-  char * code_start;
-  char * code_end;
-  unsigned char digest[16];
-  char digest_computed;
-};
-
 CAMLextern struct code_fragment * caml_extern_find_code(char *addr);
-
-struct ext_table caml_code_fragments_table;
 
 #endif /* CAML_INTERNALS */
 

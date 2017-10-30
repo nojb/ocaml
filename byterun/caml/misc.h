@@ -360,6 +360,17 @@ CAMLextern int caml_read_directory(char_os * dirname, struct ext_table * content
 
 #ifdef CAML_INTERNALS
 
+/* A table of all bytecode fragments (main program and dynlinked modules) */
+
+struct code_fragment {
+  char *code_start;
+  char *code_end;
+  unsigned char digest[16];
+  char digest_computed;
+};
+
+struct ext_table caml_code_fragments_table;
+
 /* GC flags and messages */
 
 extern uintnat caml_verb_gc;
