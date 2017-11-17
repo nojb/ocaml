@@ -991,7 +991,7 @@ let rec unbox_int bi arg dbg =
 
 let make_unsigned_int bi arg dbg =
   if bi = Pint32 && size_int = 8
-  then Cop(Cand, [arg; Cconst_natint (Targetint.of_int32 0xFFFFFFFFl)], dbg)
+  then Cop(Cand, [arg; Cconst_natint (Targetint.of_int64 0xFFFFFFFFL)], dbg)
   else arg
 
 (* Boxed numbers *)
