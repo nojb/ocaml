@@ -126,14 +126,14 @@ clean::
 # The profiler
 
 CSLPROF=ocamlprof.cmo
-CSLPROF_IMPORTS=misc.cmo config.cmo identifiable.cmo numbers.cmo \
+CSLPROF_IMPORTS=targetint.cmo misc.cmo config.cmo identifiable.cmo numbers.cmo \
   arg_helper.cmo clflags.cmo terminfo.cmo \
   warnings.cmo location.cmo longident.cmo docstrings.cmo \
   syntaxerr.cmo ast_helper.cmo parser.cmo lexer.cmo parse.cmo
 
 $(call byte_and_opt,ocamlprof,$(CSLPROF_IMPORTS) profiling.cmo $(CSLPROF),)
 
-ocamlcp_cmos = misc.cmo profile.cmo warnings.cmo config.cmo identifiable.cmo \
+ocamlcp_cmos = targetint.cmo misc.cmo profile.cmo warnings.cmo config.cmo identifiable.cmo \
                numbers.cmo arg_helper.cmo clflags.cmo main_args.cmo
 
 $(call byte_and_opt,ocamlcp,$(ocamlcp_cmos) ocamlcp.cmo,)
@@ -149,7 +149,7 @@ installopt::
 
 # To help building mixed-mode libraries (OCaml + C)
 
-$(call byte_and_opt,ocamlmklib,ocamlmklibconfig.cmo config.cmo misc.cmo \
+$(call byte_and_opt,ocamlmklib,ocamlmklibconfig.cmo config.cmo targetint.cmo misc.cmo \
 	         ocamlmklib.cmo,)
 
 
@@ -170,7 +170,7 @@ clean::
 # To make custom toplevels
 
 OCAMLMKTOP=ocamlmktop.cmo
-OCAMLMKTOP_IMPORTS=misc.cmo identifiable.cmo numbers.cmo config.cmo \
+OCAMLMKTOP_IMPORTS=targetint.cmo misc.cmo identifiable.cmo numbers.cmo config.cmo \
 		   arg_helper.cmo clflags.cmo ccomp.cmo
 
 $(call byte_and_opt,ocamlmktop,$(OCAMLMKTOP_IMPORTS) $(OCAMLMKTOP),)
@@ -178,7 +178,7 @@ $(call byte_and_opt,ocamlmktop,$(OCAMLMKTOP_IMPORTS) $(OCAMLMKTOP),)
 # Converter olabl/ocaml 2.99 to ocaml 3
 
 OCAML299TO3= lexer299.cmo ocaml299to3.cmo
-LIBRARY3= misc.cmo warnings.cmo location.cmo
+LIBRARY3= targetint.cmo misc.cmo warnings.cmo location.cmo
 
 ocaml299to3: $(OCAML299TO3)
 	$(CAMLC) $(LINKFLAGS) -o ocaml299to3 $(LIBRARY3) $(OCAML299TO3)
@@ -210,7 +210,7 @@ clean::
 
 # Insert labels following an interface file (upgrade 3.02 to 3.03)
 
-ADDLABELS_IMPORTS=misc.cmo config.cmo arg_helper.cmo clflags.cmo \
+ADDLABELS_IMPORTS=targetint.cmo misc.cmo config.cmo arg_helper.cmo clflags.cmo \
   identifiable.cmo numbers.cmo terminfo.cmo \
   warnings.cmo location.cmo longident.cmo docstrings.cmo \
   syntaxerr.cmo ast_helper.cmo parser.cmo lexer.cmo parse.cmo
@@ -287,7 +287,7 @@ install::
 
 DUMPOBJ=opnames.cmo dumpobj.cmo
 
-$(call byte_and_opt,dumpobj,misc.cmo identifiable.cmo numbers.cmo tbl.cmo \
+$(call byte_and_opt,dumpobj,targetint.cmo misc.cmo identifiable.cmo numbers.cmo tbl.cmo \
                     config.cmo ident.cmo opcodes.cmo bytesections.cmo \
 		    $(DUMPOBJ),)
 
