@@ -147,8 +147,8 @@ let low_high_u n = (n land 0xFFFF, n asr 16)
   (* unsigned low half, for use with "ori" *)
 
 let native_low_high_u n =
-  (Nativeint.(to_int (logand n 0xFFFFn)),
-   Nativeint.(to_int (shift_right n 16)))
+  (Targetint.(to_int (logand n (of_int 0xFFFF))),
+   Targetint.(to_int (shift_right n 16)))
   (* unsigned low half, for use with "ori" *)
 
 let low_high_s n =
@@ -157,9 +157,9 @@ let low_high_s n =
   (* signed low half, for use with "addi" *)
 
 let native_low_high_s n =
-  let lo = Nativeint.(sub (logand (add n 0x8000n) 0xFFFFn) 0x8000n) in
-  (Nativeint.to_int lo,
-   Nativeint.(to_int (shift_right (sub n lo) 16)))
+  let lo = Targetint.(sub (logand (add n (of_int 0x8000)) (of_int 0xFFFF)) (of_int 0x8000)) in
+  (Targetint.to_int lo,
+   Targetint.(to_int (shift_right (sub n lo) 16)))
   (* signed low half, for use with "addi" *)
 
 let is_immediate n =

@@ -210,7 +210,7 @@ let emit_intconst dst n =
     if shift < 0 then begin
       if first then `	mov	{emit_reg dst}, xzr\n`
     end else begin
-      let s = Nativeint.(logand (shift_right_logical n shift) 0xFFFFn) in
+      let s = Targetint.(logand (shift_right_logical n shift) 0xFFFFn) in
       if s = 0n then emit_pos first (shift - 16) else begin
         if first then
           `	movz	{emit_reg dst}, #{emit_nativeint s}, lsl #{emit_int shift}\n`
@@ -223,10 +223,10 @@ let emit_intconst dst n =
     if shift < 0 then begin
       if first then `	movn	{emit_reg dst}, #0\n`
     end else begin
-      let s = Nativeint.(logand (shift_right_logical n shift) 0xFFFFn) in
-      if s = 0xFFFFn then emit_neg first (shift - 16) else begin
+      let s = Targetint.(logand (shift_right_logical n shift) 0xFFFFn) in
+      if s = Targetint.of_int 0xFFFF then emit_neg first (shift - 16) else begin
         if first then
-          `	movn	{emit_reg dst}, #{emit_nativeint (Nativeint.logxor s 0xFFFFn)}, lsl #{emit_int shift}\n`
+          `	movn	{emit_reg dst}, #{emit_nativeint (Targetint.logxor s 0xFFFFn)}, lsl #{emit_int shift}\n`
         else
            `	movk	{emit_reg dst}, #{emit_nativeint s}, lsl #{emit_int shift}\n`;
         emit_neg false (shift - 16)
@@ -241,7 +241,7 @@ let num_instructions_for_intconst n =
     if shift < 0 then begin
       if first then incr num_instructions
     end else begin
-      let s = Nativeint.(logand (shift_right_logical n shift) 0xFFFFn) in
+      let s = Targetint.(logand (shift_right_logical n shift) 0xFFFFn) in
       if s = 0n then count_pos first (shift - 16) else begin
         incr num_instructions;
         count_pos false (shift - 16)
@@ -251,7 +251,7 @@ let num_instructions_for_intconst n =
     if shift < 0 then begin
       if first then incr num_instructions
     end else begin
-      let s = Nativeint.(logand (shift_right_logical n shift) 0xFFFFn) in
+      let s = Targetint.(logand (shift_right_logical n shift) 0xFFFFn) in
       if s = 0xFFFFn then count_neg first (shift - 16) else begin
         incr num_instructions;
         count_neg false (shift - 16)
@@ -448,7 +448,7 @@ module BR = Branch_relaxation.Make (struct
     | Lop (Ispecific (Ifar_alloc { words = num_words; _ })) ->
       begin match num_words with
       | 16 | 24 | 32 -> 1
-      | _ -> 1 + num_instructions_for_intconst (Nativeint.of_int num_words)
+      | _ -> 1 + num_instructions_for_intconst (Targetint.of_int num_words)
       end
     | Lop (Iintop (Icomp _)) -> 2
     | Lop (Iintop_imm (Icomp _, _)) -> 2
@@ -548,7 +548,7 @@ let assembly_code_for_allocation ?label_after_call_gc i ~n ~far =
     | 16 -> `	bl	{emit_symbol "caml_alloc1"}\n`
     | 24 -> `	bl	{emit_symbol "caml_alloc2"}\n`
     | 32 -> `	bl	{emit_symbol "caml_alloc3"}\n`
-    | _  -> emit_intconst reg_x15 (Nativeint.of_int n);
+    | _  -> emit_intconst reg_x15 (Targetint.of_int n);
             `	bl	{emit_symbol "caml_allocN"}\n`
     end;
     `{emit_label lbl_frame}:	add	{emit_reg i.res.(0)}, {emit_reg reg_alloc_ptr}, #8\n`

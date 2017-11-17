@@ -22,7 +22,7 @@ module C = Inlining_cost
 external swap16 : int -> int = "%bswap16"
 external swap32 : int32 -> int32 = "%bswap_int32"
 external swap64 : int64 -> int64 = "%bswap_int64"
-external swapnative : nativeint -> nativeint = "%bswap_native"
+let swapnative = Targetint.swap
 
 let const_int_expr expr n =
   if Effect_analysis.no_effects_named expr then

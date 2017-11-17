@@ -19,7 +19,7 @@
 (* Simplification of operations on boxed integers (nativeint, Int32, Int64). *)
 
 module Simplify_boxed_nativeint : Simplify_boxed_integer_ops_intf.S
-  with type t := Nativeint.t
+  with type t := Targetint.t
 
 module Simplify_boxed_int32 : Simplify_boxed_integer_ops_intf.S
   with type t := Int32.t

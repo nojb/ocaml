@@ -161,7 +161,7 @@ let pretty_const c = match c with
 | Const_float f -> Printf.sprintf "%s" f
 | Const_int32 i -> Printf.sprintf "%ldl" i
 | Const_int64 i -> Printf.sprintf "%LdL" i
-| Const_nativeint i -> Printf.sprintf "%ndn" i
+| Const_nativeint i -> Printf.sprintf "%sn" (Targetint.to_string i)
 
 let rec pretty_val ppf v =
   match v.pat_extra with
@@ -792,7 +792,7 @@ let complete_constrs p all_tags =
   let constrs = get_variant_constructors p.pat_env c.cstr_res in
   let others =
     List.filter
-      (fun cnstr -> ConstructorTagHashtbl.mem not_tags cnstr.cstr_tag) 
+      (fun cnstr -> ConstructorTagHashtbl.mem not_tags cnstr.cstr_tag)
       constrs in
   let const, nonconst =
     List.partition (fun cnstr -> cnstr.cstr_arity = 0) others in
@@ -914,7 +914,7 @@ let build_other ext env = match env with
     build_other_constant
       (function Tpat_constant(Const_nativeint i) -> i | _ -> assert false)
       (function i -> Tpat_constant(Const_nativeint i))
-      0n Nativeint.succ p env
+      Targetint.zero Targetint.succ p env
 | ({pat_desc=(Tpat_constant (Const_string _))} as p,_) :: _ ->
     build_other_constant
       (function Tpat_constant(Const_string (s, _)) -> String.length s

@@ -350,7 +350,7 @@ let rec close t env (lam : Lambda.lambda) : Flambda.t =
       | Pdivbint { size = Pint64 } | Pmodbint { size = Pint64 } ->
         Allocated_const (Int64 0L)
       | Pdivbint { size = Pnativeint } | Pmodbint { size = Pnativeint } ->
-        Allocated_const (Nativeint 0n)
+        Allocated_const (Nativeint Targetint.zero)
       | _ -> assert false
     in
     let prim : Lambda.primitive =

@@ -52,9 +52,10 @@ module type S = sig
   val to_int64 : t -> int64
   val of_string : string -> t
   val to_string : t -> string
-  val compare: t -> t -> int
-  val equal: t -> t -> bool
-  val repr: t -> repr
+  val compare : t -> t -> int
+  val equal : t -> t -> bool
+  val swap : t -> t
+  val repr : t -> repr
 end
 
 let size = Sys.word_size
@@ -79,6 +80,7 @@ module Int32 = struct
   let to_int32 x = x
   let of_int64 = Int64.to_int32
   let to_int64 = Int64.of_int32
+  external swap : t -> t = "%bswap_int32"
   let repr x = Int32 x
 end
 
@@ -87,6 +89,7 @@ module Int64 = struct
   let of_int_exn = Int64.of_int
   let of_int64 x = x
   let to_int64 x = x
+  external swap : t -> t = "%bswap_int64"
   let repr x = Int64 x
 end
 

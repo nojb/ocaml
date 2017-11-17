@@ -33,16 +33,16 @@ module Make(I:I) = struct
   let dbg = false
 
   let mask =
-    let open Nativeint in
+    let open Targetint in
     sub (shift_left one 8) one
 
   let pat_as_string p =
     let rec digits k n p =
       if n <= 0 then k
       else
-        let d = Nativeint.to_int (Nativeint.logand mask p) in
+        let d = Targetint.to_int (Targetint.logand mask p) in
         let d = Char.escaped (Char.chr d) in
-        digits (d::k) (n-1) (Nativeint.shift_right_logical p  8) in
+        digits (d::k) (n-1) (Targetint.shift_right_logical p  8) in
     let ds = digits [] Arch.size_addr p in
     let ds =
       if Arch.big_endian then ds else List.rev ds in
@@ -120,18 +120,18 @@ module Make(I:I) = struct
       else if i < n * Arch.size_addr - 1 then 0
       else n * Arch.size_addr - 1 - len in
     let mk_word ind =
-      let w = ref 0n in
+      let w = ref Targetint.zero in
       let imin = ind * Arch.size_addr
       and imax = (ind + 1) * Arch.size_addr - 1 in
       if Arch.big_endian then
         for i = imin to imax do
-          w := Nativeint.logor (Nativeint.shift_left !w 8)
-              (Nativeint.of_int (get_byte i));
+          w := Targetint.logor (Targetint.shift_left !w 8)
+              (Targetint.of_int (get_byte i));
         done
       else
         for i = imax downto imin do
-          w := Nativeint.logor (Nativeint.shift_left !w 8)
-              (Nativeint.of_int (get_byte i));
+          w := Targetint.logor (Targetint.shift_left !w 8)
+              (Targetint.of_int (get_byte i));
         done;
       !w in
     let rec mk_words ind  =
@@ -144,13 +144,13 @@ module Make(I:I) = struct
 (*****************************)
 
   module IntSet = Set.Make(IntArg)
-  module NativeSet = Set.Make(Nativeint)
+  module TargetSet = Set.Make(Targetint)
 
   let rec add_one sets ps = match sets,ps with
   | [],[] -> []
   | set::sets,p::ps ->
       let sets = add_one sets ps in
-      NativeSet.add p set::sets
+      TargetSet.add p set::sets
   | _,_ -> assert false
 
   let count_arities cases = match cases with
@@ -159,17 +159,17 @@ module Make(I:I) = struct
       let sets =
         List.fold_left
           (fun sets (ps,_) -> add_one sets ps)
-          (List.map (fun _ -> NativeSet.empty) ps) cases in
-      List.map NativeSet.cardinal sets
+          (List.map (fun _ -> TargetSet.empty) ps) cases in
+      List.map TargetSet.cardinal sets
 
   let count_arities_first cases =
     let set =
       List.fold_left
         (fun set case -> match case with
-        | (p::_,_) -> NativeSet.add p set
+        | (p::_,_) -> TargetSet.add p set
         | _ -> assert false)
-        NativeSet.empty cases in
-    NativeSet.cardinal set
+        TargetSet.empty cases in
+    TargetSet.cardinal set
 
   let count_arities_length cases =
     let set =
@@ -249,10 +249,10 @@ module Make(I:I) = struct
 
 (* Group by cell *)
 
-    module DivideNative = Divide(Nativeint)
+    module DivideTarget = Divide(Targetint)
 
     let by_cell cases =
-      DivideNative.divide
+      DivideTarget.divide
         (List.map
            (fun case -> match case with
            | (p::ps),act -> p,(ps,act)

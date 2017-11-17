@@ -130,12 +130,12 @@ and operation =
     it might be the case that more [Debuginfo.t] annotations are desirable. *)
 and expression =
     Cconst_int of int
-  | Cconst_natint of nativeint
+  | Cconst_natint of Targetint.t
   | Cconst_float of float
   | Cconst_symbol of string
   | Cconst_pointer of int
-  | Cconst_natpointer of nativeint
-  | Cblockheader of nativeint * Debuginfo.t
+  | Cconst_natpointer of Targetint.t
+  | Cblockheader of Targetint.t * Debuginfo.t
   | Cvar of Ident.t
   | Clet of Ident.t * expression * expression
   | Cassign of Ident.t * expression
@@ -162,8 +162,8 @@ type data_item =
   | Cglobal_symbol of string
   | Cint8 of int
   | Cint16 of int
-  | Cint32 of nativeint
-  | Cint of nativeint
+  | Cint32 of Targetint.t
+  | Cint of Targetint.t
   | Csingle of float
   | Cdouble of float
   | Csymbol_address of string

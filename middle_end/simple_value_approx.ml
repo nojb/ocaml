@@ -21,7 +21,7 @@ module U = Flambda_utils
 type 'a boxed_int =
   | Int32 : int32 boxed_int
   | Int64 : int64 boxed_int
-  | Nativeint : nativeint boxed_int
+  | Nativeint : Targetint.t boxed_int
 
 type value_string = {
   (* CR-soon mshinwell: use variant *)
@@ -149,7 +149,7 @@ let rec print_descr ppf = function
     match t with
     | Int32 -> Format.fprintf ppf "%li" i
     | Int64 -> Format.fprintf ppf "%Li" i
-    | Nativeint -> Format.fprintf ppf "%ni" i
+    | Nativeint -> Format.fprintf ppf "%s" (Targetint.to_string i)
 
 and print ppf { descr; var; symbol; } =
   let print ppf = function
@@ -570,7 +570,7 @@ let equal_boxed_int (type t1) (type t2)
   match bi1, bi2 with
   | Int32, Int32 -> Int32.equal i1 i2
   | Int64, Int64 -> Int64.equal i1 i2
-  | Nativeint, Nativeint -> Nativeint.equal i1 i2
+  | Nativeint, Nativeint -> Targetint.equal i1 i2
   | _ -> false
 
 (* Closures and set of closures descriptions cannot be merged.

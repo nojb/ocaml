@@ -290,7 +290,7 @@ let print_approx ppf ((t,root_symbols) : t * Symbol.t list) =
       match t with
       | A.Int32 -> Format.fprintf ppf "%li" i
       | A.Int64 -> Format.fprintf ppf "%Li" i
-      | A.Nativeint -> Format.fprintf ppf "%ni" i
+      | A.Nativeint -> Format.fprintf ppf "%s" (Targetint.to_string i)
   and print_fields ppf fields =
     Array.iter (fun approx -> fprintf ppf "%a@ " print_approx approx) fields
   and print_set_of_closures ppf

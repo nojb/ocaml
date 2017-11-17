@@ -107,14 +107,14 @@ let operation d = function
 let rec expr ppf = function
   | Cconst_int n -> fprintf ppf "%i" n
   | Cconst_natint n ->
-    fprintf ppf "%s" (Nativeint.to_string n)
+    fprintf ppf "%s" (Targetint.to_string n)
   | Cblockheader(n, d) ->
     fprintf ppf "block-hdr(%s)%s"
-      (Nativeint.to_string n) (Debuginfo.to_string d)
+      (Targetint.to_string n) (Debuginfo.to_string d)
   | Cconst_float n -> fprintf ppf "%F" n
   | Cconst_symbol s -> fprintf ppf "\"%s\"" s
   | Cconst_pointer n -> fprintf ppf "%ia" n
-  | Cconst_natpointer n -> fprintf ppf "%sa" (Nativeint.to_string n)
+  | Cconst_natpointer n -> fprintf ppf "%sa" (Targetint.to_string n)
   | Cvar id -> Ident.print ppf id
   | Clet(id, def, (Clet(_, _, _) as body)) ->
       let print_binding id ppf def =
@@ -216,8 +216,8 @@ let data_item ppf = function
   | Cglobal_symbol s -> fprintf ppf "global \"%s\"" s
   | Cint8 n -> fprintf ppf "byte %i" n
   | Cint16 n -> fprintf ppf "int16 %i" n
-  | Cint32 n -> fprintf ppf "int32 %s" (Nativeint.to_string n)
-  | Cint n -> fprintf ppf "int %s" (Nativeint.to_string n)
+  | Cint32 n -> fprintf ppf "int32 %s" (Targetint.to_string n)
+  | Cint n -> fprintf ppf "int %s" (Targetint.to_string n)
   | Csingle f -> fprintf ppf "single %F" f
   | Cdouble f -> fprintf ppf "double %F" f
   | Csymbol_address s -> fprintf ppf "addr \"%s\"" s

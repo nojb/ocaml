@@ -487,7 +487,7 @@ let emit_instr fallthrough i =
         | _ -> I.mov (reg src) (reg dst)
         end
   | Lop(Iconst_int n) ->
-      if n = 0n then begin
+      if n = Targetint.zero then begin
         match i.res.(0).loc with
         | Reg _ -> I.xor (res i 0) (res i 0)
         | _     -> I.mov (int 0) (res i 0)

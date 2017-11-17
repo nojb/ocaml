@@ -36,11 +36,11 @@ open X86_proc
 
 let sym s = Sym s
 
-let nat n = Imm (Int64.of_nativeint n)
+let nat n = Imm (Targetint.to_int64 n)
 let int n = Imm (Int64.of_int n)
 
 let const_32 n = Const (Int64.of_int32 n)
-let const_nat n = Const (Int64.of_nativeint n)
+let const_nat n = Const (Targetint.to_int64 n)
 let const n = Const (Int64.of_int n)
 
 let al  = Reg8L RAX

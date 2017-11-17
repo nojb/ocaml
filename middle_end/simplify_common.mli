@@ -70,4 +70,4 @@ val const_comparison_expr
 val swap16 : int -> int
 val swap32 : int32 -> int32
 val swap64 : int64 -> int64
-val swapnative : nativeint -> nativeint
+val swapnative : Targetint.t -> Targetint.t
