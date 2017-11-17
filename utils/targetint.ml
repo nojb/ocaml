@@ -71,7 +71,7 @@ module Int32 = struct
     | 64 ->
         fun n ->
           if n < Int32.(to_int min_int) || n > Int32.(to_int max_int) then
-            Misc.fatal_errorf "Targetint.of_int_exn: 0x%x out of range" n
+            invalid_arg (Printf.sprintf "Targetint.of_int_exn: 0x%x out of range" n)
           else
             Int32.of_int n
     | _ ->
