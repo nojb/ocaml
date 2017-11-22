@@ -1,7 +1,7 @@
-breakpoints.cmi : primitives.cmi ../bytecomp/instruct.cmi
+breakpoints.cmi : primitives.cmi ../bytecomp/instruct.cmi debugcom.cmi
 checkpoints.cmi : primitives.cmi debugcom.cmi
 command_line.cmi :
-debugcom.cmi : primitives.cmi
+debugcom.cmi : primitives.cmi ../bytecomp/instruct.cmi
 debugger_config.cmi :
 dynlink.cmi :
 eval.cmi : ../typing/types.cmi ../typing/path.cmi parser_aux.cmi \
@@ -16,8 +16,8 @@ int64ops.cmi :
 lexer.cmi : parser.cmi
 loadprinter.cmi : ../parsing/longident.cmi dynlink.cmi
 parameters.cmi :
-parser_aux.cmi : primitives.cmi ../parsing/longident.cmi
 parser.cmi : parser_aux.cmi ../parsing/longident.cmi
+parser_aux.cmi : primitives.cmi ../parsing/longident.cmi
 pattern_matching.cmi : ../typing/typedtree.cmi parser_aux.cmi debugcom.cmi
 pos.cmi : ../bytecomp/instruct.cmi
 primitives.cmi : $(UNIXDIR)/unix.cmi
@@ -29,7 +29,7 @@ question.cmi :
 show_information.cmi : ../bytecomp/instruct.cmi
 show_source.cmi : ../bytecomp/instruct.cmi
 source.cmi :
-symbols.cmi : ../bytecomp/instruct.cmi
+symbols.cmi : ../bytecomp/instruct.cmi debugcom.cmi
 time_travel.cmi : primitives.cmi
 trap_barrier.cmi :
 unix_tools.cmi : $(UNIXDIR)/unix.cmi
@@ -62,9 +62,9 @@ command_line.cmx : unix_tools.cmx $(UNIXDIR)/unix.cmx \
     debugger_config.cmx debugcom.cmx ../typing/ctype.cmx ../utils/config.cmx \
     checkpoints.cmx breakpoints.cmx command_line.cmi
 debugcom.cmo : primitives.cmi ../utils/misc.cmi int64ops.cmi \
-    input_handling.cmi debugcom.cmi
+    ../bytecomp/instruct.cmi input_handling.cmi debugcom.cmi
 debugcom.cmx : primitives.cmx ../utils/misc.cmx int64ops.cmx \
-    input_handling.cmx debugcom.cmi
+    ../bytecomp/instruct.cmx input_handling.cmx debugcom.cmi
 debugger_config.cmo : int64ops.cmi debugger_config.cmi
 debugger_config.cmx : int64ops.cmx debugger_config.cmi
 dynlink.cmo : ../bytecomp/symtable.cmi ../bytecomp/opcodes.cmo \

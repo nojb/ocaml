@@ -124,14 +124,14 @@ let add_breakpoint_at_pc pc =
     new_breakpoint (any_event_at_pc pc)
   with
   | Not_found ->
-    eprintf "Can't add breakpoint at pc %i: no event there.@." pc;
+    eprintf "Can't add breakpoint at pc %i:%i: no event there.@." pc.frag pc.pos;
     raise Toplevel
 
 let add_breakpoint_after_pc pc =
   let rec try_add n =
     if n < 3 then begin
       try
-        new_breakpoint (any_event_at_pc (pc + n * 4))
+        new_breakpoint (any_event_at_pc {pc with pos = pc.pos + n * 4})
       with
       | Not_found ->
         try_add (n+1)
@@ -155,7 +155,7 @@ let convert_module mdle =
                               else m)
   | None ->
       try
-        (get_current_event ()).ev_module
+        (snd (get_current_event ())).ev_module
       with
       | Not_found ->
           error "Not in a module."
@@ -499,7 +499,7 @@ let print_expr depth ev env ppf expr =
 let env_of_event =
   function
     None    -> Env.empty
-  | Some ev ->
+  | Some (frag, ev) ->
       Envaux.env_from_summary ev.Instruct.ev_typenv ev.Instruct.ev_typsubst
 
 let print_command depth ppf lexbuf =
@@ -611,8 +611,8 @@ let instr_break ppf lexbuf =
              new_breakpoint ev
          | None ->
              error "Can't add breakpoint at this point.")
-    | BA_pc pc ->                               (* break PC *)
-        add_breakpoint_at_pc pc
+    | BA_pc (frag, pos) ->                      (* break PC *)
+        add_breakpoint_at_pc {frag; pos}
     | BA_function expr ->                       (* break FUNCTION *)
         let env =
           try
@@ -697,7 +697,7 @@ let instr_backtrace ppf lexbuf =
     | Some x -> x in
   ensure_loaded ();
   match current_report() with
-  | None | Some {rep_type = Exited | Uncaught_exc} -> ()
+  | None | Some {rep_type = Exited | Uncaught_exc | Code_loaded _} -> ()
   | Some _ ->
       let frame_counter = ref 0 in
       let print_frame first_frame last_frame = function
@@ -922,8 +922,8 @@ let info_checkpoints ppf lexbuf =
                Printf.printf "%19Ld %5d\n" time pid)
           !checkpoints))
 
-let info_one_breakpoint ppf (num, ev) =
-  fprintf ppf "%3d %10d  %s@." num ev.ev_pos (Pos.get_desc ev);
+let info_one_breakpoint ppf (frag, (num, ev)) =
+  fprintf ppf "%3d %d:%10d  %s@." num frag ev.ev_pos (Pos.get_desc ev);
 ;;
 
 let info_breakpoints ppf lexbuf =
@@ -942,6 +942,7 @@ let info_events ppf lexbuf =
   in
     print_endline ("Module: " ^ mdle);
     print_endline "   Address  Characters        Kind      Repr.";
+    let frag, events = events_in_module mdle in
     List.iter
       (function ev ->
         let start_char, end_char =
@@ -953,7 +954,8 @@ let info_events ppf lexbuf =
             ev.ev_loc.Location.loc_start.Lexing.pos_cnum,
             ev.ev_loc.Location.loc_end.Lexing.pos_cnum in
         Printf.printf
-           "%10d %6d-%-6d  %10s %10s\n"
+           "%d:%10d %6d-%-6d  %10s %10s\n"
+           frag
            ev.ev_pos
            start_char
            end_char
@@ -970,7 +972,7 @@ let info_events ppf lexbuf =
               Event_none        -> ""
             | Event_parent _    -> "(repr)"
             | Event_child repr  -> string_of_int !repr))
-      (events_in_module mdle)
+      events
 
 (** User-defined printers **)
 
@@ -1201,7 +1203,11 @@ It can be either:\n\
 "process to follow after forking.\n\
 It can be either :
   child: the newly created process.\n\
-  parent: the process that called fork.\n" }];
+  parent: the process that called fork.\n" };
+     { var_name = "break_on_load";
+       var_action = boolean_variable false break_on_load;
+       var_help =
+"whether to stop after loading new code (e.g. with Dynlink)." }];
 
   info_list :=
     (* info name, function, help *)

@@ -123,7 +123,8 @@ let initialize_loading () =
     prerr_endline "Program not found.";
     raise Toplevel;
   end;
-  Symbols.read_symbols !program_name;
+  Symbols.clear_symbols ();
+  Symbols.read_symbols 0 !program_name;
   Config.load_path := !Config.load_path @ !Symbols.program_source_dirs;
   Envaux.reset_cache ();
   if !debug_loading then
@@ -131,7 +132,7 @@ let initialize_loading () =
   open_connection !socket_name
     (function () ->
       go_to _0;
-      Symbols.set_all_events();
+      Symbols.set_all_events 0;
       exit_main_loop ())
 
 (* Ensure the program is already loaded. *)

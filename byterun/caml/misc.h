@@ -94,6 +94,17 @@ extern int caml_ext_table_add(struct ext_table * tbl, void * data);
 extern void caml_ext_table_remove(struct ext_table * tbl, void * data);
 extern void caml_ext_table_free(struct ext_table * tbl, int free_entries);
 
+/* A table of all bytecode fragments (main program and dynlinked modules) */
+
+struct code_fragment {
+  char *code_start;
+  char *code_end;
+  unsigned char digest[16];
+  char digest_computed;
+};
+
+struct ext_table caml_code_fragments_table;
+
 /* GC flags and messages */
 
 extern uintnat caml_verb_gc;

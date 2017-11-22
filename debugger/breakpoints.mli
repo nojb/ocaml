@@ -23,14 +23,14 @@ val debug_breakpoints : bool ref
 
 val breakpoints_count : unit -> int
 
-(* Breakpoint number -> debug_event_kind. *)
-val breakpoints : (int * debug_event) list ref
+(* Breakpoint number -> fragment, debug_event. *)
+val breakpoints : (int * (int * debug_event)) list ref
 
 (* Is there a breakpoint at `pc' ? *)
-val breakpoint_at_pc : int -> bool
+val breakpoint_at_pc : Debugcom.pc -> bool
 
 (* List of breakpoints at `pc'. *)
-val breakpoints_at_pc : int -> int list
+val breakpoints_at_pc : Debugcom.pc -> int list
 
 (*** Set and remove breakpoints ***)
 
@@ -42,7 +42,7 @@ val update_breakpoints : unit -> unit
 val execute_without_breakpoints : (unit -> unit) -> unit
 
 (* Insert a new breakpoint in lists. *)
-val new_breakpoint : debug_event -> unit
+val new_breakpoint : int * debug_event -> unit
 
 (* Remove a breakpoint from lists. *)
 val remove_breakpoint : int -> unit
@@ -52,8 +52,8 @@ val remove_all_breakpoints : unit -> unit
 (*** Temporary breakpoints. ***)
 
 (* Temporary breakpoint position. *)
-val temporary_breakpoint_position : int option ref
+val temporary_breakpoint_position : Debugcom.pc option ref
 
 (* Execute `funct' with a breakpoint added at `pc'. *)
 (* --- Used by `finish'. *)
-val exec_with_temporary_breakpoint : int -> (unit -> unit) -> unit
+val exec_with_temporary_breakpoint : Debugcom.pc -> (unit -> unit) -> unit

@@ -37,6 +37,7 @@
 #include "caml/sys.h"
 #include "caml/backtrace.h"
 #include "caml/fail.h"
+#include "caml/debugger.h"
 
 CAMLexport int caml_backtrace_active = 0;
 CAMLexport int caml_backtrace_pos = 0;
@@ -184,6 +185,9 @@ CAMLprim value caml_add_debug_info(code_t code_start, value code_size, value eve
 {
   CAMLparam1(events_heap);
   CAMLlocal1(debug_info);
+
+  if (events_heap != Val_unit)
+    caml_debugger(DEBUG_INFO_ADDED, events_heap);
 
   /* build the OCaml-side debug_info value */
   debug_info = caml_alloc_debug_info();

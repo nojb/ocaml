@@ -27,6 +27,7 @@
 #include "caml/mlvalues.h"
 #include "caml/prims.h"
 #include "caml/stacks.h"
+#include "caml/debugger.h"
 
 #ifndef NATIVE_CODE
 
@@ -45,15 +46,39 @@ CAMLprim value caml_get_section_table(value unit)
                                      caml_section_table_size);
 }
 
+static struct code_fragment *find_code_fragment(code_t prog, size_t len, int *index) {
+  struct code_fragment * cf = NULL, * cfi;
+  int i;
+  for (i = 0; i < caml_code_fragments_table.size; i++) {
+    cfi = (struct code_fragment *) caml_code_fragments_table.contents[i];
+    if (cfi->code_start == (char *) prog &&
+        cfi->code_end == (char *) prog + len) {
+      cf = cfi;
+      if (index) *index = i;
+      break;
+    }
+  }
+
+  return cf;
+}
+
 CAMLprim value caml_reify_bytecode(value prog, value len)
 {
-  struct code_fragment * cf = caml_stat_alloc(sizeof(struct code_fragment));
   value clos;
 
-  cf->code_start = (char *) prog;
-  cf->code_end = (char *) prog + Long_val(len);
-  cf->digest_computed = 0;
-  caml_ext_table_add(&caml_code_fragments_table, cf);
+  /* Dynlink'd code fragments have their digests substituted with
+     file digest concatenated with compunit name, which are provided
+     in a caml_register_code_fragment call, so if already registered,
+     don't re-register.
+
+     I'm weeping right now. */
+  if (!find_code_fragment((code_t) prog, Long_val(len), NULL)) {
+    struct code_fragment * cf = caml_stat_alloc(sizeof(struct code_fragment));
+    cf->code_start = (char *) prog;
+    cf->code_end = (char *) prog + Long_val(len);
+    cf->digest_computed = 0;
+    caml_ext_table_add(&caml_code_fragments_table, cf);
+  }
 
 #ifdef ARCH_BIG_ENDIAN
   caml_fixup_endianness((code_t) prog, (asize_t) Long_val(len));
@@ -62,6 +87,10 @@ CAMLprim value caml_reify_bytecode(value prog, value len)
   caml_thread_code((code_t) prog, (asize_t) Long_val(len));
 #endif
   caml_prepare_bytecode((code_t) prog, (asize_t) Long_val(len));
+
+  /* Notify debugger after fragment gets added and reified. */
+  caml_debugger(CODE_LOADED, Val_long(caml_code_fragments_table.size - 1));
+
   clos = caml_alloc_small (1, Closure_tag);
   Code_val(clos) = (code_t) prog;
   return clos;
@@ -73,23 +102,16 @@ CAMLprim value caml_reify_bytecode(value prog, value len)
 
 CAMLprim value caml_static_release_bytecode(value prog, value len)
 {
-  struct code_fragment * cf = NULL, * cfi;
-  int i;
-  for (i = 0; i < caml_code_fragments_table.size; i++) {
-    cfi = (struct code_fragment *) caml_code_fragments_table.contents[i];
-    if (cfi->code_start == (char *) prog &&
-        cfi->code_end == (char *) prog + Long_val(len)) {
-      cf = cfi;
-      break;
-    }
-  }
+  int index;
+  struct code_fragment *cf = find_code_fragment((code_t) prog, Long_val(len), &index);
 
-  if (!cf) {
-      /* [cf] Not matched with a caml_reify_bytecode call; impossible. */
-      Assert (0);
-  } else {
-      caml_ext_table_remove(&caml_code_fragments_table, cf);
-  }
+  /* Not matched with a caml_reify_bytecode call; impossible. */
+  Assert (cf);
+
+  /* Notify debugger before the fragment gets destroyed. */
+  caml_debugger(CODE_UNLOADED, Val_long(index));
+
+  caml_ext_table_remove(&caml_code_fragments_table, cf);
 
 #ifndef NATIVE_CODE
   caml_release_bytecode((code_t) prog, (asize_t) Long_val(len));

@@ -232,7 +232,8 @@ expression_list_eol :
 
 break_argument_eol :
     end_of_line                                 { BA_none }
-  | integer_eol                                 { BA_pc $1 }
+  | integer_eol                                 { BA_pc (0, $1) }
+  | INTEGER integer_eol                         { BA_pc (to_int $1, $2) }
   | expression end_of_line                      { BA_function $1 }
   | AT opt_longident INTEGER opt_integer_eol    { BA_pos1 ($2, (to_int $3), $4)}
   | AT opt_longident SHARP integer_eol          { BA_pos2 ($2, $4) }

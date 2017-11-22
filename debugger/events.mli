@@ -18,10 +18,10 @@ val get_pos : debug_event -> Lexing.position;;
 (** Current events. **)
 
 (* The event at current position. *)
-val current_event : debug_event option ref
+val current_event : (int * debug_event) option ref
 
 (* Current position in source. *)
 (* Raise `Not_found' if not on an event (beginning or end of program). *)
-val get_current_event : unit -> debug_event
+val get_current_event : unit -> int * debug_event
 
 val current_event_is_before : unit -> bool

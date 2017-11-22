@@ -438,14 +438,14 @@ CAMLexport void caml_main(char **argv)
     _beginthread(caml_signal_thread, 4096, NULL);
 #endif
   /* Execute the program */
-  caml_debugger(PROGRAM_START);
+  caml_debugger(PROGRAM_START, Val_unit);
   res = caml_interprete(caml_start_code, caml_code_size);
   if (Is_exception_result(res)) {
     caml_exn_bucket = Extract_exception(res);
     if (caml_debugger_in_use) {
       caml_extern_sp = &caml_exn_bucket; /* The debugger needs the
                                             exception value.*/
-      caml_debugger(UNCAUGHT_EXC);
+      caml_debugger(UNCAUGHT_EXC, Val_unit);
     }
     caml_fatal_uncaught_exception(caml_exn_bucket);
   }
@@ -494,12 +494,6 @@ CAMLexport void caml_startup_code(
   caml_start_code = code;
   caml_code_size = code_size;
   caml_init_code_fragments();
-  if (caml_debugger_in_use) {
-    int len, i;
-    len = code_size / sizeof(opcode_t);
-    caml_saved_code = (unsigned char *) caml_stat_alloc(len);
-    for (i = 0; i < len; i++) caml_saved_code[i] = caml_start_code[i];
-  }
 #ifdef THREADED_CODE
   caml_thread_code(caml_start_code, code_size);
 #endif
@@ -516,14 +510,14 @@ CAMLexport void caml_startup_code(
   /* Initialize system libraries */
   caml_sys_init(exe_name, argv);
   /* Execute the program */
-  caml_debugger(PROGRAM_START);
+  caml_debugger(PROGRAM_START, Val_unit);
   res = caml_interprete(caml_start_code, caml_code_size);
   if (Is_exception_result(res)) {
     caml_exn_bucket = Extract_exception(res);
     if (caml_debugger_in_use) {
       caml_extern_sp = &caml_exn_bucket; /* The debugger needs the
                                             exception value.*/
-      caml_debugger(UNCAUGHT_EXC);
+      caml_debugger(UNCAUGHT_EXC, Val_unit);
     }
     caml_fatal_uncaught_exception(caml_exn_bucket);
   }

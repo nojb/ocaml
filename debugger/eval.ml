@@ -44,7 +44,7 @@ let rec path event = function
         with Symtable.Error _ -> raise(Error(Unbound_identifier id))
       else
         begin match event with
-          Some ev ->
+          Some (frag, ev) ->
             begin try
               let pos = Ident.find_same id ev.ev_compenv.ce_stack in
               Debugcom.Remote_value.local (ev.ev_stacksize - pos)
@@ -87,7 +87,7 @@ let rec expression event env = function
       end
   | E_result ->
       begin match event with
-        Some {ev_kind = Event_after ty; ev_typsubst = subst}
+        Some (frag, {ev_kind = Event_after ty; ev_typsubst = subst})
         when !Frames.current_frame = 0 ->
           (Debugcom.Remote_value.accu(), Subst.type_expr subst ty)
       | _ ->

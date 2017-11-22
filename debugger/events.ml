@@ -27,7 +27,7 @@ let get_pos ev =
 
 (* Event at current position *)
 let current_event =
-  ref (None : debug_event option)
+  ref (None : (int * debug_event) option)
 
 (* Current position in source. *)
 (* Raise `Not_found' if not on an event (beginning or end of program). *)
@@ -40,7 +40,7 @@ let current_event_is_before () =
   match !current_event with
     None ->
       raise Not_found
-  | Some {ev_kind = Event_before} ->
+  | Some (frag, {ev_kind = Event_before}) ->
       true
   | _ ->
       false
