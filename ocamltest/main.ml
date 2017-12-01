@@ -60,34 +60,34 @@ let print_usage () =
 
 external isatty: out_channel -> bool = "caml_sys_isatty"
 
-let color n s =
+let color n s alt =
   if isatty stdout then
     Printf.sprintf "\027[1;%dm%s\027[0m" n s
   else
-    s
+    Printf.sprintf "%s => %s" s alt
 
-let red s = color 31 s
-let green s = color 32 s
-let yellow s = color 33 s
+let red s alt = color 31 s alt
+let green s alt = color 32 s alt
+let yellow s alt = color 33 s alt
+let _purple s alt = color 35 s alt
 
 let rec run_test log common_prefix path behavior = function
   Node (testenvspec, test, env_modifiers, subtrees) ->
-  Printf.printf "%s %s (%s) => %!" common_prefix path test.Tests.test_name;
+  Printf.printf "%s/%s %!" common_prefix (String.concat "." path);
   let (msg, b) = match behavior with
-    | Skip_all_tests -> yellow "skipped", Skip_all_tests
+    | Skip_all_tests -> yellow test.Tests.test_name "skipped", Skip_all_tests
     | Run env ->
       let testenv0 = interprete_environment_statements env testenvspec in
       let testenv = List.fold_left apply_modifiers testenv0 env_modifiers in
       let t = Tests.run log testenv test in
       (match t with
-      | Actions.Pass env -> green "passed", Run env
-      | Actions.Skip _ -> yellow "skipped", Skip_all_tests
-      | Actions.Fail _ -> red "failed", Skip_all_tests) in
+      | Actions.Pass env -> green test.Tests.test_name "passed", Run env
+      | Actions.Skip _ -> yellow test.Tests.test_name "skipped", Skip_all_tests
+      | Actions.Fail _ -> red test.Tests.test_name "failed", Skip_all_tests) in
   Printf.printf "%s\n%!" msg;
   List.iteri (run_test_i log common_prefix path b) subtrees
 and run_test_i log common_prefix path behavior i test_tree =
-  let path_prefix = if path="" then "" else path ^ "." in
-  let new_path = Printf.sprintf "%s%d" path_prefix (i+1) in
+  let new_path = string_of_int (i+1) :: path in
   run_test log common_prefix new_path behavior test_tree
 
 let get_test_source_directory test_dirname =
@@ -155,9 +155,9 @@ let test_file test_filename =
        let root_environment =
          interprete_environment_statements initial_environment rootenv_statements in
        let rootenv = Environments.initialize log root_environment in
-       let common_prefix = " ... testing '" ^ test_basename ^ "' with" in
+       let common_prefix = Printf.sprintf "%40s" (Filename.chop_extension test_basename) in
        List.iteri
-         (run_test_i log common_prefix "" (Run rootenv))
+         (run_test_i log common_prefix [] (Run rootenv))
          test_trees;
        Actions.clear_all_hooks();
        if not !Options.log_to_stderr then close_out log
