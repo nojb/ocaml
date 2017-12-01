@@ -58,19 +58,31 @@ let tsl_block_of_file_safe test_filename =
 let print_usage () =
   Printf.printf "%s\n%!" Options.usage
 
+external isatty: out_channel -> bool = "caml_sys_isatty"
+
+let color n s =
+  if isatty stdout then
+    Printf.sprintf "\027[1;%dm%s\027[0m" n s
+  else
+    s
+
+let red s = color 31 s
+let green s = color 32 s
+let yellow s = color 33 s
+
 let rec run_test log common_prefix path behavior = function
   Node (testenvspec, test, env_modifiers, subtrees) ->
   Printf.printf "%s %s (%s) => %!" common_prefix path test.Tests.test_name;
   let (msg, b) = match behavior with
-    | Skip_all_tests -> "skipped", Skip_all_tests
+    | Skip_all_tests -> yellow "skipped", Skip_all_tests
     | Run env ->
       let testenv0 = interprete_environment_statements env testenvspec in
       let testenv = List.fold_left apply_modifiers testenv0 env_modifiers in
       let t = Tests.run log testenv test in
       (match t with
-      | Actions.Pass env -> "passed", Run env
-      | Actions.Skip _ -> "skipped", Skip_all_tests
-      | Actions.Fail _ -> "failed", Skip_all_tests) in
+      | Actions.Pass env -> green "passed", Run env
+      | Actions.Skip _ -> yellow "skipped", Skip_all_tests
+      | Actions.Fail _ -> red "failed", Skip_all_tests) in
   Printf.printf "%s\n%!" msg;
   List.iteri (run_test_i log common_prefix path b) subtrees
 and run_test_i log common_prefix path behavior i test_tree =
