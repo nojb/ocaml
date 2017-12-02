@@ -58,31 +58,38 @@ let tsl_block_of_file_safe test_filename =
 let print_usage () =
   Printf.printf "%s\n%!" Options.usage
 
-let color n s alt =
+let color bold n s =
   if Sys.isatty stdout then
-    Printf.sprintf "\027[1;%dm%s\027[0m" n s
+    Printf.sprintf "\027[%d;%dm%s\027[0m" bold n s
   else
-    Printf.sprintf "%s => %s" s alt
+    s
 
-let red s alt = color 31 s alt
-let green s alt = color 32 s alt
-let yellow s alt = color 33 s alt
-let _purple s alt = color 35 s alt
+let red s = color 1 31 s
+let green s = color 0 32 s
+let yellow s = color 0 33 s
+let gray s = color 2 37 s
 
 let rec run_test log common_prefix path behavior = function
   Node (testenvspec, test, env_modifiers, subtrees) ->
-  Printf.printf "%s/%s %!" common_prefix (String.concat "." path);
+  Printf.printf "%s/%s %-20s %!" common_prefix (String.concat "." path) (gray test.Tests.test_name);
   let (msg, b) = match behavior with
-    | Skip_all_tests -> yellow test.Tests.test_name "skipped", Skip_all_tests
+    | Skip_all_tests -> yellow "skipped", Skip_all_tests
     | Run env ->
       let testenv0 = interprete_environment_statements env testenvspec in
       let testenv = List.fold_left apply_modifiers testenv0 env_modifiers in
       let t = Tests.run log testenv test in
-      (match t with
-      | Actions.Pass env -> green test.Tests.test_name "passed", Run env
-      | Actions.Skip _ -> yellow test.Tests.test_name "skipped", Skip_all_tests
-      | Actions.Fail _ -> red test.Tests.test_name "failed", Skip_all_tests) in
-  Printf.printf "%s\n%!" msg;
+      begin match t with
+      | Tests.Ok env ->
+          green "passed" ^ "\n", Run env
+      | Tests.Skip reason ->
+          yellow "skipped (" ^ reason ^ ")\n", Skip_all_tests
+      | Tests.Fail (action_name, reason) ->
+          let cmdline = "./ocamltest.exe foo" in
+          let msg = Printf.sprintf "failed (%s)" action_name in
+          red msg ^ "\n" ^ gray cmdline ^ "\n" ^ reason, Skip_all_tests
+      end
+  in
+  Printf.printf "%s%!" msg;
   List.iteri (run_test_i log common_prefix path b) subtrees
 and run_test_i log common_prefix path behavior i test_tree =
   let new_path = string_of_int (i+1) :: path in

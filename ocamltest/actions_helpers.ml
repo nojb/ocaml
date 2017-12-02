@@ -230,10 +230,7 @@ let check_output kind_of_output output_variable reference_variable log env =
       let diffstr = match diff with
         | Ok difference -> difference
         | Error diff_file -> ("See " ^ diff_file) in
-      let reason =
-        Printf.sprintf "%s output %s differs from reference %s: \n%s\n"
-        kind_of_output output_filename reference_filename diffstr in
-      (Fail reason)
+      Fail diffstr
     | Filecompare.Unexpected_output ->
       let banner = String.make 40 '=' in
       let unexpected_output = Sys.string_of_file output_filename in

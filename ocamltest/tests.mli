@@ -31,7 +31,12 @@ val default_tests : unit -> t list
 
 val lookup : string -> t option
 
-val run : out_channel -> Environments.t -> t -> Actions.result
+type result =
+  | Ok of Environments.t
+  | Fail of string * string
+  | Skip of string
+
+val run : out_channel -> Environments.t -> t -> result
 
 val test_of_action : Actions.t -> t
 

@@ -48,10 +48,15 @@ let test_of_action action =
   test_actions = [action]
 }
 
+type result =
+  | Ok of Environments.t
+  | Fail of string * string
+  | Skip of string
+
 let run_actions log testenv actions =
   let total = List.length actions in
   let rec run_actions_aux action_number env = function
-    | [] -> Actions.Pass env
+    | [] -> Ok env
     | action::remaining_actions ->
       begin
         Printf.fprintf log "Running action %d/%d (%s)\n%!"
@@ -69,7 +74,8 @@ let run_actions log testenv actions =
         match result with
           | Actions.Pass env' ->
             run_actions_aux (action_number+1) env' remaining_actions
-          | _ -> result
+          | Actions.Fail reason -> Fail (Actions.action_name action, reason)
+          | Actions.Skip reason -> Skip reason
       end in
   run_actions_aux 1 testenv actions
 
