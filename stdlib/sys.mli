@@ -85,6 +85,12 @@ external readdir : string -> string array = "caml_sys_read_directory"
    in any specific order; they are not, in particular, guaranteed to
    appear in alphabetical order. *)
 
+external isatty : out_channel -> bool = "caml_sys_isatty" [@@noalloc]
+(** Returns [true] if the given channel refers to a terminal or
+    console window, [false] otherwise.
+
+    @since 4.07.0 *)
+
 val interactive : bool ref
 (** This reference is initially set to [false] in standalone
    programs and to [true] if the code is being executed under

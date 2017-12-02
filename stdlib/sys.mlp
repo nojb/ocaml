@@ -66,6 +66,7 @@ external time: unit -> (float [@unboxed]) =
 external chdir: string -> unit = "caml_sys_chdir"
 external getcwd: unit -> string = "caml_sys_getcwd"
 external readdir : string -> string array = "caml_sys_read_directory"
+external isatty : out_channel -> bool = "caml_sys_isatty" [@@noalloc]
 
 let interactive = ref false
 

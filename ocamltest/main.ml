@@ -58,10 +58,8 @@ let tsl_block_of_file_safe test_filename =
 let print_usage () =
   Printf.printf "%s\n%!" Options.usage
 
-external isatty: out_channel -> bool = "caml_sys_isatty"
-
 let color n s alt =
-  if isatty stdout then
+  if Sys.isatty stdout then
     Printf.sprintf "\027[1;%dm%s\027[0m" n s
   else
     Printf.sprintf "%s => %s" s alt
