@@ -1,3 +1,9 @@
+(* TEST
+   include ocamlcommon
+   include unix
+   * native
+*)
+
 (* This test checks all ml files in the ocaml repository that are accepted
    by the parser satisfy [Ast_invariants].
 
@@ -5,7 +11,19 @@
    is to ensure that the parser doesn't accept more than [Ast_invariants].
 *)
 
-let root = "../../.."
+let root =
+  let rec loop root =
+    if Sys.file_exists (Filename.concat root "VERSION") then
+      root
+    else
+      let dirname = Filename.dirname root in
+      if dirname <> root then
+        loop dirname
+      else
+        failwith "Could not find VERSION"
+  in
+  loop (Sys.getcwd ())
+
 let () = assert (Sys.file_exists (Filename.concat root "VERSION"))
 
 type _ kind =
