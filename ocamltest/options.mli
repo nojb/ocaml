@@ -17,6 +17,6 @@
 
 val log_to_stderr : bool ref
 
-val files_to_test : string list ref
+val paths_to_test : string list ref
 
 val usage : string

@@ -168,11 +168,65 @@ let test_file test_filename =
        if not !Options.log_to_stderr then close_out log
     )
 
+let rec make_relative curr path =
+  if path = curr then
+    Filename.current_dir_name
+  else
+    Filename.concat (make_relative curr (Filename.dirname path)) (Filename.basename path)
+
+let test_files dir files =
+  Printf.printf "... Entering %s\n%!" dir;
+  List.iter (fun file -> test_file (make_relative (Sys.getcwd ()) (Filename.concat dir file))) files
+
+let get_tests paths =
+  let add (acc, cur_dir, cur_files) path =
+    let path_dirname = Sys.with_chdir (Filename.dirname path) Sys.getcwd in
+    Printf.printf "add: cur_dir=%S path=%S path_dirname=%S\n%!" cur_dir path path_dirname;
+    if path_dirname = cur_dir then
+      acc, cur_dir, Filename.basename path :: cur_files
+    else
+      ((cur_dir, cur_files) :: acc), path_dirname, [Filename.basename path]
+  in
+  let rec walk acc path =
+    let ocamltests = Filename.concat path "ocamltests" in
+    let acc =
+      if Sys.file_exists ocamltests then
+        let lines = with_open_in ocamltests input_lines in
+        List.fold_left add acc (List.map (Filename.concat path) lines)
+      else
+        acc
+    in
+    Array.fold_left (fun acc entry ->
+        let path = Filename.concat path entry in
+        if Sys.is_directory path then
+          walk acc path
+        else
+          acc
+      ) acc (Sys.readdir path)
+  in
+  let acc =
+    List.fold_left (fun acc path ->
+        if Sys.is_directory path then
+          walk acc path
+        else
+          add acc path
+      ) ([], "", []) paths
+  in
+  let acc =
+    match acc with
+    | acc, _, [] ->
+        acc
+    | acc, cur_dir, cur_files ->
+        (cur_dir, cur_files) :: acc
+  in
+  List.rev acc
+
 let main () =
-  if !Options.files_to_test = [] then begin
+  if !Options.paths_to_test = [] then begin
     print_usage();
     exit 1
   end;
-  List.iter test_file !Options.files_to_test
+  let tests = get_tests !Options.paths_to_test in
+  List.iter (fun (dir, tests) -> test_files dir tests) tests
 
 let _ = main()

@@ -59,3 +59,6 @@ module StringSet : sig
 end
 
 module StringMap : Map.S with type key = string
+
+val input_lines : in_channel -> string list
+val with_open_in : string -> (in_channel -> 'a) -> 'a

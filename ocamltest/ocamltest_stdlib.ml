@@ -173,3 +173,23 @@ module StringSet = struct
 end
 
 module StringMap : Map.S with type key = string = Map.Make (String)
+
+let input_lines ic =
+  let rec loop acc =
+    match input_line ic with
+    | s ->
+        loop (s :: acc)
+    | exception End_of_file ->
+        List.rev acc
+  in
+  loop []
+
+let with_open_in path f =
+  let ic = open_in path in
+  match f ic with
+  | r ->
+      close_in ic;
+      r
+  | exception e ->
+      close_in_noerr ic;
+      raise e

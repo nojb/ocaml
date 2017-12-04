@@ -40,16 +40,16 @@ let log_to_stderr = ref false
 
 let commandline_options =
 [
-  ("-e", Arg.Set log_to_stderr, "Log to stderr instead of a file.");
-  ("-show-actions", Arg.Unit show_actions, "Show available actions.");
-  ("-show-tests", Arg.Unit show_tests, "Show available tests.");
+  ("-e", Arg.Set log_to_stderr, " Log to stderr instead of a file.");
+  ("-show-actions", Arg.Unit show_actions, " Show available actions.");
+  ("-show-tests", Arg.Unit show_tests, " Show available tests.");
 ]
 
-let files_to_test = ref []
+let paths_to_test = ref []
 
-let add_testfile name = files_to_test := !files_to_test @ [name]
+let add_path path = paths_to_test := !paths_to_test @ [path]
 
-let usage = "Usage: " ^ Sys.argv.(0) ^ " options files to test"
+let usage = "Usage: " ^ Sys.argv.(0) ^ " [options] [paths to test]"
 
 let _ =
-  Arg.parse commandline_options add_testfile usage
+  Arg.parse (Arg.align commandline_options) add_path usage
