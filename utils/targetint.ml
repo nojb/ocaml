@@ -18,7 +18,7 @@ type repr =
   | Int32 of int32
   | Int64 of int64
 
-module type S = sig
+module type INT = sig
   type t
   val zero : t
   val one : t
@@ -32,6 +32,7 @@ module type S = sig
   val succ : t -> t
   val pred : t -> t
   val abs : t -> t
+  val size : int
   val max_int : t
   val min_int : t
   val logand : t -> t -> t
@@ -54,12 +55,7 @@ module type S = sig
   val to_string : t -> string
   val compare: t -> t -> int
   val equal: t -> t -> bool
-  val repr: t -> repr
 end
-
-let size = Sys.word_size
-(* Later, this will be set by the configure script
-   in order to support cross-compilation. *)
 
 module Int32 = struct
   include Int32
@@ -80,6 +76,7 @@ module Int32 = struct
   let of_int64 = Int64.to_int32
   let to_int64 = Int64.of_int32
   let repr x = Int32 x
+  let size = 32
 end
 
 module Int64 = struct
@@ -88,11 +85,76 @@ module Int64 = struct
   let of_int64 x = x
   let to_int64 x = x
   let repr x = Int64 x
+  let size = 64
 end
 
+module type NATIVE_INT = sig
+  include INT
+  val repr: t -> repr
+end
+
+let target_size = Sys.word_size
+(* Later, this will be set by the configure script
+   in order to support cross-compilation. *)
+
 include (val
-          (match size with
+          (match target_size with
            | 32 -> (module Int32)
            | 64 -> (module Int64)
            | _ -> assert false
-          ) : S)
+          ) : NATIVE_INT)
+
+module MakeOCaml (I : INT) : INT = struct
+  type t = I.t
+  let check =
+    let min_int = I.shift_right I.min_int 1 in
+    let max_int = I.shift_right I.max_int 1 in
+    fun n ->
+      if n < min_int || n > max_int then
+        Misc.fatal_errorf "Targetint.check: %s out of range" (I.to_string n)
+      else
+        n
+  let mask = I.shift_left I.minus_one 1
+  let of_int n = I.shift_left (I.of_int n) 1
+  let zero = of_int 0
+  let one = of_int 1
+  let minus_one = of_int (-1)
+  let add = I.add
+  let sub = I.sub
+  let neg = I.neg
+  let abs = I.abs
+  let succ a = add a one
+  let pred a = sub a one
+  let shift_left = I.shift_left
+  let shift_right x i = I.logand mask (I.shift_right x i)
+  let shift_right_logical x i = I.logand mask (I.shift_right_logical x i)
+  let mul a b = I.mul a (I.shift_right b 1)
+  let equal = I.equal
+  let compare = I.compare
+  let to_string x = I.to_string (I.shift_right x 1)
+  let of_string s = I.shift_left (check (I.of_string s)) 1
+  let to_int64 x = I.to_int64 (I.shift_right x 1)
+  let of_int64 x = I.shift_left (I.of_int64 x) 1
+  let to_int32 x = I.to_int32 (I.shift_right x 1)
+  let of_int32 x = I.shift_left (I.of_int32 x) 1
+  let to_float x = I.to_float (I.shift_right x 1)
+  let of_float x = I.shift_left (I.of_float x) 1
+  let to_int x = I.to_int (I.shift_right x 1)
+  let lognot x = I.logand mask (I.lognot x)
+  let logxor a b = I.logand mask (I.logxor a b)
+  let logor = I.logor
+  let logand = I.logand
+  let max_int = I.logand mask I.max_int
+  let min_int = I.min_int
+  let rem a b = I.rem a b
+  let div a b = I.shift_left (I.div a b) 1
+  let of_int_exn n = I.shift_left (check (I.of_int_exn n)) 1
+  let size = I.size - 1
+end
+
+module OCaml =
+  (val (match size with
+       | 32 -> (module MakeOCaml (Int32))
+       | 64 -> (module MakeOCaml (Int64))
+       | _ -> assert false
+     ) : INT)
