@@ -698,6 +698,9 @@ module Persistent_signature = struct
     | exception Not_found -> None)
 end
 
+let install_printer = ref (fun _ -> ())
+let set_install_printer_callback f = install_printer := f
+
 let acknowledge_pers_struct check modname
       { Persistent_signature.filename; cmi } =
   let name = cmi.cmi_name in
@@ -724,6 +727,8 @@ let acknowledge_pers_struct check modname
   if ps.ps_name <> modname then
     error (Illegal_renaming(modname, ps.ps_name, filename));
 
+  let toplevel_printers = ref [] in
+
   List.iter
     (function
         | Rectypes ->
@@ -733,9 +738,11 @@ let acknowledge_pers_struct check modname
             if Config.safe_string then
               error (Depend_on_unsafe_string_unit (ps.ps_name, !current_unit));
         | Deprecated _ -> ()
-        | Opaque -> add_imported_opaque modname)
+        | Opaque -> add_imported_opaque modname
+        | Toplevel_printer lid -> toplevel_printers := lid :: !toplevel_printers)
     ps.ps_flags;
   if check then check_consistency ps;
+  List.iter !install_printer (List.rev !toplevel_printers);
   Hashtbl.add persistent_structures modname (Some ps);
   ps
 
@@ -2140,7 +2147,7 @@ let is_imported_opaque s =
 
 (* Save a signature to a file *)
 
-let save_signature_with_imports ~deprecated sg modname filename imports =
+let save_signature_with_imports ~deprecated ~toplevel_printers sg modname filename imports =
   (*prerr_endline filename;
   List.iter (fun (name, crc) -> prerr_endline name) imports;*)
   Btype.cleanup_abbrev ();
@@ -2152,6 +2159,7 @@ let save_signature_with_imports ~deprecated sg modname filename imports =
       if !Clflags.opaque then [Cmi_format.Opaque] else [];
       (if !Clflags.unsafe_string then [Cmi_format.Unsafe_string] else []);
       (match deprecated with Some s -> [Deprecated s] | None -> []);
+      (List.map (fun lid -> Cmi_format.Toplevel_printer lid) toplevel_printers;
     ]
   in
   try
@@ -2185,8 +2193,8 @@ let save_signature_with_imports ~deprecated sg modname filename imports =
     remove_file filename;
     raise exn
 
-let save_signature ~deprecated sg modname filename =
-  save_signature_with_imports ~deprecated sg modname filename (imports())
+let save_signature ~deprecated ~toplevel_printers sg modname filename =
+  save_signature_with_imports ~deprecated ~toplevel_printers sg modname filename (imports())
 
 (* Folding on environments *)
 

@@ -497,3 +497,5 @@ type label_description =
     lbl_loc: Location.t;
     lbl_attributes: Parsetree.attributes;
   }
+
+val toplevel_printers : string -> signature -> Longident.t list

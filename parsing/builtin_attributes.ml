@@ -194,3 +194,6 @@ let has_unboxed attr =
 
 let has_boxed attr =
   List.exists (check ["ocaml.boxed"; "boxed"]) attr
+
+let has_toplevel_printer attr =
+  List.exists (check ["ocaml.toplevel_printer"; "toplevel_printer"]) attr

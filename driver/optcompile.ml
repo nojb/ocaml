@@ -49,8 +49,9 @@ let interface ppf sourcefile outputprefix =
       Warnings.check_fatal ();
       if not !Clflags.print_types then begin
         let deprecated = Builtin_attributes.deprecated_of_sig ast in
+        let toplevel_printers = Types.toplevel_printers modulename sg in
         let sg =
-          Env.save_signature ~deprecated sg modulename (outputprefix ^ ".cmi")
+          Env.save_signature ~deprecated ~toplevel_printers sg modulename (outputprefix ^ ".cmi")
         in
         Typemod.save_signature modulename tsg outputprefix sourcefile
           initial_env sg ;

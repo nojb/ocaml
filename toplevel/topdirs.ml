@@ -392,7 +392,8 @@ let _ = add_directive "install_printer"
     {
       section = section_print;
       doc = "Registers a printer for values of a certain type.";
-    }
+    };
+  Env.set_install_printer_callback (dir_install_printer std_out)
 
 let _ = add_directive "remove_printer"
     (Directive_ident (dir_remove_printer std_out))

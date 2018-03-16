@@ -25,6 +25,7 @@
    ocaml.deprecated_mutable
    ocaml.immediate
    ocaml.boxed / ocaml.unboxed
+   ocaml.toplevel_printer
 *)
 
 
@@ -74,3 +75,5 @@ val immediate: Parsetree.attributes -> bool
 
 val has_unboxed: Parsetree.attributes -> bool
 val has_boxed: Parsetree.attributes -> bool
+
+val has_toplevel_printer: Parsetree.attributes -> bool

@@ -211,10 +211,11 @@ val get_unit_name: unit -> string
 val read_signature: string -> string -> signature
         (* Arguments: module name, file name. Results: signature. *)
 val save_signature:
-  deprecated:string option -> signature -> string -> string -> Cmi_format.cmi_infos
+  deprecated:string option -> toplevel_printers:Longident.t list ->
+  signature -> string -> string -> Cmi_format.cmi_infos
         (* Arguments: signature, module name, file name. *)
 val save_signature_with_imports:
-  deprecated:string option ->
+  deprecated:string option -> toplevel_printers:Longident.t list ->
   signature -> string -> string -> (string * Digest.t option) list
   -> Cmi_format.cmi_infos
         (* Arguments: signature, module name, file name,
@@ -341,3 +342,5 @@ module Persistent_signature : sig
       it from memory, for instance to build a self-contained toplevel. *)
   val load : (unit_name:string -> t option) ref
 end
+
+val set_install_printer_callback: (Longident.t -> unit) -> unit
