@@ -1054,7 +1054,7 @@ class_expr:
   | let_bindings IN class_expr
       { class_of_let_bindings $1 $3 }
   | LET OPEN override_flag attributes mod_longident IN class_expr
-      { wrap_class_attrs (mkclass(Pcl_open($3, mkrhs $5 5, $7))) $4 }
+      { wrap_class_attrs (mkclass(Pcl_open($3, mkrhs($5, 5), $7))) $4 }
   | class_expr attribute
       { Cl.attr $1 $2 }
   | extension
@@ -1188,7 +1188,7 @@ class_signature:
   | extension
       { mkcty(Pcty_extension $1) }
   | LET OPEN override_flag attributes mod_longident IN class_signature
-      { wrap_class_type_attrs (mkcty(Pcty_open($3, mkrhs $5 5, $7))) $4 }
+      { wrap_class_type_attrs (mkcty(Pcty_open($3, mkrhs($5, 5), $7))) $4 }
 ;
 class_sig_body:
     class_self_type class_sig_fields
@@ -1502,37 +1502,37 @@ simple_expr:
       { mkexp(Pexp_apply(ghexp(Pexp_ident(array_function "String" "get")),
                          [Nolabel,$1; Nolabel,$4])) }
   | simple_expr DOT LBRACKET seq_expr error
-      { unclosed "[" 3 "]" 5 }
+      { unclosed("[", 3, "]", 5) }
   | simple_expr DOTOP LBRACKET seq_expr RBRACKET
       { let id = mkexp @@ Pexp_ident( ghloc @@ Lident ("." ^ $2 ^ "[]")) in
         mkexp @@ Pexp_apply(id, [Nolabel, $1; Nolabel, $4]) }
   | simple_expr DOTOP LBRACKET seq_expr error
-      { unclosed "[" 3 "]" 5 }
+      { unclosed("[", 3, "]", 5) }
   | simple_expr DOTOP LPAREN seq_expr RPAREN
       { let id = mkexp @@ Pexp_ident( ghloc @@ Lident ("." ^ $2 ^ "()")) in
         mkexp @@ Pexp_apply(id, [Nolabel, $1; Nolabel, $4]) }
   | simple_expr DOTOP LPAREN seq_expr error
-      { unclosed "(" 3 ")" 5 }
+      { unclosed("(", 3, ")", 5) }
   | simple_expr DOTOP LBRACE seq_expr RBRACE
       { let id = mkexp @@ Pexp_ident( ghloc @@ Lident ("." ^ $2 ^ "{}")) in
         mkexp @@ Pexp_apply(id, [Nolabel, $1; Nolabel, $4]) }
   | simple_expr DOTOP LBRACE seq_expr error
-      { unclosed "{" 3 "}" 5 }
+      { unclosed("{", 3, "}", 5) }
   | simple_expr DOT mod_longident DOTOP LBRACKET seq_expr RBRACKET
       { let id = mkexp @@ Pexp_ident( ghloc @@ Ldot($3, "." ^ $4 ^ "[]")) in
         mkexp @@ Pexp_apply(id, [Nolabel, $1; Nolabel, $6]) }
   | simple_expr DOT mod_longident DOTOP LBRACKET seq_expr error
-      { unclosed "[" 5 "]" 7 }
+      { unclosed("[", 5, "]", 7) }
   | simple_expr DOT mod_longident DOTOP LPAREN seq_expr RPAREN
       { let id = mkexp @@ Pexp_ident( ghloc @@ Ldot($3, "." ^ $4 ^ "()")) in
         mkexp @@ Pexp_apply(id, [Nolabel, $1; Nolabel, $6]) }
   | simple_expr DOT mod_longident DOTOP LPAREN seq_expr error
-      { unclosed "(" 5 ")" 7 }
+      { unclosed("(", 5, ")", 7) }
   | simple_expr DOT mod_longident DOTOP LBRACE seq_expr RBRACE
       { let id = mkexp @@ Pexp_ident( ghloc @@ Ldot($3, "." ^ $4 ^ "{}")) in
         mkexp @@ Pexp_apply(id, [Nolabel, $1; Nolabel, $6]) }
   | simple_expr DOT mod_longident DOTOP LBRACE seq_expr error
-      { unclosed "{" 5 "}" 7 }
+      { unclosed("{", 5, "}", 7) }
   | simple_expr DOT LBRACE seq_expr RBRACE
       { bigarray_get $1 $4 }
   | simple_expr DOT LBRACE expr_comma_list error
@@ -2327,10 +2327,10 @@ row_field:
 ;
 tag_field:
     name_tag OF opt_ampersand amper_type_list attributes
-      { Rtag (mkrhs $1 1, add_info_attrs (symbol_info ()) $5,
+      { Rtag (mkrhs($1, 1), add_info_attrs (symbol_info ()) $5,
                $3, List.rev $4) }
   | name_tag attributes
-      { Rtag (mkrhs $1 1, add_info_attrs (symbol_info ()) $2, true, []) }
+      { Rtag (mkrhs($1, 1), add_info_attrs (symbol_info ()) $2, true, []) }
 ;
 opt_ampersand:
     AMPERSAND                                   { true }
