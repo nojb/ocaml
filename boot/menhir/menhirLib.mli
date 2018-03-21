@@ -1,19 +1,21 @@
 module General : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* This module offers general-purpose functions on lists and streams. *)
+
+(* As of 2017/03/31, this module is DEPRECATED. It might be removed in
+   the future. *)
 
 (* --------------------------------------------------------------------------- *)
 
@@ -59,22 +61,20 @@ val length: 'a stream -> int
 (* Folding over a stream. *)
 
 val foldr: ('a -> 'b -> 'b) -> 'a stream -> 'b -> 'b
-
 end
 module Convert : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* An ocamlyacc-style, or Menhir-style, parser requires access to
    the lexer, which must be parameterized with a lexing buffer, and
@@ -142,19 +142,20 @@ module Simplified : sig
 end
 end
 module IncrementalEngine : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
+
+type position = Lexing.position
 
 open General
 
@@ -166,6 +167,12 @@ open General
 module type INCREMENTAL_ENGINE = sig
 
   type token
+
+  (* A value of type [production] is (an index for) a production. The start
+     productions (which do not exist in an \mly file, but are constructed by
+     Menhir internally) are not part of this type. *)
+
+  type production
 
   (* The type ['a checkpoint] represents an intermediate or final state of the
      parser. An intermediate checkpoint is a suspension: it records the parser's
@@ -192,15 +199,25 @@ module type INCREMENTAL_ENGINE = sig
   (* [HandlingError] is an intermediate checkpoint. It means that the parser has
      detected an error and is currently handling it, in several steps. *)
 
-  type env
+  (* A value of type ['a env] represents a configuration of the automaton:
+     current state, stack, lookahead token, etc. The parameter ['a] is the
+     type of the semantic value that will eventually be produced if the parser
+     succeeds. *)
 
-  type production
+  (* In normal operation, the parser works with checkpoints: see the functions
+     [offer] and [resume]. However, it is also possible to work directly with
+     environments (see the functions [pop], [force_reduction], and [feed]) and
+     to reconstruct a checkpoint out of an environment (see [input_needed]).
+     This is considered advanced functionality; its purpose is to allow error
+     recovery strategies to be programmed by the user. *)
+
+  type 'a env
 
   type 'a checkpoint = private
-    | InputNeeded of env
-    | Shifting of env * env * bool
-    | AboutToReduce of env * production
-    | HandlingError of env
+    | InputNeeded of 'a env
+    | Shifting of 'a env * 'a env * bool
+    | AboutToReduce of 'a env * production
+    | HandlingError of 'a env
     | Accepted of 'a
     | Rejected
 
@@ -211,7 +228,7 @@ module type INCREMENTAL_ENGINE = sig
 
   val offer:
     'a checkpoint ->
-    token * Lexing.position * Lexing.position ->
+    token * position * position ->
     'a checkpoint
 
   (* [resume] allows the user to resume the parser after it has suspended
@@ -227,7 +244,7 @@ module type INCREMENTAL_ENGINE = sig
      (together with its start and end positions) every time it is called. *)
 
   type supplier =
-    unit -> token * Lexing.position * Lexing.position
+    unit -> token * position * position
 
   (* A pair of a lexer and a lexing buffer can be easily turned into a supplier. *)
 
@@ -283,24 +300,23 @@ module type INCREMENTAL_ENGINE = sig
     ('a checkpoint -> 'a checkpoint -> 'answer) ->
     supplier -> 'a checkpoint -> 'answer
 
-  (* [loop_test f checkpoint accu] assumes that [checkpoint] has been obtained
-     by submitting a token to the parser. It runs the parser from [checkpoint],
-     through an arbitrary number of reductions, until the parser either accepts
-     this token (i.e., shifts) or rejects it (i.e., signals an error). If the
-     parser decides to shift, then the accumulator is updated by applying the
-     user function [f] to the [env] just before shifting and to the old [accu].
-     Otherwise, the accumulator is not updated, i.e., [accu] is returned. *)
+  (* [shifts checkpoint] assumes that [checkpoint] has been obtained by
+     submitting a token to the parser. It runs the parser from [checkpoint],
+     through an arbitrary number of reductions, until the parser either
+     accepts this token (i.e., shifts) or rejects it (i.e., signals an error).
+     If the parser decides to shift, then [Some env] is returned, where [env]
+     is the parser's state just before shifting. Otherwise, [None] is
+     returned. *)
 
   (* It is desirable that the semantic actions be side-effect free, or that
      their side-effects be harmless (replayable). *)
 
-  val loop_test:
-    (env -> 'accu -> 'accu) ->
-    'a checkpoint -> 'accu -> 'accu
+  val shifts: 'a checkpoint -> 'a env option
 
-  (* The function [loop_test] can be used, after an error has been detected, to
-     dynamically test which tokens would have been accepted at this point. We
-     provide this test, ready for use. *)
+  (* The function [acceptable] allows testing, after an error has been
+     detected, which tokens would have been accepted at this point. It is
+     implemented using [shifts]. Its argument should be an [InputNeeded]
+     checkpoint. *)
 
   (* For completeness, one must undo any spurious reductions before carrying out
      this test -- that is, one must apply [acceptable] to the FIRST checkpoint
@@ -313,7 +329,7 @@ module type INCREMENTAL_ENGINE = sig
      hypothetical token, and may be picked up by the semantic actions. We
      suggest using the position where the error was detected. *)
 
-  val acceptable: 'a checkpoint -> token -> Lexing.position -> bool
+  val acceptable: 'a checkpoint -> token -> position -> bool
 
   (* The abstract type ['a lr1state] describes the non-initial states of the
      LR(1) automaton. The index ['a] represents the type of the semantic value
@@ -325,6 +341,13 @@ module type INCREMENTAL_ENGINE = sig
 
   val number: _ lr1state -> int
 
+  (* Productions are numbered. *)
+
+  (* [find_production i] requires the index [i] to be valid. Use with care. *)
+
+  val production_index: production -> int
+  val find_production: int -> production
+
   (* An element is a pair of a non-initial state [s] and a semantic value [v]
      associated with the incoming symbol of this state. The idea is, the value
      [v] was pushed onto the stack just before the state [s] was entered. Thus,
@@ -332,12 +355,16 @@ module type INCREMENTAL_ENGINE = sig
      has type ['a]. In other words, the type [element] is an existential type. *)
 
   type element =
-    | Element: 'a lr1state * 'a * Lexing.position * Lexing.position -> element
+    | Element: 'a lr1state * 'a * position * position -> element
 
   (* The parser's stack is (or, more precisely, can be viewed as) a stream of
      elements. The type [stream] is defined by the module [General]. *)
 
-  type stack =
+  (* As of 2017/03/31, the types [stream] and [stack] and the function [stack]
+     are DEPRECATED. They might be removed in the future. An alternative way
+     of inspecting the stack is via the functions [top] and [pop]. *)
+
+  type stack = (* DEPRECATED *)
     element stream
 
   (* This is the parser's stack, a stream of elements. This stream is empty if
@@ -345,20 +372,96 @@ module type INCREMENTAL_ENGINE = sig
      automaton's current state is the one found in the top element of the
      stack. *)
 
-  val stack: env -> stack
+  val stack: 'a env -> stack (* DEPRECATED *)
+
+  (* [top env] returns the parser's top stack element. The state contained in
+     this stack element is the current state of the automaton. If the stack is
+     empty, [None] is returned. In that case, the current state of the
+     automaton must be an initial state. *)
+
+  val top: 'a env -> element option
+
+  (* [pop_many i env] pops [i] cells off the automaton's stack. This is done
+     via [i] successive invocations of [pop]. Thus, [pop_many 1] is [pop]. The
+     index [i] must be nonnegative. The time complexity is O(i). *)
+
+  val pop_many: int -> 'a env -> 'a env option
+
+  (* [get i env] returns the parser's [i]-th stack element. The index [i] is
+     0-based: thus, [get 0] is [top]. If [i] is greater than or equal to the
+     number of elements in the stack, [None] is returned. The time complexity
+     is O(i). *)
+
+  val get: int -> 'a env -> element option
+
+  (* [current_state_number env] is (the integer number of) the automaton's
+     current state. This works even if the automaton's stack is empty, in
+     which case the current state is an initial state. This number can be
+     passed as an argument to a [message] function generated by [menhir
+     --compile-errors]. *)
+
+  val current_state_number: 'a env -> int
+
+  (* [equal env1 env2] tells whether the parser configurations [env1] and
+     [env2] are equal in the sense that the automaton's current state is the
+     same in [env1] and [env2] and the stack is *physically* the same in
+     [env1] and [env2]. If [equal env1 env2] is [true], then the sequence of
+     the stack elements, as observed via [pop] and [top], must be the same in
+     [env1] and [env2]. Also, if [equal env1 env2] holds, then the checkpoints
+     [input_needed env1] and [input_needed env2] must be equivalent. The
+     function [equal] has time complexity O(1). *)
+
+  val equal: 'a env -> 'a env -> bool
 
   (* These are the start and end positions of the current lookahead token. If
      invoked in an initial state, this function returns a pair of twice the
      initial position. *)
 
-  val positions: env -> Lexing.position * Lexing.position
+  val positions: 'a env -> position * position
 
-  (* This tells whether the parser is about to perform a default reduction.
-     In particular, when applied to an environment taken from a result of
-     the form [AboutToReduce (env, prod)], this tells whether the reduction
-     that is about to take place is a default reduction. *)
+  (* When applied to an environment taken from a checkpoint of the form
+     [AboutToReduce (env, prod)], the function [env_has_default_reduction]
+     tells whether the reduction that is about to take place is a default
+     reduction. *)
 
-  val has_default_reduction: env -> bool
+  val env_has_default_reduction: 'a env -> bool
+
+  (* [state_has_default_reduction s] tells whether the state [s] has a default
+     reduction. This includes the case where [s] is an accepting state. *)
+
+  val state_has_default_reduction: _ lr1state -> bool
+
+  (* [pop env] returns a new environment, where the parser's top stack cell
+     has been popped off. (If the stack is empty, [None] is returned.) This
+     amounts to pretending that the (terminal or nonterminal) symbol that
+     corresponds to this stack cell has not been read. *)
+
+  val pop: 'a env -> 'a env option
+
+  (* [force_reduction prod env] should be called only if in the state [env]
+     the parser is capable of reducing the production [prod]. If this
+     condition is satisfied, then this production is reduced, which means that
+     its semantic action is executed (this can have side effects!) and the
+     automaton makes a goto (nonterminal) transition. If this condition is not
+     satisfied, [Invalid_argument _] is raised. *)
+
+  val force_reduction: production -> 'a env -> 'a env
+
+  (* [input_needed env] returns [InputNeeded env]. That is, out of an [env]
+     that might have been obtained via a series of calls to the functions
+     [pop], [force_reduction], [feed], etc., it produces a checkpoint, which
+     can be used to resume normal parsing, by supplying this checkpoint as an
+     argument to [offer]. *)
+
+  (* This function should be used with some care. It could "mess up the
+     lookahead" in the sense that it allows parsing to resume in an arbitrary
+     state [s] with an arbitrary lookahead symbol [t], even though Menhir's
+     reachability analysis (menhir --list-errors) might well think that it is
+     impossible to reach this particular configuration. If one is using
+     Menhir's new error reporting facility, this could cause the parser to
+     reach an error state for which no error message has been prepared. *)
+
+  val input_needed: 'a env -> 'a checkpoint
 
 end
 
@@ -475,6 +578,20 @@ module type INSPECTION = sig
   val foreach_terminal:           (xsymbol -> 'a -> 'a) -> 'a -> 'a
   val foreach_terminal_but_error: (xsymbol -> 'a -> 'a) -> 'a -> 'a
 
+  (* The type [env] is meant to be the same as in [INCREMENTAL_ENGINE]. *)
+
+  type 'a env
+
+  (* [feed symbol startp semv endp env] causes the parser to consume the
+     (terminal or nonterminal) symbol [symbol], accompanied with the semantic
+     value [semv] and with the start and end positions [startp] and [endp].
+     Thus, the automaton makes a transition, and reaches a new state. The
+     stack grows by one cell. This operation is permitted only if the current
+     state (as determined by [env]) has an outgoing transition labeled with
+     [symbol]. Otherwise, [Invalid_argument _] is raised. *)
+
+  val feed: 'a symbol -> position -> 'a -> position -> 'b env -> 'b env
+
 end
 
 (* This signature combines the incremental API and the inspection API. *)
@@ -486,24 +603,23 @@ module type EVERYTHING = sig
   include INSPECTION
     with type 'a lr1state := 'a lr1state
     with type production := production
+    with type 'a env := 'a env
 
 end
-
 end
 module EngineTypes : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* This file defines several types and module types that are used in the
    specification of module [Engine]. *)
@@ -607,6 +723,10 @@ module type TABLE = sig
 
   type terminal
 
+  (* The type of nonterminal symbols. *)
+
+  type nonterminal
+
   (* The type of semantic values. *)
 
   type semantic_value
@@ -624,9 +744,16 @@ module type TABLE = sig
   val error_terminal: terminal
   val error_value: semantic_value
 
+  (* [foreach_terminal] allows iterating over all terminal symbols. *)
+
+  val foreach_terminal: (terminal -> 'a -> 'a) -> 'a -> 'a
+
   (* The type of productions. *)
 
   type production
+
+  val production_index: production -> int
+  val find_production: int -> production
 
   (* If a state [s] has a default reduction on production [prod], then, upon
      entering [s], the automaton should reduce [prod] without consulting the
@@ -692,13 +819,20 @@ module type TABLE = sig
     ('env -> 'answer) ->
     'env -> 'answer
 
-  (* This is the automaton's goto table. It maps a pair of a state and a
-     production to a new state.
+  (* This is the automaton's goto table. This table maps a pair of a state
+     and a nonterminal symbol to a new state. By extension, it also maps a
+     pair of a state and a production to a new state. *)
 
-     This convention is slightly different from the textbook approach. The
-     goto table is usually indexed by a state and a non-terminal symbol. *)
+  (* The function [goto_nt] can be applied to [s] and [nt] ONLY if the state
+     [s] has an outgoing transition labeled [nt]. Otherwise, its result is
+     undefined. Similarly, the call [goto_prod prod s] is permitted ONLY if
+     the state [s] has an outgoing transition labeled with the nonterminal
+     symbol [lhs prod]. The function [maybe_goto_nt] involves an additional
+     dynamic check and CAN be called even if there is no outgoing transition. *)
 
-  val goto: state -> production -> state
+  val       goto_nt  : state -> nonterminal -> state
+  val       goto_prod: state -> production  -> state
+  val maybe_goto_nt:   state -> nonterminal -> state option
 
   (* [is_start prod] tells whether the production [prod] is a start production. *)
 
@@ -731,6 +865,14 @@ module type TABLE = sig
       (state, semantic_value, token) env -> (state, semantic_value) stack
 
   val semantic_action: production -> semantic_action
+
+  (* [may_reduce state prod] tests whether the state [state] is capable of
+     reducing the production [prod]. This function is currently costly and
+     is not used by the core LR engine. It is used in the implementation
+     of certain functions, such as [force_reduction], which allow the engine
+     to be driven programmatically. *)
+
+  val may_reduce: state -> production -> bool
 
   (* The LR engine requires a number of hooks, which are used for logging. *)
 
@@ -864,46 +1006,98 @@ module type ENGINE = sig
      and type 'a checkpoint := 'a checkpoint
 
 end
-
 end
 module Engine : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 open EngineTypes
 
 (* The LR parsing engine. *)
 
-module Make (T : TABLE) : ENGINE with type state = T.state
-                                  and type token = T.token
-                                  and type semantic_value = T.semantic_value
-                                  and type production = T.production
+module Make (T : TABLE)
+: ENGINE
+  with type state = T.state
+   and type token = T.token
+   and type semantic_value = T.semantic_value
+   and type production = T.production
+   and type 'a env = (T.state, T.semantic_value, T.token) EngineTypes.env
+
+(* We would prefer not to expose the definition of the type [env].
+   However, it must be exposed because some of the code in the
+   inspection API needs access to the engine's internals; see
+   [InspectionTableInterpreter]. Everything would be simpler if
+   --inspection was always ON, but that would lead to bigger parse
+   tables for everybody. *)
+end
+module ErrorReports : sig
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* -------------------------------------------------------------------------- *)
+
+(* The following functions help keep track of the start and end positions of
+   the last two tokens in a two-place buffer. This is used to nicely display
+   where a syntax error took place. *)
+
+type 'a buffer
+
+(* [wrap lexer] returns a pair of a new (initially empty) buffer and a lexer
+   which internally relies on [lexer] and updates [buffer] on the fly whenever
+   a token is demanded. *)
+
+open Lexing
+
+val wrap:
+  (lexbuf -> 'token) ->
+  (position * position) buffer * (lexbuf -> 'token)
+
+(* [show f buffer] prints the contents of the buffer, producing a string that
+   is typically of the form "after '%s' and before '%s'". The function [f] is
+   used to print an element. The buffer MUST be nonempty. *)
+
+val show: ('a -> string) -> 'a buffer -> string
+
+(* [last buffer] returns the last element of the buffer. The buffer MUST be
+   nonempty. *)
+
+val last: 'a buffer -> 'a
+
+(* -------------------------------------------------------------------------- *)
 end
 module Printers : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* This module is part of MenhirLib. *)
 
@@ -946,7 +1140,7 @@ module Make
      printer. It uses [print_element] if provided by the user; otherwise
      it uses [print_element_as_symbol]. (Ending with a newline.) *)
 
-  val print_stack: stack -> unit
+  val print_stack: 'a env -> unit
 
   (* Printing an item. (Ending with a newline.) *)
 
@@ -960,30 +1154,28 @@ module Make
      as a number; then the list of its LR(0) items is printed. (Ending with
      a newline.) *)
 
-  val print_current_state: env -> unit
+  val print_current_state: 'a env -> unit
 
   (* Printing a summary of the stack and current state. This function just
      calls [print_stack] and [print_current_state] in succession. *)
 
-  val print_env: env -> unit
+  val print_env: 'a env -> unit
 
 end
-
 end
 module InfiniteArray : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (** This module implements infinite arrays. **)
 type 'a t
@@ -1010,19 +1202,18 @@ val extent: 'a t -> int
 val domain: 'a t -> 'a array
 end
 module PackedIntArray : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* A packed integer array is represented as a pair of an integer [k] and
    a string [s]. The integer [k] is the number of bits per integer that we
@@ -1070,19 +1261,18 @@ val unflatten1: int * string -> int -> int -> int
 
 end
 module RowDisplacement : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* This module compresses a two-dimensional table, where some values
    are considered insignificant, via row displacement. *)
@@ -1135,19 +1325,18 @@ val getget:
 
 end
 module LinearizedArray : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* An array of arrays (of possibly different lengths!) can be ``linearized'',
    i.e., encoded as a data array (by concatenating all of the little arrays)
@@ -1210,19 +1399,18 @@ val read_row_via:
 
 end
 module TableFormat : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* This signature defines the format of the parse tables. It is used as
    an argument to [TableInterpreter.Make]. *)
@@ -1272,7 +1460,7 @@ module type TABLES = sig
 
   val default_reduction: PackedIntArray.t
 
-  (* Menhir follows Dencker, D�rre and Heuft, who point out that, although the
+  (* Menhir follows Dencker, Dürre and Heuft, who point out that, although the
      action table is not sparse by nature (i.e., the error entries are
      significant), it can be made sparse by first factoring out a binary error
      matrix, then replacing the error entries in the action table with undefined
@@ -1348,22 +1536,20 @@ module type TABLES = sig
   val trace: (string array * string array) option
 
 end
-
 end
 module InspectionTableFormat : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* This signature defines the format of the tables that are produced (in
    addition to the tables described in [TableFormat]) when the command line
@@ -1428,19 +1614,18 @@ end
 
 end
 module InspectionTableInterpreter : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* This functor is invoked inside the generated parser, in [--table] mode. It
    produces no code! It simply constructs the types [symbol] and [xsymbol] on
@@ -1462,34 +1647,41 @@ end)
    [InspectionTableFormat]. *)
 
 module Make
-  (B : TableFormat.TABLES)
-  (T : InspectionTableFormat.TABLES
-       with type 'a lr1state = int)
+  (TT : TableFormat.TABLES)
+  (IT : InspectionTableFormat.TABLES
+        with type 'a lr1state = int)
+  (ET : EngineTypes.TABLE
+        with type terminal = int
+         and type nonterminal = int
+         and type semantic_value = Obj.t)
+  (E : sig
+     type 'a env = (ET.state, ET.semantic_value, ET.token) EngineTypes.env
+   end)
 
 : IncrementalEngine.INSPECTION
-  with type 'a terminal := 'a T.terminal
-   and type 'a nonterminal := 'a T.nonterminal
-   and type 'a lr1state := 'a T.lr1state
+  with type 'a terminal := 'a IT.terminal
+   and type 'a nonterminal := 'a IT.nonterminal
+   and type 'a lr1state := 'a IT.lr1state
    and type production := int
-
+   and type 'a env := 'a E.env
 end
 module TableInterpreter : sig
-(**************************************************************************)
-(*                                                                        *)
-(*  Menhir                                                                *)
-(*                                                                        *)
-(*  François Pottier, INRIA Paris-Rocquencourt                            *)
-(*  Yann Régis-Gianas, PPS, Université Paris Diderot                      *)
-(*                                                                        *)
-(*  Copyright 2005-2015 Institut National de Recherche en Informatique    *)
-(*  et en Automatique. All rights reserved. This file is distributed      *)
-(*  under the terms of the GNU Library General Public License, with the   *)
-(*  special exception on linking described in file LICENSE.               *)
-(*                                                                        *)
-(**************************************************************************)
+(******************************************************************************)
+(*                                                                            *)
+(*                                   Menhir                                   *)
+(*                                                                            *)
+(*                       François Pottier, Inria Paris                        *)
+(*              Yann Régis-Gianas, PPS, Université Paris Diderot              *)
+(*                                                                            *)
+(*  Copyright Inria. All rights reserved. This file is distributed under the  *)
+(*  terms of the GNU Library General Public License version 2, with a         *)
+(*  special exception on linking, as described in the file LICENSE.           *)
+(*                                                                            *)
+(******************************************************************************)
 
-(* This module instantiates the generic [Engine] with a thin decoding layer
-   for the generated tables. Like [Engine], it is part of [MenhirLib]. *)
+(* This module provides a thin decoding layer for the generated tables, thus
+   providing an API that is suitable for use by [Engine.Make]. It is part of
+   [MenhirLib]. *)
 
 (* The exception [Error] is declared within the generated parser. This is
    preferable to pre-declaring it here, as it ensures that each parser gets
@@ -1498,14 +1690,16 @@ module TableInterpreter : sig
 
 (* This functor is invoked by the generated parser. *)
 
-module Make (T : TableFormat.TABLES)
-
-: EngineTypes.ENGINE with type state = int
-                           and type token = T.token
-                           and type semantic_value = Obj.t
-                           and type production = int
-
+module MakeEngineTable
+  (T : TableFormat.TABLES)
+: EngineTypes.TABLE
+    with type state = int
+     and type token = T.token
+     and type semantic_value = Obj.t
+     and type production = int
+     and type terminal = int
+     and type nonterminal = int
 end
 module StaticVersion : sig
-val require_20170101 : unit
+val require_20171222 : unit
 end
