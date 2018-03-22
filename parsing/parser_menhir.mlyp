@@ -264,7 +264,7 @@ let wrap_typ_attrs ~loc typ (ext, attrs) =
   | Some id -> ghtyp ~loc (Ptyp_extension (id, PTyp typ))
 
 let mktyp_attrs ~loc d attrs =
-  wrap_typ_attrs ~loc (mktyp ~loc d) attrs
+  wrap_typ_attrs ~loc d attrs
 
 let wrap_pat_attrs ~loc pat (ext, attrs) =
   (* todo: keep exact location for the entire attribute *)
@@ -2441,7 +2441,7 @@ simple_core_type2_desc:
   | LBRACKETLESS opt_bar row_field_list GREATER name_tag_list RBRACKET
       { Ptyp_variant(List.rev $3, Closed, Some (List.rev $5)) }
   | LPAREN MODULE ext_attributes package_type RPAREN
-      { mktyp_attrs (Ptyp_package $4) $3 }
+      { mktyp_attrs ($mktyp (Ptyp_package $4)) $3 }
   | extension
       { Ptyp_extension $1 }
 ;
