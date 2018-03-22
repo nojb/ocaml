@@ -465,7 +465,7 @@ let package_type_of_module_type pmty =
 
 #define $mkrhs(s, p) (mkrhs s $locof(p))
 
-#define mktyp (mktyp ~loc:$loc)
+#define $mktyp (mktyp ~loc:$loc)
 #define mkpat (mkpat ~loc:$loc)
 #define mkexp (mkexp ~loc:$loc)
 #define mkmty (mkmty ~loc:$loc)
@@ -764,6 +764,8 @@ The precedences must be listed from low to high.
          and $symbolpos do not coincide.  *)
       mkrhs $1 (make_loc $startpos $endpos) }
 ;
+
+%inline mktyp(d): d { mktyp ~loc:(make_loc $symbolstartops $endpos) d }
 
 /* Entry points */
 
@@ -1322,7 +1324,7 @@ class_self_type:
     LPAREN core_type RPAREN
       { $2 }
   | /* empty */
-      { mktyp(Ptyp_any) }
+      { $mktyp(Ptyp_any) }
 ;
 class_sig_fields:
     /* empty */                                 { [] }
@@ -2131,20 +2133,20 @@ optional_type_parameters:
   | LPAREN optional_type_parameter_list RPAREN  { List.rev $2 }
 ;
 optional_type_parameter:
-    type_variance optional_type_variable        { $2, $1 }
+    type_variance mktyp(optional_type_variable)        { $2, $1 }
 ;
 optional_type_parameter_list:
     optional_type_parameter                              { [$1] }
   | optional_type_parameter_list COMMA optional_type_parameter    { $3 :: $1 }
 ;
 optional_type_variable:
-    QUOTE ident                                 { mktyp(Ptyp_var $2) }
-  | UNDERSCORE                                  { mktyp(Ptyp_any) }
+    QUOTE ident                                 { Ptyp_var $2 }
+  | UNDERSCORE                                  { Ptyp_any }
 ;
 
 
 type_parameter:
-    type_variance type_variable                   { $2, $1 }
+    type_variance mktyp(type_variable)                   { $2, $1 }
 ;
 type_variance:
     /* empty */                                 { Invariant }
@@ -2152,7 +2154,7 @@ type_variance:
   | MINUS                                       { Contravariant }
 ;
 type_variable:
-    QUOTE ident                                 { mktyp(Ptyp_var $2) }
+    QUOTE ident                                 { Ptyp_var $2 }
 ;
 type_parameter_list:
     type_parameter                              { [$1] }
@@ -2346,13 +2348,13 @@ poly_type:
         core_type
           { $1 }
       | typevar_list DOT core_type
-          { mktyp(Ptyp_poly(List.rev $1, $3)) }
+          { $mktyp(Ptyp_poly(List.rev $1, $3)) }
 ;
 poly_type_no_attr:
         core_type_no_attr
           { $1 }
       | typevar_list DOT core_type_no_attr
-          { mktyp(Ptyp_poly(List.rev $1, $3)) }
+          { $mktyp(Ptyp_poly(List.rev $1, $3)) }
 ;
 
 /* Core types */
@@ -2367,24 +2369,27 @@ core_type_no_attr:
     core_type2 %prec MINUSGREATER
       { $1 }
   | core_type2 AS QUOTE ident
-      { mktyp(Ptyp_alias($1, $4)) }
+      { Ptyp_alias($1, $4) }
 ;
-core_type2:
+%inline core_type2:
+    ty = mktyp(core_type2_desc) { ty }
+;
+core_type2_desc:
     simple_core_type_or_tuple
       { $1 }
   | QUESTION LIDENT COLON core_type2 MINUSGREATER core_type2
       { let param = extra_rhs_core_type ($4, 4) in
-        mktyp (Ptyp_arrow(Optional $2 , param, $6)) }
+        Ptyp_arrow(Optional $2 , param, $6) }
   | OPTLABEL core_type2 MINUSGREATER core_type2
       { let param = extra_rhs_core_type ($2, 2) in
-        mktyp(Ptyp_arrow(Optional $1 , param, $4))
+        Ptyp_arrow(Optional $1 , param, $4)
       }
   | LIDENT COLON core_type2 MINUSGREATER core_type2
       { let param = extra_rhs_core_type ($3, 3) in
-        mktyp(Ptyp_arrow(Labelled $1, param, $5)) }
+        Ptyp_arrow(Labelled $1, param, $5) }
   | core_type2 MINUSGREATER core_type2
       { let param = extra_rhs_core_type ($1, 1) in
-        mktyp(Ptyp_arrow(Nolabel, param, $3)) }
+        Ptyp_arrow(Nolabel, param, $3) }
 ;
 
 simple_core_type:
@@ -2393,50 +2398,52 @@ simple_core_type:
   | LPAREN core_type_comma_list RPAREN %prec below_HASH
       { match $2 with [sty] -> sty | _ -> raise Parsing.Parse_error }
 ;
-
-simple_core_type2:
+%inline simple_core_type2:
+    ty = mktyp(simple_core_type2_desc) { ty }
+;
+simple_core_type2_desc:
     QUOTE ident
-      { mktyp(Ptyp_var $2) }
+      { Ptyp_var $2 }
   | UNDERSCORE
-      { mktyp(Ptyp_any) }
+      { Ptyp_any }
   | mkrhs(type_longident)
-      { mktyp(Ptyp_constr($1, [])) }
+      { Ptyp_constr($1, []) }
   | simple_core_type2 mkrhs(type_longident)
-      { mktyp(Ptyp_constr($2, [$1])) }
+      { Ptyp_constr($2, [$1]) }
   | LPAREN core_type_comma_list RPAREN mkrhs(type_longident)
-      { mktyp(Ptyp_constr($4, List.rev $2)) }
+      { Ptyp_constr($4, List.rev $2) }
   | LESS meth_list GREATER
-      { let (f, c) = $2 in mktyp(Ptyp_object (f, c)) }
+      { let (f, c) = $2 in Ptyp_object (f, c) }
   | LESS GREATER
-      { mktyp(Ptyp_object ([], Closed)) }
+      { Ptyp_object ([], Closed) }
   | HASH mkrhs(class_longident)
-      { mktyp(Ptyp_class($2, [])) }
+      { Ptyp_class($2, []) }
   | simple_core_type2 HASH mkrhs(class_longident)
-      { mktyp(Ptyp_class($3, [$1])) }
+      { Ptyp_class($3, [$1]) }
   | LPAREN core_type_comma_list RPAREN HASH mkrhs(class_longident)
-      { mktyp(Ptyp_class($5, List.rev $2)) }
+      { Ptyp_class($5, List.rev $2) }
   | LBRACKET tag_field RBRACKET
-      { mktyp(Ptyp_variant([$2], Closed, None)) }
+      { Ptyp_variant([$2], Closed, None) }
 /* PR#3835: this is not LR(1), would need lookahead=2
   | LBRACKET simple_core_type RBRACKET
-      { mktyp(Ptyp_variant([$2], Closed, None)) }
+      { Ptyp_variant([$2], Closed, None) }
 */
   | LBRACKET BAR row_field_list RBRACKET
-      { mktyp(Ptyp_variant(List.rev $3, Closed, None)) }
+      { Ptyp_variant(List.rev $3, Closed, None) }
   | LBRACKET row_field BAR row_field_list RBRACKET
-      { mktyp(Ptyp_variant($2 :: List.rev $4, Closed, None)) }
+      { Ptyp_variant($2 :: List.rev $4, Closed, None) }
   | LBRACKETGREATER opt_bar row_field_list RBRACKET
-      { mktyp(Ptyp_variant(List.rev $3, Open, None)) }
+      { Ptyp_variant(List.rev $3, Open, None) }
   | LBRACKETGREATER RBRACKET
-      { mktyp(Ptyp_variant([], Open, None)) }
+      { Ptyp_variant([], Open, None) }
   | LBRACKETLESS opt_bar row_field_list RBRACKET
-      { mktyp(Ptyp_variant(List.rev $3, Closed, Some [])) }
+      { Ptyp_variant(List.rev $3, Closed, Some []) }
   | LBRACKETLESS opt_bar row_field_list GREATER name_tag_list RBRACKET
-      { mktyp(Ptyp_variant(List.rev $3, Closed, Some (List.rev $5))) }
+      { Ptyp_variant(List.rev $3, Closed, Some (List.rev $5)) }
   | LPAREN MODULE ext_attributes package_type RPAREN
       { mktyp_attrs (Ptyp_package $4) $3 }
   | extension
-      { mktyp (Ptyp_extension $1) }
+      { Ptyp_extension $1 }
 ;
 package_type:
     module_type { package_type_of_module_type $1 }
@@ -2471,7 +2478,7 @@ name_tag_list:
 simple_core_type_or_tuple:
     simple_core_type { $1 }
   | simple_core_type STAR core_type_list
-      { mktyp(Ptyp_tuple($1 :: List.rev $3)) }
+      { $mktyp(Ptyp_tuple($1 :: List.rev $3)) }
 ;
 core_type_comma_list:
     core_type                                   { [$1] }
