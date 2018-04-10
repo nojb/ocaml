@@ -439,7 +439,7 @@ static void caml_ba_deserialize_longarray(void * dest, intnat num_elts)
 CAMLexport uintnat caml_ba_deserialize(void * dst)
 {
   struct caml_ba_array * b = dst;
-  int i, elt_size;
+  int i, elt_size, data_size;
   uintnat num_elts;
 
   /* Read back header information */
@@ -454,7 +454,10 @@ CAMLexport uintnat caml_ba_deserialize(void * dst)
     caml_deserialize_error("input_value: bad bigarray kind");
   elt_size = caml_ba_element_size[b->flags & CAML_BA_KIND_MASK];
   /* Allocate room for data */
-  b->data = malloc(elt_size * num_elts);
+  if (caml_umul_overflow(elt_size, num_elts, &data_size))
+    b->data = NULL;
+  else
+    b->data = malloc(data_size);
   if (b->data == NULL)
     caml_deserialize_error("input_value: out of memory for bigarray");
   /* Read data */
