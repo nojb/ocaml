@@ -1912,7 +1912,7 @@ fi
 
 if test "$with_frame_pointers" = "true"; then
   case "$target,$cc" in
-    x86_64-*-linux*,gcc*|x86_64-*-linux*,clang*)
+    x86_64-*-linux*,gcc*|x86_64-*-linux*,clang*|x86_64-*-darwin*)
        common_cflags="$common_cflags -g  -fno-omit-frame-pointer"
        echo "#define WITH_FRAME_POINTERS" >> m.h
        ;;
