@@ -316,6 +316,11 @@ let hex_float_literal =
   ('.' ['0'-'9' 'A'-'F' 'a'-'f' '_']* )?
   (['p' 'P'] ['+' '-']? ['0'-'9'] ['0'-'9' '_']* )?
 let literal_modifier = ['G'-'Z' 'g'-'z']
+let u8 =
+    (['\x00'-'\x7F'])
+  | (['\xC0'-'\xFF']['\x80'-'\xFF'])
+  | (['\xE0'-'\xEF']['\x80'-'\xBF']['\x80'-'\xBF'])
+  | (['\xF0'-'\xF7']['\x80'-'\xBF']['\x80'-'\xBF']['\x80'-'\xBF'])
 
 rule token = parse
   | "\\" newline {
