@@ -242,6 +242,20 @@ let add_docstring_comment ds =
 
 let comments () = List.rev !comment_list
 
+let uchar_of_lexeme lexbuf =
+  let c i = Char.code (Lexing.lexeme_char lexbuf i) in
+  match Lexing.lexeme_end lexbuf - Lexing.lexeme_start lexbuf with
+  | 1 ->
+      Uchar.of_int (c 0)
+  | 2 ->
+      Uchar.of_int (c 0 lsl 8 + c 1)
+  | 3 ->
+      Uchar.of_int (c 0 lsl 16 + c 1 lsl 8 + c 2)
+  | 4 ->
+      Uchar.of_int (c 0 lsl 24 + c 1 lsl 16 + c 2 lsl 8 + c 3)
+  | _ ->
+      assert false
+
 (* Error report *)
 
 open Format
@@ -623,8 +637,8 @@ and comment = parse
         store_lexeme lexbuf;
         comment lexbuf
       }
-  | _
-      { store_lexeme lexbuf; comment lexbuf }
+  | u8
+      { store_string_utf_8_uchar (uchar_of_lexeme lexbuf); comment lexbuf }
 
 and string = parse
     '\"'
@@ -672,8 +686,8 @@ and string = parse
   | eof
       { is_in_string := false;
         raise (Error (Unterminated_string, !string_start_loc)) }
-  | _
-      { store_string_char(Lexing.lexeme_char lexbuf 0);
+  | u8
+      { store_string_utf_8_uchar (uchar_of_lexeme lexbuf);
         string lexbuf }
 
 and quoted_string delim = parse
@@ -692,8 +706,8 @@ and quoted_string delim = parse
         if delim = edelim then ()
         else (store_lexeme lexbuf; quoted_string delim lexbuf)
       }
-  | _
-      { store_string_char(Lexing.lexeme_char lexbuf 0);
+  | u8
+      { store_string_utf_8_uchar (uchar_of_lexeme lexbuf);
         quoted_string delim lexbuf }
 
 and skip_hash_bang = parse
