@@ -80,7 +80,8 @@ UTILS=utils/config.cmo utils/misc.cmo \
 PARSING=parsing/location.cmo parsing/longident.cmo \
   parsing/docstrings.cmo parsing/syntaxerr.cmo \
   parsing/ast_helper.cmo parsing/parser.cmo \
-  parsing/lexer.cmo parsing/lexer_sedlex.cmo parsing/parse.cmo parsing/printast.cmo \
+  parsing/lexer.cmo \
+  parsing/sedlexing.cmo parsing/lexer_sedlex.cmo parsing/parse.cmo parsing/printast.cmo \
   parsing/pprintast.cmo \
   parsing/ast_mapper.cmo parsing/ast_iterator.cmo parsing/attr_helper.cmo \
   parsing/builtin_attributes.cmo parsing/ast_invariants.cmo parsing/depend.cmo
