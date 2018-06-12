@@ -220,6 +220,7 @@ _ocamltestd
 /parsing/parser.ml
 /parsing/parser.mli
 /parsing/lexer.ml
+/parsing/lexer_sedlex.ml
 /parsing/lexer_tmp.mll
 /parsing/lexer_tmp.ml
 /parsing/linenum.ml
