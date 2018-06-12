@@ -107,11 +107,23 @@ parsing/lexer.cmo : utils/warnings.cmi parsing/parser.cmi utils/misc.cmi \
 parsing/lexer.cmx : utils/warnings.cmx parsing/parser.cmx utils/misc.cmx \
     parsing/location.cmx parsing/docstrings.cmx parsing/lexer.cmi
 parsing/lexer.cmi : parsing/parser.cmi parsing/location.cmi
-parsing/location.cmo : utils/warnings.cmi utils/terminfo.cmi utils/misc.cmi \
-    utils/clflags.cmi utils/build_path_prefix_map.cmi parsing/location.cmi
-parsing/location.cmx : utils/warnings.cmx utils/terminfo.cmx utils/misc.cmx \
-    utils/clflags.cmx utils/build_path_prefix_map.cmx parsing/location.cmi
-parsing/location.cmi : utils/warnings.cmi
+parsing/lexer_sedlex.cmo : utils/warnings.cmi parsing/sedlexing.cmi \
+    parsing/parser.cmi utils/misc.cmi parsing/location.cmi \
+    parsing/docstrings.cmi
+parsing/lexer_sedlex.cmx : utils/warnings.cmx parsing/sedlexing.cmx \
+    parsing/parser.cmx utils/misc.cmx parsing/location.cmx \
+    parsing/docstrings.cmx
+parsing/lexer_sedlex.pp.cmo : parsing/sedlexing.cmi parsing/parser.cmi \
+    utils/misc.cmi parsing/location.cmi parsing/docstrings.cmi
+parsing/lexer_sedlex.pp.cmx : parsing/sedlexing.cmx parsing/parser.cmx \
+    utils/misc.cmx parsing/location.cmx parsing/docstrings.cmx
+parsing/location.cmo : utils/warnings.cmi utils/terminfo.cmi \
+    parsing/sedlexing.cmi utils/misc.cmi utils/clflags.cmi \
+    utils/build_path_prefix_map.cmi parsing/location.cmi
+parsing/location.cmx : utils/warnings.cmx utils/terminfo.cmx \
+    parsing/sedlexing.cmx utils/misc.cmx utils/clflags.cmx \
+    utils/build_path_prefix_map.cmx parsing/location.cmi
+parsing/location.cmi : utils/warnings.cmi parsing/sedlexing.cmi
 parsing/longident.cmo : utils/misc.cmi parsing/longident.cmi
 parsing/longident.cmx : utils/misc.cmx parsing/longident.cmi
 parsing/longident.cmi :
@@ -148,6 +160,9 @@ parsing/printast.cmx : parsing/parsetree.cmi utils/misc.cmx \
     parsing/longident.cmx parsing/location.cmx parsing/asttypes.cmi \
     parsing/printast.cmi
 parsing/printast.cmi : parsing/parsetree.cmi
+parsing/sedlexing.cmo : parsing/sedlexing.cmi
+parsing/sedlexing.cmx : parsing/sedlexing.cmi
+parsing/sedlexing.cmi :
 parsing/syntaxerr.cmo : parsing/location.cmi parsing/syntaxerr.cmi
 parsing/syntaxerr.cmx : parsing/location.cmx parsing/syntaxerr.cmi
 parsing/syntaxerr.cmi : parsing/location.cmi
@@ -351,7 +366,8 @@ typing/subst.cmo : typing/types.cmi utils/tbl.cmi typing/path.cmi \
 typing/subst.cmx : typing/types.cmx utils/tbl.cmx typing/path.cmx \
     utils/misc.cmx parsing/location.cmx typing/ident.cmx utils/clflags.cmx \
     typing/btype.cmx parsing/ast_mapper.cmx typing/subst.cmi
-typing/subst.cmi : typing/types.cmi typing/path.cmi typing/ident.cmi
+typing/subst.cmi : typing/types.cmi typing/path.cmi parsing/location.cmi \
+    typing/ident.cmi
 typing/tast_mapper.cmo : typing/typedtree.cmi typing/env.cmi \
     parsing/asttypes.cmi typing/tast_mapper.cmi
 typing/tast_mapper.cmx : typing/typedtree.cmx typing/env.cmx \

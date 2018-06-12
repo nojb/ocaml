@@ -15,9 +15,17 @@
 
 (* The lexer definition *)
 
-open Lexing
+(* open Lexing *)
 open Misc
 open Parser
+
+let scurr lexbuf =
+  let loc_start, loc_end = Sedlexing.lexing_positions lexbuf in
+  {
+  Location.loc_start;
+  loc_end;
+  loc_ghost = false
+}
 
 type error =
   | Illegal_character of char
@@ -104,7 +112,7 @@ let get_stored_string () = Buffer.contents string_buffer
 let store_string_char c = Buffer.add_char string_buffer c
 let store_string_utf_8_uchar u = Buffer.add_utf_8_uchar string_buffer u
 let store_string s = Buffer.add_string string_buffer s
-let store_lexeme lexbuf = store_string (Lexing.lexeme lexbuf)
+let store_lexeme lexbuf = store_string (Sedlexing.Latin1.lexeme lexbuf)
 
 (* To store the position of the beginning of a string and comment *)
 let string_start_loc = ref Location.none;;
@@ -122,7 +130,7 @@ let store_escaped_uchar lexbuf u =
   if in_comment () then store_lexeme lexbuf else store_string_utf_8_uchar u
 
 let with_comment_buffer comment lexbuf =
-  let start_loc = Location.curr lexbuf  in
+  let start_loc = scurr lexbuf  in
   comment_start_loc := [start_loc];
   reset_string_buffer ();
   let end_loc = comment lexbuf in
@@ -143,7 +151,7 @@ let hex_num_value lexbuf ~first ~last =
   let rec loop acc i = match i > last with
     | true -> acc
     | false ->
-        let value = hex_digit_value (Lexing.lexeme_char lexbuf i) in
+        let value = hex_digit_value (Sedlexing.Latin1.lexeme_char lexbuf i) in
         loop (16 * acc + value) (i + 1)
   in
   loop 0 first
@@ -156,20 +164,20 @@ let char_for_backslash = function
   | c   -> c
 
 let char_for_decimal_code lexbuf i =
-  let c = 100 * (Char.code(Lexing.lexeme_char lexbuf i) - 48) +
-          10 * (Char.code(Lexing.lexeme_char lexbuf (i+1)) - 48) +
-          (Char.code(Lexing.lexeme_char lexbuf (i+2)) - 48) in
+  let c = 100 * (Char.code(Sedlexing.Latin1.lexeme_char lexbuf i) - 48) +
+          10 * (Char.code(Sedlexing.Latin1.lexeme_char lexbuf (i+1)) - 48) +
+          (Char.code(Sedlexing.Latin1.lexeme_char lexbuf (i+2)) - 48) in
   if (c < 0 || c > 255) then
     if in_comment ()
     then 'x'
-    else raise (Error(Illegal_escape (Lexing.lexeme lexbuf),
-                      Location.curr lexbuf))
+    else raise (Error(Illegal_escape (Sedlexing.Latin1.lexeme lexbuf),
+                      scurr lexbuf))
   else Char.chr c
 
 let char_for_octal_code lexbuf i =
-  let c = 64 * (Char.code(Lexing.lexeme_char lexbuf i) - 48) +
-          8 * (Char.code(Lexing.lexeme_char lexbuf (i+1)) - 48) +
-          (Char.code(Lexing.lexeme_char lexbuf (i+2)) - 48) in
+  let c = 64 * (Char.code(Sedlexing.Latin1.lexeme_char lexbuf i) - 48) +
+          8 * (Char.code(Sedlexing.Latin1.lexeme_char lexbuf (i+1)) - 48) +
+          (Char.code(Sedlexing.Latin1.lexeme_char lexbuf (i+2)) - 48) in
   Char.chr c
 
 let char_for_hexadecimal_code lexbuf i =
@@ -179,9 +187,9 @@ let char_for_hexadecimal_code lexbuf i =
 let uchar_for_uchar_escape lexbuf =
   let err e =
     raise
-      (Error (Illegal_escape (Lexing.lexeme lexbuf ^ e), Location.curr lexbuf))
+      (Error (Illegal_escape (Sedlexing.Latin1.lexeme lexbuf ^ e), scurr lexbuf))
   in
-  let len = Lexing.lexeme_end lexbuf - Lexing.lexeme_start lexbuf in
+  let len = Sedlexing.lexeme_end lexbuf - Sedlexing.lexeme_start lexbuf in
   let first = 3 (* skip opening \u{ *) in
   let last = len - 2 (* skip closing } *) in
   let digit_count = last - first + 1 in
@@ -195,25 +203,26 @@ let uchar_for_uchar_escape lexbuf =
 (* recover the name from a LABEL or OPTLABEL token *)
 
 let get_label_name lexbuf =
-  let s = Lexing.lexeme lexbuf in
+  let s = Sedlexing.Latin1.lexeme lexbuf in
   let name = String.sub s 1 (String.length s - 2) in
   if Hashtbl.mem keyword_table name then
-    raise (Error(Keyword_as_label name, Location.curr lexbuf));
+    raise (Error(Keyword_as_label name, scurr lexbuf));
   name
 
 (* Update the current location with file name and line number. *)
 
-let update_loc lexbuf file line absolute chars =
-  let pos = lexbuf.lex_curr_p in
-  let new_file = match file with
-    | None -> pos.pos_fname
-    | Some s -> s
-  in
-  lexbuf.lex_curr_p <- { pos with
-                         pos_fname = new_file;
-                         pos_lnum = if absolute then line else pos.pos_lnum + line;
-                         pos_bol = pos.pos_cnum - chars;
-                       }
+let update_loc _lexbuf _file _line _absolute _chars =
+  (* let pos = lexbuf.lex_curr_p in
+   * let new_file = match file with
+   *   | None -> pos.pos_fname
+   *   | Some s -> s
+   * in
+   * Sedlexing.set_position lexbuf { pos with
+   *                        pos_fname = new_file;
+   *                        pos_lnum = if absolute then line else pos.pos_lnum + line;
+   *                        pos_bol = pos.pos_cnum - chars;
+   *                      } *)
+  ()
 
 let preprocessor = ref None
 
@@ -222,7 +231,7 @@ let escaped_newlines = ref false
 (* Warn about Latin-1 characters used in idents *)
 
 let warn_latin1 lexbuf =
-  Location.deprecated (Location.curr lexbuf)"ISO-Latin1 characters in identifiers"
+  Location.deprecated (scurr lexbuf)"ISO-Latin1 characters in identifiers"
 
 let handle_docstrings = ref true
 let comment_list = ref []
@@ -315,8 +324,8 @@ let rec token lexbuf =
   match%sedlex lexbuf with
   | '\\', newline ->
       if not !escaped_newlines then
-        raise (Error(Illegal_character (Lexing.lexeme_char lexbuf 0),
-                     Location.curr lexbuf));
+        raise (Error(Illegal_character (Sedlexing.Latin1.lexeme_char lexbuf 0),
+                     scurr lexbuf));
       update_loc lexbuf None 1 false 0;
       token lexbuf
   | newline ->
@@ -339,63 +348,63 @@ let rec token lexbuf =
   | '?', lowercase_latin1, Star identchar_latin1, ':' ->
       warn_latin1 lexbuf; OPTLABEL (get_label_name lexbuf)
   | lowercase, Star identchar ->
-      begin let s = Lexing.lexeme lexbuf in
+      begin let s = Sedlexing.Latin1.lexeme lexbuf in
         try Hashtbl.find keyword_table s
         with Not_found -> LIDENT s
       end
   | lowercase_latin1, Star identchar_latin1 ->
-      warn_latin1 lexbuf; LIDENT (Lexing.lexeme lexbuf)
+      warn_latin1 lexbuf; LIDENT (Sedlexing.Latin1.lexeme lexbuf)
   | uppercase, Star identchar ->
-      UIDENT(Lexing.lexeme lexbuf)       (* No capitalized keywords *)
+      UIDENT(Sedlexing.Latin1.lexeme lexbuf)       (* No capitalized keywords *)
   | uppercase_latin1, Star identchar_latin1 ->
-      warn_latin1 lexbuf; UIDENT(Lexing.lexeme lexbuf)
-  | int_literal -> INT (Lexing.lexeme lexbuf, None)
+      warn_latin1 lexbuf; UIDENT(Sedlexing.Latin1.lexeme lexbuf)
+  | int_literal -> INT (Sedlexing.Latin1.lexeme lexbuf, None)
   | (int_literal (* as lit *)), (literal_modifier (* as modif *)) ->
       (* FIXME *)
-      let len = Lexing.lexeme_end lexbuf - Lexing.lexeme_start lexbuf in
-      let lit = Lexing.sub_lexeme lexbuf 0 (len - 1) in
-      let modif = Lexing.lexeme_char lexbuf (len - 1) in
+      let len = Sedlexing.lexeme_length lexbuf in
+      let lit = Sedlexing.Latin1.sub_lexeme lexbuf 0 (len - 1) in
+      let modif = Sedlexing.Latin1.lexeme_char lexbuf (len - 1) in
       (* END FIXME *)
       INT (lit, Some modif)
   | float_literal | hex_float_literal ->
-      FLOAT (Lexing.lexeme lexbuf, None)
+      FLOAT (Sedlexing.Latin1.lexeme lexbuf, None)
   | ((float_literal | hex_float_literal) (* as lit *)), (literal_modifier (* as modif *)) ->
       (* FIXME *)
-      let len = Lexing.lexeme_end lexbuf - Lexing.lexeme_start lexbuf in
-      let lit = Lexing.sub_lexeme lexbuf 0 (len - 1) in
-      let modif = Lexing.lexeme_char lexbuf (len - 1) in
+      let len = Sedlexing.lexeme_length lexbuf in
+      let lit = Sedlexing.Latin1.sub_lexeme lexbuf 0 (len - 1) in
+      let modif = Sedlexing.Latin1.lexeme_char lexbuf (len - 1) in
       (* END FIXME *)
       FLOAT (lit, Some modif)
   | (float_literal | hex_float_literal | int_literal), Plus identchar ->
-      raise (Error(Invalid_literal (Lexing.lexeme lexbuf),
-                   Location.curr lexbuf))
+      raise (Error(Invalid_literal (Sedlexing.Latin1.lexeme lexbuf),
+                   scurr lexbuf))
   | '\"' ->
       reset_string_buffer();
       is_in_string := true;
       let string_start = lexbuf.lex_start_p in
-      string_start_loc := Location.curr lexbuf;
+      string_start_loc := scurr lexbuf;
       string lexbuf;
       is_in_string := false;
       lexbuf.lex_start_p <- string_start;
       STRING (get_stored_string(), None)
   | '{', Star lowercase, '|' ->
       reset_string_buffer();
-      let delim = Lexing.lexeme lexbuf in
+      let delim = Sedlexing.Latin1.lexeme lexbuf in
       let delim = String.sub delim 1 (String.length delim - 2) in
       is_in_string := true;
       let string_start = lexbuf.lex_start_p in
-      string_start_loc := Location.curr lexbuf;
+      string_start_loc := scurr lexbuf;
       quoted_string delim lexbuf;
       is_in_string := false;
       lexbuf.lex_start_p <- string_start;
       STRING (get_stored_string(), Some delim)
   | '\'', newline, '\'' ->
       update_loc lexbuf None 1 false 1;
-      CHAR (Lexing.lexeme_char lexbuf 1)
+      CHAR (Sedlexing.Latin1.lexeme_char lexbuf 1)
   | '\'', Compl ('\\' | '\'' | '\010' | '\013'), '\'' ->
-      CHAR(Lexing.lexeme_char lexbuf 1)
+      CHAR(Sedlexing.Latin1.lexeme_char lexbuf 1)
   | "\'\\", ('\\' | '\'' | '\"' | 'n' | 't' | 'b' | 'r' | ' '), "\'" ->
-      CHAR(char_for_backslash (Lexing.lexeme_char lexbuf 2))
+      CHAR(char_for_backslash (Sedlexing.Latin1.lexeme_char lexbuf 2))
   | "\'\\", ('0'..'9'), ('0'..'9'), ('0'..'9'), "\'" ->
       CHAR(char_for_decimal_code lexbuf 2)
   | "\'\\", 'o', ('0'..'3'), ('0'..'7'), ('0'..'7'), "\'" ->
@@ -403,9 +412,9 @@ let rec token lexbuf =
   | "\'\\", 'x', ('0'..'9' | 'a'..'f' | 'A'..'F'), ('0'..'9' | 'a'..'f' | 'A'..'F'), "\'" ->
       CHAR(char_for_hexadecimal_code lexbuf 3)
   | "\'\\", any ->
-      let l = Lexing.lexeme lexbuf in
+      let l = Sedlexing.Latin1.lexeme lexbuf in
       let esc = String.sub l 1 (String.length l - 1) in
-      raise (Error(Illegal_escape esc, Location.curr lexbuf))
+      raise (Error(Illegal_escape esc, scurr lexbuf))
   | "(*" ->
       let s, loc = with_comment_buffer comment lexbuf in
       COMMENT (s, loc)
@@ -417,8 +426,8 @@ let rec token lexbuf =
         COMMENT ("*" ^ s, loc)
   | "(**", (Plus '*' (* as stars *)) ->
       (* FIXME *)
-      let len = Lexing.lexeme_end lexbuf - Lexing.lexeme_start lexbuf in
-      let stars = Lexing.sub_lexeme lexbuf 3 (len - 3) in
+      let len = Sedlexing.lexeme_length lexbuf in
+      let stars = Sedlexing.Latin1.sub_lexeme lexbuf 3 (len - 3) in
       (* END FIXME *)
       let s, loc =
         with_comment_buffer
@@ -430,23 +439,23 @@ let rec token lexbuf =
       COMMENT (s, loc)
   | "(*)" ->
       if !print_warnings then
-        Location.prerr_warning (Location.curr lexbuf) Warnings.Comment_start;
+        Location.prerr_warning (scurr lexbuf) Warnings.Comment_start;
       let s, loc = with_comment_buffer comment lexbuf in
       COMMENT (s, loc)
   | "(*", (Star '*' (* as stars *)), "*)" ->
       (* FIXME *)
-      let len = Lexing.lexeme_end lexbuf - Lexing.lexeme_start lexbuf in
-      let stars = Lexing.sub_lexeme lexbuf 2 (len - 4) in
+      let len = Sedlexing.lexeme_length lexbuf in
+      let stars = Sedlexing.Latin1.sub_lexeme lexbuf 2 (len - 4) in
       (* END FIXME *)
       if !handle_docstrings && stars="" then
         (* (**) is an empty docstring *)
-        DOCSTRING(Docstrings.docstring "" (Location.curr lexbuf))
+        DOCSTRING(Docstrings.docstring "" (scurr lexbuf))
       else
-        COMMENT (stars, Location.curr lexbuf)
+        COMMENT (stars, scurr lexbuf)
   | "*)" ->
-      let loc = Location.curr lexbuf in
+      let loc = scurr lexbuf in
       Location.prerr_warning loc Warnings.Comment_not_end;
-      lexbuf.Lexing.lex_curr_pos <- lexbuf.Lexing.lex_curr_pos - 1;
+      lexbuf.Sedlexing.Latin1.lex_curr_pos <- lexbuf.Sedlexing.Latin1.lex_curr_pos - 1;
       let curpos = lexbuf.lex_curr_p in
       lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
       STAR
@@ -470,8 +479,8 @@ let rec token lexbuf =
   | ".." -> DOTDOT
   | ".", dotsymbolchar, (Star symbolchar (* as s *)) ->
       (* FIXME *)
-      let len = Lexing.lexeme_end lexbuf - Lexing.lexeme_start lexbuf in
-      let s = Lexing.sub_lexeme lexbuf 2 (len - 2) in
+      let len = Sedlexing.lexeme_length lexbuf in
+      let s = Sedlexing.Latin1.sub_lexeme lexbuf 2 (len - 2) in
       (* END FIXME *)
       DOTOP s
   | ":"  -> COLON
@@ -511,26 +520,26 @@ let rec token lexbuf =
   | "-." -> MINUSDOT
 
   | "!", Plus symbolchar ->
-      PREFIXOP(Lexing.lexeme lexbuf)
+      PREFIXOP(Sedlexing.Latin1.lexeme lexbuf)
   | ('~' | '?'), Plus symbolchar ->
-      PREFIXOP(Lexing.lexeme lexbuf)
+      PREFIXOP(Sedlexing.Latin1.lexeme lexbuf)
   | ('=' | '<' | '>' | '|' | '&' | '$'), Star symbolchar ->
-      INFIXOP0(Lexing.lexeme lexbuf)
+      INFIXOP0(Sedlexing.Latin1.lexeme lexbuf)
   | ('@' | '^'), Star symbolchar ->
-      INFIXOP1(Lexing.lexeme lexbuf)
+      INFIXOP1(Sedlexing.Latin1.lexeme lexbuf)
   | ('+' | '-'), Star symbolchar ->
-      INFIXOP2(Lexing.lexeme lexbuf)
+      INFIXOP2(Sedlexing.Latin1.lexeme lexbuf)
   | "**", Star symbolchar ->
-      INFIXOP4(Lexing.lexeme lexbuf)
+      INFIXOP4(Sedlexing.Latin1.lexeme lexbuf)
   | '%'     -> PERCENT
   | ('*' | '/' | '%'), Star symbolchar ->
-      INFIXOP3(Lexing.lexeme lexbuf)
+      INFIXOP3(Sedlexing.Latin1.lexeme lexbuf)
   | '#', Plus (symbolchar | '#') ->
-      HASHOP(Lexing.lexeme lexbuf)
+      HASHOP(Sedlexing.Latin1.lexeme lexbuf)
   | eof -> EOF
   | _ ->
-      raise (Error(Illegal_character (Lexing.lexeme_char lexbuf 0),
-                   Location.curr lexbuf))
+      raise (Error(Illegal_character (Sedlexing.Latin1.lexeme_char lexbuf 0),
+                   scurr lexbuf))
 
 (* and directive lexbuf =
  *   match%sedlex lexbuf with
@@ -555,19 +564,19 @@ let rec token lexbuf =
 and comment lexbuf =
   match%sedlex lexbuf with
     "(*" ->
-      comment_start_loc := (Location.curr lexbuf) :: !comment_start_loc;
+      comment_start_loc := (scurr lexbuf) :: !comment_start_loc;
       store_lexeme lexbuf;
       comment lexbuf
   | "*)" ->
       begin match !comment_start_loc with
       | [] -> assert false
-      | [_] -> comment_start_loc := []; Location.curr lexbuf
+      | [_] -> comment_start_loc := []; scurr lexbuf
       | _ :: l -> comment_start_loc := l;
           store_lexeme lexbuf;
           comment lexbuf
       end
   | "\"" ->
-      string_start_loc := Location.curr lexbuf;
+      string_start_loc := scurr lexbuf;
       store_string_char '\"';
       is_in_string := true;
       begin try string lexbuf
@@ -584,9 +593,9 @@ and comment lexbuf =
       store_string_char '\"';
       comment lexbuf
   | "{", Star lowercase, "|" ->
-      let delim = Lexing.lexeme lexbuf in
+      let delim = Sedlexing.Latin1.lexeme lexbuf in
       let delim = String.sub delim 1 (String.length delim - 2) in
-      string_start_loc := Location.curr lexbuf;
+      string_start_loc := scurr lexbuf;
       store_lexeme lexbuf;
       is_in_string := true;
       begin try quoted_string delim lexbuf
@@ -644,7 +653,7 @@ and string lexbuf =
    *     string lexbuf *)
   | '\\', ('\\' | '\'' | '\"' | 'n' | 't' | 'b' | 'r' | ' ') ->
       store_escaped_char lexbuf
-        (char_for_backslash(Lexing.lexeme_char lexbuf 1));
+        (char_for_backslash(Sedlexing.Latin1.lexeme_char lexbuf 1));
       string lexbuf
   | '\\', ('0'..'9'), ('0'..'9'), ('0'..'9') ->
       store_escaped_char lexbuf (char_for_decimal_code lexbuf 1);
@@ -661,17 +670,17 @@ and string lexbuf =
   | '\\', any ->
       if not (in_comment ()) then begin
         (*  Should be an error, but we are very lax.
-                  raise (Error (Illegal_escape (Lexing.lexeme lexbuf),
+                  raise (Error (Illegal_escape (Sedlexing.Latin1.lexeme lexbuf),
                                 Location.curr lexbuf))
         *)
-        let loc = Location.curr lexbuf in
+        let loc = scurr lexbuf in
         Location.prerr_warning loc Warnings.Illegal_backslash;
       end;
       store_lexeme lexbuf;
       string lexbuf
   | newline ->
       if not (in_comment ()) then
-        Location.prerr_warning (Location.curr lexbuf) Warnings.Eol_in_string;
+        Location.prerr_warning (scurr lexbuf) Warnings.Eol_in_string;
       update_loc lexbuf None 1 false 0;
       store_lexeme lexbuf;
       string lexbuf
@@ -679,7 +688,7 @@ and string lexbuf =
       is_in_string := false;
       raise (Error (Unterminated_string, !string_start_loc))
   | _ ->
-      store_string_char(Lexing.lexeme_char lexbuf 0);
+      store_string_char(Sedlexing.Latin1.lexeme_char lexbuf 0);
       string lexbuf
 
 and quoted_string delim lexbuf =
@@ -692,12 +701,12 @@ and quoted_string delim lexbuf =
       is_in_string := false;
       raise (Error (Unterminated_string, !string_start_loc))
   | "|", Star lowercase, "}" ->
-      let edelim = Lexing.lexeme lexbuf in
+      let edelim = Sedlexing.Latin1.lexeme lexbuf in
       let edelim = String.sub edelim 1 (String.length edelim - 2) in
       if delim = edelim then ()
       else (store_lexeme lexbuf; quoted_string delim lexbuf)
   | _ ->
-      store_string_char(Lexing.lexeme_char lexbuf 0);
+      store_string_char(Sedlexing.Latin1.lexeme_char lexbuf 0);
       quoted_string delim lexbuf
 
 and skip_hash_bang lexbuf =
@@ -733,7 +742,7 @@ type doc_state =
 and docstring = Docstrings.docstring
 
 let token lexbuf =
-  let post_pos = lexeme_end_p lexbuf in
+  let _, post_pos = Sedlexing.lexing_positions lexbuf in
   let attach lines docs pre_pos =
     let open Docstrings in
     match docs, lines with
