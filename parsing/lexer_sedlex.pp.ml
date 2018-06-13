@@ -19,8 +19,8 @@
 open Misc
 open Parser
 
-let scurr lexbuf =
-  let loc_start, loc_end = Sedlexing.lexing_positions lexbuf in
+let scurr _lexbuf =
+  let loc_start, loc_end = Lexing.dummy_pos, Lexing.dummy_pos in (* Sedlexing.lexing_positions lexbuf in *)
   {
   Location.loc_start;
   loc_end;
@@ -381,22 +381,22 @@ let rec token lexbuf =
   | '\"' ->
       reset_string_buffer();
       is_in_string := true;
-      let string_start = lexbuf.lex_start_p in
+      let _string_start = Lexing.dummy_pos (* lexbuf.lex_start_p in *) in
       string_start_loc := scurr lexbuf;
       string lexbuf;
       is_in_string := false;
-      lexbuf.lex_start_p <- string_start;
+      (* lexbuf.lex_start_p <- string_start; *)
       STRING (get_stored_string(), None)
   | '{', Star lowercase, '|' ->
       reset_string_buffer();
       let delim = Sedlexing.Latin1.lexeme lexbuf in
       let delim = String.sub delim 1 (String.length delim - 2) in
       is_in_string := true;
-      let string_start = lexbuf.lex_start_p in
+      let _string_start = Lexing.dummy_pos in (* lexbuf.lex_start_p in *)
       string_start_loc := scurr lexbuf;
       quoted_string delim lexbuf;
       is_in_string := false;
-      lexbuf.lex_start_p <- string_start;
+      (* lexbuf.lex_start_p <- string_start; *)
       STRING (get_stored_string(), Some delim)
   | '\'', newline, '\'' ->
       update_loc lexbuf None 1 false 1;
@@ -455,16 +455,16 @@ let rec token lexbuf =
   | "*)" ->
       let loc = scurr lexbuf in
       Location.prerr_warning loc Warnings.Comment_not_end;
-      lexbuf.Sedlexing.Latin1.lex_curr_pos <- lexbuf.Sedlexing.Latin1.lex_curr_pos - 1;
-      let curpos = lexbuf.lex_curr_p in
-      lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
+      (* lexbuf.Sedlexing.Latin1.lex_curr_pos <- lexbuf.Sedlexing.Latin1.lex_curr_pos - 1; *)
+      let _curpos = Lexing.dummy_pos in (* lexbuf.lex_curr_p in *)
+      (* lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 }; *)
       STAR
   | "#" ->
       begin
-        let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol) in
-        if not (at_beginning_of_line lexbuf.lex_start_p)
+        let at_beginning_of_line _pos = true in (* (pos.pos_cnum = pos.pos_bol) in *)
+        if not (at_beginning_of_line Lexing.dummy_pos (* lexbuf.lex_start_p *))
         then HASH
-        else try directive lexbuf with Failure _ -> HASH
+        else (* try directive lexbuf with Failure _ -> *) HASH
       end
   | "&"  -> AMPERSAND
   | "&&" -> AMPERAMPER
@@ -742,7 +742,8 @@ type doc_state =
 and docstring = Docstrings.docstring
 
 let token lexbuf =
-  let _, post_pos = Sedlexing.lexing_positions lexbuf in
+  let _, post_pos = (), Lexing.dummy_pos in
+  (* Sedlexing.lexing_positions lexbuf in *)
   let attach lines docs pre_pos =
     let open Docstrings in
     match docs, lines with
@@ -807,7 +808,7 @@ let token lexbuf =
         in
         loop NoLine docs' lexbuf
     | tok ->
-        attach lines docs (lexeme_start_p lexbuf);
+        attach lines docs (Lexing.dummy_pos (* lexeme_start_p lexbuf*));
         tok
   in
   loop NoLine Initial lexbuf

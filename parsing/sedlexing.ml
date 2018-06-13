@@ -3,17 +3,12 @@
 (* Copyright 2005, 2013 by Alain Frisch and LexiFi.                       *)
 
 module Gen = struct
-  (* type 'a t = unit -> 'a option *)
-  let init ~limit f =
-    let i = ref (-1) in
-    fun () ->
-      incr i;
-      if !i >= limit then None else Some (f !i)
-  let next g = g ()
-  let rec iter f g =
-    match g () with
-    | None -> ()
-    | Some x -> f x; iter f g
+let next f = f ()
+let init ~limit f =
+let i = ref (-1) in
+fun () -> incr i; if !i < limit then Some (f !i) else None
+let rec iter f g =
+  match g () with None -> () | Some x -> f x; iter f g
 end
 
 exception InvalidCodepoint of int
@@ -31,29 +26,22 @@ let (>>=) o f = match o with
   | Some x -> f x
   | None -> None
 
+let eof = -1
 
 (* Absolute position from the beginning of the stream *)
 type apos = int
 
 type lexbuf = {
-  refill: (Uchar.t array -> int -> int -> int);
-  mutable buf: Uchar.t array;
+  refill: (int array -> int -> int -> int);
+  mutable buf: int array;
   mutable len: int;    (* Number of meaningful char in buffer *)
   mutable offset: apos; (* Position of the first char in buffer
-                            in the input stream *)
-  mutable pos: int; (* pos is the index in the buffer *)
-  mutable curr_bol: int; (* bol is the index in the input stream but not buffer *)
-  mutable curr_line: int; (* start from 1, if it is 0, we would not track postion info for you *)
-  mutable start_pos: int; (* First char we need to keep visible *)
-  mutable start_bol: int;
-  mutable start_line: int;
+			    in the input stream *)
+  mutable pos: int;
+  mutable start: int; (* First char we need to keep visible *)
 
   mutable marked_pos: int;
-  mutable marked_bol: int;
-  mutable marked_line: int;
   mutable marked_val: int;
-
-  mutable filename: string;
 
   mutable finished: bool;
 }
@@ -66,33 +54,18 @@ let empty_lexbuf = {
   len = 0;
   offset = 0;
   pos = 0;
-  curr_bol = 0;
-  curr_line = 0;
-  start_pos = 0;
-  start_bol = 0;
-  start_line = 0;
+  start = 0;
   marked_pos = 0;
-  marked_bol = 0;
-  marked_line = 0;
   marked_val = 0;
-  filename = "";
   finished = false;
 }
 
 let create f = {
   empty_lexbuf with
     refill = f;
-    buf = Array.make chunk_size (Uchar.of_int 0);
-    curr_line = 1;
+    buf = Array.make chunk_size 0;
 }
 
-let set_position lexbuf position =
-  lexbuf.offset <- position.Lexing.pos_cnum - lexbuf.pos;
-  lexbuf.curr_bol <- position.Lexing.pos_bol;
-  lexbuf.curr_line <- position.Lexing.pos_lnum
-
-let set_filename lexbuf fname =
-  lexbuf.filename <- fname
 
 let fill_buf_from_gen f gen buf pos len =
   let rec aux i =
@@ -110,15 +83,6 @@ let from_int_array a =
   let len = Array.length a in
   {
     empty_lexbuf with
-      buf = Array.init len (fun i -> Uchar.of_int a.(i));
-      len = len;
-      finished = true;
-  }
-
-let from_uchar_array a =
-  let len = Array.length a in
-  {
-    empty_lexbuf with
       buf = Array.init len (fun i -> a.(i));
       len = len;
       finished = true;
@@ -128,13 +92,13 @@ let from_uchar_array a =
 let refill lexbuf =
   if lexbuf.len + chunk_size > Array.length lexbuf.buf
   then begin
-    let s = lexbuf.start_pos in
+    let s = lexbuf.start in
     let ls = lexbuf.len - s in
     if ls + chunk_size <= Array.length lexbuf.buf then
       Array.blit lexbuf.buf s lexbuf.buf 0 ls
     else begin
       let newlen = (Array.length lexbuf.buf + chunk_size) * 2 in
-      let newbuf = Array.make newlen (Uchar.of_int 0) in
+      let newbuf = Array.make newlen 0 in
       Array.blit lexbuf.buf s newbuf 0 ls;
       lexbuf.buf <- newbuf
     end;
@@ -142,97 +106,68 @@ let refill lexbuf =
     lexbuf.offset <- lexbuf.offset + s;
     lexbuf.pos <- lexbuf.pos - s;
     lexbuf.marked_pos <- lexbuf.marked_pos - s;
-    lexbuf.start_pos <- 0
+    lexbuf.start <- 0
   end;
   let n = lexbuf.refill lexbuf.buf lexbuf.pos chunk_size in
-  if n = 0
-  then lexbuf.finished <- true
+  if (n = 0)
+  then begin
+    lexbuf.buf.(lexbuf.len) <- eof;
+    lexbuf.len <- lexbuf.len + 1;
+  end
   else lexbuf.len <- lexbuf.len + n
 
-let new_line lexbuf =
-  if lexbuf.curr_line != 0 then
-  lexbuf.curr_line <- lexbuf.curr_line + 1;
-  lexbuf.curr_bol <- lexbuf.pos + lexbuf.offset
-
 let next lexbuf =
-  if (not lexbuf.finished) && (lexbuf.pos = lexbuf.len) then refill lexbuf;
-  if lexbuf.finished && (lexbuf.pos = lexbuf.len) then None
-  else begin
-    let ret = lexbuf.buf.(lexbuf.pos) in
-    lexbuf.pos <- lexbuf.pos + 1;
-    if ret = (Uchar.of_int 10) then new_line lexbuf;
-    Some ret
-  end
+  let i =
+    if lexbuf.pos = lexbuf.len then
+      if lexbuf.finished then eof
+      else (refill lexbuf; lexbuf.buf.(lexbuf.pos))
+    else lexbuf.buf.(lexbuf.pos)
+  in
+  if i = eof then lexbuf.finished <- true else lexbuf.pos <- lexbuf.pos + 1;
+  i
+
+let start lexbuf =
+  lexbuf.start <- lexbuf.pos;
+  lexbuf.marked_pos <- lexbuf.pos;
+  lexbuf.marked_val <- (-1)
 
 let mark lexbuf i =
   lexbuf.marked_pos <- lexbuf.pos;
-  lexbuf.marked_bol <- lexbuf.curr_bol;
-  lexbuf.marked_line <- lexbuf.curr_line;
   lexbuf.marked_val <- i
-
-let start lexbuf =
-  lexbuf.start_pos <- lexbuf.pos;
-  lexbuf.start_bol <- lexbuf.curr_bol;
-  lexbuf.start_line <- lexbuf.curr_line;
-  mark lexbuf (-1)
 
 let backtrack lexbuf =
   lexbuf.pos <- lexbuf.marked_pos;
-  lexbuf.curr_bol <- lexbuf.marked_bol;
-  lexbuf.curr_line <- lexbuf.marked_line;
   lexbuf.marked_val
 
 let rollback lexbuf =
-  lexbuf.pos <- lexbuf.start_pos;
-  lexbuf.curr_bol <- lexbuf.start_bol;
-  lexbuf.curr_line <- lexbuf.start_line
+  lexbuf.pos <- lexbuf.start
 
-let lexeme_start lexbuf = lexbuf.start_pos + lexbuf.offset
+let lexeme_start lexbuf = lexbuf.start + lexbuf.offset
 let lexeme_end lexbuf = lexbuf.pos + lexbuf.offset
 
-let loc lexbuf = (lexbuf.start_pos + lexbuf.offset, lexbuf.pos + lexbuf.offset)
+let loc lexbuf = (lexbuf.start + lexbuf.offset, lexbuf.pos + lexbuf.offset)
 
-let lexeme_length lexbuf = lexbuf.pos - lexbuf.start_pos
+let lexeme_length lexbuf = lexbuf.pos - lexbuf.start
 
 let sub_lexeme lexbuf pos len =
-  Array.sub lexbuf.buf (lexbuf.start_pos + pos) len
+  Array.sub lexbuf.buf (lexbuf.start + pos) len
 
 let lexeme lexbuf =
-  Array.sub lexbuf.buf (lexbuf.start_pos) (lexbuf.pos - lexbuf.start_pos)
+  Array.sub lexbuf.buf (lexbuf.start) (lexbuf.pos - lexbuf.start)
 
 let lexeme_char lexbuf pos =
-  lexbuf.buf.(lexbuf.start_pos + pos)
+  lexbuf.buf.(lexbuf.start + pos)
 
-let lexing_positions lexbuf =
-  let start_p = {
-    Lexing.pos_fname = lexbuf.filename;
-    pos_lnum = lexbuf.start_line;
-    pos_cnum = lexbuf.start_pos + lexbuf.offset;
-    pos_bol = lexbuf.start_bol;
-  } and curr_p = {
-    Lexing.pos_fname = lexbuf.filename;
-    pos_lnum = lexbuf.curr_line;
-    pos_cnum = lexbuf.pos + lexbuf.offset;
-    pos_bol = lexbuf.curr_bol;
-  } in
-  (start_p, curr_p)
-
-let with_tokenizer lexer' lexbuf =
-  let lexer () =
-    let token = lexer' lexbuf in
-    let (start_p, curr_p) = lexing_positions lexbuf in
-    (token, start_p, curr_p)
-  in lexer
 
 module Latin1 = struct
   let from_gen s =
-    create (fill_buf_from_gen Uchar.of_char s)
+    create (fill_buf_from_gen Char.code s)
 
   let from_string s =
     let len = String.length s in
     {
      empty_lexbuf with
-     buf = Array.init len (fun i -> Uchar.of_char s.[i]);
+     buf = Array.init len (fun i -> Char.code s.[i]);
      len = len;
      finished = true;
     }
@@ -241,20 +176,20 @@ module Latin1 = struct
     from_gen (gen_of_channel ic)
 
   let to_latin1 c =
-    if Uchar.is_char c
-    then Uchar.to_char c
-    else raise (InvalidCodepoint (Uchar.to_int c))
+    if (c >= 0) && (c < 256)
+    then Char.chr c
+    else raise (InvalidCodepoint c)
 
   let lexeme_char lexbuf pos =
     to_latin1 (lexeme_char lexbuf pos)
 
   let sub_lexeme lexbuf pos len =
     let s = Bytes.create len in
-    for i = 0 to len - 1 do Bytes.set s i (to_latin1 lexbuf.buf.(lexbuf.start_pos + pos + i)) done;
+    for i = 0 to len - 1 do Bytes.set s i (to_latin1 lexbuf.buf.(lexbuf.start + pos + i)) done;
     Bytes.to_string s
 
   let lexeme lexbuf =
-    sub_lexeme lexbuf 0 (lexbuf.pos - lexbuf.start_pos)
+    sub_lexeme lexbuf 0 (lexbuf.pos - lexbuf.start)
 end
 
 
@@ -303,13 +238,13 @@ module Utf8 = struct
     let from_gen s =
       Gen.next s >>= function
       | '\000'..'\127' as c ->
-          Some (Uchar.of_char c)
+          Some (Char.code c)
       | '\192'..'\223' as c ->
 	  let n1 = Char.code c in
 	  Gen.next s >>= fun c2 ->
 	  let n2 = Char.code c2 in
           if (n2 lsr 6 != 0b10) then raise MalFormed;
-          Some (Uchar.of_int (((n1 land 0x1f) lsl 6) lor (n2 land 0x3f)))
+          Some (((n1 land 0x1f) lsl 6) lor (n2 land 0x3f))
       | '\224'..'\239' as c ->
 	  let n1 = Char.code c in
 	  Gen.next s >>= fun c2 ->
@@ -317,8 +252,7 @@ module Utf8 = struct
 	  Gen.next s >>= fun c3 ->
 	  let n3 = Char.code c3 in
           if (n2 lsr 6 != 0b10) || (n3 lsr 6 != 0b10) then raise MalFormed;
-          Some (Uchar.of_int (((n1 land 0x0f) lsl 12)
-                              lor ((n2 land 0x3f) lsl 6) lor (n3 land 0x3f)))
+          Some (((n1 land 0x0f) lsl 12) lor ((n2 land 0x3f) lsl 6) lor (n3 land 0x3f))
       | '\240'..'\247' as c ->
 	  let n1 = Char.code c in
 	  Gen.next s >>= fun c2 ->
@@ -329,9 +263,8 @@ module Utf8 = struct
 	  let n4 = Char.code c4 in
           if (n2 lsr 6 != 0b10) || (n3 lsr 6 != 0b10) || (n4 lsr 6 != 0b10)
 	  then raise MalFormed;
-          Some (Uchar.of_int (((n1 land 0x07) lsl 18)
-                              lor ((n2 land 0x3f) lsl 12)
-                              lor ((n3 land 0x3f) lsl 6) lor (n4 land 0x3f)))
+          Some (((n1 land 0x07) lsl 18) lor ((n2 land 0x3f) lsl 12) lor
+          ((n3 land 0x3f) lsl 6) lor (n4 land 0x3f))
       | _ -> raise MalFormed
 
 
@@ -381,11 +314,10 @@ module Utf8 = struct
        )
       else raise MalFormed
 
-    let from_uchar_array a apos len =
+    let from_int_array a apos len =
       let b = Buffer.create (len * 4) in
       let rec aux apos len =
-        if len > 0
-        then (store b (Uchar.to_int a.(apos)); aux (succ apos) (pred len))
+        if len > 0 then (store b a.(apos); aux (succ apos) (pred len))
         else Buffer.contents b in
       aux apos len
 
@@ -395,18 +327,14 @@ module Utf8 = struct
   let from_channel ic =
     from_gen (Helper.gen_from_char_gen (gen_of_channel ic))
 
-  (* let from_gen s =
-   *   create (fill_buf_from_gen (fun id -> id)
-   *       (Helper.gen_from_char_gen s)) *)
-
   let from_string s =
     from_int_array (Helper.to_int_array s 0 (String.length s))
 
   let sub_lexeme lexbuf pos len =
-    Helper.from_uchar_array lexbuf.buf (lexbuf.start_pos + pos) len
+    Helper.from_int_array lexbuf.buf (lexbuf.start + pos) len
 
   let lexeme lexbuf =
-    sub_lexeme lexbuf 0 (lexbuf.pos - lexbuf.start_pos)
+    sub_lexeme lexbuf 0 (lexbuf.pos - lexbuf.start)
 end
 
 
@@ -432,14 +360,14 @@ module Utf16 = struct
 
     let from_gen bo s w1 =
       if w1 = 0xfffe then raise (InvalidCodepoint w1);
-      if w1 < 0xd800 || 0xdfff < w1 then Some (Uchar.of_int w1)
+      if w1 < 0xd800 || 0xdfff < w1 then Some w1
       else if w1 <= 0xdbff
       then
         next_in_gen bo s >>= fun w2 ->
         if w2 < 0xdc00 || w2 > 0xdfff then raise MalFormed;
         let upper10 = (w1 land 0x3ff) lsl 10
         and lower10 = w2 land 0x3ff in
-        Some (Uchar.of_int (0x10000 + upper10 + lower10))
+        Some (0x10000 + upper10 + lower10)
       else raise MalFormed
 
     let gen_from_char_gen opt_bo s =
@@ -472,12 +400,11 @@ module Utf16 = struct
       let p = ref apos in
       Gen.iter (fun x -> a.(!p) <- x ; incr p) s
 
-
-    let to_uchar_array opt_bo s pos bytes =
+    let to_int_array opt_bo s pos bytes =
       let len = compute_len opt_bo s pos bytes in
-      let a = Array.make len (Uchar.of_int 0) in
+      let a = Array.make len 0 in
       blit_to_int opt_bo s pos a 0 bytes ;
-       a
+      a
 
     let store bo buf code =
       if code < 0x10000
@@ -497,15 +424,15 @@ module Utf16 = struct
         Buffer.add_char buf c4
        )
 
-    let from_uchar_array bo a apos len bom =
-      let b = Buffer.create (len * 4 + 2) in (* +2 for the BOM *)
+    let from_int_array bo a apos len bom =
+      let b = Buffer.create (len * 4) in
       if bom then store bo b 0xfeff ; (* first, store the BOM *)
       let rec aux apos len =
         if len > 0
-        then (store bo b (Uchar.to_int a.(apos)); aux (succ apos) (pred len))
+        then (store bo b a.(apos); aux (succ apos) (pred len))
         else Buffer.contents b  in
       aux apos len
-end
+  end
 
 
   let from_gen s opt_bo =
@@ -515,12 +442,12 @@ end
     from_gen (gen_of_channel ic) opt_bo
 
   let from_string s opt_bo =
-    let a = Helper.to_uchar_array opt_bo s 0 (String.length s) in
-    from_uchar_array a
+    let a = Helper.to_int_array opt_bo s 0 (String.length s) in
+    from_int_array a
 
   let sub_lexeme lb pos len bo bom  =
-    Helper.from_uchar_array bo lb.buf (lb.start_pos + pos) len bom
+    Helper.from_int_array bo lb.buf (lb.start + pos) len bom
 
   let lexeme lb bo bom =
-    sub_lexeme lb 0 (lb.pos - lb.start_pos) bo bom
+    sub_lexeme lb 0 (lb.pos - lb.start) bo bom
 end
