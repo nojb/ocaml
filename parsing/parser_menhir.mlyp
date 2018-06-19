@@ -2184,18 +2184,20 @@ str_exception_declaration:
   | sig_exception_declaration                    { $1 }
   | EXCEPTION ext_attributes mkrhs(constr_ident) EQUAL mkrhs(constr_longident) attributes
     post_item_attributes
-      { let (ext,attrs) = $2 in
-        Te.rebind $3 $5 ~attrs:(attrs @ $6 @ $7)
-          ~loc:(symbol_rloc()) ~docs:(symbol_docs ())
-        , ext }
+    { let (ext,attrs) = $2 in
+      Te.mk_exception ~attrs:$7
+        (Te.rebind $3 $5 ~attrs:(attrs @ $6)
+          ~loc:(symbol_rloc()) ~docs:(symbol_docs ()))
+      , ext }
 ;
 sig_exception_declaration:
   | EXCEPTION ext_attributes mkrhs(constr_ident) generalized_constructor_arguments
     attributes post_item_attributes
       { let args, res = $4 in
         let (ext,attrs) = $2 in
-          Te.decl $3 ~args ?res ~attrs:(attrs @ $5 @ $6)
-            ~loc:(symbol_rloc()) ~docs:(symbol_docs ())
+        Te.mk_exception ~attrs:$6
+          (Te.decl $3 ~args ?res ~attrs:(attrs @ $5)
+            ~loc:(symbol_rloc()) ~docs:(symbol_docs ()))
         , ext }
 ;
 let_exception_declaration:
