@@ -1320,7 +1320,7 @@ class_signature:
       { wrap_class_type_attrs (mkcty(Pcty_open($3, $5, $7))) $4 }
 ;
 class_sig_body:
-    class_self_type extra_csig(class_sig_fields)
+    class_self_type class_sig_fields
       { Csig.mk $1 (List.rev $2) }
 ;
 class_self_type:
@@ -1329,7 +1329,8 @@ class_self_type:
   | /* empty */
       { mktyp(Ptyp_any) }
 ;
-class_sig_fields:
+class_sig_fields: extra_csig(class_sig_fields_nodoc) { $1 }
+class_sig_fields_nodoc:
     /* empty */                                 { [] }
 | class_sig_fields class_sig_field     { $2 :: (text_csig(2)) @ $1 }
 ;
