@@ -162,7 +162,7 @@ val rhs_post_text : int -> text
 module WithMenhir: sig
 (** Fetch the item documentation for the current symbol. This also
     marks this documentation (for ambiguity warnings). *)
-val symbol_docs : Lexing.position -> Lexing.position -> docs
+val symbol_docs : Lexing.position * Lexing.position -> docs
 val symbol_docs_lazy : Lexing.position -> Lexing.position -> docs Lazy.t
 
 (** Fetch the item documentation for the symbols between two
@@ -173,7 +173,7 @@ val rhs_docs_lazy : Lexing.position -> Lexing.position -> docs Lazy.t
 
 (** Mark the item documentation for the current symbol (for ambiguity
     warnings). *)
-val mark_symbol_docs : Lexing.position -> Lexing.position -> unit
+val mark_symbol_docs : Lexing.position * Lexing.position -> unit
 
 (** Mark as associated the item documentation for the symbols between
     two positions (for ambiguity warnings) *)
