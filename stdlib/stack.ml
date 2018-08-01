@@ -25,15 +25,25 @@ let copy s = { c = s.c; len = s.len; }
 
 let push x s = s.c <- x :: s.c; s.len <- s.len + 1
 
-let pop s =
+let pop_opt s =
   match s.c with
-  | hd::tl -> s.c <- tl; s.len <- s.len - 1; hd
-  | []     -> raise Empty
+  | hd::tl -> s.c <- tl; s.len <- s.len - 1; Some hd
+  | []     -> None
+
+let pop s =
+  match pop_opt s with
+  | None -> raise Empty
+  | Some x -> x
+
+let top_opt s =
+  match s.c with
+  | hd::_ -> Some hd
+  | []    -> None
 
 let top s =
-  match s.c with
-  | hd::_ -> hd
-  | []     -> raise Empty
+  match top_opt s with
+  | None -> raise Empty
+  | Some x -> x
 
 let is_empty s = (s.c = [])
 
