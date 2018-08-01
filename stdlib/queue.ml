@@ -55,24 +55,34 @@ let add x q =
 let push =
   add
 
-let peek q =
+let peek_opt q =
   match q.first with
-  | Nil -> raise Empty
-  | Cons { content } -> content
+  | Nil -> None
+  | Cons { content } -> Some content
+
+let peek q =
+  match peek_opt q with
+  | None -> raise Empty
+  | Some x -> x
 
 let top =
   peek
 
-let take q =
+let take_opt q =
   match q.first with
-  | Nil -> raise Empty
+  | Nil -> None
   | Cons { content; next = Nil } ->
     clear q;
-    content
+    Some content
   | Cons { content; next } ->
     q.length <- q.length - 1;
     q.first <- next;
-    content
+    Some content
+
+let take q =
+  match take_opt q with
+  | None -> raise Empty
+  | Some x -> x
 
 let pop =
   take
