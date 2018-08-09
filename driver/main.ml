@@ -96,8 +96,8 @@ module Options = Main_args.Make_bytecomp_options (struct
   let _v () = print_version_and_library "compiler"
   let _version = print_version_string
   let _vnum = print_version_string
-  let _w = (Warnings.parse_options false)
-  let _warn_error = (Warnings.parse_options true)
+  let _w s = Warnings.restore (Warnings.parse_options false s (Warnings.backup ()))
+  let _warn_error s = Warnings.restore (Warnings.parse_options true s (Warnings.backup ()))
   let _warn_help = Warnings.help_warnings
   let _color option =
     begin match parse_color_setting option with

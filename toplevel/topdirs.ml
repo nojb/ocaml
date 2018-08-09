@@ -469,7 +469,7 @@ let dir_untrace_all ppf () =
   traced_functions := []
 
 let parse_warnings ppf iserr s =
-  try Warnings.parse_options iserr s
+  try Warnings.restore (Warnings.parse_options iserr s (Warnings.backup ()))
   with Arg.Bad err -> fprintf ppf "%s.@." err
 
 (* Typing information *)

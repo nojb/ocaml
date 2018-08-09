@@ -248,11 +248,11 @@ let read_one_param ppf position name v =
   |  "dstartup" -> set "dstartup" [ Clflags.keep_startup_file ] v
 
   (* warn-errors *)
-  | "we" | "warn-error" -> Warnings.parse_options true v
+  | "we" | "warn-error" -> Warnings.restore (Warnings.parse_options true v (Warnings.backup ()))
   (* warnings *)
-  |  "w"  ->               Warnings.parse_options false v
+  |  "w"  ->               Warnings.restore (Warnings.parse_options false v (Warnings.backup ()))
   (* warn-errors *)
-  | "wwe" ->               Warnings.parse_options false v
+  | "wwe" ->               Warnings.restore (Warnings.parse_options false v (Warnings.backup ()))
 
   (* inlining *)
   | "inline" ->

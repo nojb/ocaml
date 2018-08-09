@@ -294,18 +294,18 @@ let parse_opt error active flags s =
   loop 0
 ;;
 
-let parse_options errflag s =
-  let error = Array.copy (!current).error in
-  let active = Array.copy (!current).active in
+let parse_options errflag s current =
+  let error = Array.copy current.error in
+  let active = Array.copy current.active in
   parse_opt error active (if errflag then error else active) s;
-  current := {error; active}
+  {error; active}
 
 (* If you change these, don't forget to change them in man/ocamlc.m *)
 let defaults_w = "+a-4-6-7-9-27-29-32..42-44-45-48-50-60";;
 let defaults_warn_error = "-a+31";;
 
-let () = parse_options false defaults_w;;
-let () = parse_options true defaults_warn_error;;
+let () = current := parse_options false defaults_w !current;;
+let () = current := parse_options true defaults_warn_error !current;;
 
 let ref_manual_explanation () =
   (* manual references are checked a posteriori by the manual
