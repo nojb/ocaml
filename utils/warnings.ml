@@ -209,17 +209,18 @@ type state =
     error: bool array;
   }
 
+let empty =
+  {
+    active = Array.make (last_warning_number + 1) false;
+    error = Array.make (last_warning_number + 1) false;
+  }
+
 let current =
   ref
     {
       active = Array.make (last_warning_number + 1) true;
       error = Array.make (last_warning_number + 1) false;
     }
-
-let disabled = ref false
-
-let without_warnings f =
-  Misc.protect_refs [Misc.R(disabled, true)] f
 
 let backup () = !current
 
@@ -236,8 +237,8 @@ let with_warnings mk_state f =
       restore old;
       raise e
 
-let is_active x {active; _} = not !disabled && active.(number x);;
-let is_error x {error; _} = not !disabled && error.(number x);;
+let is_active x {active; _} = active.(number x);;
+let is_error x {error; _} = error.(number x);;
 
 let mk_lazy f =
   let state = backup () in

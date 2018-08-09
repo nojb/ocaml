@@ -86,8 +86,6 @@ type t =
   | Unsafe_without_parsing                  (* 64 *)
 ;;
 
-val without_warnings : (unit -> 'a) -> 'a
-
 val defaults_w : string;;
 val defaults_warn_error : string;;
 
@@ -108,6 +106,7 @@ val reset_fatal: unit -> unit
 val help_warnings: unit -> unit
 
 type state
+val empty: state
 val backup: unit -> state
 val restore: state -> unit
 val with_warnings: (state -> state) -> (unit -> 'a) -> 'a

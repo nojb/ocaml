@@ -653,10 +653,10 @@ let map_ext fn exts rem =
 let rec approx_modtype env smty =
   match smty.pmty_desc with
     Pmty_ident lid ->
-      let (path, _info) = Typetexp.find_modtype ~warnings:(Warnings.backup ()) env smty.pmty_loc lid.txt in
+      let (path, _info) = Typetexp.find_modtype ~warnings:Warnings.empty env smty.pmty_loc lid.txt in
       Mty_ident path
   | Pmty_alias lid ->
-      let path = Typetexp.lookup_module ~warnings:(Warnings.backup ()) env smty.pmty_loc lid.txt in
+      let path = Typetexp.lookup_module ~warnings:Warnings.empty env smty.pmty_loc lid.txt in
       Mty_alias(Mta_absent, path)
   | Pmty_signature ssg ->
       Mty_signature(approx_sig env ssg)
@@ -676,9 +676,9 @@ let rec approx_modtype env smty =
           | Pwith_module (_, lid') ->
               (* Lookup the module to make sure that it is not recursive.
                  (GPR#1626) *)
-              ignore (Typetexp.find_module ~warnings:(Warnings.backup ()) env lid'.loc lid'.txt)
+              ignore (Typetexp.find_module ~warnings:Warnings.empty env lid'.loc lid'.txt)
           | Pwith_modsubst (_, lid') ->
-              ignore (Typetexp.find_module ~warnings:(Warnings.backup ()) env lid'.loc lid'.txt))
+              ignore (Typetexp.find_module ~warnings:Warnings.empty env lid'.loc lid'.txt))
         constraints;
       body
   | Pmty_typeof smod ->
@@ -759,10 +759,6 @@ and approx_modtype_info env sinfo =
    mtd_attributes = sinfo.pmtd_attributes;
    mtd_loc = sinfo.pmtd_loc;
   }
-
-let approx_modtype env smty =
-  Warnings.without_warnings
-    (fun () -> approx_modtype env smty)
 
 (* Auxiliaries for checking the validity of name shadowing in signatures and
    structures.
@@ -1220,11 +1216,11 @@ and transl_recmodule_modtypes env sdecls =
     List.fold_left
       (fun env (id, _, mty) -> Env.add_module ~arg:true id mty.mty_type env)
       env curr in
-  let transition env_c curr =
+  let transition ~warnings env_c curr =
     List.map2
       (fun pmd (id, id_loc, _mty) ->
         let tmty =
-          Warnings.with_warnings (Builtin_attributes.warning_attributes pmd.pmd_attributes)
+          Warnings.with_warnings (fun _ -> Builtin_attributes.warning_attributes pmd.pmd_attributes warnings)
             (fun () -> transl_modtype env_c pmd.pmd_type)
         in
         (id, id_loc, tmty))
@@ -1257,13 +1253,10 @@ and transl_recmodule_modtypes env sdecls =
       ids sdecls
   in
   let env0 = make_env init in
-  let dcl1 =
-    Warnings.without_warnings
-      (fun () -> transition env0 init)
-  in
+  let dcl1 = transition ~warnings:Warnings.empty env0 init in
   let env1 = make_env2 dcl1 in
   check_recmod_typedecls env1 (map_mtys dcl1);
-  let dcl2 = transition env1 dcl1 in
+  let dcl2 = transition ~warnings:(Warnings.backup ()) env1 dcl1 in
 (*
   List.iter
     (fun (id, mty) ->
