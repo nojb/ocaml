@@ -227,7 +227,7 @@ let transl_labels env closed lbls =
     lbls;
   let mk {pld_name=name;pld_mutable=mut;pld_type=arg;pld_loc=loc;
           pld_attributes=attrs} =
-    Builtin_attributes.warning_scope attrs
+    Warnings.with_warnings (Builtin_attributes.warning_attributes attrs)
       (fun () ->
          let arg = Ast_helper.Typ.force_poly arg in
          let cty = transl_simple_type env closed arg in
@@ -484,7 +484,7 @@ let transl_declaration env sdecl id =
             tcstr, cstr
         in
         let make_cstr scstr =
-          Builtin_attributes.warning_scope scstr.pcd_attributes
+          Warnings.with_warnings (Builtin_attributes.warning_attributes scstr.pcd_attributes)
             (fun () -> make_cstr scstr)
         in
         let tcstrs, cstrs = List.split (List.map make_cstr scstrs) in
@@ -1315,8 +1315,8 @@ let transl_type_decl env rec_flag sdecl_list =
   in
   let transl_declaration name_sdecl (id, slot) =
     current_slot := slot;
-    Builtin_attributes.warning_scope
-      name_sdecl.ptype_attributes
+    Warnings.with_warnings (Builtin_attributes.warning_attributes
+      name_sdecl.ptype_attributes)
       (fun () -> transl_declaration temp_env name_sdecl id)
   in
   let tdecls =
@@ -1520,7 +1520,7 @@ let transl_extension_constructor env type_path type_params
 
 let transl_extension_constructor env type_path type_params
     typext_params priv sext =
-  Builtin_attributes.warning_scope sext.pext_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes sext.pext_attributes)
     (fun () -> transl_extension_constructor env type_path type_params
         typext_params priv sext)
 
@@ -1621,7 +1621,7 @@ let transl_type_extension extend env loc styext =
     (tyext, newenv)
 
 let transl_type_extension extend env loc styext =
-  Builtin_attributes.warning_scope styext.ptyext_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes styext.ptyext_attributes)
     (fun () -> transl_type_extension extend env loc styext)
 
 let transl_exception env sext =
@@ -1647,7 +1647,7 @@ let transl_exception env sext =
 let transl_type_exception env t =
   Builtin_attributes.check_no_deprecated t.ptyexn_attributes;
   let contructor, newenv =
-    Builtin_attributes.warning_scope t.ptyexn_attributes
+    Warnings.with_warnings (Builtin_attributes.warning_attributes t.ptyexn_attributes)
       (fun () ->
          transl_exception env t.ptyexn_constructor
       )
@@ -1812,7 +1812,7 @@ let transl_value_decl env loc valdecl =
   desc, newenv
 
 let transl_value_decl env loc valdecl =
-  Builtin_attributes.warning_scope valdecl.pval_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes valdecl.pval_attributes)
     (fun () -> transl_value_decl env loc valdecl)
 
 (* Translate a "with" constraint -- much simplified version of

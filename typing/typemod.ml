@@ -177,7 +177,7 @@ let initial_env ~loc ~safe_string ~initially_opened_module
 
 let type_open ?toplevel env sod =
   let (path, newenv) =
-    Builtin_attributes.warning_scope sod.popen_attributes
+    Warnings.with_warnings (Builtin_attributes.warning_attributes sod.popen_attributes)
       (fun () ->
          type_open_ ?toplevel sod.popen_override env sod.popen_loc
            sod.popen_lid
@@ -937,7 +937,7 @@ let mksig desc env loc =
 (* let signature sg = List.map (fun item -> item.sig_type) sg *)
 
 let rec transl_modtype env smty =
-  Builtin_attributes.warning_scope smty.pmty_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes smty.pmty_attributes)
     (fun () -> transl_modtype_aux env smty)
 
 and transl_modtype_aux env smty =
@@ -1047,7 +1047,7 @@ and transl_signature env sg =
             let id = Ident.create pmd.pmd_name.txt in
             check_module names pmd.pmd_name.loc id to_be_removed;
             let tmty =
-              Builtin_attributes.warning_scope pmd.pmd_attributes
+              Warnings.with_warnings (Builtin_attributes.warning_attributes pmd.pmd_attributes)
                 (fun () -> transl_modtype env pmd.pmd_type)
             in
             let md = {
@@ -1096,7 +1096,7 @@ and transl_signature env sg =
         | Psig_include sincl ->
             let smty = sincl.pincl_mod in
             let tmty =
-              Builtin_attributes.warning_scope sincl.pincl_attributes
+              Warnings.with_warnings (Builtin_attributes.warning_attributes sincl.pincl_attributes)
                 (fun () -> transl_modtype env smty)
             in
             let mty = tmty.mty_type in
@@ -1165,14 +1165,14 @@ and transl_signature env sg =
                  classes [rem]),
             final_env
         | Psig_attribute x ->
-            Builtin_attributes.warning_attribute x;
+            Warnings.restore (Builtin_attributes.warning_attributes [x] (Warnings.backup ()));
             let (trem,rem, final_env) = transl_sig env srem in
             mksig (Tsig_attribute x) env loc :: trem, rem, final_env
         | Psig_extension (ext, _attrs) ->
             raise (Error_forward (Builtin_attributes.error_of_extension ext))
   in
   let previous_saved_types = Cmt_format.get_saved_types () in
-  Builtin_attributes.warning_scope []
+  Warnings.with_warnings (Builtin_attributes.warning_attributes []) (* CHECK *)
     (fun () ->
        let (trem, rem, final_env) = transl_sig (Env.in_signature true env) sg in
        let rem = simplify_signature final_env !to_be_removed rem in
@@ -1185,7 +1185,7 @@ and transl_signature env sg =
     )
 
 and transl_modtype_decl to_be_removed names env pmtd =
-  Builtin_attributes.warning_scope pmtd.pmtd_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes pmtd.pmtd_attributes)
     (fun () -> transl_modtype_decl_aux to_be_removed names env pmtd)
 
 and transl_modtype_decl_aux to_be_removed names env
@@ -1224,7 +1224,7 @@ and transl_recmodule_modtypes env sdecls =
     List.map2
       (fun pmd (id, id_loc, _mty) ->
         let tmty =
-          Builtin_attributes.warning_scope pmd.pmd_attributes
+          Warnings.with_warnings (Builtin_attributes.warning_attributes pmd.pmd_attributes)
             (fun () -> transl_modtype env_c pmd.pmd_type)
         in
         (id, id_loc, tmty))
@@ -1511,7 +1511,7 @@ let wrap_constraint env mark arg mty explicit =
 (* Type a module value expression *)
 
 let rec type_module ?(alias=false) sttn funct_body anchor env smod =
-  Builtin_attributes.warning_scope smod.pmod_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes smod.pmod_attributes)
     (fun () -> type_module_aux ~alias sttn funct_body anchor env smod)
 
 and type_module_aux ~alias sttn funct_body anchor env smod =
@@ -1688,7 +1688,7 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
     match desc with
     | Pstr_eval (sexpr, attrs) ->
         let expr =
-          Builtin_attributes.warning_scope attrs
+          Warnings.with_warnings (Builtin_attributes.warning_attributes attrs)
             (fun () -> Typecore.type_expression env sexpr)
         in
         Tstr_eval (expr, attrs), [], env
@@ -1761,7 +1761,7 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
         let id = Ident.create name.txt in (* create early for PR#6752 *)
         check_module names pmb_loc id to_be_removed;
         let modl =
-          Builtin_attributes.warning_scope attrs
+          Warnings.with_warnings (Builtin_attributes.warning_attributes attrs)
             (fun () ->
                type_module ~alias:true true funct_body
                  (anchor_submodule name.txt anchor) env smodl
@@ -1814,7 +1814,7 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
           List.map2
             (fun {md_id=id; md_type=mty} (name, _, smodl, attrs, loc) ->
                let modl =
-                 Builtin_attributes.warning_scope attrs
+                 Warnings.with_warnings (Builtin_attributes.warning_attributes attrs)
                    (fun () ->
                       type_module true funct_body (anchor_recmodule id)
                         newenv smodl
@@ -1922,7 +1922,7 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
     | Pstr_include sincl ->
         let smodl = sincl.pincl_mod in
         let modl =
-          Builtin_attributes.warning_scope sincl.pincl_attributes
+          Warnings.with_warnings (Builtin_attributes.warning_attributes sincl.pincl_attributes)
             (fun () -> type_module true funct_body None env smodl)
         in
         (* Rename all identifiers bound by this signature to avoid clashes *)
@@ -1942,7 +1942,7 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
     | Pstr_extension (ext, _attrs) ->
         raise (Error_forward (Builtin_attributes.error_of_extension ext))
     | Pstr_attribute x ->
-        Builtin_attributes.warning_attribute x;
+        Warnings.restore (Builtin_attributes.warning_attributes [x] (Warnings.backup ()));
         Tstr_attribute x, [], env
   in
   let rec type_struct env sstr =
@@ -1970,7 +1970,7 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
     str, sg, !to_be_removed, final_env
   in
   if toplevel then run ()
-  else Builtin_attributes.warning_scope [] run
+  else Warnings.with_warnings (fun x -> x) run
 
 let type_toplevel_phrase env s =
   Env.reset_required_globals ();

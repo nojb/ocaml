@@ -142,22 +142,24 @@ let check_no_deprecated attrs =
   | Some {attr_name = {txt;_};attr_loc} ->
     Location.prerr_warning attr_loc (Warnings.Misplaced_attribute txt)
 
-let warning_attribute ?(ppwarning = true) =
+let warning_attribute ?(ppwarning = true) attr warnings =
   let process loc txt errflag payload =
     match string_of_payload payload with
     | Some s ->
-        begin try Warnings.restore (Warnings.parse_options errflag s (Warnings.backup ()))
+        begin try Warnings.parse_options errflag s warnings
         with Arg.Bad _ ->
           Location.prerr_warning loc
             (Warnings.Attribute_payload
-               (txt, "Ill-formed list of warnings"))
+               (txt, "Ill-formed list of warnings"));
+          warnings
         end
     | None ->
         Location.prerr_warning loc
           (Warnings.Attribute_payload
-             (txt, "A single string literal is expected"))
+             (txt, "A single string literal is expected"));
+        warnings
   in
-  function
+  match attr with
   | {attr_name = {txt = ("ocaml.warning"|"warning") as txt; _};
      attr_loc;
      attr_payload;
@@ -177,21 +179,13 @@ let warning_attribute ?(ppwarning = true) =
            pstr_loc }
        ];
     } when ppwarning ->
-     Location.prerr_warning pstr_loc (Warnings.Preprocessor s)
+     Location.prerr_warning pstr_loc (Warnings.Preprocessor s);
+     warnings
   | _ ->
-     ()
+     warnings
 
-let warning_scope ?ppwarning attrs f =
-  let prev = Warnings.backup () in
-  try
-    List.iter (warning_attribute ?ppwarning) (List.rev attrs);
-    let ret = f () in
-    Warnings.restore prev;
-    ret
-  with exn ->
-    Warnings.restore prev;
-    raise exn
-
+let warning_attributes ?ppwarning attrs state =
+  List.fold_right (warning_attribute ?ppwarning) attrs state
 
 let warn_on_literal_pattern =
   List.exists

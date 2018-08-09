@@ -402,7 +402,7 @@ let add_val lab (mut, virt, ty) val_sig =
   Vars.add lab (mut, virt, ty) val_sig
 
 let rec class_type_field env self_type meths arg ctf =
-  Builtin_attributes.warning_scope ctf.pctf_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes ctf.pctf_attributes)
     (fun () -> class_type_field_aux env self_type meths arg ctf)
 
 and class_type_field_aux env self_type meths
@@ -452,7 +452,7 @@ and class_type_field_aux env self_type meths
         val_sig, concr_meths, inher)
 
   | Pctf_attribute x ->
-      Builtin_attributes.warning_attribute x;
+      Warnings.restore (Builtin_attributes.warning_attributes [x] (Warnings.backup ()));
       (mkctf (Tctf_attribute x) :: fields,
         val_sig, concr_meths, inher)
 
@@ -479,7 +479,7 @@ and class_signature env {pcsig_self=sty; pcsig_fields=sign} =
 
   (* Class type fields *)
   let (rev_fields, val_sig, concr_meths, inher) =
-    Builtin_attributes.warning_scope []
+    Warnings.with_warnings (fun x -> x)
       (fun () ->
          List.fold_left (class_type_field env self_type meths)
            ([], Vars.empty, Concr.empty, [])
@@ -497,7 +497,7 @@ and class_signature env {pcsig_self=sty; pcsig_fields=sign} =
   }
 
 and class_type env scty =
-  Builtin_attributes.warning_scope scty.pcty_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes scty.pcty_attributes)
     (fun () -> class_type_aux env scty)
 
 and class_type_aux env scty =
@@ -570,7 +570,7 @@ let class_type env scty =
 (*******************************)
 
 let rec class_field self_loc cl_num self_type meths vars arg cf =
-  Builtin_attributes.warning_scope cf.pcf_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes cf.pcf_attributes)
     (fun () -> class_field_aux self_loc cl_num self_type meths vars arg cf)
 
 and class_field_aux self_loc cl_num self_type meths vars
@@ -772,7 +772,7 @@ and class_field_aux self_loc cl_num self_type meths vars
       (val_env, met_env, par_env, field::fields, concr_meths, warn_vals,
        inher, local_meths, local_vals)
   | Pcf_attribute x ->
-      Builtin_attributes.warning_attribute x;
+      Warnings.restore (Builtin_attributes.warning_attributes [x] (Warnings.backup ()));
       (val_env, met_env, par_env,
         lazy (mkcf (Tcf_attribute x)) :: fields,
         concr_meths, warn_vals, inher, local_meths, local_vals)
@@ -840,7 +840,7 @@ and class_structure cl_num final val_env met_env loc
 
   (* Typing of class fields *)
   let (_, _, _, fields, concr_meths, _, inher, _local_meths, _local_vals) =
-    Builtin_attributes.warning_scope []
+    Warnings.with_warnings (fun x -> x)
       (fun () ->
          List.fold_left (class_field self_loc cl_num self_type meths vars)
            (val_env, meth_env, par_env, [], Concr.empty, Concr.empty, [],
@@ -916,7 +916,7 @@ and class_structure cl_num final val_env met_env loc
     cstr_meths = meths}, sign (* redondant, since already in cstr_type *)
 
 and class_expr cl_num val_env met_env scl =
-  Builtin_attributes.warning_scope scl.pcl_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes scl.pcl_attributes)
     (fun () -> class_expr_aux cl_num val_env met_env scl)
 
 and class_expr_aux cl_num val_env met_env scl =
@@ -1643,7 +1643,7 @@ let class_infos define_class kind
      cl_id, cl_params, cl_ty,
      constr_type, dummy_class)
     (res, env) =
-  Builtin_attributes.warning_scope cl.pci_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes cl.pci_attributes)
     (fun () ->
        class_infos define_class kind
          (cl, id, ty_id,

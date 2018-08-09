@@ -225,6 +225,17 @@ let backup () = !current
 
 let restore x = current := x
 
+let with_warnings mk_state f =
+  let old = backup () in
+  restore (mk_state old);
+  match f () with
+  | r ->
+      restore old;
+      r
+  | exception e ->
+      restore old;
+      raise e
+
 let is_active x {active; _} = not !disabled && active.(number x);;
 let is_error x {error; _} = not !disabled && error.(number x);;
 

@@ -311,7 +311,7 @@ let transl_type_param env styp =
 let transl_type_param env styp =
   (* Currently useless, since type parameters cannot hold attributes
      (but this could easily be lifted in the future). *)
-  Builtin_attributes.warning_scope styp.ptyp_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes styp.ptyp_attributes)
     (fun () -> transl_type_param env styp)
 
 
@@ -325,7 +325,7 @@ let rec swap_list = function
 type policy = Fixed | Extensible | Univars
 
 let rec transl_type env policy styp =
-  Builtin_attributes.warning_scope styp.ptyp_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes styp.ptyp_attributes)
     (fun () -> transl_type_aux env policy styp)
 
 and transl_type_aux env policy styp =
@@ -554,7 +554,7 @@ and transl_type_aux env policy styp =
           Rtag (l, attrs, c, stl) ->
             name := None;
             let tl =
-              Builtin_attributes.warning_scope attrs
+              Warnings.with_warnings (Builtin_attributes.warning_attributes attrs)
                 (fun () -> List.map (transl_type env policy) stl)
             in
             let f = match present with
@@ -702,7 +702,7 @@ and transl_fields env policy o fields =
   let add_field = function
     | Otag (s, a, ty1) -> begin
         let ty1 =
-          Builtin_attributes.warning_scope a
+          Warnings.with_warnings (Builtin_attributes.warning_attributes a)
             (fun () -> transl_poly_type env policy ty1)
         in
         let field = OTtag (s, a, ty1) in

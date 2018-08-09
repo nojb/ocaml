@@ -1073,7 +1073,7 @@ exception Need_backtrack
    explode > 0 => explode Ppat_any for gadts *)
 let rec type_pat ?(exception_allowed=false) ~constrs ~labels ~no_existentials
           ~mode ~explode ~env sp expected_ty k =
-  Builtin_attributes.warning_scope sp.ppat_attributes
+  Warnings.with_warnings (Builtin_attributes.warning_attributes sp.ppat_attributes)
     (fun () ->
        type_pat_aux ~exception_allowed ~constrs ~labels ~no_existentials ~mode
          ~explode ~env sp expected_ty k
@@ -1595,7 +1595,7 @@ let type_pattern_list no_existentials env spatl scope expected_tys allow =
   reset_pattern scope allow;
   let new_env = ref env in
   let type_pat (attrs, pat) ty =
-    Builtin_attributes.warning_scope ~ppwarning:false attrs
+    Warnings.with_warnings (Builtin_attributes.warning_attributes ~ppwarning:false attrs)
       (fun () ->
          type_pat ~no_existentials new_env pat ty
       )
@@ -2139,7 +2139,7 @@ let rec type_exp ?recarg env sexp =
 and type_expect ?in_function ?recarg env sexp ty_expected_explained =
   let previous_saved_types = Cmt_format.get_saved_types () in
   let exp =
-    Builtin_attributes.warning_scope sexp.pexp_attributes
+    Warnings.with_warnings (Builtin_attributes.warning_attributes sexp.pexp_attributes)
       (fun () ->
          type_expect_ ?in_function ?recarg env sexp ty_expected_explained
       )
@@ -4334,7 +4334,7 @@ and type_let
   let warn_about_unused_bindings =
     List.exists
       (fun attrs ->
-         Builtin_attributes.warning_scope ~ppwarning:false attrs (fun () ->
+         Warnings.with_warnings (Builtin_attributes.warning_attributes ~ppwarning:false attrs) (fun () ->
            Warnings.is_active (check "") (Warnings.backup ()) || Warnings.is_active (check_strict "") (Warnings.backup ())
            || (is_recursive && (Warnings.is_active Warnings.Unused_rec_flag (Warnings.backup ())))))
       attrs_list
@@ -4358,7 +4358,7 @@ and type_let
      *)
     List.map2
       (fun attrs pat ->
-         Builtin_attributes.warning_scope ~ppwarning:false attrs (fun () ->
+         Warnings.with_warnings (Builtin_attributes.warning_attributes ~ppwarning:false attrs) (fun () ->
            if not warn_about_unused_bindings then pat, None
            else
              let some_used = ref false in
@@ -4414,14 +4414,14 @@ and type_let
               generalize_structure ty'
             end;
             let exp =
-              Builtin_attributes.warning_scope pvb_attributes
+              Warnings.with_warnings (Builtin_attributes.warning_attributes pvb_attributes)
                   (fun () -> type_expect exp_env sexp (mk_expected ty'))
             in
             end_def ();
             check_univars env true "definition" exp pat.pat_type vars;
             {exp with exp_type = instance exp.exp_type}
         | _ ->
-            Builtin_attributes.warning_scope pvb_attributes (fun () ->
+            Warnings.with_warnings (Builtin_attributes.warning_attributes pvb_attributes) (fun () ->
               type_expect exp_env sexp (mk_expected pat.pat_type)))
       spat_sexp_list pat_slot_list in
   current_slot := None;
@@ -4429,14 +4429,14 @@ and type_let
   && Warnings.is_active Warnings.Unused_rec_flag (Warnings.backup ()) then begin
     let {pvb_pat; pvb_attributes} = List.hd spat_sexp_list in
     (* See PR#6677 *)
-    Builtin_attributes.warning_scope ~ppwarning:false pvb_attributes
+    Warnings.with_warnings (Builtin_attributes.warning_attributes ~ppwarning:false pvb_attributes)
       (fun () ->
          Location.prerr_warning pvb_pat.ppat_loc Warnings.Unused_rec_flag
       )
   end;
   List.iter2
     (fun pat (attrs, exp) ->
-       Builtin_attributes.warning_scope ~ppwarning:false attrs
+       Warnings.with_warnings (Builtin_attributes.warning_attributes ~ppwarning:false attrs)
          (fun () ->
             ignore(check_partial env pat.pat_type pat.pat_loc
                      [case pat exp])
