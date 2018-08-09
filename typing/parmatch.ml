@@ -1957,7 +1957,7 @@ let do_check_partial ~pred loc casel pss = match pss with
     begin match casel with
     | [] -> ()
     | _  ->
-      if Warnings.is_active Warnings.All_clauses_guarded then
+      if Warnings.is_active Warnings.All_clauses_guarded (Warnings.backup ()) then
         Location.prerr_warning loc Warnings.All_clauses_guarded
     end ;
     Partial
@@ -1978,7 +1978,7 @@ let do_check_partial ~pred loc casel pss = match pss with
         begin match v with
           None -> Total
         | Some v ->
-            if Warnings.is_active (Warnings.Partial_match "") then begin
+            if Warnings.is_active (Warnings.Partial_match "") (Warnings.backup ()) then begin
               let errmsg =
                 try
                   let buf = Buffer.create 16 in
@@ -2081,7 +2081,7 @@ let do_check_fragile loc casel pss =
 (********************************)
 
 let check_unused pred casel =
-  if Warnings.is_active Warnings.Unused_match
+  if Warnings.is_active Warnings.Unused_match (Warnings.backup ())
   || List.exists (fun c -> c.c_rhs.exp_desc = Texp_unreachable) casel then
     let rec do_rec pref = function
       | [] -> ()
@@ -2108,7 +2108,7 @@ let check_unused pred casel =
                      refuted or not.  *)
                 let skip =
                   r = Unused || (not refute && pref = []) ||
-                  not(refute || Warnings.is_active Warnings.Unreachable_case) in
+                  not(refute || Warnings.is_active Warnings.Unreachable_case (Warnings.backup ())) in
                 if skip then r else
                 (* Then look for empty patterns *)
                 let sfs = list_satisfying_vectors pss qs in
@@ -2203,7 +2203,7 @@ let check_partial pred loc casel =
   let pss = get_mins le_pats pss in
   let total = do_check_partial ~pred loc casel pss in
   if
-    total = Total && Warnings.is_active (Warnings.Fragile_match "")
+    total = Total && Warnings.is_active (Warnings.Fragile_match "") (Warnings.backup ())
   then begin
     do_check_fragile loc casel pss
   end ;
@@ -2477,7 +2477,7 @@ let check_ambiguous_bindings =
   let open Warnings in
   let warn0 = Ambiguous_pattern [] in
   fun cases ->
-    if is_active warn0 then
+    if is_active warn0 (Warnings.backup ()) then
       let check_case ns case = match case with
         | { c_lhs = p; c_guard=None ; _} -> [p]::ns
         | { c_lhs=p; c_guard=Some g; _} ->

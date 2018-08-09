@@ -1290,7 +1290,7 @@ let transl_type_decl env rec_flag sdecl_list =
     List.fold_left2 (enter_type rec_flag) env sdecl_list id_list in
   (* Translate each declaration. *)
   let current_slot = ref None in
-  let warn_unused = Warnings.is_active (Warnings.Unused_type_declaration "") in
+  let warn_unused = Warnings.is_active (Warnings.Unused_type_declaration "") (Warnings.backup ()) in
   let id_slots id =
     match rec_flag with
     | Asttypes.Recursive when warn_unused ->

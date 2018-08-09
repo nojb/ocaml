@@ -44,7 +44,7 @@ let docstrings : docstring list ref = ref []
 (* Warn for unused and ambiguous docstrings *)
 
 let warn_bad_docstrings () =
-  if Warnings.is_active (Warnings.Bad_docstring true) then begin
+  if Warnings.is_active (Warnings.Bad_docstring true) (Warnings.backup ()) then begin
     List.iter
       (fun ds ->
          match ds.ds_attached with

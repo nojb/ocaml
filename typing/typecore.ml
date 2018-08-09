@@ -975,7 +975,7 @@ let check_recordpat_labels loc lbl_pat_list closed =
         else defined.(label.lbl_pos) <- true in
       List.iter check_defined lbl_pat_list;
       if closed = Closed
-      && Warnings.is_active (Warnings.Non_closed_record_pattern "")
+      && Warnings.is_active (Warnings.Non_closed_record_pattern "") (Warnings.backup ())
       then begin
         let undefined = ref [] in
         for i = 0 to Array.length all - 1 do
@@ -4335,8 +4335,8 @@ and type_let
     List.exists
       (fun attrs ->
          Builtin_attributes.warning_scope ~ppwarning:false attrs (fun () ->
-           Warnings.is_active (check "") || Warnings.is_active (check_strict "")
-           || (is_recursive && (Warnings.is_active Warnings.Unused_rec_flag))))
+           Warnings.is_active (check "") (Warnings.backup ()) || Warnings.is_active (check_strict "") (Warnings.backup ())
+           || (is_recursive && (Warnings.is_active Warnings.Unused_rec_flag (Warnings.backup ())))))
       attrs_list
   in
   let pat_slot_list =
@@ -4426,7 +4426,7 @@ and type_let
       spat_sexp_list pat_slot_list in
   current_slot := None;
   if is_recursive && not !rec_needed
-  && Warnings.is_active Warnings.Unused_rec_flag then begin
+  && Warnings.is_active Warnings.Unused_rec_flag (Warnings.backup ()) then begin
     let {pvb_pat; pvb_attributes} = List.hd spat_sexp_list in
     (* See PR#6677 *)
     Builtin_attributes.warning_scope ~ppwarning:false pvb_attributes

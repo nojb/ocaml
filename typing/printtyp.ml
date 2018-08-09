@@ -1684,7 +1684,7 @@ let printed_signature sourcefile ppf sg =
   Conflicts.reset ();
   reset_naming_context ();
   let t = tree_of_signature sg in
-  if Warnings.(is_active @@ Erroneous_printed_signature "")
+  if Warnings.(is_active (Erroneous_printed_signature "") (backup ()))
   && Conflicts.exists ()
   then begin
     let conflicts = Format.asprintf "%t" Conflicts.print in

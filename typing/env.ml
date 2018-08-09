@@ -825,7 +825,7 @@ let check_pers_struct ~loc name =
        whether the check succeeds, to help make builds more
        deterministic. *)
     add_import name;
-    if (Warnings.is_active (Warnings.No_cmi_file("", None))) then
+    if Warnings.is_active (Warnings.No_cmi_file("", None)) (Warnings.backup ()) then
       !add_delayed_check_forward
         (fun () -> check_pers_struct ~loc name)
   end
@@ -1749,7 +1749,7 @@ and components_of_module_maker (env, sub, path, mty) =
 (* Insertion of bindings by identifier + path *)
 
 and check_usage loc id warn tbl =
-  if not loc.Location.loc_ghost && Warnings.is_active (warn "") then begin
+  if not loc.Location.loc_ghost && Warnings.is_active (warn "") (Warnings.backup ()) then begin
     let name = Ident.name id in
     let key = (name, loc) in
     if Hashtbl.mem tbl key then ()
@@ -1791,7 +1791,7 @@ and store_type ~check id info env =
   let descrs = (List.map snd constructors, List.map snd labels) in
 
   if check && not loc.Location.loc_ghost &&
-    Warnings.is_active (Warnings.Unused_constructor ("", false, false))
+    Warnings.is_active (Warnings.Unused_constructor ("", false, false)) (Warnings.backup ())
   then begin
     let ty = Ident.name id in
     List.iter
@@ -1839,7 +1839,7 @@ and store_type_infos id info env =
 and store_extension ~check id ext env =
   let loc = ext.ext_loc in
   if check && not loc.Location.loc_ghost &&
-    Warnings.is_active (Warnings.Unused_extension ("", false, false, false))
+    Warnings.is_active (Warnings.Unused_extension ("", false, false, false)) (Warnings.backup ())
   then begin
     let is_exception = Path.same ext.ext_type_path Predef.path_exn in
     let ty = Path.last ext.ext_type_path in
@@ -2106,9 +2106,9 @@ let open_signature
     ?(loc = Location.none) ?(toplevel = false)
     ovf root env =
   if not toplevel && ovf = Asttypes.Fresh && not loc.Location.loc_ghost
-     && (Warnings.is_active (Warnings.Unused_open "")
-         || Warnings.is_active (Warnings.Open_shadow_identifier ("", ""))
-         || Warnings.is_active (Warnings.Open_shadow_label_constructor ("","")))
+     && (Warnings.is_active (Warnings.Unused_open "") (Warnings.backup ())
+         || Warnings.is_active (Warnings.Open_shadow_identifier ("", "")) (Warnings.backup ())
+         || Warnings.is_active (Warnings.Open_shadow_label_constructor ("","")) (Warnings.backup ()))
   then begin
     let used = used_slot in
     !add_delayed_check_forward

@@ -90,9 +90,6 @@ val parse_options : bool -> string -> unit;;
 
 val without_warnings : (unit -> 'a) -> 'a
 
-val is_active : t -> bool;;
-val is_error : t -> bool;;
-
 val defaults_w : string;;
 val defaults_warn_error : string;;
 
@@ -118,3 +115,6 @@ val restore: state -> unit
 val mk_lazy: (unit -> 'a) -> 'a Lazy.t
     (** Like [Lazy.of_fun], but the function is applied with
         the warning settings at the time [mk_lazy] is called. *)
+
+val is_active : t -> state -> bool;;
+val is_error : t -> state -> bool;;

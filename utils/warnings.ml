@@ -225,8 +225,8 @@ let backup () = !current
 
 let restore x = current := x
 
-let is_active x = not !disabled && (!current).active.(number x);;
-let is_error x = not !disabled && (!current).error.(number x);;
+let is_active x {active; _} = not !disabled && active.(number x);;
+let is_error x {error; _} = not !disabled && error.(number x);;
 
 let mk_lazy f =
   let state = backup () in
@@ -557,11 +557,11 @@ type reporting_information =
   }
 
 let report w =
-  match is_active w with
+  match is_active w !current with
   | false -> `Inactive
   | true ->
-     if is_error w then incr nerrors;
-     `Active { number = number w; message = message w; is_error = is_error w;
+     if is_error w !current then incr nerrors;
+     `Active { number = number w; message = message w; is_error = is_error w !current;
                sub_locs = sub_locs w;
              }
 ;;

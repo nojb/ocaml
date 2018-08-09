@@ -566,7 +566,7 @@ let rec emit_tail_infos is_tail lambda =
   | Lapply ap ->
       if ap.ap_should_be_tailcall
       && not is_tail
-      && Warnings.is_active Warnings.Expect_tailcall
+      && Warnings.is_active Warnings.Expect_tailcall (Warnings.backup ())
         then Location.prerr_warning ap.ap_loc Warnings.Expect_tailcall;
       emit_tail_infos false ap.ap_func;
       list_emit_tail_infos false ap.ap_args;
@@ -706,6 +706,6 @@ module Hooks = Misc.MakeHooks(struct
 let simplify_lambda sourcefile lam =
   let res = simplify_lets (simplify_exits lam) in
   let res = Hooks.apply_hooks { Misc.sourcefile } res in
-  if !Clflags.annotations || Warnings.is_active Warnings.Expect_tailcall
+  if !Clflags.annotations || Warnings.is_active Warnings.Expect_tailcall (Warnings.backup ())
     then emit_tail_infos true res;
   res
