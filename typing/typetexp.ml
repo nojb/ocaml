@@ -80,12 +80,12 @@ let typemod_update_location = ref (fun _ -> assert false)
 
 (* Narrowing unbound identifier errors. *)
 
-let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
-  fun env loc lid make_error ->
+let rec narrow_unbound_lid_error : 'a. warnings:_ -> _ -> _ -> _ -> _ -> 'a =
+  fun ~warnings env loc lid make_error ->
   let check_module mlid =
-    try ignore (Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true mlid env) with
+    try ignore (Env.lookup_module ~warnings ~load:true mlid env) with
     | Not_found ->
-        narrow_unbound_lid_error env loc mlid (fun lid -> Unbound_module lid)
+        narrow_unbound_lid_error ~warnings env loc mlid (fun lid -> Unbound_module lid)
     | Env.Recmodule ->
         raise (Error (loc, env, Illegal_reference_to_recursive_module))
   in
@@ -94,7 +94,7 @@ let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
   | Longident.Lident _ -> ()
   | Longident.Ldot (mlid, _) ->
       check_module mlid;
-      let md = Env.find_module (Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true mlid env) env in
+      let md = Env.find_module (Env.lookup_module ~warnings ~load:true mlid env) env in
       begin match Env.scrape_alias env md.md_type with
       | Mty_functor _ ->
          error (Wrong_use_of_module (mlid, `Functor_used_as_structure))
@@ -105,7 +105,7 @@ let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
       end
   | Longident.Lapply (flid, mlid) ->
       check_module flid;
-      let fmd = Env.find_module (Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true flid env) env in
+      let fmd = Env.find_module (Env.lookup_module ~warnings ~load:true flid env) env in
       let mty_param =
         match Env.scrape_alias env fmd.md_type with
         | Mty_signature _ ->
@@ -118,7 +118,7 @@ let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
         | Mty_functor (_, Some mty_param, _) -> mty_param
       in
       check_module mlid;
-      let mpath = Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true mlid env in
+      let mpath = Env.lookup_module ~warnings ~load:true mlid env in
       let mmd = Env.find_module mpath env in
       begin match Env.scrape_alias env mmd.md_type with
       | Mty_alias(_, p) -> error (Cannot_scrape_alias(mlid, p))
@@ -134,24 +134,24 @@ let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
   end;
   error (make_error lid)
 
-let find_component (lookup : warnings:Warnings.state -> ?loc:_ -> ?mark:_ -> _) make_error env loc lid =
+let find_component (lookup : warnings:_ -> ?loc:_ -> ?mark:_ -> _) make_error ~warnings env loc lid =
   try
     match lid with
     | Longident.Ldot (Longident.Lident "*predef*", s) ->
-        lookup ~warnings:(Warnings.backup ()) ~loc (Longident.Lident s) Env.initial_safe_string
+        lookup ~warnings ~loc (Longident.Lident s) Env.initial_safe_string
     | _ ->
-        lookup ~warnings:(Warnings.backup ()) ~loc lid env
+        lookup ~warnings ~loc lid env
   with Not_found ->
-    narrow_unbound_lid_error env loc lid make_error
+    narrow_unbound_lid_error ~warnings env loc lid make_error
   | Env.Recmodule ->
     raise (Error (loc, env, Illegal_reference_to_recursive_module))
   | err ->
     raise (!typemod_update_location loc err)
 
-let find_type env loc lid =
+let find_type ~warnings env loc lid =
   let path =
     find_component Env.lookup_type (fun lid -> Unbound_type_constructor lid)
-      env loc lid
+      ~warnings env loc lid
   in
   let decl = Env.find_type path env in
   Builtin_attributes.check_deprecated loc decl.type_attributes (Path.name path);
@@ -167,54 +167,54 @@ let find_label =
 let find_all_labels =
   find_component Env.lookup_all_labels (fun lid -> Unbound_label lid)
 
-let find_class env loc lid =
+let find_class ~warnings env loc lid =
   let (path, decl) as r =
-    find_component Env.lookup_class (fun lid -> Unbound_class lid) env loc lid
+    find_component Env.lookup_class (fun lid -> Unbound_class lid) ~warnings env loc lid
   in
   Builtin_attributes.check_deprecated loc decl.cty_attributes (Path.name path);
   r
 
-let find_value env loc lid =
+let find_value ~warnings env loc lid =
   Env.check_value_name (Longident.last lid) loc;
   let (path, decl) as r =
-    find_component Env.lookup_value (fun lid -> Unbound_value lid) env loc lid
+    find_component Env.lookup_value (fun lid -> Unbound_value lid) ~warnings env loc lid
   in
   Builtin_attributes.check_deprecated loc decl.val_attributes (Path.name path);
   r
 
-let lookup_module ?(load=false) env loc lid =
+let lookup_module ~warnings ?(load=false) env loc lid =
   find_component
-    (fun ~warnings ?loc ?mark lid env -> (Env.lookup_module ~warnings ~load ?loc ?mark lid env))
-    (fun lid -> Unbound_module lid) env loc lid
+    (fun ~warnings ?loc ?mark lid env -> Env.lookup_module ~warnings ~load ?loc ?mark lid env)
+    (fun lid -> Unbound_module lid) ~warnings env loc lid
 
-let find_module env loc lid =
-  let path = lookup_module ~load:true env loc lid in
+let find_module ~warnings env loc lid =
+  let path = lookup_module ~warnings ~load:true env loc lid in
   let decl = Env.find_module path env in
   (* No need to check for deprecated here, this is done in Env. *)
   (path, decl)
 
-let find_modtype env loc lid =
+let find_modtype ~warnings env loc lid =
   let (path, decl) as r =
     find_component Env.lookup_modtype (fun lid -> Unbound_modtype lid)
-      env loc lid
+      ~warnings env loc lid
   in
   Builtin_attributes.check_deprecated loc decl.mtd_attributes (Path.name path);
   r
 
-let find_class_type env loc lid =
+let find_class_type ~warnings env loc lid =
   let (path, decl) as r =
     find_component Env.lookup_cltype (fun lid -> Unbound_cltype lid)
-      env loc lid
+      ~warnings env loc lid
   in
   Builtin_attributes.check_deprecated loc decl.clty_attributes (Path.name path);
   r
 
 let unbound_constructor_error env lid =
-  narrow_unbound_lid_error env lid.loc lid.txt
+  narrow_unbound_lid_error ~warnings:(Warnings.backup ()) env lid.loc lid.txt
     (fun lid -> Unbound_constructor lid)
 
 let unbound_label_error env lid =
-  narrow_unbound_lid_error env lid.loc lid.txt
+  narrow_unbound_lid_error ~warnings:(Warnings.backup ()) env lid.loc lid.txt
     (fun lid -> Unbound_label lid)
 
 (* Support for first-class modules. *)
@@ -376,7 +376,7 @@ and transl_type_aux env policy styp =
     let ty = newty (Ttuple (List.map (fun ctyp -> ctyp.ctyp_type) ctys)) in
     ctyp (Ttyp_tuple ctys) ty
   | Ptyp_constr(lid, stl) ->
-      let (path, decl) = find_type env lid.loc lid.txt in
+      let (path, decl) = find_type ~warnings:(Warnings.backup ()) env lid.loc lid.txt in
       let stl =
         match stl with
         | [ {ptyp_desc=Ptyp_any} as t ] when decl.type_arity > 1 ->
@@ -440,7 +440,7 @@ and transl_type_aux env policy styp =
           let decl = Env.find_type path env in
           (path, decl, false)
         with Not_found ->
-          ignore (find_class env lid.loc lid.txt); assert false
+          ignore (find_class ~warnings:(Warnings.backup ()) env lid.loc lid.txt); assert false
       in
       if List.length stl <> decl.type_arity then
         raise(Error(styp.ptyp_loc, env,

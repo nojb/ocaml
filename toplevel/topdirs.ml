@@ -530,7 +530,7 @@ let reg_show_prim name to_sig doc =
 let () =
   reg_show_prim "show_val"
     (fun env loc id lid ->
-       let _path, desc = Typetexp.find_value env loc lid in
+       let _path, desc = Typetexp.find_value ~warnings:(Warnings.backup ()) env loc lid in
        [ Sig_value (id, desc) ]
     )
     "Print the signature of the corresponding value."
@@ -538,7 +538,7 @@ let () =
 let () =
   reg_show_prim "show_type"
     (fun env loc id lid ->
-       let _path, desc = Typetexp.find_type env loc lid in
+       let _path, desc = Typetexp.find_type ~warnings:(Warnings.backup ()) env loc lid in
        [ Sig_type (id, desc, Trec_not) ]
     )
     "Print the signature of the corresponding type constructor."
@@ -546,7 +546,7 @@ let () =
 let () =
   reg_show_prim "show_exception"
     (fun env loc id lid ->
-       let desc = Typetexp.find_constructor env loc lid in
+       let desc = Typetexp.find_constructor ~warnings:(Warnings.backup ()) env loc lid in
        if not (Ctype.equal env true [desc.cstr_res] [Predef.type_exn]) then
          raise Not_found;
        let ret_type =
@@ -579,7 +579,7 @@ let () =
          | Mty_ident _ | Mty_signature _ | Mty_functor _ ->
              List.rev acc
        in
-       let path, _ = Typetexp.find_module env loc lid in
+       let path, _ = Typetexp.find_module ~warnings:(Warnings.backup ()) env loc lid in
        accum_aliases path []
     )
     "Print the signature of the corresponding module."
@@ -587,7 +587,7 @@ let () =
 let () =
   reg_show_prim "show_module_type"
     (fun env loc id lid ->
-       let _path, desc = Typetexp.find_modtype env loc lid in
+       let _path, desc = Typetexp.find_modtype ~warnings:(Warnings.backup ()) env loc lid in
        [ Sig_modtype (id, desc) ]
     )
     "Print the signature of the corresponding module type."
@@ -595,7 +595,7 @@ let () =
 let () =
   reg_show_prim "show_class"
     (fun env loc id lid ->
-       let _path, desc = Typetexp.find_class env loc lid in
+       let _path, desc = Typetexp.find_class ~warnings:(Warnings.backup ()) env loc lid in
        [ Sig_class (id, desc, Trec_not) ]
     )
     "Print the signature of the corresponding class."
@@ -603,7 +603,7 @@ let () =
 let () =
   reg_show_prim "show_class_type"
     (fun env loc id lid ->
-       let _path, desc = Typetexp.find_class_type env loc lid in
+       let _path, desc = Typetexp.find_class_type ~warnings:(Warnings.backup ()) env loc lid in
        [ Sig_class_type (id, desc, Trec_not) ]
     )
     "Print the signature of the corresponding class type."

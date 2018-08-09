@@ -602,7 +602,7 @@ let rec build_as_type env p =
   | Tpat_array _ | Tpat_lazy _ | Tpat_exception _ -> p.pat_type
 
 let build_or_pat env loc lid =
-  let path, decl = Typetexp.find_type env lid.loc lid.txt
+  let path, decl = Typetexp.find_type ~warnings:(Warnings.backup ()) env lid.loc lid.txt
   in
   let tyl = List.map (fun _ -> newvar()) decl.type_params in
   let row0 =
@@ -880,7 +880,7 @@ let disambiguate_lid_a_list loc closed env opath lid_a_list =
          there is still at least one candidate (for error message)
        * if the reduced list is valid, call Label.disambiguate
      *)
-    let scope = Typetexp.find_all_labels env lid.loc lid.txt in
+    let scope = Typetexp.find_all_labels ~warnings:(Warnings.backup ()) env lid.loc lid.txt in
     if opath = None && scope = [] then
       Typetexp.unbound_label_error env lid;
     let (ok, labels) =
@@ -1235,7 +1235,7 @@ and type_pat_aux ~exception_allowed ~constrs ~labels ~no_existentials ~mode
         match lid.txt, constrs with
           Longident.Lident s, Some constrs when Hashtbl.mem constrs s ->
             [Hashtbl.find constrs s, (fun () -> ())]
-        | _ ->  Typetexp.find_all_constructors !env lid.loc lid.txt
+        | _ ->  Typetexp.find_all_constructors ~warnings:(Warnings.backup ()) !env lid.loc lid.txt
       in
       let constr =
         wrap_disambiguate "This variant pattern is expected to have"
@@ -2172,7 +2172,7 @@ and type_expect_
   match sexp.pexp_desc with
   | Pexp_ident lid ->
       begin
-        let (path, desc) = Typetexp.find_value env lid.loc lid.txt in
+        let (path, desc) = Typetexp.find_value ~warnings:(Warnings.backup ()) env lid.loc lid.txt in
         if !Clflags.annotations then begin
           let dloc = desc.Types.val_loc in
           let annot =
@@ -2920,7 +2920,7 @@ and type_expect_
                     Undefined_method (obj.exp_type, met, valid_methods)))
       end
   | Pexp_new cl ->
-      let (cl_path, cl_decl) = Typetexp.find_class env cl.loc cl.txt in
+      let (cl_path, cl_decl) = Typetexp.find_class ~warnings:(Warnings.backup ()) env cl.loc cl.txt in
       begin match cl_decl.cty_new with
           None ->
             raise(Error(loc, env, Virtual_class cl.txt))
@@ -3209,7 +3209,7 @@ and type_expect_
                    Pstr_eval ({ pexp_desc = Pexp_construct (lid, None); _ }, _)
                } ] ->
           let path =
-            match (Typetexp.find_constructor env lid.loc lid.txt).cstr_tag with
+            match (Typetexp.find_constructor ~warnings:(Warnings.backup ()) env lid.loc lid.txt).cstr_tag with
             | Cstr_extension (path, _) -> path
             | _ -> raise (Error (lid.loc, env, Not_an_extension_constructor))
           in
@@ -3300,7 +3300,7 @@ and type_label_access env srecord lid =
       Some(p0, p, (repr ty_exp).level = generic_level || not !Clflags.principal)
     with Not_found -> None
   in
-  let labels = Typetexp.find_all_labels env lid.loc lid.txt in
+  let labels = Typetexp.find_all_labels ~warnings:(Warnings.backup ()) env lid.loc lid.txt in
   let label =
     wrap_disambiguate "This expression has" (mk_expected ty_exp)
       (Label.disambiguate lid env opath) labels in
@@ -3913,7 +3913,7 @@ and type_construct env loc lid sarg ty_expected_explained attrs =
       Some(p0, p, ty_expected.level = generic_level || not !Clflags.principal)
     with Not_found -> None
   in
-  let constrs = Typetexp.find_all_constructors env lid.loc lid.txt in
+  let constrs = Typetexp.find_all_constructors ~warnings:(Warnings.backup ()) env lid.loc lid.txt in
   let constr =
     wrap_disambiguate "This variant expression is expected to have"
       ty_expected_explained

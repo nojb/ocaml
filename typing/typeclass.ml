@@ -512,7 +512,7 @@ and class_type_aux env scty =
   in
   match scty.pcty_desc with
     Pcty_constr (lid, styl) ->
-      let (path, decl) = Typetexp.find_class_type env scty.pcty_loc lid.txt in
+      let (path, decl) = Typetexp.find_class_type ~warnings:(Warnings.backup ()) env scty.pcty_loc lid.txt in
       if Path.same decl.clty_path unbound_class then
         raise(Error(scty.pcty_loc, env, Unbound_class_type_2 lid.txt));
       let (params, clty) =
@@ -922,7 +922,7 @@ and class_expr cl_num val_env met_env scl =
 and class_expr_aux cl_num val_env met_env scl =
   match scl.pcl_desc with
     Pcl_constr (lid, styl) ->
-      let (path, decl) = Typetexp.find_class val_env scl.pcl_loc lid.txt in
+      let (path, decl) = Typetexp.find_class ~warnings:(Warnings.backup ()) val_env scl.pcl_loc lid.txt in
       if Path.same decl.cty_path unbound_class then
         raise(Error(scl.pcl_loc, val_env, Unbound_class_2 lid.txt));
       let tyl = List.map

@@ -93,29 +93,40 @@ val create_package_mty:
       Parsetree.module_type
 
 val find_type:
-    Env.t -> Location.t -> Longident.t -> Path.t * type_declaration
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t -> Path.t * type_declaration
 val find_constructor:
-    Env.t -> Location.t -> Longident.t -> constructor_description
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t -> constructor_description
 val find_all_constructors:
-    Env.t -> Location.t -> Longident.t ->
-    (constructor_description * (unit -> unit)) list
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t ->
+  (constructor_description * (unit -> unit)) list
 val find_label:
-    Env.t -> Location.t -> Longident.t -> label_description
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t -> label_description
 val find_all_labels:
-    Env.t -> Location.t -> Longident.t ->
-    (label_description * (unit -> unit)) list
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t ->
+  (label_description * (unit -> unit)) list
 val find_value:
-    Env.t -> Location.t -> Longident.t -> Path.t * value_description
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t -> Path.t * value_description
 val find_class:
-    Env.t -> Location.t -> Longident.t -> Path.t * class_declaration
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t -> Path.t * class_declaration
 val find_module:
-    Env.t -> Location.t -> Longident.t -> Path.t * module_declaration
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t -> Path.t * module_declaration
 val lookup_module:
-    ?load:bool -> Env.t -> Location.t -> Longident.t -> Path.t
+  warnings:Warnings.state ->
+  ?load:bool -> Env.t -> Location.t -> Longident.t -> Path.t
 val find_modtype:
-    Env.t -> Location.t -> Longident.t -> Path.t * modtype_declaration
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t -> Path.t * modtype_declaration
 val find_class_type:
-    Env.t -> Location.t -> Longident.t -> Path.t * class_type_declaration
+  warnings:Warnings.state ->
+  Env.t -> Location.t -> Longident.t -> Path.t * class_type_declaration
 
 val unbound_constructor_error: Env.t -> Longident.t Location.loc -> 'a
 val unbound_label_error: Env.t -> Longident.t Location.loc -> 'a

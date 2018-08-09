@@ -135,7 +135,7 @@ let extract_sig_open env loc mty =
 (* Compute the environment after opening a module *)
 
 let type_open_ ?used_slot ?toplevel ovf env loc lid =
-  let path = Typetexp.lookup_module ~load:true env lid.loc lid.txt in
+  let path = Typetexp.lookup_module ~warnings:(Warnings.backup ()) ~load:true env lid.loc lid.txt in
   match Env.open_signature ~loc ?used_slot ?toplevel ovf path env with
   | Some env -> path, env
   | None ->
@@ -146,7 +146,7 @@ let type_open_ ?used_slot ?toplevel ovf env loc lid =
 let type_initially_opened_module env module_name =
   let loc = Location.in_file "compiler internals" in
   let lid = { Asttypes.loc; txt = Longident.Lident module_name } in
-  let path = Typetexp.lookup_module ~load:true env lid.loc lid.txt in
+  let path = Typetexp.lookup_module ~warnings:(Warnings.backup ()) ~load:true env lid.loc lid.txt in
   match Env.open_signature_of_initially_opened_module path env with
   | Some env -> path, env
   | None ->
@@ -504,7 +504,7 @@ let merge_constraint initial_env remove_aliases loc sg constr =
         update_rec_next rs rem
     | (Sig_module(id, md, rs) :: rem, [s], Pwith_module (_, lid'))
       when Ident.name id = s ->
-        let path, md' = Typetexp.find_module initial_env loc lid'.txt in
+        let path, md' = Typetexp.find_module ~warnings:(Warnings.backup ()) initial_env loc lid'.txt in
         let mty = md'.md_type in
         let mty = Mtype.scrape_for_type_of ~remove_aliases env mty in
         let md'' = { md' with md_type = mty } in
@@ -514,7 +514,7 @@ let merge_constraint initial_env remove_aliases loc sg constr =
         Sig_module(id, newmd, rs) :: rem
     | (Sig_module(id, md, rs) :: rem, [s], Pwith_modsubst (_, lid'))
       when Ident.name id = s ->
-        let path, md' = Typetexp.find_module initial_env loc lid'.txt in
+        let path, md' = Typetexp.find_module ~warnings:(Warnings.backup ()) initial_env loc lid'.txt in
         let aliasable = not (Env.is_functor_arg path env) in
         let newmd = Mtype.strengthen_decl ~aliasable env md' path in
         ignore(Includemod.modtypes ~loc env newmd.md_type md.md_type);
@@ -653,10 +653,10 @@ let map_ext fn exts rem =
 let rec approx_modtype env smty =
   match smty.pmty_desc with
     Pmty_ident lid ->
-      let (path, _info) = Typetexp.find_modtype env smty.pmty_loc lid.txt in
+      let (path, _info) = Typetexp.find_modtype ~warnings:(Warnings.backup ()) env smty.pmty_loc lid.txt in
       Mty_ident path
   | Pmty_alias lid ->
-      let path = Typetexp.lookup_module env smty.pmty_loc lid.txt in
+      let path = Typetexp.lookup_module ~warnings:(Warnings.backup ()) env smty.pmty_loc lid.txt in
       Mty_alias(Mta_absent, path)
   | Pmty_signature ssg ->
       Mty_signature(approx_sig env ssg)
@@ -676,9 +676,9 @@ let rec approx_modtype env smty =
           | Pwith_module (_, lid') ->
               (* Lookup the module to make sure that it is not recursive.
                  (GPR#1626) *)
-              ignore (Typetexp.find_module env lid'.loc lid'.txt)
+              ignore (Typetexp.find_module ~warnings:(Warnings.backup ()) env lid'.loc lid'.txt)
           | Pwith_modsubst (_, lid') ->
-              ignore (Typetexp.find_module env lid'.loc lid'.txt))
+              ignore (Typetexp.find_module ~warnings:(Warnings.backup ()) env lid'.loc lid'.txt))
         constraints;
       body
   | Pmty_typeof smod ->
@@ -912,11 +912,11 @@ let has_remove_aliases_attribute attr =
 (* Check and translate a module type expression *)
 
 let transl_modtype_longident loc env lid =
-  let (path, _info) = Typetexp.find_modtype env loc lid in
+  let (path, _info) = Typetexp.find_modtype ~warnings:(Warnings.backup ()) env loc lid in
   path
 
 let transl_module_alias loc env lid =
-  Typetexp.lookup_module env loc lid
+  Typetexp.lookup_module ~warnings:(Warnings.backup ()) env loc lid
 
 let mkmty desc typ env loc attrs =
   let mty = {
@@ -1518,7 +1518,7 @@ and type_module_aux ~alias sttn funct_body anchor env smod =
   match smod.pmod_desc with
     Pmod_ident lid ->
       let path =
-        Typetexp.lookup_module ~load:(not alias) env smod.pmod_loc lid.txt in
+        Typetexp.lookup_module ~warnings:(Warnings.backup ()) ~load:(not alias) env smod.pmod_loc lid.txt in
       let md = { mod_desc = Tmod_ident (path, lid);
                  mod_type = Mty_alias(Mta_absent, path);
                  mod_env = env;
@@ -2007,7 +2007,7 @@ let type_module_type_of env smod =
   let tmty =
     match smod.pmod_desc with
     | Pmod_ident lid -> (* turn off strengthening in this case *)
-        let path, md = Typetexp.find_module env smod.pmod_loc lid.txt in
+        let path, md = Typetexp.find_module ~warnings:(Warnings.backup ()) env smod.pmod_loc lid.txt in
           rm { mod_desc = Tmod_ident (path, lid);
                mod_type = md.md_type;
                mod_env = env;
