@@ -30,7 +30,7 @@ let to_bytecode i (typedtree, coercion) =
     (fun { Lambda.code = lambda; required_globals } ->
        lambda
        |> print_if i.ppf_dump Clflags.dump_rawlambda Printlambda.lambda
-       |> Simplif.simplify_lambda i.sourcefile
+       |> Simplif.simplify_lambda ~warnings:(Warnings.backup ()) i.sourcefile
        |> print_if i.ppf_dump Clflags.dump_lambda Printlambda.lambda
        |> Bytegen.compile_implementation i.modulename
        |> print_if i.ppf_dump Clflags.dump_instr Printinstr.instrlist

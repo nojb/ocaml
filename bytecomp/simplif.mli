@@ -22,7 +22,7 @@
 
 open Lambda
 
-val simplify_lambda: string -> lambda -> lambda
+val simplify_lambda: warnings:Warnings.state -> string -> lambda -> lambda
 
 val split_default_wrapper
    : id:Ident.t

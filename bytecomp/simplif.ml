@@ -553,7 +553,8 @@ let simplify_lets lam =
 let is_tail_native_heuristic : (int -> bool) ref =
   ref (fun _ -> true)
 
-let rec emit_tail_infos is_tail lambda =
+let rec emit_tail_infos ~warnings is_tail lambda =
+  let emit_tail_infos = emit_tail_infos ~warnings in
   let call_kind args =
     if is_tail
     && ((not !Clflags.native_code)
@@ -569,7 +570,7 @@ let rec emit_tail_infos is_tail lambda =
       && Warnings.is_active Warnings.Expect_tailcall (Warnings.backup ())
         then Location.prerr_warning ap.ap_loc Warnings.Expect_tailcall;
       emit_tail_infos false ap.ap_func;
-      list_emit_tail_infos false ap.ap_args;
+      list_emit_tail_infos ~warnings false ap.ap_args;
       if !Clflags.annotations then
         Stypes.record (Stypes.An_call (ap.ap_loc, call_kind ap.ap_args))
   | Lfunction {body = lam} ->
@@ -589,11 +590,11 @@ let rec emit_tail_infos is_tail lambda =
       emit_tail_infos false arg1;
       emit_tail_infos is_tail arg2
   | Lprim (_, l, _) ->
-      list_emit_tail_infos false l
+      list_emit_tail_infos ~warnings false l
   | Lswitch (lam, sw, _loc) ->
       emit_tail_infos false lam;
-      list_emit_tail_infos_fun snd is_tail sw.sw_consts;
-      list_emit_tail_infos_fun snd is_tail sw.sw_blocks;
+      list_emit_tail_infos_fun ~warnings snd is_tail sw.sw_consts;
+      list_emit_tail_infos_fun ~warnings snd is_tail sw.sw_blocks;
       Misc.may  (emit_tail_infos is_tail) sw.sw_failaction
   | Lstringswitch (lam, sw, d, _) ->
       emit_tail_infos false lam;
@@ -602,7 +603,7 @@ let rec emit_tail_infos is_tail lambda =
         sw ;
       Misc.may (emit_tail_infos is_tail) d
   | Lstaticraise (_, l) ->
-      list_emit_tail_infos false l
+      list_emit_tail_infos ~warnings false l
   | Lstaticcatch (body, _, handler) ->
       emit_tail_infos is_tail body;
       emit_tail_infos is_tail handler
@@ -628,17 +629,17 @@ let rec emit_tail_infos is_tail lambda =
   | Lsend (_, meth, obj, args, loc) ->
       emit_tail_infos false meth;
       emit_tail_infos false obj;
-      list_emit_tail_infos false args;
+      list_emit_tail_infos ~warnings false args;
       if !Clflags.annotations then
         Stypes.record (Stypes.An_call (loc, call_kind (obj :: args)));
   | Levent (lam, _) ->
       emit_tail_infos is_tail lam
   | Lifused (_, lam) ->
       emit_tail_infos is_tail lam
-and list_emit_tail_infos_fun f is_tail =
-  List.iter (fun x -> emit_tail_infos is_tail (f x))
-and list_emit_tail_infos is_tail =
-  List.iter (emit_tail_infos is_tail)
+and list_emit_tail_infos_fun ~warnings f is_tail =
+  List.iter (fun x -> emit_tail_infos ~warnings is_tail (f x))
+and list_emit_tail_infos ~warnings is_tail =
+  List.iter (emit_tail_infos ~warnings is_tail)
 
 (* Split a function with default parameters into a wrapper and an
    inner function.  The wrapper fills in missing optional parameters
@@ -703,9 +704,9 @@ module Hooks = Misc.MakeHooks(struct
 (* The entry point:
    simplification + emission of tailcall annotations, if needed. *)
 
-let simplify_lambda sourcefile lam =
+let simplify_lambda ~warnings sourcefile lam =
   let res = simplify_lets (simplify_exits lam) in
   let res = Hooks.apply_hooks { Misc.sourcefile } res in
-  if !Clflags.annotations || Warnings.is_active Warnings.Expect_tailcall (Warnings.backup ())
-    then emit_tail_infos true res;
+  if !Clflags.annotations || Warnings.is_active Warnings.Expect_tailcall warnings
+    then emit_tail_infos ~warnings true res;
   res

@@ -157,7 +157,7 @@ let record_backtrace () =
 
 let load_lambda ppf lam =
   if !Clflags.dump_rawlambda then fprintf ppf "%a@." Printlambda.lambda lam;
-  let slam = Simplif.simplify_lambda "//toplevel//" lam in
+  let slam = Simplif.simplify_lambda ~warnings:(Warnings.backup ()) "//toplevel//" lam in
   if !Clflags.dump_lambda then fprintf ppf "%a@." Printlambda.lambda slam;
   let (init_code, fun_code) = Bytegen.compile_phrase slam in
   if !Clflags.dump_instr then
