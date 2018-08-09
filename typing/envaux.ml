@@ -40,7 +40,7 @@ let rec env_from_summary sum subst =
           Env.add_value id (Subst.value_description subst desc)
                         (env_from_summary s subst)
       | Env_type(s, id, desc) ->
-          Env.add_type ~check:false id
+          Env.add_type ~warnings:(Warnings.backup ()) ~check:false id
             (Subst.type_declaration subst desc)
             (env_from_summary s subst)
       | Env_extension(s, id, desc) ->

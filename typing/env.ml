@@ -1780,7 +1780,7 @@ and store_value ?check id decl env =
     values = IdTbl.add id decl env.values;
     summary = Env_value(env.summary, id, decl) }
 
-and store_type ~check id info env =
+and store_type ~warnings ~check id info env =
   let loc = info.type_loc in
   if check then
     check_usage loc id (fun s -> Warnings.Unused_type_declaration s)
@@ -1791,7 +1791,7 @@ and store_type ~check id info env =
   let descrs = (List.map snd constructors, List.map snd labels) in
 
   if check && not loc.Location.loc_ghost &&
-    Warnings.is_active (Warnings.Unused_constructor ("", false, false)) (Warnings.backup ())
+    Warnings.is_active (Warnings.Unused_constructor ("", false, false)) warnings
   then begin
     let ty = Ident.name id in
     List.iter
@@ -1929,8 +1929,8 @@ let add_functor_arg id env =
 let add_value ?check id desc env =
   store_value ?check id desc env
 
-let add_type ~check id info env =
-  store_type ~check id info env
+let add_type ~warnings ~check id info env =
+  store_type ~warnings ~check id info env
 
 and add_extension ~check id ext env =
   store_extension ~check id ext env
@@ -1962,7 +1962,7 @@ let enter store_fun name data env =
   let id = Ident.create name in (id, store_fun id data env)
 
 let enter_value ?check = enter (store_value ?check)
-and enter_type = enter (store_type ~check:true)
+and enter_type ~warnings = enter (store_type ~warnings ~check:true)
 and enter_extension = enter (store_extension ~check:true)
 and enter_module_declaration ?arg id md env =
   add_module_declaration ?arg ~check:true id md env
@@ -1978,20 +1978,20 @@ let enter_module ?arg s mty env =
 
 (* Insertion of all components of a signature *)
 
-let add_item comp env =
+let add_item ~warnings comp env =
   match comp with
     Sig_value(id, decl)     -> add_value id decl env
-  | Sig_type(id, decl, _)   -> add_type ~check:false id decl env
+  | Sig_type(id, decl, _)   -> add_type ~warnings ~check:false id decl env
   | Sig_typext(id, ext, _)  -> add_extension ~check:false id ext env
   | Sig_module(id, md, _)   -> add_module_declaration ~check:false id md env
   | Sig_modtype(id, decl)   -> add_modtype id decl env
   | Sig_class(id, decl, _)  -> add_class id decl env
   | Sig_class_type(id, decl, _) -> add_cltype id decl env
 
-let rec add_signature sg env =
+let rec add_signature ~warnings sg env =
   match sg with
     [] -> env
-  | comp :: rem -> add_signature rem (add_item comp env)
+  | comp :: rem -> add_signature ~warnings rem (add_item ~warnings comp env)
 
 (* Open a signature path *)
 
@@ -2310,7 +2310,7 @@ and fold_cltypes f =
 (* Make the initial environment *)
 let (initial_safe_string, initial_unsafe_string) =
   Predef.build_initial_env
-    (add_type ~check:false)
+    (add_type ~warnings:(Warnings.backup ()) ~check:false)
     (add_extension ~check:false)
     empty
 

@@ -1525,7 +1525,7 @@ let dummy =
   }
 
 let hide ids env = List.fold_right
-    (fun id -> Env.add_type ~check:false (Ident.rename id) dummy)
+    (fun id -> Env.add_type ~warnings:(Warnings.backup ()) ~check:false (Ident.rename id) dummy)
     ids env
 
 let hide_rec_items = function
@@ -1596,7 +1596,7 @@ and tree_of_signature_rec env' in_type_group = function
       protect_rec_items items;
       reset_naming_context ();
       let trees = trees_of_sigitem item in
-      let env' = Env.add_signature (item :: sg) env' in
+      let env' = Env.add_signature ~warnings:(Warnings.backup ()) (item :: sg) env' in
       trees @ tree_of_signature_rec env' in_type_group rem
 
 and trees_of_sigitem = function
@@ -1667,7 +1667,7 @@ let print_items showval env x =
       reset_naming_context ();
       let trees = trees_of_sigitem item in
       List.map (fun d -> (d, showval env item)) trees @
-      print showval in_type_group (Env.add_signature (item :: sg) env) rem in
+      print showval in_type_group (Env.add_signature ~warnings:(Warnings.backup ()) (item :: sg) env) rem in
   print showval false env x
 
 (* Print a signature body (used by -i when compiling a .ml) *)

@@ -143,7 +143,7 @@ exception Recmodule
 
 val add_value:
     ?check:(string -> Warnings.t) -> Ident.t -> value_description -> t -> t
-val add_type: check:bool -> Ident.t -> type_declaration -> t -> t
+val add_type: warnings:Warnings.state -> check:bool -> Ident.t -> type_declaration -> t -> t
 val add_extension: check:bool -> Ident.t -> extension_constructor -> t -> t
 val add_module: ?arg:bool -> Ident.t -> module_type -> t -> t
 val add_module_declaration: ?arg:bool -> check:bool -> Ident.t ->
@@ -155,8 +155,8 @@ val add_local_type: Path.t -> type_declaration -> t -> t
 
 (* Insertion of all fields of a signature. *)
 
-val add_item: signature_item -> t -> t
-val add_signature: signature -> t -> t
+val add_item: warnings:Warnings.state -> signature_item -> t -> t
+val add_signature: warnings:Warnings.state -> signature -> t -> t
 
 (* Insertion of all fields of a signature, relative to the given path.
    Used to implement open. Returns None if the path refers to a functor,
@@ -191,7 +191,7 @@ val open_pers_signature: string -> t -> t
 val enter_value:
     ?check:(string -> Warnings.t) ->
     string -> value_description -> t -> Ident.t * t
-val enter_type: string -> type_declaration -> t -> Ident.t * t
+val enter_type: warnings:Warnings.state -> string -> type_declaration -> t -> Ident.t * t
 val enter_extension: string -> extension_constructor -> t -> Ident.t * t
 val enter_module: ?arg:bool -> string -> module_type -> t -> Ident.t * t
 val enter_module_declaration:
