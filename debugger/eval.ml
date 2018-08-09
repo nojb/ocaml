@@ -72,11 +72,11 @@ let rec path event = function
 let rec expression event env = function
     E_ident lid ->
       begin try
-        let (p, valdesc) = Env.lookup_value lid env in
+        let (p, valdesc) = Env.lookup_value ~warnings:(Warnings.backup ()) lid env in
         (begin match valdesc.val_kind with
            Val_ivar (_, cl_num) ->
              let (p0, _) =
-               Env.lookup_value (Longident.Lident ("self-" ^ cl_num)) env
+               Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident ("self-" ^ cl_num)) env
              in
              let v = path event p0 in
              let i = path event p in

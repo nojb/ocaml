@@ -214,10 +214,10 @@ module Make(O : OBJ)(EVP : EVALPATH with type valu = O.t) = struct
 
     let tree_of_constr =
       tree_of_qualified
-        (fun lid env -> (Env.lookup_constructor lid env).cstr_res)
+        (fun lid env -> (Env.lookup_constructor ~warnings:(Warnings.backup ()) lid env).cstr_res)
 
     and tree_of_label =
-      tree_of_qualified (fun lid env -> (Env.lookup_label lid env).lbl_res)
+      tree_of_qualified (fun lid env -> (Env.lookup_label ~warnings:(Warnings.backup ()) lid env).lbl_res)
 
     (* An abstract type *)
 
@@ -546,7 +546,7 @@ module Make(O : OBJ)(EVP : EVALPATH with type valu = O.t) = struct
       try
         (* Attempt to recover the constructor description for the exn
            from its name *)
-        let cstr = Env.lookup_constructor lid env in
+        let cstr = Env.lookup_constructor ~warnings:(Warnings.backup ()) lid env in
         let path =
           match cstr.cstr_tag with
             Cstr_extension(p, _) -> p

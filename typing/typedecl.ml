@@ -534,7 +534,7 @@ let transl_declaration env sdecl id =
   (* Add abstract row *)
     if is_fixed_type sdecl then begin
       let p =
-        try Env.lookup_type (Longident.Lident(Ident.name id ^ "#row")) env
+        try Env.lookup_type ~warnings:(Warnings.backup ()) (Longident.Lident(Ident.name id ^ "#row")) env
         with Not_found -> assert false in
       set_fixed_row env sdecl.ptype_loc p decl
     end;

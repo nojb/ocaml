@@ -279,7 +279,7 @@ type 'a printer_type_old = 'a -> unit
 let printer_type ppf typename =
   let printer_type =
     try
-      Env.lookup_type (Ldot(Lident "Topdirs", typename)) !toplevel_env
+      Env.lookup_type ~warnings:(Warnings.backup ()) (Ldot(Lident "Topdirs", typename)) !toplevel_env
     with Not_found ->
       fprintf ppf "Cannot find type Topdirs.%s.@." typename;
       raise Exit in
@@ -333,7 +333,7 @@ let match_printer_type ppf desc =
 
 let find_printer_type ppf lid =
   try
-    let (path, desc) = Env.lookup_value lid !toplevel_env in
+    let (path, desc) = Env.lookup_value ~warnings:(Warnings.backup ()) lid !toplevel_env in
     let (ty_arg, is_old_style) = match_printer_type ppf desc in
     (ty_arg, path, is_old_style)
   with
@@ -407,7 +407,7 @@ let tracing_function_ptr =
 
 let dir_trace ppf lid =
   try
-    let (path, desc) = Env.lookup_value lid !toplevel_env in
+    let (path, desc) = Env.lookup_value ~warnings:(Warnings.backup ()) lid !toplevel_env in
     (* Check if this is a primitive *)
     match desc.val_kind with
     | Val_prim _ ->
@@ -445,7 +445,7 @@ let dir_trace ppf lid =
 
 let dir_untrace ppf lid =
   try
-    let (path, _desc) = Env.lookup_value lid !toplevel_env in
+    let (path, _desc) = Env.lookup_value ~warnings:(Warnings.backup ()) lid !toplevel_env in
     let rec remove = function
     | [] ->
         fprintf ppf "%a was not traced.@." Printtyp.longident lid;

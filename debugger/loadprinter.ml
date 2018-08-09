@@ -112,7 +112,7 @@ let init () =
 let match_printer_type desc typename =
   let printer_type =
     try
-      Env.lookup_type (Ldot(Lident "Topdirs", typename)) Env.empty
+      Env.lookup_type ~warnings:(Warnings.backup ()) (Ldot(Lident "Topdirs", typename)) Env.empty
     with Not_found ->
       raise (Error(Unbound_identifier(Ldot(Lident "Topdirs", typename)))) in
   Ctype.init_def(Ident.current_time());
@@ -127,7 +127,7 @@ let match_printer_type desc typename =
 
 let find_printer_type lid =
   try
-    let (path, desc) = Env.lookup_value lid Env.empty in
+    let (path, desc) = Env.lookup_value ~warnings:(Warnings.backup ()) lid Env.empty in
     let (ty_arg, is_old_style) =
       try
         (match_printer_type desc "printer_type_new", false)

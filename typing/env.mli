@@ -95,34 +95,37 @@ val has_local_constraints: t -> bool
 (* ?loc is used to report 'deprecated module' warnings *)
 
 val lookup_value:
-  ?loc:Location.t -> ?mark:bool ->
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
   Longident.t -> t -> Path.t * value_description
 val lookup_constructor:
-  ?loc:Location.t -> ?mark:bool -> Longident.t -> t -> constructor_description
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
+  Longident.t -> t -> constructor_description
 val lookup_all_constructors:
-  ?loc:Location.t -> ?mark:bool ->
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
   Longident.t -> t -> (constructor_description * (unit -> unit)) list
 val lookup_label:
-  ?loc:Location.t -> ?mark:bool ->
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
   Longident.t -> t -> label_description
 val lookup_all_labels:
-  ?loc:Location.t -> ?mark:bool ->
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
   Longident.t -> t -> (label_description * (unit -> unit)) list
 val lookup_type:
-  ?loc:Location.t -> ?mark:bool -> Longident.t -> t -> Path.t
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
+  Longident.t -> t -> Path.t
   (* Since 4.04, this function no longer returns [type_description].
      To obtain it, you should either call [Env.find_type], or replace
      it by [Typetexp.find_type] *)
 val lookup_module:
-  load:bool -> ?loc:Location.t -> ?mark:bool -> Longident.t -> t -> Path.t
+  warnings:Warnings.state -> load:bool -> ?loc:Location.t -> ?mark:bool ->
+  Longident.t -> t -> Path.t
 val lookup_modtype:
-  ?loc:Location.t -> ?mark:bool ->
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
   Longident.t -> t -> Path.t * modtype_declaration
 val lookup_class:
-  ?loc:Location.t -> ?mark:bool ->
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
   Longident.t -> t -> Path.t * class_declaration
 val lookup_cltype:
-  ?loc:Location.t -> ?mark:bool ->
+  warnings:Warnings.state -> ?loc:Location.t -> ?mark:bool ->
   Longident.t -> t -> Path.t * class_type_declaration
 
 type copy_of_types
@@ -306,31 +309,31 @@ val same_constr: (t -> type_expr -> type_expr -> bool) ref
 
 val fold_values:
   (string -> Path.t -> value_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  warnings:Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_types:
   (string -> Path.t -> type_declaration * type_descriptions -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  warnings:Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_constructors:
   (constructor_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  warnings:Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_labels:
   (label_description -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  warnings:Warnings.state -> Longident.t option -> t -> 'a -> 'a
 
 (** Persistent structures are only traversed if they are already loaded. *)
 val fold_modules:
   (string -> Path.t -> module_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  warnings:Warnings.state -> Longident.t option -> t -> 'a -> 'a
 
 val fold_modtypes:
   (string -> Path.t -> modtype_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  warnings:Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_classs:
   (string -> Path.t -> class_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  warnings:Warnings.state -> Longident.t option -> t -> 'a -> 'a
 val fold_cltypes:
   (string -> Path.t -> class_type_declaration -> 'a -> 'a) ->
-  Longident.t option -> t -> 'a -> 'a
+  warnings:Warnings.state -> Longident.t option -> t -> 'a -> 'a
 
 (** Utilities *)
 val scrape_alias: t -> module_type -> module_type

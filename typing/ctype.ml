@@ -2290,7 +2290,7 @@ let complete_type_list ?(allow_absent=false) env nl1 lv2 mty2 nl2 tl2 =
     | n :: nl, _ ->
         try
           let path =
-            Env.lookup_type (concat_longident (Longident.Lident "Pkg") n) env'
+            Env.lookup_type ~warnings:(Warnings.backup ()) (concat_longident (Longident.Lident "Pkg") n) env'
           in
           match Env.find_type path env' with
             {type_arity = 0; type_kind = Type_abstract;
@@ -3767,7 +3767,7 @@ let rec lid_of_path ?(hash="") = function
       Longident.Lapply (lid_of_path ~hash p1, lid_of_path p2)
 
 let find_cltype_for_path env p =
-  let cl_path = Env.lookup_type (lid_of_path ~hash:"#" p) env in
+  let cl_path = Env.lookup_type ~warnings:(Warnings.backup ()) (lid_of_path ~hash:"#" p) env in
   let cl_abbr = Env.find_type cl_path env in
 
   match cl_abbr.type_manifest with

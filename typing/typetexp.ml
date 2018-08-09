@@ -83,7 +83,7 @@ let typemod_update_location = ref (fun _ -> assert false)
 let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
   fun env loc lid make_error ->
   let check_module mlid =
-    try ignore (Env.lookup_module ~load:true mlid env) with
+    try ignore (Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true mlid env) with
     | Not_found ->
         narrow_unbound_lid_error env loc mlid (fun lid -> Unbound_module lid)
     | Env.Recmodule ->
@@ -94,7 +94,7 @@ let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
   | Longident.Lident _ -> ()
   | Longident.Ldot (mlid, _) ->
       check_module mlid;
-      let md = Env.find_module (Env.lookup_module ~load:true mlid env) env in
+      let md = Env.find_module (Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true mlid env) env in
       begin match Env.scrape_alias env md.md_type with
       | Mty_functor _ ->
          error (Wrong_use_of_module (mlid, `Functor_used_as_structure))
@@ -105,7 +105,7 @@ let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
       end
   | Longident.Lapply (flid, mlid) ->
       check_module flid;
-      let fmd = Env.find_module (Env.lookup_module ~load:true flid env) env in
+      let fmd = Env.find_module (Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true flid env) env in
       let mty_param =
         match Env.scrape_alias env fmd.md_type with
         | Mty_signature _ ->
@@ -118,7 +118,7 @@ let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
         | Mty_functor (_, Some mty_param, _) -> mty_param
       in
       check_module mlid;
-      let mpath = Env.lookup_module ~load:true mlid env in
+      let mpath = Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true mlid env in
       let mmd = Env.find_module mpath env in
       begin match Env.scrape_alias env mmd.md_type with
       | Mty_alias(_, p) -> error (Cannot_scrape_alias(mlid, p))
@@ -134,13 +134,13 @@ let rec narrow_unbound_lid_error : 'a. _ -> _ -> _ -> _ -> 'a =
   end;
   error (make_error lid)
 
-let find_component (lookup : ?loc:_ -> ?mark:_ -> _) make_error env loc lid =
+let find_component (lookup : warnings:Warnings.state -> ?loc:_ -> ?mark:_ -> _) make_error env loc lid =
   try
     match lid with
     | Longident.Ldot (Longident.Lident "*predef*", s) ->
-        lookup ~loc (Longident.Lident s) Env.initial_safe_string
+        lookup ~warnings:(Warnings.backup ()) ~loc (Longident.Lident s) Env.initial_safe_string
     | _ ->
-        lookup ~loc lid env
+        lookup ~warnings:(Warnings.backup ()) ~loc lid env
   with Not_found ->
     narrow_unbound_lid_error env loc lid make_error
   | Env.Recmodule ->
@@ -184,7 +184,7 @@ let find_value env loc lid =
 
 let lookup_module ?(load=false) env loc lid =
   find_component
-    (fun ?loc ?mark lid env -> (Env.lookup_module ~load ?loc ?mark lid env))
+    (fun ~warnings ?loc ?mark lid env -> (Env.lookup_module ~warnings ~load ?loc ?mark lid env))
     (fun lid -> Unbound_module lid) env loc lid
 
 let find_module env loc lid =
@@ -414,7 +414,7 @@ and transl_type_aux env policy styp =
   | Ptyp_class(lid, stl) ->
       let (path, decl, _is_variant) =
         try
-          let path = Env.lookup_type lid.txt env in
+          let path = Env.lookup_type ~warnings:(Warnings.backup ()) lid.txt env in
           let decl = Env.find_type path env in
           let rec check decl =
             match decl.type_manifest with
@@ -436,7 +436,7 @@ and transl_type_aux env policy styp =
             | Longident.Ldot(r, s)   -> Longident.Ldot (r, "#" ^ s)
             | Longident.Lapply(_, _) -> fatal_error "Typetexp.transl_type"
           in
-          let path = Env.lookup_type lid2 env in
+          let path = Env.lookup_type ~warnings:(Warnings.backup ()) lid2 env in
           let decl = Env.find_type path env in
           (path, decl, false)
         with Not_found ->
@@ -855,7 +855,7 @@ open Printtyp
 
 let spellcheck ppf fold env lid =
   let choices ~path name =
-    let env = fold (fun x xs -> x::xs) path env [] in
+    let env = fold (fun x xs -> x::xs) ~warnings:(Warnings.backup ()) path env [] in
     Misc.spellcheck env name in
   match lid with
     | Longident.Lapply _ -> ()

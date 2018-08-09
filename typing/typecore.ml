@@ -328,12 +328,12 @@ let mkexp exp_desc exp_type exp_loc exp_env =
 let option_none ty loc =
   let lid = Longident.Lident "None"
   and env = Env.initial_safe_string in
-  let cnone = Env.lookup_constructor lid env in
+  let cnone = Env.lookup_constructor ~warnings:(Warnings.backup ()) lid env in
   mkexp (Texp_construct(mknoloc lid, cnone, [])) ty loc env
 
 let option_some texp =
   let lid = Longident.Lident "Some" in
-  let csome = Env.lookup_constructor lid Env.initial_safe_string in
+  let csome = Env.lookup_constructor ~warnings:(Warnings.backup ()) lid Env.initial_safe_string in
   mkexp ( Texp_construct(mknoloc lid , csome, [texp]) )
     (type_option texp.exp_type) texp.exp_loc texp.exp_env
 
@@ -1857,7 +1857,7 @@ let rec approx_type env sty =
       newty (Ttuple (List.map (approx_type env) args))
   | Ptyp_constr (lid, ctl) ->
       begin try
-        let path = Env.lookup_type lid.txt env in
+        let path = Env.lookup_type ~warnings:(Warnings.backup ()) lid.txt env in
         let decl = Env.find_type path env in
         if List.length ctl <> decl.type_arity then raise Not_found;
         let tyl = List.map (approx_type env) ctl in
@@ -2204,7 +2204,7 @@ and type_expect_
             begin match desc.val_kind with
               Val_ivar (_, cl_num) ->
                 let (self_path, _) =
-                  Env.lookup_value (Longident.Lident ("self-" ^ cl_num)) env
+                  Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident ("self-" ^ cl_num)) env
                 in
                 Texp_instvar(self_path, path,
                              match lid.txt with
@@ -2212,7 +2212,7 @@ and type_expect_
                                | _ -> assert false)
             | Val_self (_, _, cl_num, _) ->
                 let (path, _) =
-                  Env.lookup_value (Longident.Lident ("self-" ^ cl_num)) env
+                  Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident ("self-" ^ cl_num)) env
                 in
                 Texp_ident(path, lid, desc)
             | Val_unbound Val_unbound_instance_variable ->
@@ -2830,8 +2830,8 @@ and type_expect_
                 end
               in
               begin match
-                Env.lookup_value (Longident.Lident ("selfpat-" ^ cl_num)) env,
-                Env.lookup_value (Longident.Lident ("self-" ^cl_num)) env
+                Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident ("selfpat-" ^ cl_num)) env,
+                Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident ("self-" ^cl_num)) env
               with
                 (_, ({val_kind = Val_self (meths, _, _, privty)} as desc)),
                 (path, _) ->
@@ -2934,14 +2934,14 @@ and type_expect_
         end
   | Pexp_setinstvar (lab, snewval) ->
       begin try
-        let (path, desc) = Env.lookup_value (Longident.Lident lab.txt) env in
+        let (path, desc) = Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident lab.txt) env in
         match desc.val_kind with
           Val_ivar (Mutable, cl_num) ->
             let newval =
               type_expect env snewval (mk_expected (instance desc.val_type))
             in
             let (path_self, _) =
-              Env.lookup_value (Longident.Lident ("self-" ^ cl_num)) env
+              Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident ("self-" ^ cl_num)) env
             in
             rue {
               exp_desc = Texp_setinstvar(path_self, path, lab, newval);
@@ -2959,7 +2959,7 @@ and type_expect_
             match val_desc.val_kind with
             | Val_ivar (Mutable, _) -> name::li
             | _ -> li in
-          let valid_vars = Env.fold_values collect_vars None env [] in
+          let valid_vars = Env.fold_values collect_vars ~warnings:(Warnings.backup ()) None env [] in
           raise(Error(loc, env,
                       Unbound_instance_variable (lab.txt, valid_vars)))
       end
@@ -2975,8 +2975,8 @@ and type_expect_
         [] in
       begin match
         try
-          Env.lookup_value (Longident.Lident "selfpat-*") env,
-          Env.lookup_value (Longident.Lident "self-*") env
+          Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident "selfpat-*") env,
+          Env.lookup_value ~warnings:(Warnings.backup ()) (Longident.Lident "self-*") env
         with Not_found ->
           raise(Error(loc, env, Outside_class))
       with
@@ -4501,7 +4501,7 @@ let type_expression env sexp =
   match sexp.pexp_desc with
     Pexp_ident lid ->
       (* Special case for keeping type variables when looking-up a variable *)
-      let (_path, desc) = Env.lookup_value lid.txt env in
+      let (_path, desc) = Env.lookup_value ~warnings:(Warnings.backup ()) lid.txt env in
       {exp with exp_type = desc.val_type}
   | _ -> exp
 

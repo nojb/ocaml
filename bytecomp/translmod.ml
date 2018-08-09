@@ -184,7 +184,7 @@ let record_primitive = function
 let mod_prim name =
   try
     transl_normal_path
-      (fst (Env.lookup_value (Ldot (Lident "CamlinternalMod", name))
+      (fst (Env.lookup_value ~warnings:(Warnings.backup ()) (Ldot (Lident "CamlinternalMod", name))
                              Env.empty))
   with Not_found ->
     fatal_error ("Primitive " ^ name ^ " not found.")

@@ -77,12 +77,12 @@ module Namespace = struct
 
   let lookup =
     let to_lookup f lid =
-      fst @@ f ?loc:None ?mark:(Some false) (Lident lid) !printing_env in
+      fst @@ f ~warnings:(Warnings.backup ()) ?loc:None ?mark:(Some false) (Lident lid) !printing_env in
     function
     | Type -> fun id ->
-      Env.lookup_type ?loc:None ~mark:false (Lident id) !printing_env
+      Env.lookup_type ~warnings:(Warnings.backup ()) ?loc:None ~mark:false (Lident id) !printing_env
     | Module -> fun id ->
-      Env.lookup_module ~load:true ~mark:false ?loc:None
+      Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true ~mark:false ?loc:None
         (Lident id) !printing_env
     | Module_type -> to_lookup Env.lookup_modtype
     | Class -> to_lookup Env.lookup_class
@@ -288,14 +288,14 @@ let ident_stdlib = Ident.create_persistent "Stdlib"
 let non_shadowed_pervasive = function
   | Pdot(Pident id, s, _) as path ->
       Ident.same id ident_stdlib &&
-      (try Path.same path (Env.lookup_type (Lident s) !printing_env)
+      (try Path.same path (Env.lookup_type ~warnings:(Warnings.backup ()) (Lident s) !printing_env)
        with Not_found -> true)
   | Pdot(Pdot (Pident id, "Pervasives", _), s, _) as path ->
       Ident.same id ident_stdlib &&
       (* Make sure Stdlib.<s> is the same as Stdlib.Pervasives.<s> *)
       (try
          let td =
-           Env.find_type (Env.lookup_type (Lident s) !printing_env)
+           Env.find_type (Env.lookup_type ~warnings:(Warnings.backup ()) (Lident s) !printing_env)
              !printing_env
          in
          match td.type_private, td.type_manifest with
@@ -347,7 +347,7 @@ let rec rewrite_double_underscore_paths env p =
            String.capitalize_ascii
              (String.sub name (i + 2) (String.length name - i - 2)))
       in
-      match Env.lookup_module ~load:true better_lid env with
+      match Env.lookup_module ~warnings:(Warnings.backup ()) ~load:true better_lid env with
       | exception Not_found -> p
       | p' ->
         if module_path_is_an_alias_of env p' ~alias_of:p then
@@ -674,7 +674,7 @@ let is_unambiguous path env =
       (* also allow repeatedly defining and opening (for toplevel) *)
       let id = lid_of_path p in
       List.for_all (fun p -> lid_of_path p = id) rem &&
-      Path.same p (Env.lookup_type id env)
+      Path.same p (Env.lookup_type ~warnings:(Warnings.backup ()) id env)
 
 let rec get_best_path r =
   match !r with

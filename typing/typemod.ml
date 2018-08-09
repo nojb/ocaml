@@ -573,7 +573,7 @@ let merge_constraint initial_env remove_aliases loc sg constr =
          match type_decl_is_alias sdecl with
          | Some lid ->
             let replacement =
-              try Env.lookup_type lid.txt initial_env
+              try Env.lookup_type ~warnings:(Warnings.backup ()) lid.txt initial_env
               with Not_found -> assert false
             in
             fun s path -> Subst.add_type_path path replacement s
