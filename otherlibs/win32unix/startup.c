@@ -20,28 +20,18 @@
 #include "winworker.h"
 #include "windbug.h"
 
-value val_process_id;
-
-CAMLprim value win_startup(unit)
-     value unit;
+CAMLprim value win_startup(value unit)
 {
   WSADATA wsaData;
-  int i;
-  HANDLE h;
 
   (void) WSAStartup(MAKEWORD(2, 0), &wsaData);
-  DuplicateHandle(GetCurrentProcess(), GetCurrentProcess(),
-                  GetCurrentProcess(), &h, 0, TRUE,
-                  DUPLICATE_SAME_ACCESS);
-  val_process_id = Val_int(h);
 
   worker_init();
 
   return Val_unit;
 }
 
-CAMLprim value win_cleanup(unit)
-     value unit;
+CAMLprim value win_cleanup(value unit)
 {
   worker_cleanup();
 

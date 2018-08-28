@@ -77,7 +77,7 @@ static DWORD do_create_process_native(wchar_t * exefile, wchar_t * cmdline,
  ret2:
   CloseHandle(si.hStdInput);
  ret1:
-  *hProcess = (err == ERROR_SUCCESS) ? pi.hProcess : NULL;
+  *dwProcessId = (err == ERROR_SUCCESS) ? pi.dwProcessId : 0;
   return err;
 }
 
@@ -85,7 +85,7 @@ value win_create_process_native(value cmd, value cmdline, value env,
                                value fd1, value fd2, value fd3)
 {
   wchar_t * exefile, * wcmdline, * wenv, * wcmd;
-  HANDLE hProcess;
+  DWORD dwProcessId;
   DWORD err;
   int size;
 
@@ -114,7 +114,7 @@ value win_create_process_native(value cmd, value cmdline, value env,
 
   err =
     do_create_process_native(exefile, wcmdline, wenv, Handle_val(fd1),
-                             Handle_val(fd2), Handle_val(fd3), &hProcess);
+                             Handle_val(fd2), Handle_val(fd3), &dwProcessId);
 
   if (wenv != NULL) caml_stat_free(wenv);
   caml_stat_free(wcmdline);
@@ -125,7 +125,7 @@ value win_create_process_native(value cmd, value cmdline, value env,
   }
   /* Return the process handle as pseudo-PID
      (this is consistent with the wait() emulation in the MSVC C library */
-  return Val_long(hProcess);
+  return Val_long(dwProcessId);
 }
 
 CAMLprim value win_create_process(value * argv, int argn)
@@ -151,5 +151,7 @@ static int win_has_console(void)
 
 CAMLprim value win_terminate_process(value v_pid)
 {
-  return (Val_bool(TerminateProcess((HANDLE) Long_val(v_pid), 0)));
+  HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0, Long_val(v_pid));
+  if (hProcess == NULL) return Val_bool(0);
+  return (Val_bool(TerminateProcess(hProcess, 0)));
 }

@@ -43,8 +43,16 @@ CAMLprim value win_waitpid(value vflags, value vpid_req)
 {
   int flags;
   DWORD status, retcode;
-  HANDLE pid_req = (HANDLE) Long_val(vpid_req);
+  HANDLE pid_req = INVALID_HANDLE_VALUE;
   DWORD err = 0;
+
+  pid_req = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE,
+                        0, Long_val(vpid_req));
+  if (pid_req == NULL) {
+    err = GetLastError();
+    win32_maperr(err);
+    uerror("waitpid", Nothing);
+  }
 
   flags = caml_convert_flag_list(vflags, wait_flag_table);
   if ((flags & CAML_WNOHANG) == 0) {
