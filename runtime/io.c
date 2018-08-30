@@ -81,8 +81,6 @@ CAMLexport struct channel * caml_open_descriptor_in(int fd)
   channel->curr = channel->max = channel->buff;
   channel->end = channel->buff + IO_BUFFER_SIZE;
   channel->mutex = NULL;
-  channel->revealed = 0;
-  channel->old_revealed = 0;
   channel->refcount = 0;
   channel->flags = 0;
   channel->next = caml_all_opened_channels;
@@ -396,8 +394,7 @@ CAMLexport intnat caml_input_scan_line(struct channel *channel)
    objects into a heap-allocated object.  Perform locking
    and unlocking around the I/O operations. */
 
-/* FIXME CAMLexport, but not in io.h  exported for Cash ? */
-CAMLexport void caml_finalize_channel(value vchan)
+static void finalize_channel(value vchan)
 {
   struct channel * chan = Channel(vchan);
   if ((chan->flags & CHANNEL_FLAG_MANAGED_BY_GC) == 0) return;
@@ -448,7 +445,7 @@ static intnat hash_channel(value vchan)
 
 static struct custom_operations channel_operations = {
   "_chan",
-  caml_finalize_channel,
+  finalize_channel,
   compare_channel,
   hash_channel,
   custom_serialize_default,
