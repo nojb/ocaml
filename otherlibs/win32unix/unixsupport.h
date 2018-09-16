@@ -76,9 +76,10 @@ extern void cstringvect_free(wchar_t **);
 extern int unix_cloexec_default;
 extern int unix_cloexec_p(value cloexec);
 
-extern unix_time_to_FILETIME(double unixTime, FILETIME* ft);
-extern FILETIME_to_unix_time(FILETIME* time, __time64_t* result,
+extern void unix_time_to_FILETIME(double unixTime, FILETIME* ft);
+extern int FILETIME_to_unix_time(FILETIME* time, __time64_t* result,
                              __time64_t def);
+extern int SYSTEMTIME_to_tm(SYSTEMTIME *time, int isdst, struct tm *tm);
 
 /* Information stored in flags_fd, describing more precisely the socket
  * and its status. The whole flags_fd is initialized to 0.

@@ -23,6 +23,7 @@
 #include "unixsupport.h"
 #include "cst2constr.h"
 #include <errno.h>
+#include <time.h>
 
 /* Heap-allocation of Windows file handles */
 
@@ -358,6 +359,54 @@ int FILETIME_to_unix_time(FILETIME* time, __time64_t* result, __time64_t def)
   else {
     *result = def;
   }
+
+  return 1;
+}
+
+#define NUM_DAYS_OF_100_NANOS(x) (x / 864000000000U)
+
+static int SYSTEMTIME_to_yday(SYSTEMTIME *time, int *yday)
+{
+  FILETIME ft, fys;
+  SYSTEMTIME ys = {0};
+  ULARGE_INTEGER ftu, fysu;
+
+  ys.wDay = 1;
+  ys.wMonth = 1;
+  ys.wYear = time->wYear;
+
+  if (SystemTimeToFileTime(time, &ft) == 0)
+    return 0;
+
+  if (SystemTimeToFileTime(&ys, &fys) == 0)
+    return 0;
+
+  ftu.LowPart = ft.dwLowDateTime;
+  ftu.HighPart = ft.dwHighDateTime;
+  fysu.LowPart = fys.dwLowDateTime;
+  fysu.HighPart = fys.dwHighDateTime;
+
+  *yday = NUM_DAYS_OF_100_NANOS(ftu.QuadPart) - NUM_DAYS_OF_100_NANOS(fysu.QuadPart);
+
+  return 1;
+}
+
+int SYSTEMTIME_to_tm(SYSTEMTIME *time, int isdst, struct tm *tm)
+{
+  int yday;
+
+  if (SYSTEMTIME_to_yday(time, &yday) == 0)
+    return 0;
+
+  tm->tm_sec = time->wSecond;
+  tm->tm_min = time->wMinute;
+  tm->tm_hour = time->wHour;
+  tm->tm_mday = time->wDay;
+  tm->tm_mon = time->wMonth - 1;
+  tm->tm_year = time->wYear - 1900;
+  tm->tm_wday = time->wDayOfWeek;
+  tm->tm_yday = yday;
+  tm->tm_isdst = isdst;
 
   return 1;
 }

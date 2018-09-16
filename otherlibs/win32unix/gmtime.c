@@ -47,13 +47,24 @@ CAMLprim value unix_gmtime(value t)
   return alloc_tm(tm);
 }
 
+static int isdst(void)
+{
+  TIME_ZONE_INFORMATION tz;
+  return (GetTimeZoneInformation(&tz) == TIME_ZONE_ID_DAYLIGHT) ? 1 : 0;
+}
+
 CAMLprim value unix_localtime(value t)
 {
-  time_t clock;
   struct tm * tm;
-  clock = (time_t) Double_val(t);
-  tm = localtime(&clock);
-  if (tm == NULL) unix_error(EINVAL, "localtime", Nothing);
+  FILETIME ft;
+  SYSTEMTIME utcTime, localTime;
+  TIME_ZONE_INFORMATION tzInfo;
+
+  unix_time_to_FILETIME(Double_val(t), &ft);
+  FileTimeToSystemTime(&ft, &utcTime);
+  SystemTimeToTzSpecificLocalTime(NULL, &utcTime, &localTime);
+  SYSTEMTIME_to_tm(&localTime, isdst(), &tm);
+
   return alloc_tm(tm);
 }
 
