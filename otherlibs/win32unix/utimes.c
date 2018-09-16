@@ -24,18 +24,6 @@
 
 #include <windows.h>
 
-static void convert_time(double unixTime, FILETIME* ft)
-{
-  ULARGE_INTEGER u;
-  /* There are 11644473600 seconds between 1 January 1601 (the NT Epoch) and 1
-   * January 1970 (the Unix Epoch). FILETIME is measured in 100ns ticks.
-   */
-  u.QuadPart =
-    (ULONGLONG)(unixTime * 10000000.0) + INT64_LITERAL(116444736000000000U);
-  ft->dwLowDateTime = u.LowPart;
-  ft->dwHighDateTime = u.HighPart;
-}
-
 CAMLprim value unix_utimes(value path, value atime, value mtime)
 {
   CAMLparam3(path, atime, mtime);
@@ -69,8 +57,8 @@ CAMLprim value unix_utimes(value path, value atime, value mtime)
     SystemTimeToFileTime(&systemTime, &lastAccessTime);
     memcpy(&lastModificationTime, &lastAccessTime, sizeof(FILETIME));
   } else {
-    convert_time(at, &lastAccessTime);
-    convert_time(mt, &lastModificationTime);
+    unix_time_to_FILETIME(at, &lastAccessTime);
+    unix_time_to_FILETIME(mt, &lastModificationTime);
   }
   caml_enter_blocking_section();
   res = SetFileTime(hFile, NULL, &lastAccessTime, &lastModificationTime);

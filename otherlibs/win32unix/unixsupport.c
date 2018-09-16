@@ -328,3 +328,36 @@ int unix_cloexec_p(value cloexec)
   else
     return unix_cloexec_default;
 }
+
+void unix_time_to_FILETIME(double unixTime, FILETIME* ft)
+{
+  ULARGE_INTEGER u;
+  /* There are 11644473600 seconds between 1 January 1601 (the NT Epoch) and 1
+   * January 1970 (the Unix Epoch). FILETIME is measured in 100ns ticks.
+   */
+  u.QuadPart =
+    (ULONGLONG)(unixTime * 10000000.0) + INT64_LITERAL(116444736000000000U);
+  ft->dwLowDateTime = u.LowPart;
+  ft->dwHighDateTime = u.HighPart;
+}
+
+int FILETIME_to_unix_time(FILETIME* time, __time64_t* result, __time64_t def)
+{
+  /* Tempting though it may be, MSDN prohibits casting FILETIME directly
+   * to __int64 for alignment concerns. While this doesn't affect our supported
+   * platforms, it's easier to go with the flow...
+   */
+  ULARGE_INTEGER utime = {{time->dwLowDateTime, time->dwHighDateTime}};
+
+  if (utime.QuadPart) {
+    /* There are 11644473600 seconds between 1 January 1601 (the NT Epoch) and 1
+     * January 1970 (the Unix Epoch). FILETIME is measured in 100ns ticks.
+     */
+    *result = (utime.QuadPart - INT64_LITERAL(116444736000000000U));
+  }
+  else {
+    *result = def;
+  }
+
+  return 1;
+}

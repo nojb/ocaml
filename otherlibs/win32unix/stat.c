@@ -118,27 +118,6 @@ static value stat_aux(int use_64, __int64 st_ino, struct _stat64 *buf)
  * Microsoft CRT given in Microsoft Visual Studio 2013 Express
  */
 
-static int convert_time(FILETIME* time, __time64_t* result, __time64_t def)
-{
-  /* Tempting though it may be, MSDN prohibits casting FILETIME directly
-   * to __int64 for alignment concerns. While this doesn't affect our supported
-   * platforms, it's easier to go with the flow...
-   */
-  ULARGE_INTEGER utime = {{time->dwLowDateTime, time->dwHighDateTime}};
-
-  if (utime.QuadPart) {
-    /* There are 11644473600 seconds between 1 January 1601 (the NT Epoch) and 1
-     * January 1970 (the Unix Epoch). FILETIME is measured in 100ns ticks.
-     */
-    *result = (utime.QuadPart - INT64_LITERAL(116444736000000000U));
-  }
-  else {
-    *result = def;
-  }
-
-  return 1;
-}
-
 /* path allocated outside the OCaml heap */
 static int safe_do_stat(int do_lstat, int use_64, wchar_t* path, HANDLE fstat, __int64* st_ino, struct _stat64* res)
 {
@@ -255,9 +234,9 @@ static int safe_do_stat(int do_lstat, int use_64, wchar_t* path, HANDLE fstat, _
       return 0;
     }
 
-    if (!convert_time(&info.ftLastWriteTime, &res->st_mtime, 0) ||
-        !convert_time(&info.ftLastAccessTime, &res->st_atime, res->st_mtime) ||
-        !convert_time(&info.ftCreationTime, &res->st_ctime, res->st_mtime)) {
+    if (!FILETIME_to_unix_time(&info.ftLastWriteTime, &res->st_mtime, 0) ||
+        !FILETIME_to_unix_time(&info.ftLastAccessTime, &res->st_atime, res->st_mtime) ||
+        !FILETIME_to_unix_time(&info.ftCreationTime, &res->st_ctime, res->st_mtime)) {
       win32_maperr(GetLastError());
       return 0;
     }
