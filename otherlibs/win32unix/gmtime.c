@@ -55,43 +55,82 @@ static int isdst(void)
 
 CAMLprim value unix_localtime(value t)
 {
-  struct tm * tm;
+  struct tm tm;
   FILETIME ft;
   SYSTEMTIME utcTime, localTime;
-  TIME_ZONE_INFORMATION tzInfo;
 
   unix_time_to_FILETIME(Double_val(t), &ft);
-  FileTimeToSystemTime(&ft, &utcTime);
-  SystemTimeToTzSpecificLocalTime(NULL, &utcTime, &localTime);
-  SYSTEMTIME_to_tm(&localTime, isdst(), &tm);
 
-  return alloc_tm(tm);
+  if (FileTimeToSystemTime(&ft, &utcTime) == 0) {
+    win32_maperr(GetLastError());
+    uerror("localtime", Nothing);
+  }
+
+  if (SystemTimeToTzSpecificLocalTime(NULL, &utcTime, &localTime) == 0) {
+    win32_maperr(GetLastError());
+    uerror("localtime", Nothing);
+  }
+
+  if (SYSTEMTIME_to_tm(&localTime, isdst(), &tm) == 0) {
+    win32_maperr(GetLastError());
+    uerror("localtime", Nothing);
+  }
+
+  return alloc_tm(&tm);
 }
 
 CAMLprim value unix_mktime(value t)
 {
+  CAMLparam1(t);
+  CAMLlocal3(res, tmval, clkval);
   struct tm tm;
-  time_t clock;
-  value res;
-  value tmval = Val_unit, clkval = Val_unit;
+  SYSTEMTIME time, utcTime;
+  FILETIME fileTime;
+  __time64_t clock;
 
-  Begin_roots2(tmval, clkval);
-    tm.tm_sec = Int_val(Field(t, 0));
-    tm.tm_min = Int_val(Field(t, 1));
-    tm.tm_hour = Int_val(Field(t, 2));
-    tm.tm_mday = Int_val(Field(t, 3));
-    tm.tm_mon = Int_val(Field(t, 4));
-    tm.tm_year = Int_val(Field(t, 5));
-    tm.tm_wday = Int_val(Field(t, 6));
-    tm.tm_yday = Int_val(Field(t, 7));
-    tm.tm_isdst = -1; /* tm.tm_isdst = Bool_val(Field(t, 8)); */
-    clock = mktime(&tm);
-    if (clock == (time_t) -1) unix_error(ERANGE, "mktime", Nothing);
-    tmval = alloc_tm(&tm);
-    clkval = caml_copy_double((double) clock);
-    res = caml_alloc_small(2, 0);
-    Field(res, 0) = clkval;
-    Field(res, 1) = tmval;
-  End_roots ();
-  return res;
+  time.wSecond = Int_val(Field(t, 0));
+  time.wMinute = Int_val(Field(t, 1));
+  time.wHour = Int_val(Field(t, 2));
+  time.wDay = Int_val(Field(t, 3));
+  time.wMonth = Int_val(Field(t, 4)) + 1;
+  time.wYear = Int_val(Field(t, 5)) + 1900;
+  time.wMilliseconds = 0;
+
+  if (TzSpecificLocalTimeToSystemTime(NULL, &time, &utcTime) == 0) {
+    win32_maperr(GetLastError());
+    uerror("mktime", Nothing);
+  }
+
+  if (SystemTimeToFileTime(&utcTime, &fileTime) == 0) {
+    win32_maperr(GetLastError());
+    uerror("mktime", Nothing);
+  }
+
+  if (FILETIME_to_unix_time(&fileTime, &clock, 0) == 0) {
+    win32_maperr(GetLastError());
+    uerror("mktime", Nothing);
+  }
+
+  if (FileTimeToSystemTime(&fileTime, &utcTime) == 0) {
+    win32_maperr(GetLastError());
+    uerror("mktime", Nothing);
+  }
+
+  if (SystemTimeToTzSpecificLocalTime(NULL, &utcTime, &time) == 0) {
+    win32_maperr(GetLastError());
+    uerror("mktime", Nothing);
+  }
+
+  if (SYSTEMTIME_to_tm(&time, isdst(), &tm) == 0) {
+    win32_maperr(GetLastError());
+    uerror("mktime", Nothing);
+  }
+
+  tmval = alloc_tm(&tm);
+  clkval = caml_copy_double((double) clock / 10000000.0);
+  res = caml_alloc_small(2, 0);
+  Field(res, 0) = clkval;
+  Field(res, 1) = tmval;
+
+  CAMLreturn(res);
 }
