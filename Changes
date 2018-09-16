@@ -464,6 +464,9 @@ Working version
 - MPR#7408, MPR#7846, GPR#2015: Check arity of primitives.
   (Hugo Heuzard, review by Nicolás Ojeda Bär)
 
+- GPR#XXX: Unix.localtime and Unix.mktime now correctly take into account the
+  current DST setting under Windows.
+  (Nicolás Ojeda Bär)
 
 OCaml 4.07 maintenance branch
 -----------------------------
