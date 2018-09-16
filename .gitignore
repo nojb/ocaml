@@ -135,7 +135,6 @@ _ocamltestd
 /otherlibs/win32unix/getnameinfo.c
 /otherlibs/win32unix/getproto.c
 /otherlibs/win32unix/getserv.c
-/otherlibs/win32unix/gmtime.c
 /otherlibs/win32unix/mmap_ba.c
 /otherlibs/win32unix/putenv.c
 /otherlibs/win32unix/rmdir.c
