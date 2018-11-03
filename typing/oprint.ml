@@ -168,6 +168,7 @@ let print_out_value ppf tree =
     | Oval_int32 i -> fprintf ppf "%lil" i
     | Oval_int64 i -> fprintf ppf "%LiL" i
     | Oval_nativeint i -> fprintf ppf "%nin" i
+    | Oval_uchar u -> fprintf ppf "0x%04XU" (Uchar.to_int u)
     | Oval_float f -> pp_print_string ppf (float_repres f)
     | Oval_char c -> fprintf ppf "%C" c
     | Oval_string (s, maxlen, kind) ->

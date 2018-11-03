@@ -24,10 +24,10 @@ open Asttypes
 
 type constant =
     Pconst_integer of string * char option
-  (* 3 3l 3L 3n
+  (* 3 3l 3L 3n 3U
 
      Suffixes [g-z][G-Z] are accepted by the parser.
-     Suffixes except 'l', 'L' and 'n' are rejected by the typechecker
+     Suffixes except 'l', 'L' and 'n', 'U' are rejected by the typechecker
   *)
   | Pconst_char of char
   (* 'c' *)

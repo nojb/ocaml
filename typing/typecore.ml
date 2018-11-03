@@ -283,6 +283,7 @@ let type_constant = function
   | Const_int32 _ -> instance Predef.type_int32
   | Const_int64 _ -> instance Predef.type_int64
   | Const_nativeint _ -> instance Predef.type_nativeint
+  | Const_uchar _ -> instance Predef.type_uchar_t
 
 let constant : Parsetree.constant -> (Asttypes.constant, error) result =
   function
@@ -305,6 +306,11 @@ let constant : Parsetree.constant -> (Asttypes.constant, error) result =
      begin
        try Ok (Const_nativeint (Misc.Int_literal_converter.nativeint i))
        with Failure _ -> Error (Literal_overflow "nativeint")
+     end
+  | Pconst_integer (i, Some 'U') ->
+     begin
+       try Ok (Const_uchar (Misc.Int_literal_converter.uchar i))
+       with Failure _ | Invalid_argument _ -> Error (Literal_overflow "Uchar.t")
      end
   | Pconst_integer (i,Some c) -> Error (Unknown_literal (i, c))
   | Pconst_char c -> Ok (Const_char c)

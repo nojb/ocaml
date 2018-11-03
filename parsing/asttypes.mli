@@ -28,6 +28,7 @@ type constant =
   | Const_int32 of int32
   | Const_int64 of int64
   | Const_nativeint of nativeint
+  | Const_uchar of Uchar.t
 
 type rec_flag = Nonrecursive | Recursive
 

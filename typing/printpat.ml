@@ -32,6 +32,7 @@ let pretty_const c = match c with
 | Const_int32 i -> Printf.sprintf "%ldl" i
 | Const_int64 i -> Printf.sprintf "%LdL" i
 | Const_nativeint i -> Printf.sprintf "%ndn" i
+| Const_uchar u -> Printf.sprintf "%0x4XU" (Uchar.to_int u)
 
 let rec pretty_val ppf v =
   match v.pat_extra with

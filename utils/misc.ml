@@ -377,6 +377,7 @@ module Int_literal_converter = struct
   let int32 s = cvt_int_aux s Int32.neg Int32.of_string
   let int64 s = cvt_int_aux s Int64.neg Int64.of_string
   let nativeint s = cvt_int_aux s Nativeint.neg Nativeint.of_string
+  let uchar s = Uchar.of_int (int_of_string s)
 end
 
 (* String operations *)

@@ -59,6 +59,7 @@ val lifted_let_rec_block : t
 val meth : t
 val module_as_block : t
 val const_nativeint : t
+val const_uchar : t
 val new_value : t
 val numerator : t
 val obj : t

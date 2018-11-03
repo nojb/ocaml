@@ -751,6 +751,10 @@ let group_const_nativeint = function
   | {pat_desc= Tpat_constant Const_nativeint _ } -> true
   | _                                      -> false
 
+let group_const_uchar = function
+  | {pat_desc = Tpat_constant Const_uchar _ } -> true
+  | _                                       -> false
+
 and group_constructor = function
   | {pat_desc = Tpat_construct (_,_,_)} -> true
   | _ -> false
@@ -788,6 +792,7 @@ let get_group p = match p.pat_desc with
 | Tpat_constant Const_int32 _ -> group_const_int32
 | Tpat_constant Const_int64 _ -> group_const_int64
 | Tpat_constant Const_nativeint _ -> group_const_nativeint
+| Tpat_constant Const_uchar _ -> group_const_uchar
 | Tpat_construct _ -> group_constructor
 | Tpat_tuple _ -> group_tuple
 | Tpat_record _ -> group_record
@@ -2262,6 +2267,13 @@ let combine_constant loc arg cst partial ctx def
           List.map (function Const_int n, l -> n,l | _ -> assert false)
             const_lambda_list in
         call_switcher loc fail arg min_int max_int int_lambda_list
+    | Const_uchar _ ->
+        let int_lambda_list =
+          List.map (function Const_uchar n, l -> Uchar.to_int n,l
+                           | _ -> assert false)
+            const_lambda_list in
+        call_switcher loc fail arg
+          (Uchar.to_int Uchar.min) (Uchar.to_int Uchar.max) int_lambda_list
     | Const_char _ ->
         let int_lambda_list =
           List.map (function Const_char c, l -> (Char.code c, l)
