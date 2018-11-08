@@ -154,3 +154,11 @@ let rec iterator ~scope rebuild_env =
     {l with str_items = loop l.str_items}
   in
   {super with class_expr; module_expr; expr; pat; structure_item; structure}
+
+let iterator ?sourcefile ~use_summaries =
+  let scope =
+    match sourcefile with
+    | None -> Location.none
+    | Some file -> Location.in_file file
+  in
+  iterator ~scope use_summaries

@@ -163,7 +163,10 @@ let record_value_dependency vd1 vd2 =
     value_deps := (vd1, vd2) :: !value_deps
 
 let gen_annot target_filename cmt =
-  let iterator = Cmt2annot.iterator ~scope:Location.none cmt.cmt_use_summaries in
+  let iterator =
+    Cmt2annot.iterator ?sourcefile:cmt.cmt_sourcefile
+      ~use_summaries:cmt.cmt_use_summaries
+  in
   let binary_part x =
     let app f x = ignore (f iterator x) in
     match x with

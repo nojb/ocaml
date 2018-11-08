@@ -13,4 +13,4 @@
 (*                                                                        *)
 (**************************************************************************)
 
-val iterator: scope:Location.t -> bool -> Tast_mapper.mapper
+val iterator: ?sourcefile:string -> use_summaries:bool -> Tast_mapper.mapper
