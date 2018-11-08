@@ -80,11 +80,7 @@ let rec iterator ~scope rebuild_env =
         let full_name = Path.name ~paren:Oprint.parenthesized_ident path in
         let env =
           if rebuild_env then
-            try
-              Env.env_of_only_summary Envaux.env_from_summary exp.exp_env
-            with Envaux.Error err ->
-              Format.eprintf "%a@." Envaux.report_error err;
-              exit 2
+            Env.env_of_only_summary Envaux.env_from_summary exp.exp_env
           else
             exp.exp_env
         in
