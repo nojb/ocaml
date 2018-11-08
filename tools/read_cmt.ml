@@ -81,7 +81,7 @@ let generate_annot ?(save_cmt_info = false) target_filename filename cmt =
     | Some _ -> target_filename
   in
   if save_cmt_info then record_cmt_info cmt;
-  Cmt2annot.gen_annot target_filename cmt
+  Cmt_format.gen_annot target_filename cmt
 
 let gen_annot = ref false
 let gen_ml = ref false

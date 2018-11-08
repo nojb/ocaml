@@ -83,6 +83,10 @@ val read : string -> Cmi_format.cmi_infos option * cmt_infos option
 val read_cmt : string -> cmt_infos
 val read_cmi : string -> Cmi_format.cmi_infos
 
+(** [gen_annot filename cmt] generates generates .annot data from [cmt] and
+    dumps into a file name [filename]. *)
+val gen_annot : string option -> cmt_infos -> unit
+
 (** [save_cmt filename modname binary_annots sourcefile initial_env cmi]
     writes a cmt(i) file.  *)
 val save_cmt :

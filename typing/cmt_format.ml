@@ -162,6 +162,29 @@ let record_value_dependency vd1 vd2 =
   if vd1.Types.val_loc <> vd2.Types.val_loc then
     value_deps := (vd1, vd2) :: !value_deps
 
+let gen_annot target_filename cmt =
+  let iterator = Cmt2annot.iterator ~scope:Location.none cmt.cmt_use_summaries in
+  let binary_part x =
+    let app f x = ignore (f iterator x) in
+    match x with
+    | Partial_structure x -> app iterator.structure x
+    | Partial_structure_item x -> app iterator.structure_item x
+    | Partial_expression x -> app iterator.expr x
+    | Partial_pattern x -> app iterator.pat x
+    | Partial_class_expr x -> app iterator.class_expr x
+    | Partial_signature x -> app iterator.signature x
+    | Partial_signature_item x -> app iterator.signature_item x
+    | Partial_module_type x -> app iterator.module_type x
+  in
+  match cmt.cmt_annots with
+  | Implementation typedtree ->
+      ignore (iterator.structure iterator typedtree);
+      Stypes.dump target_filename
+  | Partial_implementation parts ->
+      Array.iter binary_part parts;
+      Stypes.dump target_filename
+  | Packed _ | Interface _ | Partial_interface _ -> ()
+
 let save_cmt filename modname binary_annots sourcefile initial_env cmi =
   if !Clflags.binary_annotations && not !Clflags.print_types then begin
     Misc.output_to_file_via_temporary

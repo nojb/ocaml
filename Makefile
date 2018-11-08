@@ -95,8 +95,8 @@ TYPING=typing/ident.cmo typing/path.cmo \
   typing/printtyp.cmo typing/includeclass.cmo \
   typing/mtype.cmo typing/envaux.cmo typing/includecore.cmo \
   typing/typedtreeIter.cmo typing/typedtreeMap.cmo \
-  typing/tast_mapper.cmo typing/stypes.cmo \
-  typing/cmt_format.cmo typing/cmt2annot.cmo typing/untypeast.cmo \
+  typing/tast_mapper.cmo typing/stypes.cmo typing/cmt2annot.cmo \
+  typing/cmt_format.cmo typing/untypeast.cmo \
   typing/includemod.cmo typing/typetexp.cmo typing/printpat.cmo \
   typing/parmatch.cmo typing/typedecl.cmo typing/typeopt.cmo \
   typing/rec_check.cmo typing/typecore.cmo typing/typeclass.cmo \
