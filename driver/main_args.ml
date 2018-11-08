@@ -22,7 +22,7 @@ let mk_absname f =
 ;;
 
 let mk_annot f =
-  "-annot", Arg.Unit f, " Save information in <filename>.annot"
+  "-annot", Arg.Unit f, " (deprecated) Save information in <filename>.annot"
 ;;
 
 let mk_binannot f =
