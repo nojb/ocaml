@@ -44,7 +44,7 @@ module Options = Main_args.Make_optcomp_options (struct
   let _absname = set Clflags.absname
   let _afl_instrument = set afl_instrument
   let _afl_inst_ratio n = afl_inst_ratio := n
-  let _annot = set annotations
+  let _annot () = set binary_annotations (); set annotations ()
   let _binannot = set binary_annotations
   let _c = set compile_only
   let _cc s = c_compiler := Some s
