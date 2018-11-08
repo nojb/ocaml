@@ -26,7 +26,7 @@ module Options = Main_args.Make_bytecomp_options (struct
   let unset r () = r := false
   let _a = set make_archive
   let _absname = set Clflags.absname
-  let _annot () = set binary_annotations (); set annotations ()
+  let _annot = set annotations
   let _binannot = set binary_annotations
   let _c = set compile_only
   let _cc s = c_compiler := Some s

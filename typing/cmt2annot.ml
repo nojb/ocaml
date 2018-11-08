@@ -156,10 +156,35 @@ let rec iterator ~scope rebuild_env =
   in
   {super with class_expr; module_expr; expr; pat; structure_item; structure}
 
-let iterator ?sourcefile ~use_summaries =
-  let scope =
-    match sourcefile with
-    | None -> Location.none
-    | Some file -> Location.in_file file
+open Cmt_format
+
+let binary_part iter x =
+  let app f x = ignore (f iter x) in
+  match x with
+  | Partial_structure x -> app iter.structure x
+  | Partial_structure_item x -> app iter.structure_item x
+  | Partial_expression x -> app iter.expr x
+  | Partial_pattern x -> app iter.pat x
+  | Partial_class_expr x -> app iter.class_expr x
+  | Partial_signature x -> app iter.signature x
+  | Partial_signature_item x -> app iter.signature_item x
+  | Partial_module_type x -> app iter.module_type x
+
+let gen_annot target_filename annot sourcefile use_summaries =
+  let iter =
+    let scope =
+      match sourcefile with
+      | None -> Location.none
+      | Some file -> Location.in_file file
+    in
+    iterator ~scope use_summaries
   in
-  iterator ~scope use_summaries
+  match annot with
+  | Implementation typedtree ->
+      ignore (iter.structure iter typedtree);
+      Stypes.dump target_filename
+  | Partial_implementation parts ->
+      Array.iter (binary_part iter) parts;
+      Stypes.dump target_filename
+  | Packed _ | Interface _ | Partial_interface _ ->
+      ()

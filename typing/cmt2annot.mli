@@ -13,4 +13,4 @@
 (*                                                                        *)
 (**************************************************************************)
 
-val iterator: ?sourcefile:string -> use_summaries:bool -> Tast_mapper.mapper
+val gen_annot: string option -> Cmt_format.binary_annots -> string option -> bool -> unit
