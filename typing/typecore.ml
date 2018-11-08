@@ -144,12 +144,10 @@ let type_object =
 *)
 let re node =
   Cmt_format.add_saved_type (Cmt_format.Partial_expression node);
-  Stypes.record (Stypes.Ti_expr node);
   node
 ;;
 let rp node =
   Cmt_format.add_saved_type (Cmt_format.Partial_pattern node);
-  Stypes.record (Stypes.Ti_pat node);
   node
 ;;
 
@@ -503,10 +501,7 @@ let enter_variable ?(is_module=false) ?(is_as_variable=false) loc name ty
     if not !allow_modules then
       raise (Error (loc, Env.empty, Modules_not_allowed));
     module_variables := (name, loc) :: !module_variables
-  end else
-    (* moved to genannot *)
-    may (fun s -> Stypes.record (Stypes.An_ident (name.loc, name.txt, s)))
-        !pattern_scope;
+  end;
   id
 
 let sort_pattern_variables vs =
@@ -2200,15 +2195,6 @@ and type_expect_
   | Pexp_ident lid ->
       begin
         let (path, desc) = Typetexp.find_value env lid.loc lid.txt in
-        if !Clflags.annotations then begin
-          let dloc = desc.Types.val_loc in
-          let annot =
-            if dloc.Location.loc_ghost then Annot.Iref_external
-            else Annot.Iref_internal dloc
-          in
-          let name = Path.name ~paren:Oprint.parenthesized_ident path in
-          Stypes.record (Stypes.An_ident (loc, name, annot))
-        end;
         let is_recarg =
           match (repr desc.val_type).desc with
           | Tconstr(p, _, _) -> Path.is_constructor_typath p
