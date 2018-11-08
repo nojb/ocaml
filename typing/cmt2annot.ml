@@ -154,36 +154,3 @@ let rec iterator ~scope rebuild_env =
     {l with str_items = loop l.str_items}
   in
   {super with class_expr; module_expr; expr; pat; structure_item; structure}
-
-let binary_part iter x =
-  let app f x = ignore (f iter x) in
-  let open Cmt_format in
-  match x with
-  | Partial_structure x -> app iter.structure x
-  | Partial_structure_item x -> app iter.structure_item x
-  | Partial_expression x -> app iter.expr x
-  | Partial_pattern x -> app iter.pat x
-  | Partial_class_expr x -> app iter.class_expr x
-  | Partial_signature x -> app iter.signature x
-  | Partial_signature_item x -> app iter.signature_item x
-  | Partial_module_type x -> app iter.module_type x
-
-let gen_annot target_filename cmt =
-  let open Cmt_format in
-  let iterator = iterator ~scope:Location.none cmt.cmt_use_summaries in
-  match cmt.cmt_annots with
-  | Implementation typedtree ->
-      ignore (iterator.structure iterator typedtree);
-      Stypes.dump target_filename
-  | Interface _ ->
-      Printf.eprintf "Cannot generate annotations for interface file\n%!";
-      exit 2
-  | Partial_implementation parts ->
-      Array.iter (binary_part iterator) parts;
-      Stypes.dump target_filename
-  | Packed _ ->
-      Printf.fprintf stderr "Packed files not yet supported\n%!";
-      Stypes.dump target_filename
-  | Partial_interface _ ->
-      Printf.fprintf stderr "File was generated with an error\n%!";
-      exit 2
