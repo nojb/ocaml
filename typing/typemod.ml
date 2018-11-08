@@ -2424,6 +2424,8 @@ let type_implementation sourcefile outputprefix modulename initial_env ast =
           (fun () -> fprintf std_formatter "%a@."
               (Printtyp.printed_signature sourcefile) simple_sg
           );
+        Cmt2annot.gen_annot (Some (outputprefix ^ ".annot"))
+          (Cmt_format.Implementation str) (Some sourcefile) false;
         (str, Tcoerce_none)   (* result is ignored by Compile.implementation *)
       end else begin
         let sourceintf =
@@ -2446,6 +2448,8 @@ let type_implementation sourcefile outputprefix modulename initial_env ast =
              exported are not reported as being unused. *)
           Cmt_format.save_cmt (outputprefix ^ ".cmt") modulename
             (Cmt_format.Implementation str) (Some sourcefile) initial_env None;
+          Cmt2annot.gen_annot (Some (outputprefix ^ ".annot"))
+            (Cmt_format.Implementation str) (Some sourcefile) false;
           (str, coercion)
         end else begin
           let coercion =
@@ -2468,16 +2472,22 @@ let type_implementation sourcefile outputprefix modulename initial_env ast =
             Cmt_format.save_cmt  (outputprefix ^ ".cmt") modulename
               (Cmt_format.Implementation str)
               (Some sourcefile) initial_env (Some cmi);
+            Cmt2annot.gen_annot (Some (outputprefix ^ ".annot"))
+              (Cmt_format.Implementation str) (Some sourcefile) false;
           end;
           (str, coercion)
         end
       end
     )
     ~exceptionally:(fun () ->
+        let annot =
+          Cmt_format.Partial_implementation
+            (Array.of_list (Cmt_format.get_saved_types ()))
+        in
         Cmt_format.save_cmt  (outputprefix ^ ".cmt") modulename
-          (Cmt_format.Partial_implementation
-             (Array.of_list (Cmt_format.get_saved_types ())))
-          (Some sourcefile) initial_env None)
+          annot (Some sourcefile) initial_env None;
+        Cmt2annot.gen_annot (Some (outputprefix ^ ".annot"))
+          annot (Some sourcefile) false)
 
 let save_signature modname tsg outputprefix source_file initial_env cmi =
   Cmt_format.save_cmt  (outputprefix ^ ".cmti") modname

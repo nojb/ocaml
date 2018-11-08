@@ -100,8 +100,8 @@ TYPING=typing/ident.cmo typing/path.cmo \
   typing/printtyp.cmo typing/includeclass.cmo \
   typing/mtype.cmo typing/envaux.cmo typing/includecore.cmo \
   typing/tast_iterator.cmo typing/tast_mapper.cmo \
-  typing/stypes.cmo typing/cmt2annot.cmo \
-  file_formats/cmt_format.cmo typing/untypeast.cmo \
+  typing/stypes.cmo \
+  file_formats/cmt_format.cmo typing/cmt2annot.cmo typing/untypeast.cmo \
   typing/includemod.cmo typing/typetexp.cmo typing/printpat.cmo \
   typing/parmatch.cmo \
   typing/typedecl_properties.cmo typing/typedecl_variance.cmo \
