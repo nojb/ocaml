@@ -114,7 +114,8 @@ COMP=bytecomp/lambda.cmo bytecomp/printlambda.cmo \
   bytecomp/symtable.cmo \
   driver/pparse.cmo driver/main_args.cmo \
   driver/compenv.cmo driver/compmisc.cmo \
-  driver/compdynlink.cmo driver/compplugin.cmo driver/makedepend.cmo \
+  driver/compdynlink_common.cmo driver/compdynlink.cmo \
+  driver/compplugin.cmo driver/makedepend.cmo \
   driver/compile_common.cmo
 
 
@@ -1177,33 +1178,63 @@ endif
 
 DYNLINK_DIR=otherlibs/dynlink
 
+driver/compdynlink_common.mlbyte: $(DYNLINK_DIR)/dynlink_common.ml
+	grep -v 'REMOVE_ME for ../../debugger/' \
+	       $(DYNLINK_DIR)/dynlink_common.ml \
+       > driver/compdynlink_common.mlbyte
+
 driver/compdynlink.mlbyte: $(DYNLINK_DIR)/dynlink.ml driver/compdynlink.mli
 	grep -v 'REMOVE_ME for ../../debugger/dynlink.ml' \
-	     $(DYNLINK_DIR)/dynlink.ml >driver/compdynlink.mlbyte
+				 $(DYNLINK_DIR)/dynlink.ml | \
+       sed 's/Dynlink_common/Compdynlink_common/g' \
+       > driver/compdynlink.mlbyte
+
+driver/compdynlink_common.mlopt: $(DYNLINK_DIR)/dynlink_common.ml
+	grep -v 'REMOVE_ME for ../../debugger/' \
+	  $(DYNLINK_DIR)/dynlink_common.ml \
+    > driver/compdynlink_common.mlopt
 
 ifeq ($(NATDYNLINK),true)
 driver/compdynlink.mlopt: $(DYNLINK_DIR)/natdynlink.ml driver/compdynlink.mli
-	cp $(DYNLINK_DIR)/natdynlink.ml driver/compdynlink.mlopt
+	cat $(DYNLINK_DIR)/natdynlink.ml | \
+    sed 's/Dynlink_common/Compdynlink_common/g' \
+    > driver/compdynlink.mlopt
 else
-driver/compdynlink.mlopt: driver/compdynlink.mlno driver/compdynlink.mli
-	cp driver/compdynlink.mlno driver/compdynlink.mlopt
+driver/compdynlink.mlopt: $(DYNLINK_DIR)/nodynlink.ml driver/compdynlink.mli
+	cat $(DYNLINK_DIR)/nodynlink.ml | \
+    sed 's/Dynlink_common/Compdynlink_common/g' \
+    > driver/compdynlink.mlopt
 endif
 
 driver/compdynlink.mli: $(DYNLINK_DIR)/dynlink.mli
-	cp $(DYNLINK_DIR)/dynlink.mli driver/compdynlink.mli
+	cat $(DYNLINK_DIR)/dynlink.mli | \
+    sed 's/Dynlink_common/Compdynlink_common/g' \
+		> driver/compdynlink.mli
 
-driver/compdynlink.cmo: driver/compdynlink.mlbyte driver/compdynlink.cmi
+driver/compdynlink_common.cmo: driver/compdynlink_common.mlbyte
 	$(CAMLC) $(COMPFLAGS) -c -impl $<
 
-driver/compdynlink.cmx: driver/compdynlink.mlopt driver/compdynlink.cmi
+driver/compdynlink_common.cmx: driver/compdynlink_common.mlopt \
+    driver/compdynlink_common.cmo
+	$(CAMLOPT) $(COMPFLAGS) -c -impl $<
+
+driver/compdynlink.cmo: driver/compdynlink.mlbyte driver/compdynlink.cmi \
+    driver/compdynlink_common.cmo
+	$(CAMLC) $(COMPFLAGS) -c -impl $<
+
+driver/compdynlink.cmx: driver/compdynlink.mlopt driver/compdynlink.cmi \
+    driver/compdynlink_common.cmx
 	$(CAMLOPT) $(COMPFLAGS) -c -impl $<
 
 beforedepend:: driver/compdynlink.mlbyte driver/compdynlink.mlopt \
-               driver/compdynlink.mli
+               driver/compdynlink.mli driver/compdynlink_common.mlbyte \
+               driver/compdynlink_common.mlopt
 partialclean::
 	rm -f driver/compdynlink.mlbyte
 	rm -f driver/compdynlink.mli
 	rm -f driver/compdynlink.mlopt
+	rm -f driver/compdynlink_common.mlbyte
+	rm -f driver/compdynlink_common.mlopt
 
 # The native toplevel
 
@@ -1304,6 +1335,10 @@ depend: beforedepend
 		-impl driver/compdynlink.mlopt >> .depend
 	$(CAMLDEP) -slash $(DEPFLAGS) -bytecode \
 		-impl driver/compdynlink.mlbyte >> .depend
+	$(CAMLDEP) -slash $(DEPFLAGS) -native \
+		-impl driver/compdynlink_common.mlopt >> .depend
+	$(CAMLDEP) -slash $(DEPFLAGS) -bytecode \
+		-impl driver/compdynlink_common.mlbyte >> .depend
 
 .PHONY: distclean
 distclean: clean

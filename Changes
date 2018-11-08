@@ -154,6 +154,10 @@ Working version
 - GPR#2038: Deprecate vm threads
   (Jérémie Dimino)
 
+- PR#4208, PR#4229, PR#4839, PR#6462, PR#6957, PR#6950, GPR#1063: Make
+  (nat)dynlink sound
+  (Pierre Chambart, Mark Shinwell, Leo White)
+
 ### Compiler user-interface and warnings:
 
 - GPR#2133: Warn on literal patterns found anywhere in a constructor's
@@ -2028,6 +2032,13 @@ OCaml 4.06.0 (3 Nov 2017):
 
 - GPR#1243: Fix pprintast for #... infix operators
   (Alain Frisch, report by Omar Chebib)
+
+- GPR#71: The runtime can now be shut down gracefully by means of the new
+  caml_shutdown and caml_startup_pooled functions. The new 'c' flag in
+  OCAMLRUNPARAM enables shutting the runtime properly on process exit.
+  (Max Mouratov, review and discussion by Damien Doligez, Gabriel Scherer,
+  Mark Shinwell, Thomas Braibant, Stephen Dolan, Pierre Chambart,
+  François Bobot, Jacques Garrigue, David Allsopp, and Alain Frisch)
 
 - GPR#1324: ensure that flambda warning are printed only once
   (Xavier Clerc)
