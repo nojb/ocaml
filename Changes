@@ -52,6 +52,9 @@ Working version
   of an extensible variant type
   (Guillaume Bury, review by many fine eyes)
 
+- GPR#2141: generate .annot files from cmt data; deprecate -annot.
+  (Nicolás Ojeda Bär, review by Alain Frisch and Gabriel Scherer)
+
 ### Compiler distribution build system:
 
 - #2267: merge generation of header programs, also fixing parallel build on
