@@ -215,6 +215,8 @@ let save_cmt filename modname binary_annots sourcefile initial_env cmi =
            cmt_interface_digest = this_crc;
            cmt_use_summaries = need_to_clear_env;
          } in
-         output_cmt oc cmt)
+         output_cmt oc cmt;
+         if !Clflags.annotations then
+           gen_annot (Some (Filename.chop_extension filename ^ ".annot")) cmt)
   end;
   clear ()
