@@ -60,6 +60,10 @@ let record_module_binding scope mb =
                     mb.mb_name.txt,
                     Annot.Idef scope))
 
+let pos_is_dummy = function
+  | {Lexing.pos_lnum = 0; pos_bol = 0; pos_cnum = -1; _} -> true
+  | _ -> false
+
 let rec iterator ~scope rebuild_env =
   let super = Tast_mapper.default in
   let class_expr sub node =
@@ -88,7 +92,8 @@ let rec iterator ~scope rebuild_env =
           try
             let desc = Env.find_value path env in
             let dloc = desc.Types.val_loc in
-            if dloc.Location.loc_ghost then Annot.Iref_external
+            if pos_is_dummy dloc.Location.loc_start ||
+               pos_is_dummy dloc.Location.loc_end then Annot.Iref_external
             else Annot.Iref_internal dloc
           with Not_found ->
             Annot.Iref_external
