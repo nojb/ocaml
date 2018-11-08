@@ -189,7 +189,7 @@ let gen_annot target_filename cmt =
   | Packed _ | Interface _ | Partial_interface _ -> ()
 
 let save_cmt filename modname binary_annots sourcefile initial_env cmi =
-  if !Clflags.binary_annotations && not !Clflags.print_types then begin
+  if !Clflags.binary_annotations then begin
     Misc.output_to_file_via_temporary
        ~mode:[Open_binary] filename
        (fun temp_file_name oc ->
