@@ -13,4 +13,5 @@
 (*                                                                        *)
 (**************************************************************************)
 
-val gen_annot: string option -> Cmt_format.binary_annots -> string option -> bool -> unit
+val gen_annot:
+  string option -> Cmt_format.binary_annots -> string option -> bool -> unit
