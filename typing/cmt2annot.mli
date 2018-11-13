@@ -2,7 +2,7 @@
 (*                                                                        *)
 (*                                 OCaml                                  *)
 (*                                                                        *)
-(*                   Fabrice Le Fessant, INRIA Saclay                     *)
+(*                        Fabrice Le Fessant, INRIA                       *)
 (*                                                                        *)
 (*   Copyright 2018 Institut National de Recherche en Informatique et     *)
 (*     en Automatique.                                                    *)
