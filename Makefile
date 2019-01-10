@@ -724,39 +724,50 @@ clean:: partialclean
 
 #
 
-define f
-$(warning 1=$(1))
-$(warning 2=$(2))
-compilerlibs/ocaml_$(1)__%.cmi: $(2)/%.mli compilerlibs/ocaml_$(1).cmi
-	$(CAMLC) $(COMPFLAGS) -I compilerlibs -no-alias-deps -open Ocaml_$(1) -o $$@ -c $$<
+# define f
+# $(warning 1=$(1))
+# $(warning 2=$(2))
+# compilerlibs/ocaml_$(1)__%.cmi: $(2)/%.mli compilerlibs/ocaml_$(1).cmi
+# 	$(CAMLC) $(COMPFLAGS) -I compilerlibs -no-alias-deps -open Ocaml_$(1) -o $$@ -c $$<
 
-compilerlibs/ocaml_$(1)__%.cmo: $(2)/%.ml compilerlibs/ocaml_$(1).cmi
-	$(CAMLC) $(COMPFLAGS) -I compilerlibs -no-alias-deps -open Ocaml_$(1) -o $$@ -c $$<
+# compilerlibs/ocaml_$(1)__%.cmo: $(2)/%.ml compilerlibs/ocaml_$(1).cmi
+# 	$(CAMLC) $(COMPFLAGS) -I compilerlibs -no-alias-deps -open Ocaml_$(1) -o $$@ -c $$<
+# endef
+
+# define g
+# $(warning 3=$(1))
+# $(warning 4=$(2))
+# .PHONY: compilerlibs/ocaml_$(1).ml
+# compilerlibs/ocaml_$(1).ml:
+# 	rm -rf $$@
+# 	for f in $(sort $(notdir $(basename $(2)))); do \
+# 	  echo "module $$$$f = Ocaml_$(1)__$$$$f" >> $$@; \
+# 	done
+
+# compilerlibs/ocaml_$(1).cmi compilerlibs/ocaml_$(1).cmo: compilerlibs/ocaml_$(1).ml
+# 	$(CAMLC) $(COMPFLAGS) -no-alias-deps -w -49 -c $$<
+
+# $(foreach dir,$(sort $(dir $(2))),$(eval $(call f,$(1),$(dir))))
+
+# compilerlibs/ocaml_$(1).cma: compilerlibs/ocaml_$(1).cmo $(addprefix compilerlibs/ocaml_$(1)__, $(notdir $(2)))
+# 	$(CAMLC) -a -linkall -o $$@ $$^
+# endef
+
+# $(eval $(call g,common,$(COMMON)))
+# $(eval $(call g,bytecomp,$(BYTECOMP)))
+# $(eval $(call g,optcomp,$(OPTCOMP)))
+# $(eval $(call g,toplevel,$(TOPLEVEL)))
+
+define k
+compilerlibs/ocaml_$(2)__$(notdir $(1)): $(1)
+	cp $$< $$@
 endef
 
-define g
-$(warning 3=$(1))
-$(warning 4=$(2))
-.PHONY: compilerlibs/ocaml_$(1).ml
-compilerlibs/ocaml_$(1).ml:
-	rm -rf $$@
-	for f in $(sort $(notdir $(basename $(2)))); do \
-	  echo "module $$$$f = Ocaml_$(1)__$$$$f" >> $$@; \
-	done
-
-compilerlibs/ocaml_$(1).cmi compilerlibs/ocaml_$(1).cmo: compilerlibs/ocaml_$(1).ml
-	$(CAMLC) $(COMPFLAGS) -no-alias-deps -w -49 -c $$<
-
-$(foreach dir,$(sort $(dir $(2))),$(eval $$(call f,$(1),$(dir))))
-
-compilerlibs/ocaml_$(1).cma: compilerlibs/ocaml_$(1).cmo $(addprefix compilerlibs/ocaml_$(1)__, $(notdir $(2)))
-	$(CAMLC) -a -linkall -o $$@ $$^
+define h
+$(foreach f,$(filter $(addsuffix .%,$(basename $(1))),$(wildcard utils/*.ml utils/*.mli)),$(eval $(call k,$(f),$(2))))
 endef
 
-$(eval $(call g,common,$(COMMON)))
-$(eval $(call g,bytecomp,$(BYTECOMP)))
-$(eval $(call g,optcomp,$(OPTCOMP)))
-$(eval $(call g,toplevel,$(TOPLEVEL)))
+$(eval $(call h,$(COMMON),common))
 
 # Shared parts of the system
 
