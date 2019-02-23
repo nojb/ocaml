@@ -22,7 +22,7 @@ open Types
 (* Error report *)
 
 type error =
-  | Load_failure of Compdynlink.error
+  | Load_failure of Dynlink.error
   | Unbound_identifier of Longident.t
   | Unavailable_module of string * Longident.t
   | Wrong_type of Longident.t
@@ -40,7 +40,7 @@ let use_debugger_symtable fn arg =
   let old_symtable = Symtable.current_state() in
   begin match !debugger_symtable with
   | None ->
-      Compdynlink.allow_unsafe_modules true;
+      Dynlink.allow_unsafe_modules true;
       debugger_symtable := Some(Symtable.current_state())
   | Some st ->
       Symtable.restore_state st
@@ -59,7 +59,7 @@ open Format
 let rec loadfiles ppf name =
   try
     let filename = Load_path.find name in
-    use_debugger_symtable Compdynlink.loadfile filename;
+    use_debugger_symtable Dynlink.loadfile filename;
     let d = Filename.dirname name in
     if d <> Filename.current_dir_name then begin
       if not (List.mem d (Load_path.get_paths ())) then
@@ -68,7 +68,7 @@ let rec loadfiles ppf name =
     fprintf ppf "File %s loaded@." filename;
     true
   with
-  | Compdynlink.Error (Compdynlink.Unavailable_unit unit) ->
+  | Dynlink.Error (Dynlink.Unavailable_unit unit) ->
       loadfiles ppf (String.uncapitalize_ascii unit ^ ".cmo")
         &&
       loadfiles ppf name
@@ -78,7 +78,7 @@ let rec loadfiles ppf name =
   | Sys_error msg ->
       fprintf ppf "%s: %s@." name msg;
       false
-  | Compdynlink.Error e ->
+  | Dynlink.Error e ->
       raise(Error(Load_failure e))
 
 let loadfile ppf name =
@@ -165,7 +165,7 @@ open Format
 let report_error ppf = function
   | Load_failure e ->
       fprintf ppf "@[Error during code loading: %s@]@."
-        (Compdynlink.error_message e)
+        (Dynlink.error_message e)
   | Unbound_identifier lid ->
       fprintf ppf "@[Unbound identifier %a@]@."
       Printtyp.longident lid

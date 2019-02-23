@@ -129,6 +129,47 @@ debugger_config.cmx : \
     int64ops.cmx \
     debugger_config.cmi
 debugger_config.cmi :
+dynlink.cmo : \
+    ../bytecomp/symtable.cmi \
+    ../bytecomp/opcodes.cmo \
+    ../utils/misc.cmi \
+    ../bytecomp/meta.cmi \
+    ../typing/ident.cmi \
+    dynlink_types.cmo \
+    dynlink_common.cmi \
+    ../bytecomp/dll.cmi \
+    ../utils/config.cmi \
+    ../bytecomp/cmo_format.cmi \
+    dynlink.cmi
+dynlink.cmx : \
+    ../bytecomp/symtable.cmx \
+    ../bytecomp/opcodes.cmx \
+    ../utils/misc.cmx \
+    ../bytecomp/meta.cmx \
+    ../typing/ident.cmx \
+    dynlink_types.cmx \
+    dynlink_common.cmx \
+    ../bytecomp/dll.cmx \
+    ../utils/config.cmx \
+    ../bytecomp/cmo_format.cmi \
+    dynlink.cmi
+dynlink.cmi :
+dynlink_common.cmo : \
+    dynlink_types.cmo \
+    dynlink_platform_intf.cmo \
+    dynlink_common.cmi
+dynlink_common.cmx : \
+    dynlink_types.cmx \
+    dynlink_platform_intf.cmx \
+    dynlink_common.cmi
+dynlink_common.cmi : \
+    dynlink_platform_intf.cmo
+dynlink_platform_intf.cmo : \
+    dynlink_types.cmo
+dynlink_platform_intf.cmx : \
+    dynlink_types.cmx
+dynlink_types.cmo :
+dynlink_types.cmx :
 eval.cmo : \
     ../typing/types.cmi \
     ../bytecomp/symtable.cmi \
@@ -256,8 +297,8 @@ loadprinter.cmo : \
     ../parsing/longident.cmi \
     ../utils/load_path.cmi \
     ../typing/env.cmi \
+    dynlink.cmi \
     ../typing/ctype.cmi \
-    ../driver/compdynlink.cmi \
     loadprinter.cmi
 loadprinter.cmx : \
     ../typing/types.cmx \
@@ -270,12 +311,12 @@ loadprinter.cmx : \
     ../parsing/longident.cmx \
     ../utils/load_path.cmx \
     ../typing/env.cmx \
+    dynlink.cmx \
     ../typing/ctype.cmx \
-    ../driver/compdynlink.cmi \
     loadprinter.cmi
 loadprinter.cmi : \
     ../parsing/longident.cmi \
-    ../driver/compdynlink.cmi
+    dynlink.cmi
 main.cmo : \
     unix_tools.cmi \
     $(UNIXDIR)/unix.cmi \

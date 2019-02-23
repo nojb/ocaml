@@ -33,7 +33,7 @@ DEPFLAGS=-slash
 DEPINCLUDES=$(INCLUDES)
 
 DIRECTORIES=$(UNIXDIR) $(addprefix $(ROOTDIR)/,\
-  utils parsing typing bytecomp toplevel driver)
+  utils parsing typing bytecomp toplevel)
 
 INCLUDES=$(addprefix -I ,$(DIRECTORIES))
 
@@ -52,15 +52,14 @@ typing_modules := $(addprefix typing/,\
 bytecomp_modules := $(addprefix bytecomp/,\
   runtimedef bytesections dll meta symtable opcodes)
 
-other_compiler_modules := driver/compdynlink_types \
-  driver/compdynlink_platform_intf \
-  driver/compdynlink_common driver/compdynlink toplevel/genprintval
+other_compiler_modules := toplevel/genprintval
 
 compiler_modules := $(addprefix $(ROOTDIR)/,\
   $(utils_modules) $(parsing_modules) $(typing_modules) \
   $(bytecomp_modules) $(other_compiler_modules))
 
 debugger_modules := \
+  dynlink_types dynlink_common dynlink \
   int64ops primitives unix_tools debugger_config parameters lexer \
   input_handling question debugcom exec source pos checkpoints events \
   program_loading symbols breakpoints trap_barrier history printval \
@@ -107,5 +106,17 @@ parser.ml parser.mli: parser.mly
 clean::
 	rm -f parser.ml parser.mli
 beforedepend:: parser.ml parser.mli
+
+DYNLINK_MODULES=\
+	dynlink.ml dynlink_common.ml dynlink_platform_intf.ml \
+	dynlink_types.ml
+
+$(DYNLINK_MODULES): %.ml: ../otherlibs/dynlink/%.ml
+	grep -v 'REMOVE_ME for ../../debugger/dynlink.ml' $< > $@
+
+clean::
+	rm -f $(DYNLINK_MODULES)
+
+beforedepend:: $(DYNLINK_MODULES)
 
 include .depend
