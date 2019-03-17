@@ -81,8 +81,6 @@ CAMLexport struct channel * caml_open_descriptor_in(int fd)
   channel->curr = channel->max = channel->buff;
   channel->end = channel->buff + IO_BUFFER_SIZE;
   channel->mutex = NULL;
-  channel->revealed = 0;
-  channel->old_revealed = 0;
   channel->refcount = 0;
   channel->flags = 0;
   channel->next = caml_all_opened_channels;
