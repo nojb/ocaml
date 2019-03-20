@@ -799,7 +799,7 @@ partialclean::
 
 # The native-code compiler
 
-compilerlibs/ocamloptcomp.cma: $(addprefix compilerlibs/ocamloptcomp__,$(notdir $(OPTCOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(OPTCOMP))) compilerlibs/ocamloptcomp.ml
+compilerlibs/ocamloptcomp.cma: $(addprefix compilerlibs/ocamloptcomp__,$(notdir $(OPTCOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(OPTCOMP))) compilerlibs/ocamloptcomp.cmo
 	$(CAMLC) -a -o $@ $^
 
 partialclean::
