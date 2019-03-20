@@ -3129,6 +3129,7 @@ compilerlibs/ocamloptcomp__asmgen.cmx : \
 compilerlibs/ocamloptcomp__asmgen.cmi : \
     compilerlibs/ocamloptcomp__flambda.cmi \
     compilerlibs/ocamloptcomp__cmm.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__lambda.cmi \
     compilerlibs/ocamlcommon__ident.cmi \
@@ -3137,6 +3138,7 @@ compilerlibs/ocamloptcomp__asmgen.cmi : \
 compilerlibs/ocamloptcomp__asmlibrarian.cmo : \
     compilerlibs/ocamloptcomp__export_info.cmi \
     compilerlibs/ocamloptcomp__compilenv.cmi \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
     compilerlibs/ocamloptcomp__clambda.cmi \
     compilerlibs/ocamloptcomp__asmlink.cmi \
     compilerlibs/ocamloptcomp.cmo \
@@ -3152,6 +3154,7 @@ compilerlibs/ocamloptcomp__asmlibrarian.cmo : \
 compilerlibs/ocamloptcomp__asmlibrarian.cmx : \
     compilerlibs/ocamloptcomp__export_info.cmx \
     compilerlibs/ocamloptcomp__compilenv.cmx \
+    compilerlibs/ocamloptcomp__cmx_format.cmx \
     compilerlibs/ocamloptcomp__clambda.cmx \
     compilerlibs/ocamloptcomp__asmlink.cmx \
     compilerlibs/ocamloptcomp.cmx \
@@ -3172,6 +3175,7 @@ compilerlibs/ocamloptcomp__asmlink.cmo : \
     compilerlibs/ocamloptcomp__emitaux.cmi \
     compilerlibs/ocamloptcomp__emit.cmi \
     compilerlibs/ocamloptcomp__compilenv.cmi \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
     compilerlibs/ocamloptcomp__cmmgen.cmi \
     compilerlibs/ocamloptcomp__cmm.cmi \
     compilerlibs/ocamloptcomp__asmgen.cmi \
@@ -3192,6 +3196,7 @@ compilerlibs/ocamloptcomp__asmlink.cmx : \
     compilerlibs/ocamloptcomp__emitaux.cmx \
     compilerlibs/ocamloptcomp__emit.cmx \
     compilerlibs/ocamloptcomp__compilenv.cmx \
+    compilerlibs/ocamloptcomp__cmx_format.cmx \
     compilerlibs/ocamloptcomp__cmmgen.cmx \
     compilerlibs/ocamloptcomp__cmm.cmx \
     compilerlibs/ocamloptcomp__asmgen.cmx \
@@ -3209,6 +3214,7 @@ compilerlibs/ocamloptcomp__asmlink.cmx : \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__asmlink.cmi
 compilerlibs/ocamloptcomp__asmlink.cmi : \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__misc.cmi \
     compilerlibs/ocamlcommon.cmo \
@@ -3219,6 +3225,7 @@ compilerlibs/ocamloptcomp__asmpackager.cmo : \
     compilerlibs/ocamloptcomp__export_info.cmi \
     compilerlibs/ocamloptcomp__compilenv.cmi \
     compilerlibs/ocamloptcomp__compilation_unit.cmi \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
     compilerlibs/ocamloptcomp__asmlink.cmi \
     compilerlibs/ocamloptcomp__asmgen.cmi \
     compilerlibs/ocamloptcomp.cmo \
@@ -3243,6 +3250,7 @@ compilerlibs/ocamloptcomp__asmpackager.cmx : \
     compilerlibs/ocamloptcomp__export_info.cmx \
     compilerlibs/ocamloptcomp__compilenv.cmx \
     compilerlibs/ocamloptcomp__compilation_unit.cmx \
+    compilerlibs/ocamloptcomp__cmx_format.cmx \
     compilerlibs/ocamloptcomp__asmlink.cmx \
     compilerlibs/ocamloptcomp__asmgen.cmx \
     compilerlibs/ocamloptcomp.cmx \
@@ -3262,6 +3270,7 @@ compilerlibs/ocamloptcomp__asmpackager.cmx : \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__asmpackager.cmi
 compilerlibs/ocamloptcomp__asmpackager.cmi : \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__env.cmi \
     compilerlibs/ocamlcommon.cmo \
@@ -3280,6 +3289,7 @@ compilerlibs/ocamloptcomp__augment_specialised_args.cmo : \
     compilerlibs/ocamloptcomp__debuginfo.cmi \
     compilerlibs/ocamloptcomp__closure_origin.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__misc.cmi \
     compilerlibs/ocamlcommon__identifiable.cmi \
@@ -3301,6 +3311,7 @@ compilerlibs/ocamloptcomp__augment_specialised_args.cmx : \
     compilerlibs/ocamloptcomp__debuginfo.cmx \
     compilerlibs/ocamloptcomp__closure_origin.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__misc.cmx \
     compilerlibs/ocamlcommon__identifiable.cmx \
@@ -3348,6 +3359,32 @@ compilerlibs/ocamloptcomp__available_regs.cmx : \
 compilerlibs/ocamloptcomp__available_regs.cmi : \
     compilerlibs/ocamloptcomp__mach.cmi \
     compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamloptcomp__backend_intf.cmo : \
+    compilerlibs/ocamloptcomp__symbol.cmi \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmi \
+    compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamloptcomp__backend_intf.cmi
+compilerlibs/ocamloptcomp__backend_intf.cmx : \
+    compilerlibs/ocamloptcomp__symbol.cmx \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmx \
+    compilerlibs/ocamloptcomp__closure_id.cmx \
+    compilerlibs/ocamloptcomp.cmx \
+    compilerlibs/ocamlcommon__ident.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmi
+compilerlibs/ocamloptcomp__backend_intf.cmi : \
+    compilerlibs/ocamloptcomp__symbol.cmi \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmi \
+    compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon__ident.cmi \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
 compilerlibs/ocamloptcomp__backend_var.cmo : \
@@ -3440,6 +3477,7 @@ compilerlibs/ocamloptcomp__build_export_info.cmo : \
     compilerlibs/ocamloptcomp__compilenv.cmi \
     compilerlibs/ocamloptcomp__compilation_unit.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp__allocated_const.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__misc.cmi \
@@ -3465,6 +3503,7 @@ compilerlibs/ocamloptcomp__build_export_info.cmx : \
     compilerlibs/ocamloptcomp__compilenv.cmx \
     compilerlibs/ocamloptcomp__compilation_unit.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp__allocated_const.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__misc.cmx \
@@ -3475,6 +3514,7 @@ compilerlibs/ocamloptcomp__build_export_info.cmx : \
 compilerlibs/ocamloptcomp__build_export_info.cmi : \
     compilerlibs/ocamloptcomp__flambda.cmi \
     compilerlibs/ocamloptcomp__export_info.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -3616,6 +3656,7 @@ compilerlibs/ocamloptcomp__closure_conversion.cmo : \
     compilerlibs/ocamloptcomp__closure_id.cmi \
     compilerlibs/ocamloptcomp__closure_conversion_aux.cmi \
     compilerlibs/ocamloptcomp__clambda_primitives.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__simplif.cmi \
     compilerlibs/ocamlcommon__predef.cmi \
@@ -3647,6 +3688,7 @@ compilerlibs/ocamloptcomp__closure_conversion.cmx : \
     compilerlibs/ocamloptcomp__closure_id.cmx \
     compilerlibs/ocamloptcomp__closure_conversion_aux.cmx \
     compilerlibs/ocamloptcomp__clambda_primitives.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__simplif.cmx \
     compilerlibs/ocamlcommon__predef.cmx \
@@ -3661,6 +3703,7 @@ compilerlibs/ocamloptcomp__closure_conversion.cmx : \
     compilerlibs/ocamloptcomp__closure_conversion.cmi
 compilerlibs/ocamloptcomp__closure_conversion.cmi : \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__lambda.cmi \
     compilerlibs/ocamlcommon__ident.cmi \
@@ -3835,6 +3878,8 @@ compilerlibs/ocamloptcomp__cmmgen.cmo : \
     compilerlibs/ocamloptcomp__printclambda_primitives.cmi \
     compilerlibs/ocamloptcomp__debuginfo.cmi \
     compilerlibs/ocamloptcomp__compilenv.cmi \
+    compilerlibs/ocamloptcomp__cmxs_format.cmi \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
     compilerlibs/ocamloptcomp__cmmgen_state.cmi \
     compilerlibs/ocamloptcomp__cmm.cmi \
     compilerlibs/ocamloptcomp__clambda_primitives.cmi \
@@ -3863,6 +3908,8 @@ compilerlibs/ocamloptcomp__cmmgen.cmx : \
     compilerlibs/ocamloptcomp__printclambda_primitives.cmx \
     compilerlibs/ocamloptcomp__debuginfo.cmx \
     compilerlibs/ocamloptcomp__compilenv.cmx \
+    compilerlibs/ocamloptcomp__cmxs_format.cmx \
+    compilerlibs/ocamloptcomp__cmx_format.cmx \
     compilerlibs/ocamloptcomp__cmmgen_state.cmx \
     compilerlibs/ocamloptcomp__cmm.cmx \
     compilerlibs/ocamloptcomp__clambda_primitives.cmx \
@@ -3885,6 +3932,7 @@ compilerlibs/ocamloptcomp__cmmgen.cmx : \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__cmmgen.cmi
 compilerlibs/ocamloptcomp__cmmgen.cmi : \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
     compilerlibs/ocamloptcomp__cmm.cmi \
     compilerlibs/ocamloptcomp__clambda.cmi \
     compilerlibs/ocamloptcomp.cmo \
@@ -3909,6 +3957,46 @@ compilerlibs/ocamloptcomp__cmmgen_state.cmx : \
 compilerlibs/ocamloptcomp__cmmgen_state.cmi : \
     compilerlibs/ocamloptcomp__cmm.cmi \
     compilerlibs/ocamloptcomp__clambda.cmi \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamloptcomp__cmx_format.cmo : \
+    compilerlibs/ocamloptcomp__export_info.cmi \
+    compilerlibs/ocamloptcomp__clambda.cmi \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamloptcomp__cmx_format.cmi
+compilerlibs/ocamloptcomp__cmx_format.cmx : \
+    compilerlibs/ocamloptcomp__export_info.cmx \
+    compilerlibs/ocamloptcomp__clambda.cmx \
+    compilerlibs/ocamloptcomp.cmx \
+    compilerlibs/ocamlcommon__misc.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamloptcomp__cmx_format.cmi
+compilerlibs/ocamloptcomp__cmx_format.cmi : \
+    compilerlibs/ocamloptcomp__export_info.cmi \
+    compilerlibs/ocamloptcomp__clambda.cmi \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamloptcomp__cmxs_format.cmo : \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamloptcomp__cmxs_format.cmi
+compilerlibs/ocamloptcomp__cmxs_format.cmx : \
+    compilerlibs/ocamloptcomp.cmx \
+    compilerlibs/ocamlcommon__misc.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamloptcomp__cmxs_format.cmi
+compilerlibs/ocamloptcomp__cmxs_format.cmi : \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__misc.cmi \
     compilerlibs/ocamlcommon.cmo \
@@ -3988,6 +4076,7 @@ compilerlibs/ocamloptcomp__compilenv.cmo : \
     compilerlibs/ocamloptcomp__linkage_name.cmi \
     compilerlibs/ocamloptcomp__export_info.cmi \
     compilerlibs/ocamloptcomp__compilation_unit.cmi \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
     compilerlibs/ocamloptcomp__clambda.cmi \
     compilerlibs/ocamloptcomp.cmo \
@@ -4010,6 +4099,7 @@ compilerlibs/ocamloptcomp__compilenv.cmx : \
     compilerlibs/ocamloptcomp__linkage_name.cmx \
     compilerlibs/ocamloptcomp__export_info.cmx \
     compilerlibs/ocamloptcomp__compilation_unit.cmx \
+    compilerlibs/ocamloptcomp__cmx_format.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
     compilerlibs/ocamloptcomp__clambda.cmx \
     compilerlibs/ocamloptcomp.cmx \
@@ -4032,6 +4122,7 @@ compilerlibs/ocamloptcomp__compilenv.cmi : \
     compilerlibs/ocamloptcomp__linkage_name.cmi \
     compilerlibs/ocamloptcomp__export_info.cmi \
     compilerlibs/ocamloptcomp__compilation_unit.cmi \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
     compilerlibs/ocamloptcomp__clambda.cmi \
     compilerlibs/ocamloptcomp.cmo \
@@ -4186,6 +4277,7 @@ compilerlibs/ocamloptcomp__emit.cmo : \
     compilerlibs/ocamloptcomp__x86_masm.cmi \
     compilerlibs/ocamloptcomp__x86_gas.cmi \
     compilerlibs/ocamloptcomp__x86_dsl.cmi \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp__reg.cmi \
     compilerlibs/ocamloptcomp__proc.cmi \
     compilerlibs/ocamloptcomp__mach.cmi \
@@ -4208,6 +4300,7 @@ compilerlibs/ocamloptcomp__emit.cmx : \
     compilerlibs/ocamloptcomp__x86_masm.cmx \
     compilerlibs/ocamloptcomp__x86_gas.cmx \
     compilerlibs/ocamloptcomp__x86_dsl.cmx \
+    compilerlibs/ocamloptcomp__x86_ast.cmx \
     compilerlibs/ocamloptcomp__reg.cmx \
     compilerlibs/ocamloptcomp__proc.cmx \
     compilerlibs/ocamloptcomp__mach.cmx \
@@ -4409,6 +4502,7 @@ compilerlibs/ocamloptcomp__find_recursive_functions.cmo : \
     compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.cmi \
     compilerlibs/ocamloptcomp__flambda_utils.cmi \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__strongly_connected_components.cmi \
     compilerlibs/ocamlcommon.cmo \
@@ -4419,6 +4513,7 @@ compilerlibs/ocamloptcomp__find_recursive_functions.cmx : \
     compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.cmx \
     compilerlibs/ocamloptcomp__flambda_utils.cmx \
     compilerlibs/ocamloptcomp__flambda.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__strongly_connected_components.cmx \
     compilerlibs/ocamlcommon.cmx \
@@ -4427,6 +4522,7 @@ compilerlibs/ocamloptcomp__find_recursive_functions.cmx : \
 compilerlibs/ocamloptcomp__find_recursive_functions.cmi : \
     compilerlibs/ocamloptcomp__variable.cmi \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -4860,6 +4956,7 @@ compilerlibs/ocamloptcomp__inconstant_idents.cmo : \
     compilerlibs/ocamloptcomp__flambda.cmi \
     compilerlibs/ocamloptcomp__compilation_unit.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__numbers.cmi \
     compilerlibs/ocamlcommon__misc.cmi \
@@ -4878,6 +4975,7 @@ compilerlibs/ocamloptcomp__inconstant_idents.cmx : \
     compilerlibs/ocamloptcomp__flambda.cmx \
     compilerlibs/ocamloptcomp__compilation_unit.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__numbers.cmx \
     compilerlibs/ocamlcommon__misc.cmx \
@@ -4891,6 +4989,7 @@ compilerlibs/ocamloptcomp__inconstant_idents.cmi : \
     compilerlibs/ocamloptcomp__set_of_closures_id.cmi \
     compilerlibs/ocamloptcomp__flambda.cmi \
     compilerlibs/ocamloptcomp__compilation_unit.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -4949,6 +5048,7 @@ compilerlibs/ocamloptcomp__inline_and_simplify.cmo : \
     compilerlibs/ocamloptcomp__closure_origin.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
     compilerlibs/ocamloptcomp__clambda_primitives.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp__allocated_const.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__warnings.cmi \
@@ -4994,6 +5094,7 @@ compilerlibs/ocamloptcomp__inline_and_simplify.cmx : \
     compilerlibs/ocamloptcomp__closure_origin.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
     compilerlibs/ocamloptcomp__clambda_primitives.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp__allocated_const.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__warnings.cmx \
@@ -5011,6 +5112,7 @@ compilerlibs/ocamloptcomp__inline_and_simplify.cmi : \
     compilerlibs/ocamloptcomp__variable.cmi \
     compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmi \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -5034,6 +5136,7 @@ compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmo : \
     compilerlibs/ocamloptcomp__compilation_unit.cmi \
     compilerlibs/ocamloptcomp__closure_origin.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__misc.cmi \
     compilerlibs/ocamlcommon__clflags.cmi \
@@ -5060,6 +5163,7 @@ compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmx : \
     compilerlibs/ocamloptcomp__compilation_unit.cmx \
     compilerlibs/ocamloptcomp__closure_origin.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__misc.cmx \
     compilerlibs/ocamlcommon__clflags.cmx \
@@ -5081,6 +5185,7 @@ compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmi : \
     compilerlibs/ocamloptcomp__debuginfo.cmi \
     compilerlibs/ocamloptcomp__closure_origin.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -5159,12 +5264,45 @@ compilerlibs/ocamloptcomp__inlining_decision.cmx : \
 compilerlibs/ocamloptcomp__inlining_decision.cmi : \
     compilerlibs/ocamloptcomp__variable.cmi \
     compilerlibs/ocamloptcomp__simple_value_approx.cmi \
+    compilerlibs/ocamloptcomp__inlining_decision_intf.cmi \
     compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmi \
     compilerlibs/ocamloptcomp__flambda.cmi \
     compilerlibs/ocamloptcomp__debuginfo.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__lambda.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamloptcomp__inlining_decision_intf.cmo : \
+    compilerlibs/ocamloptcomp__variable.cmi \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmi \
+    compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmi \
+    compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__debuginfo.cmi \
+    compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamloptcomp__inlining_decision_intf.cmi
+compilerlibs/ocamloptcomp__inlining_decision_intf.cmx : \
+    compilerlibs/ocamloptcomp__variable.cmx \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmx \
+    compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmx \
+    compilerlibs/ocamloptcomp__flambda.cmx \
+    compilerlibs/ocamloptcomp__debuginfo.cmx \
+    compilerlibs/ocamloptcomp__closure_id.cmx \
+    compilerlibs/ocamloptcomp.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamloptcomp__inlining_decision_intf.cmi
+compilerlibs/ocamloptcomp__inlining_decision_intf.cmi : \
+    compilerlibs/ocamloptcomp__variable.cmi \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmi \
+    compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmi \
+    compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__debuginfo.cmi \
+    compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
 compilerlibs/ocamloptcomp__inlining_stats.cmo : \
@@ -5223,6 +5361,7 @@ compilerlibs/ocamloptcomp__inlining_transforms.cmo : \
     compilerlibs/ocamloptcomp__parameter.cmi \
     compilerlibs/ocamloptcomp__internal_variable_names.cmi \
     compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.cmi \
+    compilerlibs/ocamloptcomp__inlining_decision_intf.cmi \
     compilerlibs/ocamloptcomp__inlining_cost.cmi \
     compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmi \
     compilerlibs/ocamloptcomp__flambda_utils.cmi \
@@ -5245,6 +5384,7 @@ compilerlibs/ocamloptcomp__inlining_transforms.cmx : \
     compilerlibs/ocamloptcomp__parameter.cmx \
     compilerlibs/ocamloptcomp__internal_variable_names.cmx \
     compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.cmx \
+    compilerlibs/ocamloptcomp__inlining_decision_intf.cmx \
     compilerlibs/ocamloptcomp__inlining_cost.cmx \
     compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmx \
     compilerlibs/ocamloptcomp__flambda_utils.cmx \
@@ -5262,6 +5402,7 @@ compilerlibs/ocamloptcomp__inlining_transforms.cmx : \
 compilerlibs/ocamloptcomp__inlining_transforms.cmi : \
     compilerlibs/ocamloptcomp__variable.cmi \
     compilerlibs/ocamloptcomp__simple_value_approx.cmi \
+    compilerlibs/ocamloptcomp__inlining_decision_intf.cmi \
     compilerlibs/ocamloptcomp__inline_and_simplify_aux.cmi \
     compilerlibs/ocamloptcomp__flambda.cmi \
     compilerlibs/ocamloptcomp__debuginfo.cmi \
@@ -5360,6 +5501,7 @@ compilerlibs/ocamloptcomp__invariant_params.cmo : \
     compilerlibs/ocamloptcomp__flambda_iterators.cmi \
     compilerlibs/ocamloptcomp__flambda.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__clflags.cmi \
     compilerlibs/ocamlcommon.cmo \
@@ -5374,6 +5516,7 @@ compilerlibs/ocamloptcomp__invariant_params.cmx : \
     compilerlibs/ocamloptcomp__flambda_iterators.cmx \
     compilerlibs/ocamloptcomp__flambda.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__clflags.cmx \
     compilerlibs/ocamlcommon.cmx \
@@ -5382,6 +5525,7 @@ compilerlibs/ocamloptcomp__invariant_params.cmx : \
 compilerlibs/ocamloptcomp__invariant_params.cmi : \
     compilerlibs/ocamloptcomp__variable.cmi \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -5428,6 +5572,7 @@ compilerlibs/ocamloptcomp__lift_constants.cmo : \
     compilerlibs/ocamloptcomp__flambda.cmi \
     compilerlibs/ocamloptcomp__compilation_unit.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp__allocated_const.cmi \
     compilerlibs/ocamloptcomp__alias_analysis.cmi \
     compilerlibs/ocamloptcomp.cmo \
@@ -5451,6 +5596,7 @@ compilerlibs/ocamloptcomp__lift_constants.cmx : \
     compilerlibs/ocamloptcomp__flambda.cmx \
     compilerlibs/ocamloptcomp__compilation_unit.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp__allocated_const.cmx \
     compilerlibs/ocamloptcomp__alias_analysis.cmx \
     compilerlibs/ocamloptcomp.cmx \
@@ -5462,6 +5608,7 @@ compilerlibs/ocamloptcomp__lift_constants.cmx : \
     compilerlibs/ocamloptcomp__lift_constants.cmi
 compilerlibs/ocamloptcomp__lift_constants.cmi : \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -5495,6 +5642,7 @@ compilerlibs/ocamloptcomp__lift_let_to_initialize_symbol.cmx : \
     compilerlibs/ocamloptcomp__lift_let_to_initialize_symbol.cmi
 compilerlibs/ocamloptcomp__lift_let_to_initialize_symbol.cmi : \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -5652,6 +5800,7 @@ compilerlibs/ocamloptcomp__middle_end.cmo : \
     compilerlibs/ocamloptcomp__debuginfo.cmi \
     compilerlibs/ocamloptcomp__closure_id.cmi \
     compilerlibs/ocamloptcomp__closure_conversion.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__warnings.cmi \
     compilerlibs/ocamlcommon__profile.cmi \
@@ -5681,6 +5830,7 @@ compilerlibs/ocamloptcomp__middle_end.cmx : \
     compilerlibs/ocamloptcomp__debuginfo.cmx \
     compilerlibs/ocamloptcomp__closure_id.cmx \
     compilerlibs/ocamloptcomp__closure_conversion.cmx \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__warnings.cmx \
     compilerlibs/ocamlcommon__profile.cmx \
@@ -5692,6 +5842,7 @@ compilerlibs/ocamloptcomp__middle_end.cmx : \
     compilerlibs/ocamloptcomp__middle_end.cmi
 compilerlibs/ocamloptcomp__middle_end.cmi : \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__lambda.cmi \
     compilerlibs/ocamlcommon__ident.cmi \
@@ -5755,6 +5906,7 @@ compilerlibs/ocamloptcomp__optcompile.cmx : \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__optcompile.cmi
 compilerlibs/ocamloptcomp__optcompile.cmi : \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__typedtree.cmi \
     compilerlibs/ocamlcommon__compile_common.cmi \
@@ -6229,6 +6381,7 @@ compilerlibs/ocamloptcomp__remove_unused_arguments.cmx : \
     compilerlibs/ocamloptcomp__remove_unused_arguments.cmi
 compilerlibs/ocamloptcomp__remove_unused_arguments.cmi : \
     compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -6570,6 +6723,7 @@ compilerlibs/ocamloptcomp__simple_value_approx.cmi : \
     compilerlibs/ocamlbytecomp.cmo
 compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.cmo : \
     compilerlibs/ocamloptcomp__simplify_common.cmi \
+    compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmi \
     compilerlibs/ocamloptcomp__simple_value_approx.cmi \
     compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.cmi \
     compilerlibs/ocamloptcomp__inlining_cost.cmi \
@@ -6581,6 +6735,7 @@ compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.cmo : \
     compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.cmi
 compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.cmx : \
     compilerlibs/ocamloptcomp__simplify_common.cmx \
+    compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmx \
     compilerlibs/ocamloptcomp__simple_value_approx.cmx \
     compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.cmx \
     compilerlibs/ocamloptcomp__inlining_cost.cmx \
@@ -6591,6 +6746,33 @@ compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.cmx : \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.cmi
 compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.cmi : \
+    compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmi \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmo : \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmi \
+    compilerlibs/ocamloptcomp__inlining_cost.cmi \
+    compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__clambda_primitives.cmi \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmi
+compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmx : \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmx \
+    compilerlibs/ocamloptcomp__inlining_cost.cmx \
+    compilerlibs/ocamloptcomp__flambda.cmx \
+    compilerlibs/ocamloptcomp__clambda_primitives.cmx \
+    compilerlibs/ocamloptcomp.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmi
+compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmi : \
+    compilerlibs/ocamloptcomp__simple_value_approx.cmi \
+    compilerlibs/ocamloptcomp__inlining_cost.cmi \
+    compilerlibs/ocamloptcomp__flambda.cmi \
+    compilerlibs/ocamloptcomp__clambda_primitives.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -7107,24 +7289,42 @@ compilerlibs/ocamloptcomp__variable.cmi : \
     compilerlibs/ocamlcommon__ident.cmi \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamloptcomp__x86_ast.cmo : \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamloptcomp__x86_ast.cmi
+compilerlibs/ocamloptcomp__x86_ast.cmx : \
+    compilerlibs/ocamloptcomp.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamloptcomp__x86_ast.cmi
+compilerlibs/ocamloptcomp__x86_ast.cmi : \
+    compilerlibs/ocamloptcomp.cmo \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
 compilerlibs/ocamloptcomp__x86_dsl.cmo : \
     compilerlibs/ocamloptcomp__x86_proc.cmi \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo \
     compilerlibs/ocamloptcomp__x86_dsl.cmi
 compilerlibs/ocamloptcomp__x86_dsl.cmx : \
     compilerlibs/ocamloptcomp__x86_proc.cmx \
+    compilerlibs/ocamloptcomp__x86_ast.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon.cmx \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__x86_dsl.cmi
 compilerlibs/ocamloptcomp__x86_dsl.cmi : \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
 compilerlibs/ocamloptcomp__x86_gas.cmo : \
     compilerlibs/ocamloptcomp__x86_proc.cmi \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__misc.cmi \
     compilerlibs/ocamlcommon.cmo \
@@ -7132,32 +7332,38 @@ compilerlibs/ocamloptcomp__x86_gas.cmo : \
     compilerlibs/ocamloptcomp__x86_gas.cmi
 compilerlibs/ocamloptcomp__x86_gas.cmx : \
     compilerlibs/ocamloptcomp__x86_proc.cmx \
+    compilerlibs/ocamloptcomp__x86_ast.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__misc.cmx \
     compilerlibs/ocamlcommon.cmx \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__x86_gas.cmi
 compilerlibs/ocamloptcomp__x86_gas.cmi : \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
 compilerlibs/ocamloptcomp__x86_masm.cmo : \
     compilerlibs/ocamloptcomp__x86_proc.cmi \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo \
     compilerlibs/ocamloptcomp__x86_masm.cmi
 compilerlibs/ocamloptcomp__x86_masm.cmx : \
     compilerlibs/ocamloptcomp__x86_proc.cmx \
+    compilerlibs/ocamloptcomp__x86_ast.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon.cmx \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__x86_masm.cmi
 compilerlibs/ocamloptcomp__x86_masm.cmi : \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
 compilerlibs/ocamloptcomp__x86_proc.cmo : \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon__misc.cmi \
     compilerlibs/ocamlcommon__config.cmi \
@@ -7167,6 +7373,7 @@ compilerlibs/ocamloptcomp__x86_proc.cmo : \
     compilerlibs/ocamlbytecomp.cmo \
     compilerlibs/ocamloptcomp__x86_proc.cmi
 compilerlibs/ocamloptcomp__x86_proc.cmx : \
+    compilerlibs/ocamloptcomp__x86_ast.cmx \
     compilerlibs/ocamloptcomp.cmx \
     compilerlibs/ocamlcommon__misc.cmx \
     compilerlibs/ocamlcommon__config.cmx \
@@ -7176,6 +7383,7 @@ compilerlibs/ocamloptcomp__x86_proc.cmx : \
     compilerlibs/ocamlbytecomp.cmx \
     compilerlibs/ocamloptcomp__x86_proc.cmi
 compilerlibs/ocamloptcomp__x86_proc.cmi : \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
     compilerlibs/ocamloptcomp.cmo \
     compilerlibs/ocamlcommon.cmo \
     compilerlibs/ocamlbytecomp.cmo
@@ -7298,6 +7506,12 @@ compilerlibs/unprefixed/available_regs.cmo : \
     compilerlibs/ocamloptcomp.cmo
 compilerlibs/unprefixed/available_regs.cmx : \
     compilerlibs/ocamloptcomp__available_regs.cmx \
+    compilerlibs/ocamloptcomp.cmx
+compilerlibs/unprefixed/backend_intf.cmo : \
+    compilerlibs/ocamloptcomp__backend_intf.cmi \
+    compilerlibs/ocamloptcomp.cmo
+compilerlibs/unprefixed/backend_intf.cmx : \
+    compilerlibs/ocamloptcomp__backend_intf.cmx \
     compilerlibs/ocamloptcomp.cmx
 compilerlibs/unprefixed/backend_var.cmo : \
     compilerlibs/ocamloptcomp__backend_var.cmi \
@@ -7479,6 +7693,18 @@ compilerlibs/unprefixed/cmt_format.cmo : \
 compilerlibs/unprefixed/cmt_format.cmx : \
     compilerlibs/ocamlcommon__cmt_format.cmx \
     compilerlibs/ocamlcommon.cmx
+compilerlibs/unprefixed/cmx_format.cmo : \
+    compilerlibs/ocamloptcomp__cmx_format.cmi \
+    compilerlibs/ocamloptcomp.cmo
+compilerlibs/unprefixed/cmx_format.cmx : \
+    compilerlibs/ocamloptcomp__cmx_format.cmx \
+    compilerlibs/ocamloptcomp.cmx
+compilerlibs/unprefixed/cmxs_format.cmo : \
+    compilerlibs/ocamloptcomp__cmxs_format.cmi \
+    compilerlibs/ocamloptcomp.cmo
+compilerlibs/unprefixed/cmxs_format.cmx : \
+    compilerlibs/ocamloptcomp__cmxs_format.cmx \
+    compilerlibs/ocamloptcomp.cmx
 compilerlibs/unprefixed/coloring.cmo : \
     compilerlibs/ocamloptcomp__coloring.cmi \
     compilerlibs/ocamloptcomp.cmo
@@ -7784,6 +8010,12 @@ compilerlibs/unprefixed/inlining_decision.cmo : \
     compilerlibs/ocamloptcomp.cmo
 compilerlibs/unprefixed/inlining_decision.cmx : \
     compilerlibs/ocamloptcomp__inlining_decision.cmx \
+    compilerlibs/ocamloptcomp.cmx
+compilerlibs/unprefixed/inlining_decision_intf.cmo : \
+    compilerlibs/ocamloptcomp__inlining_decision_intf.cmi \
+    compilerlibs/ocamloptcomp.cmo
+compilerlibs/unprefixed/inlining_decision_intf.cmx : \
+    compilerlibs/ocamloptcomp__inlining_decision_intf.cmx \
     compilerlibs/ocamloptcomp.cmx
 compilerlibs/unprefixed/inlining_stats.cmo : \
     compilerlibs/ocamloptcomp__inlining_stats.cmi \
@@ -8295,6 +8527,12 @@ compilerlibs/unprefixed/simplify_boxed_integer_ops.cmo : \
 compilerlibs/unprefixed/simplify_boxed_integer_ops.cmx : \
     compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.cmx \
     compilerlibs/ocamloptcomp.cmx
+compilerlibs/unprefixed/simplify_boxed_integer_ops_intf.cmo : \
+    compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmi \
+    compilerlibs/ocamloptcomp.cmo
+compilerlibs/unprefixed/simplify_boxed_integer_ops_intf.cmx : \
+    compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.cmx \
+    compilerlibs/ocamloptcomp.cmx
 compilerlibs/unprefixed/simplify_common.cmo : \
     compilerlibs/ocamloptcomp__simplify_common.cmi \
     compilerlibs/ocamloptcomp.cmo
@@ -8571,6 +8809,12 @@ compilerlibs/unprefixed/warnings.cmo : \
 compilerlibs/unprefixed/warnings.cmx : \
     compilerlibs/ocamlcommon__warnings.cmx \
     compilerlibs/ocamlcommon.cmx
+compilerlibs/unprefixed/x86_ast.cmo : \
+    compilerlibs/ocamloptcomp__x86_ast.cmi \
+    compilerlibs/ocamloptcomp.cmo
+compilerlibs/unprefixed/x86_ast.cmx : \
+    compilerlibs/ocamloptcomp__x86_ast.cmx \
+    compilerlibs/ocamloptcomp.cmx
 compilerlibs/unprefixed/x86_dsl.cmo : \
     compilerlibs/ocamloptcomp__x86_dsl.cmi \
     compilerlibs/ocamloptcomp.cmo

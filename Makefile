@@ -150,10 +150,14 @@ ARCH_SPECIFIC =\
   asmcomp/scheduling.ml asmcomp/reload.ml
 
 INTEL_ASM=\
+  asmcomp/x86_ast.cmo \
   asmcomp/x86_proc.cmo \
   asmcomp/x86_dsl.cmo \
   asmcomp/x86_gas.cmo \
   asmcomp/x86_masm.cmo
+
+asmcomp/x86_ast.ml: asmcomp/x86_ast.mli
+	cp $< $@
 
 ARCH_SPECIFIC_ASMCOMP=
 ifeq ($(ARCH),i386)
@@ -174,9 +178,10 @@ ASMCOMP=\
   asmcomp/clambda.cmo asmcomp/printclambda.cmo \
   asmcomp/export_info.cmo \
   asmcomp/export_info_for_pack.cmo \
+  asmcomp/cmx_format.cmo asmcomp/cmxs_format.cmo \
   asmcomp/compilenv.cmo \
   asmcomp/closure.cmo \
-	asmcomp/traverse_for_exported_symbols.cmo \
+  asmcomp/traverse_for_exported_symbols.cmo \
   asmcomp/build_export_info.cmo \
   asmcomp/closure_offsets.cmo \
   asmcomp/flambda_to_clambda.cmo \
@@ -1320,7 +1325,13 @@ MAPS=\
   -map compilerlibs/ocamloptcomp.ml
 
 asmcomp/arch.mli: asmcomp/arch.ml
-	$(CAMLC) -I compilerlibs -open Ocamlcommon -open Ocamlbytecomp -i $< > $@
+	$(CAMLC) -I compilerlibs -open Ocamlcommon -i $< > $@
+
+asmcomp/cmx_format.ml: asmcomp/cmx_format.mli
+	cp $< $@
+
+asmcomp/cmxs_format.ml: asmcomp/cmxs_format.mli
+	cp $< $@
 
 .PHONY: depend
 depend: beforedepend
