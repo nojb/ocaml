@@ -1,11 +1,23 @@
-parsing/parser.cmo : parsing/syntaxerr.cmi parsing/parsetree.cmi \
-    parsing/longident.cmi parsing/location.cmi parsing/docstrings.cmi \
-    utils/clflags.cmi parsing/asttypes.cmi parsing/ast_helper.cmi \
-    parsing/parser.cmi
-parsing/parser.cmx : parsing/syntaxerr.cmx parsing/parsetree.cmi \
-    parsing/longident.cmx parsing/location.cmx parsing/docstrings.cmx \
-    utils/clflags.cmx parsing/asttypes.cmi parsing/ast_helper.cmx \
-    parsing/parser.cmi
-parsing/parser.cmi : parsing/parsetree.cmi parsing/location.cmi \
-    parsing/docstrings.cmi
-parsing/parser.ml parsing/parser.mli: parsing/ast_helper.cmi parsing/asttypes.cmi utils/clflags.cmi parsing/docstrings.cmi parsing/location.cmi parsing/longident.cmi parsing/parsetree.cmi parsing/syntaxerr.cmi
+compilerlibs/ocamlcommon__parser.cmo : \
+    compilerlibs/ocamlcommon__longident.cmi \
+    compilerlibs/ocamlcommon__location.cmi \
+    compilerlibs/ocamlcommon__docstrings.cmi \
+    compilerlibs/ocamlcommon__clflags.cmi \
+    compilerlibs/ocamlcommon__asttypes.cmi \
+    compilerlibs/ocamlcommon__ast_helper.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlcommon__parser.cmi
+compilerlibs/ocamlcommon__parser.cmx : \
+    compilerlibs/ocamlcommon__longident.cmx \
+    compilerlibs/ocamlcommon__location.cmx \
+    compilerlibs/ocamlcommon__docstrings.cmx \
+    compilerlibs/ocamlcommon__clflags.cmx \
+    compilerlibs/ocamlcommon__asttypes.cmx \
+    compilerlibs/ocamlcommon__ast_helper.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlcommon__parser.cmi
+compilerlibs/ocamlcommon__parser.cmi : \
+    compilerlibs/ocamlcommon__location.cmi \
+    compilerlibs/ocamlcommon__docstrings.cmi \
+    compilerlibs/ocamlcommon.cmo
+compilerlibs/ocamlcommon__parser.ml compilerlibs/ocamlcommon__parser.mli: compilerlibs/ocamlcommon.cmo compilerlibs/ocamlcommon__ast_helper.cmi compilerlibs/ocamlcommon__asttypes.cmi compilerlibs/ocamlcommon__clflags.cmi compilerlibs/ocamlcommon__docstrings.cmi compilerlibs/ocamlcommon__location.cmi compilerlibs/ocamlcommon__longident.cmi
