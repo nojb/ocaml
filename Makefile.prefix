@@ -1,0 +1,1102 @@
+compilerlibs/ocamlcommon__config.ml: utils/config.ml
+	(echo "# 1 \"utils/config.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__config.mli: utils/config.mli
+	(echo "# 1 \"utils/config.mli\""; cat $<) > $@
+compilerlibs/unprefixed/config.ml: utils/config.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Config instead.\"]" > $@
+	echo "include Ocamlcommon.Config" >> $@
+compilerlibs/ocamlcommon__build_path_prefix_map.ml: utils/build_path_prefix_map.ml
+	(echo "# 1 \"utils/build_path_prefix_map.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__build_path_prefix_map.mli: utils/build_path_prefix_map.mli
+	(echo "# 1 \"utils/build_path_prefix_map.mli\""; cat $<) > $@
+compilerlibs/unprefixed/build_path_prefix_map.ml: utils/build_path_prefix_map.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Build_path_prefix_map instead.\"]" > $@
+	echo "include Ocamlcommon.Build_path_prefix_map" >> $@
+compilerlibs/ocamlcommon__misc.ml: utils/misc.ml
+	(echo "# 1 \"utils/misc.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__misc.mli: utils/misc.mli
+	(echo "# 1 \"utils/misc.mli\""; cat $<) > $@
+compilerlibs/unprefixed/misc.ml: utils/misc.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Misc instead.\"]" > $@
+	echo "include Ocamlcommon.Misc" >> $@
+compilerlibs/ocamlcommon__identifiable.ml: utils/identifiable.ml
+	(echo "# 1 \"utils/identifiable.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__identifiable.mli: utils/identifiable.mli
+	(echo "# 1 \"utils/identifiable.mli\""; cat $<) > $@
+compilerlibs/unprefixed/identifiable.ml: utils/identifiable.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Identifiable instead.\"]" > $@
+	echo "include Ocamlcommon.Identifiable" >> $@
+compilerlibs/ocamlcommon__numbers.ml: utils/numbers.ml
+	(echo "# 1 \"utils/numbers.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__numbers.mli: utils/numbers.mli
+	(echo "# 1 \"utils/numbers.mli\""; cat $<) > $@
+compilerlibs/unprefixed/numbers.ml: utils/numbers.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Numbers instead.\"]" > $@
+	echo "include Ocamlcommon.Numbers" >> $@
+compilerlibs/ocamlcommon__arg_helper.ml: utils/arg_helper.ml
+	(echo "# 1 \"utils/arg_helper.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__arg_helper.mli: utils/arg_helper.mli
+	(echo "# 1 \"utils/arg_helper.mli\""; cat $<) > $@
+compilerlibs/unprefixed/arg_helper.ml: utils/arg_helper.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Arg_helper instead.\"]" > $@
+	echo "include Ocamlcommon.Arg_helper" >> $@
+compilerlibs/ocamlcommon__clflags.ml: utils/clflags.ml
+	(echo "# 1 \"utils/clflags.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__clflags.mli: utils/clflags.mli
+	(echo "# 1 \"utils/clflags.mli\""; cat $<) > $@
+compilerlibs/unprefixed/clflags.ml: utils/clflags.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Clflags instead.\"]" > $@
+	echo "include Ocamlcommon.Clflags" >> $@
+compilerlibs/ocamlcommon__profile.ml: utils/profile.ml
+	(echo "# 1 \"utils/profile.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__profile.mli: utils/profile.mli
+	(echo "# 1 \"utils/profile.mli\""; cat $<) > $@
+compilerlibs/unprefixed/profile.ml: utils/profile.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Profile instead.\"]" > $@
+	echo "include Ocamlcommon.Profile" >> $@
+compilerlibs/ocamlcommon__load_path.ml: utils/load_path.ml
+	(echo "# 1 \"utils/load_path.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__load_path.mli: utils/load_path.mli
+	(echo "# 1 \"utils/load_path.mli\""; cat $<) > $@
+compilerlibs/unprefixed/load_path.ml: utils/load_path.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Load_path instead.\"]" > $@
+	echo "include Ocamlcommon.Load_path" >> $@
+compilerlibs/ocamlcommon__terminfo.ml: utils/terminfo.ml
+	(echo "# 1 \"utils/terminfo.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__terminfo.mli: utils/terminfo.mli
+	(echo "# 1 \"utils/terminfo.mli\""; cat $<) > $@
+compilerlibs/unprefixed/terminfo.ml: utils/terminfo.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Terminfo instead.\"]" > $@
+	echo "include Ocamlcommon.Terminfo" >> $@
+compilerlibs/ocamlcommon__ccomp.ml: utils/ccomp.ml
+	(echo "# 1 \"utils/ccomp.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__ccomp.mli: utils/ccomp.mli
+	(echo "# 1 \"utils/ccomp.mli\""; cat $<) > $@
+compilerlibs/unprefixed/ccomp.ml: utils/ccomp.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Ccomp instead.\"]" > $@
+	echo "include Ocamlcommon.Ccomp" >> $@
+compilerlibs/ocamlcommon__warnings.ml: utils/warnings.ml
+	(echo "# 1 \"utils/warnings.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__warnings.mli: utils/warnings.mli
+	(echo "# 1 \"utils/warnings.mli\""; cat $<) > $@
+compilerlibs/unprefixed/warnings.ml: utils/warnings.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Warnings instead.\"]" > $@
+	echo "include Ocamlcommon.Warnings" >> $@
+compilerlibs/ocamlcommon__consistbl.ml: utils/consistbl.ml
+	(echo "# 1 \"utils/consistbl.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__consistbl.mli: utils/consistbl.mli
+	(echo "# 1 \"utils/consistbl.mli\""; cat $<) > $@
+compilerlibs/unprefixed/consistbl.ml: utils/consistbl.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Consistbl instead.\"]" > $@
+	echo "include Ocamlcommon.Consistbl" >> $@
+compilerlibs/ocamlcommon__strongly_connected_components.ml: utils/strongly_connected_components.ml
+	(echo "# 1 \"utils/strongly_connected_components.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__strongly_connected_components.mli: utils/strongly_connected_components.mli
+	(echo "# 1 \"utils/strongly_connected_components.mli\""; cat $<) > $@
+compilerlibs/unprefixed/strongly_connected_components.ml: utils/strongly_connected_components.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Strongly_connected_components instead.\"]" > $@
+	echo "include Ocamlcommon.Strongly_connected_components" >> $@
+compilerlibs/ocamlcommon__targetint.ml: utils/targetint.ml
+	(echo "# 1 \"utils/targetint.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__targetint.mli: utils/targetint.mli
+	(echo "# 1 \"utils/targetint.mli\""; cat $<) > $@
+compilerlibs/unprefixed/targetint.ml: utils/targetint.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Targetint instead.\"]" > $@
+	echo "include Ocamlcommon.Targetint" >> $@
+compilerlibs/ocamlcommon__location.ml: parsing/location.ml
+	(echo "# 1 \"parsing/location.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__location.mli: parsing/location.mli
+	(echo "# 1 \"parsing/location.mli\""; cat $<) > $@
+compilerlibs/unprefixed/location.ml: parsing/location.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Location instead.\"]" > $@
+	echo "include Ocamlcommon.Location" >> $@
+compilerlibs/ocamlcommon__longident.ml: parsing/longident.ml
+	(echo "# 1 \"parsing/longident.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__longident.mli: parsing/longident.mli
+	(echo "# 1 \"parsing/longident.mli\""; cat $<) > $@
+compilerlibs/unprefixed/longident.ml: parsing/longident.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Longident instead.\"]" > $@
+	echo "include Ocamlcommon.Longident" >> $@
+compilerlibs/ocamlcommon__asttypes.ml: parsing/asttypes.ml
+	(echo "# 1 \"parsing/asttypes.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__asttypes.mli: parsing/asttypes.mli
+	(echo "# 1 \"parsing/asttypes.mli\""; cat $<) > $@
+compilerlibs/unprefixed/asttypes.ml: parsing/asttypes.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Asttypes instead.\"]" > $@
+	echo "include Ocamlcommon.Asttypes" >> $@
+compilerlibs/ocamlcommon__parsetree.ml: parsing/parsetree.ml
+	(echo "# 1 \"parsing/parsetree.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__parsetree.mli: parsing/parsetree.mli
+	(echo "# 1 \"parsing/parsetree.mli\""; cat $<) > $@
+compilerlibs/unprefixed/parsetree.ml: parsing/parsetree.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Parsetree instead.\"]" > $@
+	echo "include Ocamlcommon.Parsetree" >> $@
+compilerlibs/ocamlcommon__docstrings.ml: parsing/docstrings.ml
+	(echo "# 1 \"parsing/docstrings.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__docstrings.mli: parsing/docstrings.mli
+	(echo "# 1 \"parsing/docstrings.mli\""; cat $<) > $@
+compilerlibs/unprefixed/docstrings.ml: parsing/docstrings.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Docstrings instead.\"]" > $@
+	echo "include Ocamlcommon.Docstrings" >> $@
+compilerlibs/ocamlcommon__syntaxerr.ml: parsing/syntaxerr.ml
+	(echo "# 1 \"parsing/syntaxerr.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__syntaxerr.mli: parsing/syntaxerr.mli
+	(echo "# 1 \"parsing/syntaxerr.mli\""; cat $<) > $@
+compilerlibs/unprefixed/syntaxerr.ml: parsing/syntaxerr.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Syntaxerr instead.\"]" > $@
+	echo "include Ocamlcommon.Syntaxerr" >> $@
+compilerlibs/ocamlcommon__ast_helper.ml: parsing/ast_helper.ml
+	(echo "# 1 \"parsing/ast_helper.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__ast_helper.mli: parsing/ast_helper.mli
+	(echo "# 1 \"parsing/ast_helper.mli\""; cat $<) > $@
+compilerlibs/unprefixed/ast_helper.ml: parsing/ast_helper.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Ast_helper instead.\"]" > $@
+	echo "include Ocamlcommon.Ast_helper" >> $@
+compilerlibs/ocamlcommon__pprintast.ml: parsing/pprintast.ml
+	(echo "# 1 \"parsing/pprintast.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__pprintast.mli: parsing/pprintast.mli
+	(echo "# 1 \"parsing/pprintast.mli\""; cat $<) > $@
+compilerlibs/unprefixed/pprintast.ml: parsing/pprintast.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Pprintast instead.\"]" > $@
+	echo "include Ocamlcommon.Pprintast" >> $@
+compilerlibs/ocamlcommon__camlinternalMenhirLib.ml: parsing/camlinternalMenhirLib.ml
+	(echo "# 1 \"parsing/camlinternalMenhirLib.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__camlinternalMenhirLib.mli: parsing/camlinternalMenhirLib.mli
+	(echo "# 1 \"parsing/camlinternalMenhirLib.mli\""; cat $<) > $@
+compilerlibs/unprefixed/camlinternalMenhirLib.ml: parsing/camlinternalMenhirLib.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.CamlinternalMenhirLib instead.\"]" > $@
+	echo "include Ocamlcommon.CamlinternalMenhirLib" >> $@
+compilerlibs/ocamlcommon__parser.ml: parsing/parser.ml
+	(echo "# 1 \"parsing/parser.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__parser.mli: parsing/parser.mli
+	(echo "# 1 \"parsing/parser.mli\""; cat $<) > $@
+compilerlibs/unprefixed/parser.ml: parsing/parser.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Parser instead.\"]" > $@
+	echo "include Ocamlcommon.Parser" >> $@
+compilerlibs/ocamlcommon__lexer.ml: parsing/lexer.ml
+	(echo "# 1 \"parsing/lexer.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__lexer.mli: parsing/lexer.mli
+	(echo "# 1 \"parsing/lexer.mli\""; cat $<) > $@
+compilerlibs/unprefixed/lexer.ml: parsing/lexer.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Lexer instead.\"]" > $@
+	echo "include Ocamlcommon.Lexer" >> $@
+compilerlibs/ocamlcommon__parse.ml: parsing/parse.ml
+	(echo "# 1 \"parsing/parse.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__parse.mli: parsing/parse.mli
+	(echo "# 1 \"parsing/parse.mli\""; cat $<) > $@
+compilerlibs/unprefixed/parse.ml: parsing/parse.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Parse instead.\"]" > $@
+	echo "include Ocamlcommon.Parse" >> $@
+compilerlibs/ocamlcommon__printast.ml: parsing/printast.ml
+	(echo "# 1 \"parsing/printast.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__printast.mli: parsing/printast.mli
+	(echo "# 1 \"parsing/printast.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printast.ml: parsing/printast.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Printast instead.\"]" > $@
+	echo "include Ocamlcommon.Printast" >> $@
+compilerlibs/ocamlcommon__ast_mapper.ml: parsing/ast_mapper.ml
+	(echo "# 1 \"parsing/ast_mapper.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__ast_mapper.mli: parsing/ast_mapper.mli
+	(echo "# 1 \"parsing/ast_mapper.mli\""; cat $<) > $@
+compilerlibs/unprefixed/ast_mapper.ml: parsing/ast_mapper.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Ast_mapper instead.\"]" > $@
+	echo "include Ocamlcommon.Ast_mapper" >> $@
+compilerlibs/ocamlcommon__ast_iterator.ml: parsing/ast_iterator.ml
+	(echo "# 1 \"parsing/ast_iterator.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__ast_iterator.mli: parsing/ast_iterator.mli
+	(echo "# 1 \"parsing/ast_iterator.mli\""; cat $<) > $@
+compilerlibs/unprefixed/ast_iterator.ml: parsing/ast_iterator.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Ast_iterator instead.\"]" > $@
+	echo "include Ocamlcommon.Ast_iterator" >> $@
+compilerlibs/ocamlcommon__attr_helper.ml: parsing/attr_helper.ml
+	(echo "# 1 \"parsing/attr_helper.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__attr_helper.mli: parsing/attr_helper.mli
+	(echo "# 1 \"parsing/attr_helper.mli\""; cat $<) > $@
+compilerlibs/unprefixed/attr_helper.ml: parsing/attr_helper.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Attr_helper instead.\"]" > $@
+	echo "include Ocamlcommon.Attr_helper" >> $@
+compilerlibs/ocamlcommon__builtin_attributes.ml: parsing/builtin_attributes.ml
+	(echo "# 1 \"parsing/builtin_attributes.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__builtin_attributes.mli: parsing/builtin_attributes.mli
+	(echo "# 1 \"parsing/builtin_attributes.mli\""; cat $<) > $@
+compilerlibs/unprefixed/builtin_attributes.ml: parsing/builtin_attributes.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Builtin_attributes instead.\"]" > $@
+	echo "include Ocamlcommon.Builtin_attributes" >> $@
+compilerlibs/ocamlcommon__ast_invariants.ml: parsing/ast_invariants.ml
+	(echo "# 1 \"parsing/ast_invariants.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__ast_invariants.mli: parsing/ast_invariants.mli
+	(echo "# 1 \"parsing/ast_invariants.mli\""; cat $<) > $@
+compilerlibs/unprefixed/ast_invariants.ml: parsing/ast_invariants.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Ast_invariants instead.\"]" > $@
+	echo "include Ocamlcommon.Ast_invariants" >> $@
+compilerlibs/ocamlcommon__depend.ml: parsing/depend.ml
+	(echo "# 1 \"parsing/depend.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__depend.mli: parsing/depend.mli
+	(echo "# 1 \"parsing/depend.mli\""; cat $<) > $@
+compilerlibs/unprefixed/depend.ml: parsing/depend.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Depend instead.\"]" > $@
+	echo "include Ocamlcommon.Depend" >> $@
+compilerlibs/ocamlcommon__ident.ml: typing/ident.ml
+	(echo "# 1 \"typing/ident.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__ident.mli: typing/ident.mli
+	(echo "# 1 \"typing/ident.mli\""; cat $<) > $@
+compilerlibs/unprefixed/ident.ml: typing/ident.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Ident instead.\"]" > $@
+	echo "include Ocamlcommon.Ident" >> $@
+compilerlibs/ocamlcommon__path.ml: typing/path.ml
+	(echo "# 1 \"typing/path.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__path.mli: typing/path.mli
+	(echo "# 1 \"typing/path.mli\""; cat $<) > $@
+compilerlibs/unprefixed/path.ml: typing/path.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Path instead.\"]" > $@
+	echo "include Ocamlcommon.Path" >> $@
+compilerlibs/ocamlcommon__outcometree.ml: typing/outcometree.ml
+	(echo "# 1 \"typing/outcometree.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__outcometree.mli: typing/outcometree.mli
+	(echo "# 1 \"typing/outcometree.mli\""; cat $<) > $@
+compilerlibs/unprefixed/outcometree.ml: typing/outcometree.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Outcometree instead.\"]" > $@
+	echo "include Ocamlcommon.Outcometree" >> $@
+compilerlibs/ocamlcommon__primitive.ml: typing/primitive.ml
+	(echo "# 1 \"typing/primitive.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__primitive.mli: typing/primitive.mli
+	(echo "# 1 \"typing/primitive.mli\""; cat $<) > $@
+compilerlibs/unprefixed/primitive.ml: typing/primitive.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Primitive instead.\"]" > $@
+	echo "include Ocamlcommon.Primitive" >> $@
+compilerlibs/ocamlcommon__types.ml: typing/types.ml
+	(echo "# 1 \"typing/types.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__types.mli: typing/types.mli
+	(echo "# 1 \"typing/types.mli\""; cat $<) > $@
+compilerlibs/unprefixed/types.ml: typing/types.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Types instead.\"]" > $@
+	echo "include Ocamlcommon.Types" >> $@
+compilerlibs/ocamlcommon__btype.ml: typing/btype.ml
+	(echo "# 1 \"typing/btype.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__btype.mli: typing/btype.mli
+	(echo "# 1 \"typing/btype.mli\""; cat $<) > $@
+compilerlibs/unprefixed/btype.ml: typing/btype.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Btype instead.\"]" > $@
+	echo "include Ocamlcommon.Btype" >> $@
+compilerlibs/ocamlcommon__oprint.ml: typing/oprint.ml
+	(echo "# 1 \"typing/oprint.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__oprint.mli: typing/oprint.mli
+	(echo "# 1 \"typing/oprint.mli\""; cat $<) > $@
+compilerlibs/unprefixed/oprint.ml: typing/oprint.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Oprint instead.\"]" > $@
+	echo "include Ocamlcommon.Oprint" >> $@
+compilerlibs/ocamlcommon__subst.ml: typing/subst.ml
+	(echo "# 1 \"typing/subst.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__subst.mli: typing/subst.mli
+	(echo "# 1 \"typing/subst.mli\""; cat $<) > $@
+compilerlibs/unprefixed/subst.ml: typing/subst.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Subst instead.\"]" > $@
+	echo "include Ocamlcommon.Subst" >> $@
+compilerlibs/ocamlcommon__predef.ml: typing/predef.ml
+	(echo "# 1 \"typing/predef.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__predef.mli: typing/predef.mli
+	(echo "# 1 \"typing/predef.mli\""; cat $<) > $@
+compilerlibs/unprefixed/predef.ml: typing/predef.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Predef instead.\"]" > $@
+	echo "include Ocamlcommon.Predef" >> $@
+compilerlibs/ocamlcommon__datarepr.ml: typing/datarepr.ml
+	(echo "# 1 \"typing/datarepr.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__datarepr.mli: typing/datarepr.mli
+	(echo "# 1 \"typing/datarepr.mli\""; cat $<) > $@
+compilerlibs/unprefixed/datarepr.ml: typing/datarepr.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Datarepr instead.\"]" > $@
+	echo "include Ocamlcommon.Datarepr" >> $@
+compilerlibs/ocamlcommon__cmi_format.ml: typing/cmi_format.ml
+	(echo "# 1 \"typing/cmi_format.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__cmi_format.mli: typing/cmi_format.mli
+	(echo "# 1 \"typing/cmi_format.mli\""; cat $<) > $@
+compilerlibs/unprefixed/cmi_format.ml: typing/cmi_format.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Cmi_format instead.\"]" > $@
+	echo "include Ocamlcommon.Cmi_format" >> $@
+compilerlibs/ocamlcommon__persistent_env.ml: typing/persistent_env.ml
+	(echo "# 1 \"typing/persistent_env.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__persistent_env.mli: typing/persistent_env.mli
+	(echo "# 1 \"typing/persistent_env.mli\""; cat $<) > $@
+compilerlibs/unprefixed/persistent_env.ml: typing/persistent_env.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Persistent_env instead.\"]" > $@
+	echo "include Ocamlcommon.Persistent_env" >> $@
+compilerlibs/ocamlcommon__env.ml: typing/env.ml
+	(echo "# 1 \"typing/env.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__env.mli: typing/env.mli
+	(echo "# 1 \"typing/env.mli\""; cat $<) > $@
+compilerlibs/unprefixed/env.ml: typing/env.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Env instead.\"]" > $@
+	echo "include Ocamlcommon.Env" >> $@
+compilerlibs/ocamlcommon__typedtree.ml: typing/typedtree.ml
+	(echo "# 1 \"typing/typedtree.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typedtree.mli: typing/typedtree.mli
+	(echo "# 1 \"typing/typedtree.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typedtree.ml: typing/typedtree.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typedtree instead.\"]" > $@
+	echo "include Ocamlcommon.Typedtree" >> $@
+compilerlibs/ocamlcommon__printtyped.ml: typing/printtyped.ml
+	(echo "# 1 \"typing/printtyped.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__printtyped.mli: typing/printtyped.mli
+	(echo "# 1 \"typing/printtyped.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printtyped.ml: typing/printtyped.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Printtyped instead.\"]" > $@
+	echo "include Ocamlcommon.Printtyped" >> $@
+compilerlibs/ocamlcommon__ctype.ml: typing/ctype.ml
+	(echo "# 1 \"typing/ctype.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__ctype.mli: typing/ctype.mli
+	(echo "# 1 \"typing/ctype.mli\""; cat $<) > $@
+compilerlibs/unprefixed/ctype.ml: typing/ctype.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Ctype instead.\"]" > $@
+	echo "include Ocamlcommon.Ctype" >> $@
+compilerlibs/ocamlcommon__printtyp.ml: typing/printtyp.ml
+	(echo "# 1 \"typing/printtyp.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__printtyp.mli: typing/printtyp.mli
+	(echo "# 1 \"typing/printtyp.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printtyp.ml: typing/printtyp.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Printtyp instead.\"]" > $@
+	echo "include Ocamlcommon.Printtyp" >> $@
+compilerlibs/ocamlcommon__includeclass.ml: typing/includeclass.ml
+	(echo "# 1 \"typing/includeclass.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__includeclass.mli: typing/includeclass.mli
+	(echo "# 1 \"typing/includeclass.mli\""; cat $<) > $@
+compilerlibs/unprefixed/includeclass.ml: typing/includeclass.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Includeclass instead.\"]" > $@
+	echo "include Ocamlcommon.Includeclass" >> $@
+compilerlibs/ocamlcommon__mtype.ml: typing/mtype.ml
+	(echo "# 1 \"typing/mtype.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__mtype.mli: typing/mtype.mli
+	(echo "# 1 \"typing/mtype.mli\""; cat $<) > $@
+compilerlibs/unprefixed/mtype.ml: typing/mtype.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Mtype instead.\"]" > $@
+	echo "include Ocamlcommon.Mtype" >> $@
+compilerlibs/ocamlcommon__envaux.ml: typing/envaux.ml
+	(echo "# 1 \"typing/envaux.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__envaux.mli: typing/envaux.mli
+	(echo "# 1 \"typing/envaux.mli\""; cat $<) > $@
+compilerlibs/unprefixed/envaux.ml: typing/envaux.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Envaux instead.\"]" > $@
+	echo "include Ocamlcommon.Envaux" >> $@
+compilerlibs/ocamlcommon__includecore.ml: typing/includecore.ml
+	(echo "# 1 \"typing/includecore.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__includecore.mli: typing/includecore.mli
+	(echo "# 1 \"typing/includecore.mli\""; cat $<) > $@
+compilerlibs/unprefixed/includecore.ml: typing/includecore.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Includecore instead.\"]" > $@
+	echo "include Ocamlcommon.Includecore" >> $@
+compilerlibs/ocamlcommon__typedtreeIter.ml: typing/typedtreeIter.ml
+	(echo "# 1 \"typing/typedtreeIter.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typedtreeIter.mli: typing/typedtreeIter.mli
+	(echo "# 1 \"typing/typedtreeIter.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typedtreeIter.ml: typing/typedtreeIter.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.TypedtreeIter instead.\"]" > $@
+	echo "include Ocamlcommon.TypedtreeIter" >> $@
+compilerlibs/ocamlcommon__tast_mapper.ml: typing/tast_mapper.ml
+	(echo "# 1 \"typing/tast_mapper.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__tast_mapper.mli: typing/tast_mapper.mli
+	(echo "# 1 \"typing/tast_mapper.mli\""; cat $<) > $@
+compilerlibs/unprefixed/tast_mapper.ml: typing/tast_mapper.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Tast_mapper instead.\"]" > $@
+	echo "include Ocamlcommon.Tast_mapper" >> $@
+compilerlibs/ocamlcommon__cmt_format.ml: typing/cmt_format.ml
+	(echo "# 1 \"typing/cmt_format.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__cmt_format.mli: typing/cmt_format.mli
+	(echo "# 1 \"typing/cmt_format.mli\""; cat $<) > $@
+compilerlibs/unprefixed/cmt_format.ml: typing/cmt_format.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Cmt_format instead.\"]" > $@
+	echo "include Ocamlcommon.Cmt_format" >> $@
+compilerlibs/ocamlcommon__untypeast.ml: typing/untypeast.ml
+	(echo "# 1 \"typing/untypeast.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__untypeast.mli: typing/untypeast.mli
+	(echo "# 1 \"typing/untypeast.mli\""; cat $<) > $@
+compilerlibs/unprefixed/untypeast.ml: typing/untypeast.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Untypeast instead.\"]" > $@
+	echo "include Ocamlcommon.Untypeast" >> $@
+compilerlibs/ocamlcommon__includemod.ml: typing/includemod.ml
+	(echo "# 1 \"typing/includemod.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__includemod.mli: typing/includemod.mli
+	(echo "# 1 \"typing/includemod.mli\""; cat $<) > $@
+compilerlibs/unprefixed/includemod.ml: typing/includemod.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Includemod instead.\"]" > $@
+	echo "include Ocamlcommon.Includemod" >> $@
+compilerlibs/ocamlcommon__typetexp.ml: typing/typetexp.ml
+	(echo "# 1 \"typing/typetexp.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typetexp.mli: typing/typetexp.mli
+	(echo "# 1 \"typing/typetexp.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typetexp.ml: typing/typetexp.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typetexp instead.\"]" > $@
+	echo "include Ocamlcommon.Typetexp" >> $@
+compilerlibs/ocamlcommon__printpat.ml: typing/printpat.ml
+	(echo "# 1 \"typing/printpat.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__printpat.mli: typing/printpat.mli
+	(echo "# 1 \"typing/printpat.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printpat.ml: typing/printpat.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Printpat instead.\"]" > $@
+	echo "include Ocamlcommon.Printpat" >> $@
+compilerlibs/ocamlcommon__parmatch.ml: typing/parmatch.ml
+	(echo "# 1 \"typing/parmatch.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__parmatch.mli: typing/parmatch.mli
+	(echo "# 1 \"typing/parmatch.mli\""; cat $<) > $@
+compilerlibs/unprefixed/parmatch.ml: typing/parmatch.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Parmatch instead.\"]" > $@
+	echo "include Ocamlcommon.Parmatch" >> $@
+compilerlibs/ocamlcommon__annot.ml: typing/annot.ml
+	(echo "# 1 \"typing/annot.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__annot.mli: typing/annot.mli
+	(echo "# 1 \"typing/annot.mli\""; cat $<) > $@
+compilerlibs/unprefixed/annot.ml: typing/annot.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Annot instead.\"]" > $@
+	echo "include Ocamlcommon.Annot" >> $@
+compilerlibs/ocamlcommon__stypes.ml: typing/stypes.ml
+	(echo "# 1 \"typing/stypes.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__stypes.mli: typing/stypes.mli
+	(echo "# 1 \"typing/stypes.mli\""; cat $<) > $@
+compilerlibs/unprefixed/stypes.ml: typing/stypes.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Stypes instead.\"]" > $@
+	echo "include Ocamlcommon.Stypes" >> $@
+compilerlibs/ocamlcommon__typedecl_properties.ml: typing/typedecl_properties.ml
+	(echo "# 1 \"typing/typedecl_properties.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typedecl_properties.mli: typing/typedecl_properties.mli
+	(echo "# 1 \"typing/typedecl_properties.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typedecl_properties.ml: typing/typedecl_properties.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typedecl_properties instead.\"]" > $@
+	echo "include Ocamlcommon.Typedecl_properties" >> $@
+compilerlibs/ocamlcommon__typedecl_variance.ml: typing/typedecl_variance.ml
+	(echo "# 1 \"typing/typedecl_variance.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typedecl_variance.mli: typing/typedecl_variance.mli
+	(echo "# 1 \"typing/typedecl_variance.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typedecl_variance.ml: typing/typedecl_variance.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typedecl_variance instead.\"]" > $@
+	echo "include Ocamlcommon.Typedecl_variance" >> $@
+compilerlibs/ocamlcommon__typedecl_unboxed.ml: typing/typedecl_unboxed.ml
+	(echo "# 1 \"typing/typedecl_unboxed.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typedecl_unboxed.mli: typing/typedecl_unboxed.mli
+	(echo "# 1 \"typing/typedecl_unboxed.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typedecl_unboxed.ml: typing/typedecl_unboxed.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typedecl_unboxed instead.\"]" > $@
+	echo "include Ocamlcommon.Typedecl_unboxed" >> $@
+compilerlibs/ocamlcommon__typedecl_immediacy.ml: typing/typedecl_immediacy.ml
+	(echo "# 1 \"typing/typedecl_immediacy.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typedecl_immediacy.mli: typing/typedecl_immediacy.mli
+	(echo "# 1 \"typing/typedecl_immediacy.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typedecl_immediacy.ml: typing/typedecl_immediacy.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typedecl_immediacy instead.\"]" > $@
+	echo "include Ocamlcommon.Typedecl_immediacy" >> $@
+compilerlibs/ocamlcommon__typedecl.ml: typing/typedecl.ml
+	(echo "# 1 \"typing/typedecl.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typedecl.mli: typing/typedecl.mli
+	(echo "# 1 \"typing/typedecl.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typedecl.ml: typing/typedecl.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typedecl instead.\"]" > $@
+	echo "include Ocamlcommon.Typedecl" >> $@
+compilerlibs/ocamlcommon__typeopt.ml: typing/typeopt.ml
+	(echo "# 1 \"typing/typeopt.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typeopt.mli: typing/typeopt.mli
+	(echo "# 1 \"typing/typeopt.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typeopt.ml: typing/typeopt.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typeopt instead.\"]" > $@
+	echo "include Ocamlcommon.Typeopt" >> $@
+compilerlibs/ocamlcommon__rec_check.ml: typing/rec_check.ml
+	(echo "# 1 \"typing/rec_check.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__rec_check.mli: typing/rec_check.mli
+	(echo "# 1 \"typing/rec_check.mli\""; cat $<) > $@
+compilerlibs/unprefixed/rec_check.ml: typing/rec_check.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Rec_check instead.\"]" > $@
+	echo "include Ocamlcommon.Rec_check" >> $@
+compilerlibs/ocamlcommon__typecore.ml: typing/typecore.ml
+	(echo "# 1 \"typing/typecore.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typecore.mli: typing/typecore.mli
+	(echo "# 1 \"typing/typecore.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typecore.ml: typing/typecore.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typecore instead.\"]" > $@
+	echo "include Ocamlcommon.Typecore" >> $@
+compilerlibs/ocamlcommon__typeclass.ml: typing/typeclass.ml
+	(echo "# 1 \"typing/typeclass.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typeclass.mli: typing/typeclass.mli
+	(echo "# 1 \"typing/typeclass.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typeclass.ml: typing/typeclass.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typeclass instead.\"]" > $@
+	echo "include Ocamlcommon.Typeclass" >> $@
+compilerlibs/ocamlcommon__typemod.ml: typing/typemod.ml
+	(echo "# 1 \"typing/typemod.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__typemod.mli: typing/typemod.mli
+	(echo "# 1 \"typing/typemod.mli\""; cat $<) > $@
+compilerlibs/unprefixed/typemod.ml: typing/typemod.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Typemod instead.\"]" > $@
+	echo "include Ocamlcommon.Typemod" >> $@
+compilerlibs/ocamlcommon__lambda.ml: bytecomp/lambda.ml
+	(echo "# 1 \"bytecomp/lambda.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__lambda.mli: bytecomp/lambda.mli
+	(echo "# 1 \"bytecomp/lambda.mli\""; cat $<) > $@
+compilerlibs/unprefixed/lambda.ml: bytecomp/lambda.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Lambda instead.\"]" > $@
+	echo "include Ocamlcommon.Lambda" >> $@
+compilerlibs/ocamlcommon__printlambda.ml: bytecomp/printlambda.ml
+	(echo "# 1 \"bytecomp/printlambda.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__printlambda.mli: bytecomp/printlambda.mli
+	(echo "# 1 \"bytecomp/printlambda.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printlambda.ml: bytecomp/printlambda.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Printlambda instead.\"]" > $@
+	echo "include Ocamlcommon.Printlambda" >> $@
+compilerlibs/ocamlcommon__switch.ml: bytecomp/switch.ml
+	(echo "# 1 \"bytecomp/switch.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__switch.mli: bytecomp/switch.mli
+	(echo "# 1 \"bytecomp/switch.mli\""; cat $<) > $@
+compilerlibs/unprefixed/switch.ml: bytecomp/switch.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Switch instead.\"]" > $@
+	echo "include Ocamlcommon.Switch" >> $@
+compilerlibs/ocamlcommon__matching.ml: bytecomp/matching.ml
+	(echo "# 1 \"bytecomp/matching.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__matching.mli: bytecomp/matching.mli
+	(echo "# 1 \"bytecomp/matching.mli\""; cat $<) > $@
+compilerlibs/unprefixed/matching.ml: bytecomp/matching.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Matching instead.\"]" > $@
+	echo "include Ocamlcommon.Matching" >> $@
+compilerlibs/ocamlcommon__translobj.ml: bytecomp/translobj.ml
+	(echo "# 1 \"bytecomp/translobj.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__translobj.mli: bytecomp/translobj.mli
+	(echo "# 1 \"bytecomp/translobj.mli\""; cat $<) > $@
+compilerlibs/unprefixed/translobj.ml: bytecomp/translobj.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Translobj instead.\"]" > $@
+	echo "include Ocamlcommon.Translobj" >> $@
+compilerlibs/ocamlcommon__translattribute.ml: bytecomp/translattribute.ml
+	(echo "# 1 \"bytecomp/translattribute.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__translattribute.mli: bytecomp/translattribute.mli
+	(echo "# 1 \"bytecomp/translattribute.mli\""; cat $<) > $@
+compilerlibs/unprefixed/translattribute.ml: bytecomp/translattribute.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Translattribute instead.\"]" > $@
+	echo "include Ocamlcommon.Translattribute" >> $@
+compilerlibs/ocamlcommon__translprim.ml: bytecomp/translprim.ml
+	(echo "# 1 \"bytecomp/translprim.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__translprim.mli: bytecomp/translprim.mli
+	(echo "# 1 \"bytecomp/translprim.mli\""; cat $<) > $@
+compilerlibs/unprefixed/translprim.ml: bytecomp/translprim.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Translprim instead.\"]" > $@
+	echo "include Ocamlcommon.Translprim" >> $@
+compilerlibs/ocamlcommon__translcore.ml: bytecomp/translcore.ml
+	(echo "# 1 \"bytecomp/translcore.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__translcore.mli: bytecomp/translcore.mli
+	(echo "# 1 \"bytecomp/translcore.mli\""; cat $<) > $@
+compilerlibs/unprefixed/translcore.ml: bytecomp/translcore.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Translcore instead.\"]" > $@
+	echo "include Ocamlcommon.Translcore" >> $@
+compilerlibs/ocamlcommon__translclass.ml: bytecomp/translclass.ml
+	(echo "# 1 \"bytecomp/translclass.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__translclass.mli: bytecomp/translclass.mli
+	(echo "# 1 \"bytecomp/translclass.mli\""; cat $<) > $@
+compilerlibs/unprefixed/translclass.ml: bytecomp/translclass.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Translclass instead.\"]" > $@
+	echo "include Ocamlcommon.Translclass" >> $@
+compilerlibs/ocamlcommon__translmod.ml: bytecomp/translmod.ml
+	(echo "# 1 \"bytecomp/translmod.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__translmod.mli: bytecomp/translmod.mli
+	(echo "# 1 \"bytecomp/translmod.mli\""; cat $<) > $@
+compilerlibs/unprefixed/translmod.ml: bytecomp/translmod.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Translmod instead.\"]" > $@
+	echo "include Ocamlcommon.Translmod" >> $@
+compilerlibs/ocamlcommon__simplif.ml: bytecomp/simplif.ml
+	(echo "# 1 \"bytecomp/simplif.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__simplif.mli: bytecomp/simplif.mli
+	(echo "# 1 \"bytecomp/simplif.mli\""; cat $<) > $@
+compilerlibs/unprefixed/simplif.ml: bytecomp/simplif.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Simplif instead.\"]" > $@
+	echo "include Ocamlcommon.Simplif" >> $@
+compilerlibs/ocamlcommon__runtimedef.ml: bytecomp/runtimedef.ml
+	(echo "# 1 \"bytecomp/runtimedef.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__runtimedef.mli: bytecomp/runtimedef.mli
+	(echo "# 1 \"bytecomp/runtimedef.mli\""; cat $<) > $@
+compilerlibs/unprefixed/runtimedef.ml: bytecomp/runtimedef.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Runtimedef instead.\"]" > $@
+	echo "include Ocamlcommon.Runtimedef" >> $@
+compilerlibs/ocamlcommon__instruct.ml: bytecomp/instruct.ml
+	(echo "# 1 \"bytecomp/instruct.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__instruct.mli: bytecomp/instruct.mli
+	(echo "# 1 \"bytecomp/instruct.mli\""; cat $<) > $@
+compilerlibs/unprefixed/instruct.ml: bytecomp/instruct.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Instruct instead.\"]" > $@
+	echo "include Ocamlcommon.Instruct" >> $@
+compilerlibs/ocamlcommon__meta.ml: bytecomp/meta.ml
+	(echo "# 1 \"bytecomp/meta.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__meta.mli: bytecomp/meta.mli
+	(echo "# 1 \"bytecomp/meta.mli\""; cat $<) > $@
+compilerlibs/unprefixed/meta.ml: bytecomp/meta.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Meta instead.\"]" > $@
+	echo "include Ocamlcommon.Meta" >> $@
+compilerlibs/ocamlcommon__opcodes.ml: bytecomp/opcodes.ml
+	(echo "# 1 \"bytecomp/opcodes.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__opcodes.mli: bytecomp/opcodes.mli
+	(echo "# 1 \"bytecomp/opcodes.mli\""; cat $<) > $@
+compilerlibs/unprefixed/opcodes.ml: bytecomp/opcodes.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Opcodes instead.\"]" > $@
+	echo "include Ocamlcommon.Opcodes" >> $@
+compilerlibs/ocamlcommon__bytesections.ml: bytecomp/bytesections.ml
+	(echo "# 1 \"bytecomp/bytesections.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__bytesections.mli: bytecomp/bytesections.mli
+	(echo "# 1 \"bytecomp/bytesections.mli\""; cat $<) > $@
+compilerlibs/unprefixed/bytesections.ml: bytecomp/bytesections.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Bytesections instead.\"]" > $@
+	echo "include Ocamlcommon.Bytesections" >> $@
+compilerlibs/ocamlcommon__dll.ml: bytecomp/dll.ml
+	(echo "# 1 \"bytecomp/dll.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__dll.mli: bytecomp/dll.mli
+	(echo "# 1 \"bytecomp/dll.mli\""; cat $<) > $@
+compilerlibs/unprefixed/dll.ml: bytecomp/dll.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Dll instead.\"]" > $@
+	echo "include Ocamlcommon.Dll" >> $@
+compilerlibs/ocamlcommon__cmo_format.ml: bytecomp/cmo_format.ml
+	(echo "# 1 \"bytecomp/cmo_format.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__cmo_format.mli: bytecomp/cmo_format.mli
+	(echo "# 1 \"bytecomp/cmo_format.mli\""; cat $<) > $@
+compilerlibs/unprefixed/cmo_format.ml: bytecomp/cmo_format.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Cmo_format instead.\"]" > $@
+	echo "include Ocamlcommon.Cmo_format" >> $@
+compilerlibs/ocamlcommon__symtable.ml: bytecomp/symtable.ml
+	(echo "# 1 \"bytecomp/symtable.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__symtable.mli: bytecomp/symtable.mli
+	(echo "# 1 \"bytecomp/symtable.mli\""; cat $<) > $@
+compilerlibs/unprefixed/symtable.ml: bytecomp/symtable.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Symtable instead.\"]" > $@
+	echo "include Ocamlcommon.Symtable" >> $@
+compilerlibs/ocamlcommon__pparse.ml: driver/pparse.ml
+	(echo "# 1 \"driver/pparse.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__pparse.mli: driver/pparse.mli
+	(echo "# 1 \"driver/pparse.mli\""; cat $<) > $@
+compilerlibs/unprefixed/pparse.ml: driver/pparse.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Pparse instead.\"]" > $@
+	echo "include Ocamlcommon.Pparse" >> $@
+compilerlibs/ocamlcommon__main_args.ml: driver/main_args.ml
+	(echo "# 1 \"driver/main_args.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__main_args.mli: driver/main_args.mli
+	(echo "# 1 \"driver/main_args.mli\""; cat $<) > $@
+compilerlibs/unprefixed/main_args.ml: driver/main_args.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Main_args instead.\"]" > $@
+	echo "include Ocamlcommon.Main_args" >> $@
+compilerlibs/ocamlcommon__compenv.ml: driver/compenv.ml
+	(echo "# 1 \"driver/compenv.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__compenv.mli: driver/compenv.mli
+	(echo "# 1 \"driver/compenv.mli\""; cat $<) > $@
+compilerlibs/unprefixed/compenv.ml: driver/compenv.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Compenv instead.\"]" > $@
+	echo "include Ocamlcommon.Compenv" >> $@
+compilerlibs/ocamlcommon__compmisc.ml: driver/compmisc.ml
+	(echo "# 1 \"driver/compmisc.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__compmisc.mli: driver/compmisc.mli
+	(echo "# 1 \"driver/compmisc.mli\""; cat $<) > $@
+compilerlibs/unprefixed/compmisc.ml: driver/compmisc.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Compmisc instead.\"]" > $@
+	echo "include Ocamlcommon.Compmisc" >> $@
+compilerlibs/ocamlcommon__makedepend.ml: driver/makedepend.ml
+	(echo "# 1 \"driver/makedepend.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__makedepend.mli: driver/makedepend.mli
+	(echo "# 1 \"driver/makedepend.mli\""; cat $<) > $@
+compilerlibs/unprefixed/makedepend.ml: driver/makedepend.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Makedepend instead.\"]" > $@
+	echo "include Ocamlcommon.Makedepend" >> $@
+compilerlibs/ocamlcommon__compile_common.ml: driver/compile_common.ml
+	(echo "# 1 \"driver/compile_common.ml\""; cat $<) > $@
+compilerlibs/ocamlcommon__compile_common.mli: driver/compile_common.mli
+	(echo "# 1 \"driver/compile_common.mli\""; cat $<) > $@
+compilerlibs/unprefixed/compile_common.ml: driver/compile_common.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlcommon.Compile_common instead.\"]" > $@
+	echo "include Ocamlcommon.Compile_common" >> $@
+compilerlibs/ocamlcommon.ml: Makefile
+	echo "module Annot                         = Ocamlcommon__annot" > $@
+	echo "module Arg_helper                    = Ocamlcommon__arg_helper" >> $@
+	echo "module Ast_helper                    = Ocamlcommon__ast_helper" >> $@
+	echo "module Ast_invariants                = Ocamlcommon__ast_invariants" >> $@
+	echo "module Ast_iterator                  = Ocamlcommon__ast_iterator" >> $@
+	echo "module Ast_mapper                    = Ocamlcommon__ast_mapper" >> $@
+	echo "module Asttypes                      = Ocamlcommon__asttypes" >> $@
+	echo "module Attr_helper                   = Ocamlcommon__attr_helper" >> $@
+	echo "module Btype                         = Ocamlcommon__btype" >> $@
+	echo "module Build_path_prefix_map         = Ocamlcommon__build_path_prefix_map" >> $@
+	echo "module Builtin_attributes            = Ocamlcommon__builtin_attributes" >> $@
+	echo "module Bytesections                  = Ocamlcommon__bytesections" >> $@
+	echo "module CamlinternalMenhirLib         = Ocamlcommon__camlinternalMenhirLib" >> $@
+	echo "module Ccomp                         = Ocamlcommon__ccomp" >> $@
+	echo "module Clflags                       = Ocamlcommon__clflags" >> $@
+	echo "module Cmi_format                    = Ocamlcommon__cmi_format" >> $@
+	echo "module Cmo_format                    = Ocamlcommon__cmo_format" >> $@
+	echo "module Cmt_format                    = Ocamlcommon__cmt_format" >> $@
+	echo "module Compenv                       = Ocamlcommon__compenv" >> $@
+	echo "module Compile_common                = Ocamlcommon__compile_common" >> $@
+	echo "module Compmisc                      = Ocamlcommon__compmisc" >> $@
+	echo "module Config                        = Ocamlcommon__config" >> $@
+	echo "module Consistbl                     = Ocamlcommon__consistbl" >> $@
+	echo "module Ctype                         = Ocamlcommon__ctype" >> $@
+	echo "module Datarepr                      = Ocamlcommon__datarepr" >> $@
+	echo "module Depend                        = Ocamlcommon__depend" >> $@
+	echo "module Dll                           = Ocamlcommon__dll" >> $@
+	echo "module Docstrings                    = Ocamlcommon__docstrings" >> $@
+	echo "module Env                           = Ocamlcommon__env" >> $@
+	echo "module Envaux                        = Ocamlcommon__envaux" >> $@
+	echo "module Ident                         = Ocamlcommon__ident" >> $@
+	echo "module Identifiable                  = Ocamlcommon__identifiable" >> $@
+	echo "module Includeclass                  = Ocamlcommon__includeclass" >> $@
+	echo "module Includecore                   = Ocamlcommon__includecore" >> $@
+	echo "module Includemod                    = Ocamlcommon__includemod" >> $@
+	echo "module Instruct                      = Ocamlcommon__instruct" >> $@
+	echo "module Lambda                        = Ocamlcommon__lambda" >> $@
+	echo "module Lexer                         = Ocamlcommon__lexer" >> $@
+	echo "module Load_path                     = Ocamlcommon__load_path" >> $@
+	echo "module Location                      = Ocamlcommon__location" >> $@
+	echo "module Longident                     = Ocamlcommon__longident" >> $@
+	echo "module Main_args                     = Ocamlcommon__main_args" >> $@
+	echo "module Makedepend                    = Ocamlcommon__makedepend" >> $@
+	echo "module Matching                      = Ocamlcommon__matching" >> $@
+	echo "module Meta                          = Ocamlcommon__meta" >> $@
+	echo "module Misc                          = Ocamlcommon__misc" >> $@
+	echo "module Mtype                         = Ocamlcommon__mtype" >> $@
+	echo "module Numbers                       = Ocamlcommon__numbers" >> $@
+	echo "module Opcodes                       = Ocamlcommon__opcodes" >> $@
+	echo "module Oprint                        = Ocamlcommon__oprint" >> $@
+	echo "module Outcometree                   = Ocamlcommon__outcometree" >> $@
+	echo "module Parmatch                      = Ocamlcommon__parmatch" >> $@
+	echo "module Parse                         = Ocamlcommon__parse" >> $@
+	echo "module Parser                        = Ocamlcommon__parser" >> $@
+	echo "module Parsetree                     = Ocamlcommon__parsetree" >> $@
+	echo "module Path                          = Ocamlcommon__path" >> $@
+	echo "module Persistent_env                = Ocamlcommon__persistent_env" >> $@
+	echo "module Pparse                        = Ocamlcommon__pparse" >> $@
+	echo "module Pprintast                     = Ocamlcommon__pprintast" >> $@
+	echo "module Predef                        = Ocamlcommon__predef" >> $@
+	echo "module Primitive                     = Ocamlcommon__primitive" >> $@
+	echo "module Printast                      = Ocamlcommon__printast" >> $@
+	echo "module Printlambda                   = Ocamlcommon__printlambda" >> $@
+	echo "module Printpat                      = Ocamlcommon__printpat" >> $@
+	echo "module Printtyp                      = Ocamlcommon__printtyp" >> $@
+	echo "module Printtyped                    = Ocamlcommon__printtyped" >> $@
+	echo "module Profile                       = Ocamlcommon__profile" >> $@
+	echo "module Rec_check                     = Ocamlcommon__rec_check" >> $@
+	echo "module Runtimedef                    = Ocamlcommon__runtimedef" >> $@
+	echo "module Simplif                       = Ocamlcommon__simplif" >> $@
+	echo "module Strongly_connected_components = Ocamlcommon__strongly_connected_components" >> $@
+	echo "module Stypes                        = Ocamlcommon__stypes" >> $@
+	echo "module Subst                         = Ocamlcommon__subst" >> $@
+	echo "module Switch                        = Ocamlcommon__switch" >> $@
+	echo "module Symtable                      = Ocamlcommon__symtable" >> $@
+	echo "module Syntaxerr                     = Ocamlcommon__syntaxerr" >> $@
+	echo "module Targetint                     = Ocamlcommon__targetint" >> $@
+	echo "module Tast_mapper                   = Ocamlcommon__tast_mapper" >> $@
+	echo "module Terminfo                      = Ocamlcommon__terminfo" >> $@
+	echo "module Translattribute               = Ocamlcommon__translattribute" >> $@
+	echo "module Translclass                   = Ocamlcommon__translclass" >> $@
+	echo "module Translcore                    = Ocamlcommon__translcore" >> $@
+	echo "module Translmod                     = Ocamlcommon__translmod" >> $@
+	echo "module Translobj                     = Ocamlcommon__translobj" >> $@
+	echo "module Translprim                    = Ocamlcommon__translprim" >> $@
+	echo "module Typeclass                     = Ocamlcommon__typeclass" >> $@
+	echo "module Typecore                      = Ocamlcommon__typecore" >> $@
+	echo "module Typedecl                      = Ocamlcommon__typedecl" >> $@
+	echo "module Typedecl_immediacy            = Ocamlcommon__typedecl_immediacy" >> $@
+	echo "module Typedecl_properties           = Ocamlcommon__typedecl_properties" >> $@
+	echo "module Typedecl_unboxed              = Ocamlcommon__typedecl_unboxed" >> $@
+	echo "module Typedecl_variance             = Ocamlcommon__typedecl_variance" >> $@
+	echo "module Typedtree                     = Ocamlcommon__typedtree" >> $@
+	echo "module TypedtreeIter                 = Ocamlcommon__typedtreeIter" >> $@
+	echo "module Typemod                       = Ocamlcommon__typemod" >> $@
+	echo "module Typeopt                       = Ocamlcommon__typeopt" >> $@
+	echo "module Types                         = Ocamlcommon__types" >> $@
+	echo "module Typetexp                      = Ocamlcommon__typetexp" >> $@
+	echo "module Untypeast                     = Ocamlcommon__untypeast" >> $@
+	echo "module Warnings                      = Ocamlcommon__warnings" >> $@
+beforedepend:: compilerlibs/ocamlcommon.ml \
+	compilerlibs/ocamlcommon__annot.ml \
+	compilerlibs/ocamlcommon__annot.mli \
+	compilerlibs/unprefixed/annot.ml \
+	compilerlibs/ocamlcommon__arg_helper.ml \
+	compilerlibs/ocamlcommon__arg_helper.mli \
+	compilerlibs/unprefixed/arg_helper.ml \
+	compilerlibs/ocamlcommon__ast_helper.ml \
+	compilerlibs/ocamlcommon__ast_helper.mli \
+	compilerlibs/unprefixed/ast_helper.ml \
+	compilerlibs/ocamlcommon__ast_invariants.ml \
+	compilerlibs/ocamlcommon__ast_invariants.mli \
+	compilerlibs/unprefixed/ast_invariants.ml \
+	compilerlibs/ocamlcommon__ast_iterator.ml \
+	compilerlibs/ocamlcommon__ast_iterator.mli \
+	compilerlibs/unprefixed/ast_iterator.ml \
+	compilerlibs/ocamlcommon__ast_mapper.ml \
+	compilerlibs/ocamlcommon__ast_mapper.mli \
+	compilerlibs/unprefixed/ast_mapper.ml \
+	compilerlibs/ocamlcommon__asttypes.ml \
+	compilerlibs/ocamlcommon__asttypes.mli \
+	compilerlibs/unprefixed/asttypes.ml \
+	compilerlibs/ocamlcommon__attr_helper.ml \
+	compilerlibs/ocamlcommon__attr_helper.mli \
+	compilerlibs/unprefixed/attr_helper.ml \
+	compilerlibs/ocamlcommon__btype.ml \
+	compilerlibs/ocamlcommon__btype.mli \
+	compilerlibs/unprefixed/btype.ml \
+	compilerlibs/ocamlcommon__build_path_prefix_map.ml \
+	compilerlibs/ocamlcommon__build_path_prefix_map.mli \
+	compilerlibs/unprefixed/build_path_prefix_map.ml \
+	compilerlibs/ocamlcommon__builtin_attributes.ml \
+	compilerlibs/ocamlcommon__builtin_attributes.mli \
+	compilerlibs/unprefixed/builtin_attributes.ml \
+	compilerlibs/ocamlcommon__bytesections.ml \
+	compilerlibs/ocamlcommon__bytesections.mli \
+	compilerlibs/unprefixed/bytesections.ml \
+	compilerlibs/ocamlcommon__camlinternalMenhirLib.ml \
+	compilerlibs/ocamlcommon__camlinternalMenhirLib.mli \
+	compilerlibs/unprefixed/camlinternalMenhirLib.ml \
+	compilerlibs/ocamlcommon__ccomp.ml \
+	compilerlibs/ocamlcommon__ccomp.mli \
+	compilerlibs/unprefixed/ccomp.ml \
+	compilerlibs/ocamlcommon__clflags.ml \
+	compilerlibs/ocamlcommon__clflags.mli \
+	compilerlibs/unprefixed/clflags.ml \
+	compilerlibs/ocamlcommon__cmi_format.ml \
+	compilerlibs/ocamlcommon__cmi_format.mli \
+	compilerlibs/unprefixed/cmi_format.ml \
+	compilerlibs/ocamlcommon__cmo_format.ml \
+	compilerlibs/ocamlcommon__cmo_format.mli \
+	compilerlibs/unprefixed/cmo_format.ml \
+	compilerlibs/ocamlcommon__cmt_format.ml \
+	compilerlibs/ocamlcommon__cmt_format.mli \
+	compilerlibs/unprefixed/cmt_format.ml \
+	compilerlibs/ocamlcommon__compenv.ml \
+	compilerlibs/ocamlcommon__compenv.mli \
+	compilerlibs/unprefixed/compenv.ml \
+	compilerlibs/ocamlcommon__compile_common.ml \
+	compilerlibs/ocamlcommon__compile_common.mli \
+	compilerlibs/unprefixed/compile_common.ml \
+	compilerlibs/ocamlcommon__compmisc.ml \
+	compilerlibs/ocamlcommon__compmisc.mli \
+	compilerlibs/unprefixed/compmisc.ml \
+	compilerlibs/ocamlcommon__config.ml \
+	compilerlibs/ocamlcommon__config.mli \
+	compilerlibs/unprefixed/config.ml \
+	compilerlibs/ocamlcommon__consistbl.ml \
+	compilerlibs/ocamlcommon__consistbl.mli \
+	compilerlibs/unprefixed/consistbl.ml \
+	compilerlibs/ocamlcommon__ctype.ml \
+	compilerlibs/ocamlcommon__ctype.mli \
+	compilerlibs/unprefixed/ctype.ml \
+	compilerlibs/ocamlcommon__datarepr.ml \
+	compilerlibs/ocamlcommon__datarepr.mli \
+	compilerlibs/unprefixed/datarepr.ml \
+	compilerlibs/ocamlcommon__depend.ml \
+	compilerlibs/ocamlcommon__depend.mli \
+	compilerlibs/unprefixed/depend.ml \
+	compilerlibs/ocamlcommon__dll.ml \
+	compilerlibs/ocamlcommon__dll.mli \
+	compilerlibs/unprefixed/dll.ml \
+	compilerlibs/ocamlcommon__docstrings.ml \
+	compilerlibs/ocamlcommon__docstrings.mli \
+	compilerlibs/unprefixed/docstrings.ml \
+	compilerlibs/ocamlcommon__env.ml \
+	compilerlibs/ocamlcommon__env.mli \
+	compilerlibs/unprefixed/env.ml \
+	compilerlibs/ocamlcommon__envaux.ml \
+	compilerlibs/ocamlcommon__envaux.mli \
+	compilerlibs/unprefixed/envaux.ml \
+	compilerlibs/ocamlcommon__ident.ml \
+	compilerlibs/ocamlcommon__ident.mli \
+	compilerlibs/unprefixed/ident.ml \
+	compilerlibs/ocamlcommon__identifiable.ml \
+	compilerlibs/ocamlcommon__identifiable.mli \
+	compilerlibs/unprefixed/identifiable.ml \
+	compilerlibs/ocamlcommon__includeclass.ml \
+	compilerlibs/ocamlcommon__includeclass.mli \
+	compilerlibs/unprefixed/includeclass.ml \
+	compilerlibs/ocamlcommon__includecore.ml \
+	compilerlibs/ocamlcommon__includecore.mli \
+	compilerlibs/unprefixed/includecore.ml \
+	compilerlibs/ocamlcommon__includemod.ml \
+	compilerlibs/ocamlcommon__includemod.mli \
+	compilerlibs/unprefixed/includemod.ml \
+	compilerlibs/ocamlcommon__instruct.ml \
+	compilerlibs/ocamlcommon__instruct.mli \
+	compilerlibs/unprefixed/instruct.ml \
+	compilerlibs/ocamlcommon__lambda.ml \
+	compilerlibs/ocamlcommon__lambda.mli \
+	compilerlibs/unprefixed/lambda.ml \
+	compilerlibs/ocamlcommon__lexer.ml \
+	compilerlibs/ocamlcommon__lexer.mli \
+	compilerlibs/unprefixed/lexer.ml \
+	compilerlibs/ocamlcommon__load_path.ml \
+	compilerlibs/ocamlcommon__load_path.mli \
+	compilerlibs/unprefixed/load_path.ml \
+	compilerlibs/ocamlcommon__location.ml \
+	compilerlibs/ocamlcommon__location.mli \
+	compilerlibs/unprefixed/location.ml \
+	compilerlibs/ocamlcommon__longident.ml \
+	compilerlibs/ocamlcommon__longident.mli \
+	compilerlibs/unprefixed/longident.ml \
+	compilerlibs/ocamlcommon__main_args.ml \
+	compilerlibs/ocamlcommon__main_args.mli \
+	compilerlibs/unprefixed/main_args.ml \
+	compilerlibs/ocamlcommon__makedepend.ml \
+	compilerlibs/ocamlcommon__makedepend.mli \
+	compilerlibs/unprefixed/makedepend.ml \
+	compilerlibs/ocamlcommon__matching.ml \
+	compilerlibs/ocamlcommon__matching.mli \
+	compilerlibs/unprefixed/matching.ml \
+	compilerlibs/ocamlcommon__meta.ml \
+	compilerlibs/ocamlcommon__meta.mli \
+	compilerlibs/unprefixed/meta.ml \
+	compilerlibs/ocamlcommon__misc.ml \
+	compilerlibs/ocamlcommon__misc.mli \
+	compilerlibs/unprefixed/misc.ml \
+	compilerlibs/ocamlcommon__mtype.ml \
+	compilerlibs/ocamlcommon__mtype.mli \
+	compilerlibs/unprefixed/mtype.ml \
+	compilerlibs/ocamlcommon__numbers.ml \
+	compilerlibs/ocamlcommon__numbers.mli \
+	compilerlibs/unprefixed/numbers.ml \
+	compilerlibs/ocamlcommon__opcodes.ml \
+	compilerlibs/ocamlcommon__opcodes.mli \
+	compilerlibs/unprefixed/opcodes.ml \
+	compilerlibs/ocamlcommon__oprint.ml \
+	compilerlibs/ocamlcommon__oprint.mli \
+	compilerlibs/unprefixed/oprint.ml \
+	compilerlibs/ocamlcommon__outcometree.ml \
+	compilerlibs/ocamlcommon__outcometree.mli \
+	compilerlibs/unprefixed/outcometree.ml \
+	compilerlibs/ocamlcommon__parmatch.ml \
+	compilerlibs/ocamlcommon__parmatch.mli \
+	compilerlibs/unprefixed/parmatch.ml \
+	compilerlibs/ocamlcommon__parse.ml \
+	compilerlibs/ocamlcommon__parse.mli \
+	compilerlibs/unprefixed/parse.ml \
+	compilerlibs/ocamlcommon__parser.ml \
+	compilerlibs/ocamlcommon__parser.mli \
+	compilerlibs/unprefixed/parser.ml \
+	compilerlibs/ocamlcommon__parsetree.ml \
+	compilerlibs/ocamlcommon__parsetree.mli \
+	compilerlibs/unprefixed/parsetree.ml \
+	compilerlibs/ocamlcommon__path.ml \
+	compilerlibs/ocamlcommon__path.mli \
+	compilerlibs/unprefixed/path.ml \
+	compilerlibs/ocamlcommon__persistent_env.ml \
+	compilerlibs/ocamlcommon__persistent_env.mli \
+	compilerlibs/unprefixed/persistent_env.ml \
+	compilerlibs/ocamlcommon__pparse.ml \
+	compilerlibs/ocamlcommon__pparse.mli \
+	compilerlibs/unprefixed/pparse.ml \
+	compilerlibs/ocamlcommon__pprintast.ml \
+	compilerlibs/ocamlcommon__pprintast.mli \
+	compilerlibs/unprefixed/pprintast.ml \
+	compilerlibs/ocamlcommon__predef.ml \
+	compilerlibs/ocamlcommon__predef.mli \
+	compilerlibs/unprefixed/predef.ml \
+	compilerlibs/ocamlcommon__primitive.ml \
+	compilerlibs/ocamlcommon__primitive.mli \
+	compilerlibs/unprefixed/primitive.ml \
+	compilerlibs/ocamlcommon__printast.ml \
+	compilerlibs/ocamlcommon__printast.mli \
+	compilerlibs/unprefixed/printast.ml \
+	compilerlibs/ocamlcommon__printlambda.ml \
+	compilerlibs/ocamlcommon__printlambda.mli \
+	compilerlibs/unprefixed/printlambda.ml \
+	compilerlibs/ocamlcommon__printpat.ml \
+	compilerlibs/ocamlcommon__printpat.mli \
+	compilerlibs/unprefixed/printpat.ml \
+	compilerlibs/ocamlcommon__printtyp.ml \
+	compilerlibs/ocamlcommon__printtyp.mli \
+	compilerlibs/unprefixed/printtyp.ml \
+	compilerlibs/ocamlcommon__printtyped.ml \
+	compilerlibs/ocamlcommon__printtyped.mli \
+	compilerlibs/unprefixed/printtyped.ml \
+	compilerlibs/ocamlcommon__profile.ml \
+	compilerlibs/ocamlcommon__profile.mli \
+	compilerlibs/unprefixed/profile.ml \
+	compilerlibs/ocamlcommon__rec_check.ml \
+	compilerlibs/ocamlcommon__rec_check.mli \
+	compilerlibs/unprefixed/rec_check.ml \
+	compilerlibs/ocamlcommon__runtimedef.ml \
+	compilerlibs/ocamlcommon__runtimedef.mli \
+	compilerlibs/unprefixed/runtimedef.ml \
+	compilerlibs/ocamlcommon__simplif.ml \
+	compilerlibs/ocamlcommon__simplif.mli \
+	compilerlibs/unprefixed/simplif.ml \
+	compilerlibs/ocamlcommon__strongly_connected_components.ml \
+	compilerlibs/ocamlcommon__strongly_connected_components.mli \
+	compilerlibs/unprefixed/strongly_connected_components.ml \
+	compilerlibs/ocamlcommon__stypes.ml \
+	compilerlibs/ocamlcommon__stypes.mli \
+	compilerlibs/unprefixed/stypes.ml \
+	compilerlibs/ocamlcommon__subst.ml \
+	compilerlibs/ocamlcommon__subst.mli \
+	compilerlibs/unprefixed/subst.ml \
+	compilerlibs/ocamlcommon__switch.ml \
+	compilerlibs/ocamlcommon__switch.mli \
+	compilerlibs/unprefixed/switch.ml \
+	compilerlibs/ocamlcommon__symtable.ml \
+	compilerlibs/ocamlcommon__symtable.mli \
+	compilerlibs/unprefixed/symtable.ml \
+	compilerlibs/ocamlcommon__syntaxerr.ml \
+	compilerlibs/ocamlcommon__syntaxerr.mli \
+	compilerlibs/unprefixed/syntaxerr.ml \
+	compilerlibs/ocamlcommon__targetint.ml \
+	compilerlibs/ocamlcommon__targetint.mli \
+	compilerlibs/unprefixed/targetint.ml \
+	compilerlibs/ocamlcommon__tast_mapper.ml \
+	compilerlibs/ocamlcommon__tast_mapper.mli \
+	compilerlibs/unprefixed/tast_mapper.ml \
+	compilerlibs/ocamlcommon__terminfo.ml \
+	compilerlibs/ocamlcommon__terminfo.mli \
+	compilerlibs/unprefixed/terminfo.ml \
+	compilerlibs/ocamlcommon__translattribute.ml \
+	compilerlibs/ocamlcommon__translattribute.mli \
+	compilerlibs/unprefixed/translattribute.ml \
+	compilerlibs/ocamlcommon__translclass.ml \
+	compilerlibs/ocamlcommon__translclass.mli \
+	compilerlibs/unprefixed/translclass.ml \
+	compilerlibs/ocamlcommon__translcore.ml \
+	compilerlibs/ocamlcommon__translcore.mli \
+	compilerlibs/unprefixed/translcore.ml \
+	compilerlibs/ocamlcommon__translmod.ml \
+	compilerlibs/ocamlcommon__translmod.mli \
+	compilerlibs/unprefixed/translmod.ml \
+	compilerlibs/ocamlcommon__translobj.ml \
+	compilerlibs/ocamlcommon__translobj.mli \
+	compilerlibs/unprefixed/translobj.ml \
+	compilerlibs/ocamlcommon__translprim.ml \
+	compilerlibs/ocamlcommon__translprim.mli \
+	compilerlibs/unprefixed/translprim.ml \
+	compilerlibs/ocamlcommon__typeclass.ml \
+	compilerlibs/ocamlcommon__typeclass.mli \
+	compilerlibs/unprefixed/typeclass.ml \
+	compilerlibs/ocamlcommon__typecore.ml \
+	compilerlibs/ocamlcommon__typecore.mli \
+	compilerlibs/unprefixed/typecore.ml \
+	compilerlibs/ocamlcommon__typedecl.ml \
+	compilerlibs/ocamlcommon__typedecl.mli \
+	compilerlibs/unprefixed/typedecl.ml \
+	compilerlibs/ocamlcommon__typedecl_immediacy.ml \
+	compilerlibs/ocamlcommon__typedecl_immediacy.mli \
+	compilerlibs/unprefixed/typedecl_immediacy.ml \
+	compilerlibs/ocamlcommon__typedecl_properties.ml \
+	compilerlibs/ocamlcommon__typedecl_properties.mli \
+	compilerlibs/unprefixed/typedecl_properties.ml \
+	compilerlibs/ocamlcommon__typedecl_unboxed.ml \
+	compilerlibs/ocamlcommon__typedecl_unboxed.mli \
+	compilerlibs/unprefixed/typedecl_unboxed.ml \
+	compilerlibs/ocamlcommon__typedecl_variance.ml \
+	compilerlibs/ocamlcommon__typedecl_variance.mli \
+	compilerlibs/unprefixed/typedecl_variance.ml \
+	compilerlibs/ocamlcommon__typedtree.ml \
+	compilerlibs/ocamlcommon__typedtree.mli \
+	compilerlibs/unprefixed/typedtree.ml \
+	compilerlibs/ocamlcommon__typedtreeIter.ml \
+	compilerlibs/ocamlcommon__typedtreeIter.mli \
+	compilerlibs/unprefixed/typedtreeIter.ml \
+	compilerlibs/ocamlcommon__typemod.ml \
+	compilerlibs/ocamlcommon__typemod.mli \
+	compilerlibs/unprefixed/typemod.ml \
+	compilerlibs/ocamlcommon__typeopt.ml \
+	compilerlibs/ocamlcommon__typeopt.mli \
+	compilerlibs/unprefixed/typeopt.ml \
+	compilerlibs/ocamlcommon__types.ml \
+	compilerlibs/ocamlcommon__types.mli \
+	compilerlibs/unprefixed/types.ml \
+	compilerlibs/ocamlcommon__typetexp.ml \
+	compilerlibs/ocamlcommon__typetexp.mli \
+	compilerlibs/unprefixed/typetexp.ml \
+	compilerlibs/ocamlcommon__untypeast.ml \
+	compilerlibs/ocamlcommon__untypeast.mli \
+	compilerlibs/unprefixed/untypeast.ml \
+	compilerlibs/ocamlcommon__warnings.ml \
+	compilerlibs/ocamlcommon__warnings.mli \
+	compilerlibs/unprefixed/warnings.ml
