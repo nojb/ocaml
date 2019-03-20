@@ -779,14 +779,14 @@ Makefile.prefix: Makefile tools/gen_make
 
 # Shared parts of the system
 
-compilerlibs/ocamlcommon.cma: $(addprefix compilerlibs/ocamlcommon__,$(notdir $(COMMON))) $(addprefix compilerlibs/unprefixed/,$(notdir $(COMMON))) compilerlibs/ocamlcommon.cmo
+compilerlibs/ocamlcommon.cma: compilerlibs/ocamlcommon.cmo $(addprefix compilerlibs/ocamlcommon__,$(notdir $(COMMON))) $(addprefix compilerlibs/unprefixed/,$(notdir $(COMMON)))
 	$(CAMLC) -a -linkall -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlcommon.cma
 
 # The bytecode compiler
 
-compilerlibs/ocamlbytecomp.cma: $(addprefix compilerlibs/ocamlbytecomp__,$(notdir $(BYTECOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(BYTECOMP))) compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamlbytecomp.cma: compilerlibs/ocamlbytecomp.cmo $(addprefix compilerlibs/ocamlbytecomp__,$(notdir $(BYTECOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(BYTECOMP)))
 	$(CAMLC) -a -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlbytecomp.cma
@@ -799,7 +799,7 @@ partialclean::
 
 # The native-code compiler
 
-compilerlibs/ocamloptcomp.cma: $(addprefix compilerlibs/ocamloptcomp__,$(notdir $(OPTCOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(OPTCOMP))) compilerlibs/ocamloptcomp.cmo
+compilerlibs/ocamloptcomp.cma: compilerlibs/ocamloptcomp.cmo $(addprefix compilerlibs/ocamloptcomp__,$(notdir $(OPTCOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(OPTCOMP)))
 	$(CAMLC) -a -o $@ $^
 
 partialclean::
@@ -1343,10 +1343,9 @@ depend: beforedepend
 	  -open Ocamlcommon -open Ocamlbytecomp -open Ocamloptcomp compilerlibs/ocamloptcomp__*.{mli,ml} >> .depend
 	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
 	  compilerlibs/unprefixed/*.{mli,ml} >> .depend
-	# (for d in utils parsing typing bytecomp asmcomp middle_end \
-	#  middle_end/base_types asmcomp/debug driver toplevel; \
-	#  do $(CAMLDEP) $(DEPFLAGS) $(DEPINCLUDES) $$d/*.mli $$d/*.ml || exit; \
-	#  done) > .depend
+	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
+	  -open Ocamlcommon -open Ocamlbytecomp -open Ocamloptcomp \
+	  driver/*main.{mli,ml} >> .depend
 
 .PHONY: distclean
 distclean: clean

@@ -31,10 +31,15 @@ case $1 in
   compilerlibs/ocamloptcomp__*.cm*)
       echo ' -I compilerlibs' \
            ' -open Ocamlcommon' \
-           ' -open Ocamlbytecomp' \
            ' -open Ocamloptcomp';;
   compilerlibs/unprefixed/*.cm*)
       echo ' -I compilerlibs';;
+  driver/*main.cm*)
+      echo ' -I driver' \
+           ' -I compilerlibs' \
+           ' -open Ocamlcommon' \
+           ' -open Ocamlbytecomp' \
+           ' -open Ocamloptcomp';;
   *)
       echo ' ';;
 esac
