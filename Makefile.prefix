@@ -1100,3 +1100,93 @@ beforedepend:: compilerlibs/ocamlcommon.ml \
 	compilerlibs/ocamlcommon__warnings.ml \
 	compilerlibs/ocamlcommon__warnings.mli \
 	compilerlibs/unprefixed/warnings.ml
+compilerlibs/ocamlbytecomp__bytegen.ml: bytecomp/bytegen.ml
+	(echo "# 1 \"bytecomp/bytegen.ml\""; cat $<) > $@
+compilerlibs/ocamlbytecomp__bytegen.mli: bytecomp/bytegen.mli
+	(echo "# 1 \"bytecomp/bytegen.mli\""; cat $<) > $@
+compilerlibs/unprefixed/bytegen.ml: bytecomp/bytegen.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlbytecomp.Bytegen instead.\"]" > $@
+	echo "include Ocamlbytecomp.Bytegen" >> $@
+compilerlibs/ocamlbytecomp__printinstr.ml: bytecomp/printinstr.ml
+	(echo "# 1 \"bytecomp/printinstr.ml\""; cat $<) > $@
+compilerlibs/ocamlbytecomp__printinstr.mli: bytecomp/printinstr.mli
+	(echo "# 1 \"bytecomp/printinstr.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printinstr.ml: bytecomp/printinstr.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlbytecomp.Printinstr instead.\"]" > $@
+	echo "include Ocamlbytecomp.Printinstr" >> $@
+compilerlibs/ocamlbytecomp__emitcode.ml: bytecomp/emitcode.ml
+	(echo "# 1 \"bytecomp/emitcode.ml\""; cat $<) > $@
+compilerlibs/ocamlbytecomp__emitcode.mli: bytecomp/emitcode.mli
+	(echo "# 1 \"bytecomp/emitcode.mli\""; cat $<) > $@
+compilerlibs/unprefixed/emitcode.ml: bytecomp/emitcode.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlbytecomp.Emitcode instead.\"]" > $@
+	echo "include Ocamlbytecomp.Emitcode" >> $@
+compilerlibs/ocamlbytecomp__bytelink.ml: bytecomp/bytelink.ml
+	(echo "# 1 \"bytecomp/bytelink.ml\""; cat $<) > $@
+compilerlibs/ocamlbytecomp__bytelink.mli: bytecomp/bytelink.mli
+	(echo "# 1 \"bytecomp/bytelink.mli\""; cat $<) > $@
+compilerlibs/unprefixed/bytelink.ml: bytecomp/bytelink.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlbytecomp.Bytelink instead.\"]" > $@
+	echo "include Ocamlbytecomp.Bytelink" >> $@
+compilerlibs/ocamlbytecomp__bytelibrarian.ml: bytecomp/bytelibrarian.ml
+	(echo "# 1 \"bytecomp/bytelibrarian.ml\""; cat $<) > $@
+compilerlibs/ocamlbytecomp__bytelibrarian.mli: bytecomp/bytelibrarian.mli
+	(echo "# 1 \"bytecomp/bytelibrarian.mli\""; cat $<) > $@
+compilerlibs/unprefixed/bytelibrarian.ml: bytecomp/bytelibrarian.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlbytecomp.Bytelibrarian instead.\"]" > $@
+	echo "include Ocamlbytecomp.Bytelibrarian" >> $@
+compilerlibs/ocamlbytecomp__bytepackager.ml: bytecomp/bytepackager.ml
+	(echo "# 1 \"bytecomp/bytepackager.ml\""; cat $<) > $@
+compilerlibs/ocamlbytecomp__bytepackager.mli: bytecomp/bytepackager.mli
+	(echo "# 1 \"bytecomp/bytepackager.mli\""; cat $<) > $@
+compilerlibs/unprefixed/bytepackager.ml: bytecomp/bytepackager.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlbytecomp.Bytepackager instead.\"]" > $@
+	echo "include Ocamlbytecomp.Bytepackager" >> $@
+compilerlibs/ocamlbytecomp__errors.ml: driver/errors.ml
+	(echo "# 1 \"driver/errors.ml\""; cat $<) > $@
+compilerlibs/ocamlbytecomp__errors.mli: driver/errors.mli
+	(echo "# 1 \"driver/errors.mli\""; cat $<) > $@
+compilerlibs/unprefixed/errors.ml: driver/errors.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlbytecomp.Errors instead.\"]" > $@
+	echo "include Ocamlbytecomp.Errors" >> $@
+compilerlibs/ocamlbytecomp__compile.ml: driver/compile.ml
+	(echo "# 1 \"driver/compile.ml\""; cat $<) > $@
+compilerlibs/ocamlbytecomp__compile.mli: driver/compile.mli
+	(echo "# 1 \"driver/compile.mli\""; cat $<) > $@
+compilerlibs/unprefixed/compile.ml: driver/compile.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamlbytecomp.Compile instead.\"]" > $@
+	echo "include Ocamlbytecomp.Compile" >> $@
+compilerlibs/ocamlbytecomp.ml: Makefile
+	echo "module Bytegen       = Ocamlbytecomp__bytegen" > $@
+	echo "module Bytelibrarian = Ocamlbytecomp__bytelibrarian" >> $@
+	echo "module Bytelink      = Ocamlbytecomp__bytelink" >> $@
+	echo "module Bytepackager  = Ocamlbytecomp__bytepackager" >> $@
+	echo "module Compile       = Ocamlbytecomp__compile" >> $@
+	echo "module Emitcode      = Ocamlbytecomp__emitcode" >> $@
+	echo "module Errors        = Ocamlbytecomp__errors" >> $@
+	echo "module Printinstr    = Ocamlbytecomp__printinstr" >> $@
+beforedepend:: compilerlibs/ocamlbytecomp.ml \
+	compilerlibs/ocamlbytecomp__bytegen.ml \
+	compilerlibs/ocamlbytecomp__bytegen.mli \
+	compilerlibs/unprefixed/bytegen.ml \
+	compilerlibs/ocamlbytecomp__bytelibrarian.ml \
+	compilerlibs/ocamlbytecomp__bytelibrarian.mli \
+	compilerlibs/unprefixed/bytelibrarian.ml \
+	compilerlibs/ocamlbytecomp__bytelink.ml \
+	compilerlibs/ocamlbytecomp__bytelink.mli \
+	compilerlibs/unprefixed/bytelink.ml \
+	compilerlibs/ocamlbytecomp__bytepackager.ml \
+	compilerlibs/ocamlbytecomp__bytepackager.mli \
+	compilerlibs/unprefixed/bytepackager.ml \
+	compilerlibs/ocamlbytecomp__compile.ml \
+	compilerlibs/ocamlbytecomp__compile.mli \
+	compilerlibs/unprefixed/compile.ml \
+	compilerlibs/ocamlbytecomp__emitcode.ml \
+	compilerlibs/ocamlbytecomp__emitcode.mli \
+	compilerlibs/unprefixed/emitcode.ml \
+	compilerlibs/ocamlbytecomp__errors.ml \
+	compilerlibs/ocamlbytecomp__errors.mli \
+	compilerlibs/unprefixed/errors.ml \
+	compilerlibs/ocamlbytecomp__printinstr.ml \
+	compilerlibs/ocamlbytecomp__printinstr.mli \
+	compilerlibs/unprefixed/printinstr.ml

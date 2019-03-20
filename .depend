@@ -2607,6 +2607,280 @@ compilerlibs/ocamlcommon__warnings.cmx : \
     compilerlibs/ocamlcommon__warnings.cmi
 compilerlibs/ocamlcommon__warnings.cmi : \
     compilerlibs/ocamlcommon.cmo
+compilerlibs/ocamlbytecomp__bytegen.cmo : \
+    compilerlibs/ocamlcommon__types.cmi \
+    compilerlibs/ocamlcommon__switch.cmi \
+    compilerlibs/ocamlcommon__subst.cmi \
+    compilerlibs/ocamlcommon__primitive.cmi \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon__matching.cmi \
+    compilerlibs/ocamlcommon__lambda.cmi \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon__env.cmi \
+    compilerlibs/ocamlcommon__config.cmi \
+    compilerlibs/ocamlcommon__asttypes.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamlbytecomp__bytegen.cmi
+compilerlibs/ocamlbytecomp__bytegen.cmx : \
+    compilerlibs/ocamlcommon__types.cmx \
+    compilerlibs/ocamlcommon__switch.cmx \
+    compilerlibs/ocamlcommon__subst.cmx \
+    compilerlibs/ocamlcommon__primitive.cmx \
+    compilerlibs/ocamlcommon__misc.cmx \
+    compilerlibs/ocamlcommon__matching.cmx \
+    compilerlibs/ocamlcommon__lambda.cmx \
+    compilerlibs/ocamlcommon__instruct.cmx \
+    compilerlibs/ocamlcommon__ident.cmx \
+    compilerlibs/ocamlcommon__env.cmx \
+    compilerlibs/ocamlcommon__config.cmx \
+    compilerlibs/ocamlcommon__asttypes.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamlbytecomp__bytegen.cmi
+compilerlibs/ocamlbytecomp__bytegen.cmi : \
+    compilerlibs/ocamlcommon__lambda.cmi \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamlbytecomp__bytelibrarian.cmo : \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon__location.cmi \
+    compilerlibs/ocamlcommon__load_path.cmi \
+    compilerlibs/ocamlcommon__config.cmi \
+    compilerlibs/ocamlcommon__cmo_format.cmi \
+    compilerlibs/ocamlcommon__clflags.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp__emitcode.cmi \
+    compilerlibs/ocamlbytecomp__bytelink.cmi \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamlbytecomp__bytelibrarian.cmi
+compilerlibs/ocamlbytecomp__bytelibrarian.cmx : \
+    compilerlibs/ocamlcommon__misc.cmx \
+    compilerlibs/ocamlcommon__location.cmx \
+    compilerlibs/ocamlcommon__load_path.cmx \
+    compilerlibs/ocamlcommon__config.cmx \
+    compilerlibs/ocamlcommon__cmo_format.cmx \
+    compilerlibs/ocamlcommon__clflags.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp__emitcode.cmx \
+    compilerlibs/ocamlbytecomp__bytelink.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamlbytecomp__bytelibrarian.cmi
+compilerlibs/ocamlbytecomp__bytelibrarian.cmi : \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamlbytecomp__bytelink.cmo : \
+    compilerlibs/ocamlcommon__warnings.cmi \
+    compilerlibs/ocamlcommon__symtable.cmi \
+    compilerlibs/ocamlcommon__opcodes.cmi \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon__location.cmi \
+    compilerlibs/ocamlcommon__load_path.cmi \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon__dll.cmi \
+    compilerlibs/ocamlcommon__consistbl.cmi \
+    compilerlibs/ocamlcommon__config.cmi \
+    compilerlibs/ocamlcommon__cmo_format.cmi \
+    compilerlibs/ocamlcommon__clflags.cmi \
+    compilerlibs/ocamlcommon__ccomp.cmi \
+    compilerlibs/ocamlcommon__bytesections.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp__emitcode.cmi \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamlbytecomp__bytelink.cmi
+compilerlibs/ocamlbytecomp__bytelink.cmx : \
+    compilerlibs/ocamlcommon__warnings.cmx \
+    compilerlibs/ocamlcommon__symtable.cmx \
+    compilerlibs/ocamlcommon__opcodes.cmx \
+    compilerlibs/ocamlcommon__misc.cmx \
+    compilerlibs/ocamlcommon__location.cmx \
+    compilerlibs/ocamlcommon__load_path.cmx \
+    compilerlibs/ocamlcommon__instruct.cmx \
+    compilerlibs/ocamlcommon__ident.cmx \
+    compilerlibs/ocamlcommon__dll.cmx \
+    compilerlibs/ocamlcommon__consistbl.cmx \
+    compilerlibs/ocamlcommon__config.cmx \
+    compilerlibs/ocamlcommon__cmo_format.cmx \
+    compilerlibs/ocamlcommon__clflags.cmx \
+    compilerlibs/ocamlcommon__ccomp.cmx \
+    compilerlibs/ocamlcommon__bytesections.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp__emitcode.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamlbytecomp__bytelink.cmi
+compilerlibs/ocamlbytecomp__bytelink.cmi : \
+    compilerlibs/ocamlcommon__symtable.cmi \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon__cmo_format.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamlbytecomp__bytepackager.cmo : \
+    compilerlibs/ocamlcommon__typemod.cmi \
+    compilerlibs/ocamlcommon__translmod.cmi \
+    compilerlibs/ocamlcommon__subst.cmi \
+    compilerlibs/ocamlcommon__printlambda.cmi \
+    compilerlibs/ocamlcommon__path.cmi \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon__location.cmi \
+    compilerlibs/ocamlcommon__load_path.cmi \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon__env.cmi \
+    compilerlibs/ocamlcommon__config.cmi \
+    compilerlibs/ocamlcommon__cmo_format.cmi \
+    compilerlibs/ocamlcommon__clflags.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp__emitcode.cmi \
+    compilerlibs/ocamlbytecomp__bytelink.cmi \
+    compilerlibs/ocamlbytecomp__bytegen.cmi \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamlbytecomp__bytepackager.cmi
+compilerlibs/ocamlbytecomp__bytepackager.cmx : \
+    compilerlibs/ocamlcommon__typemod.cmx \
+    compilerlibs/ocamlcommon__translmod.cmx \
+    compilerlibs/ocamlcommon__subst.cmx \
+    compilerlibs/ocamlcommon__printlambda.cmx \
+    compilerlibs/ocamlcommon__path.cmx \
+    compilerlibs/ocamlcommon__misc.cmx \
+    compilerlibs/ocamlcommon__location.cmx \
+    compilerlibs/ocamlcommon__load_path.cmx \
+    compilerlibs/ocamlcommon__instruct.cmx \
+    compilerlibs/ocamlcommon__ident.cmx \
+    compilerlibs/ocamlcommon__env.cmx \
+    compilerlibs/ocamlcommon__config.cmx \
+    compilerlibs/ocamlcommon__cmo_format.cmx \
+    compilerlibs/ocamlcommon__clflags.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp__emitcode.cmx \
+    compilerlibs/ocamlbytecomp__bytelink.cmx \
+    compilerlibs/ocamlbytecomp__bytegen.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamlbytecomp__bytepackager.cmi
+compilerlibs/ocamlbytecomp__bytepackager.cmi : \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon__env.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamlbytecomp__compile.cmo : \
+    compilerlibs/ocamlcommon__translmod.cmi \
+    compilerlibs/ocamlcommon__simplif.cmi \
+    compilerlibs/ocamlcommon__profile.cmi \
+    compilerlibs/ocamlcommon__printlambda.cmi \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon__lambda.cmi \
+    compilerlibs/ocamlcommon__compile_common.cmi \
+    compilerlibs/ocamlcommon__clflags.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp__printinstr.cmi \
+    compilerlibs/ocamlbytecomp__emitcode.cmi \
+    compilerlibs/ocamlbytecomp__bytegen.cmi \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamlbytecomp__compile.cmi
+compilerlibs/ocamlbytecomp__compile.cmx : \
+    compilerlibs/ocamlcommon__translmod.cmx \
+    compilerlibs/ocamlcommon__simplif.cmx \
+    compilerlibs/ocamlcommon__profile.cmx \
+    compilerlibs/ocamlcommon__printlambda.cmx \
+    compilerlibs/ocamlcommon__misc.cmx \
+    compilerlibs/ocamlcommon__lambda.cmx \
+    compilerlibs/ocamlcommon__compile_common.cmx \
+    compilerlibs/ocamlcommon__clflags.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp__printinstr.cmx \
+    compilerlibs/ocamlbytecomp__emitcode.cmx \
+    compilerlibs/ocamlbytecomp__bytegen.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamlbytecomp__compile.cmi
+compilerlibs/ocamlbytecomp__compile.cmi : \
+    compilerlibs/ocamlcommon__typedtree.cmi \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon__compile_common.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamlbytecomp__emitcode.cmo : \
+    compilerlibs/ocamlcommon__translmod.cmi \
+    compilerlibs/ocamlcommon__primitive.cmi \
+    compilerlibs/ocamlcommon__opcodes.cmi \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon__location.cmi \
+    compilerlibs/ocamlcommon__lambda.cmi \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon__env.cmi \
+    compilerlibs/ocamlcommon__config.cmi \
+    compilerlibs/ocamlcommon__cmo_format.cmi \
+    compilerlibs/ocamlcommon__clflags.cmi \
+    compilerlibs/ocamlcommon__btype.cmi \
+    compilerlibs/ocamlcommon__asttypes.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp__bytegen.cmi \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamlbytecomp__emitcode.cmi
+compilerlibs/ocamlbytecomp__emitcode.cmx : \
+    compilerlibs/ocamlcommon__translmod.cmx \
+    compilerlibs/ocamlcommon__primitive.cmx \
+    compilerlibs/ocamlcommon__opcodes.cmx \
+    compilerlibs/ocamlcommon__misc.cmx \
+    compilerlibs/ocamlcommon__location.cmx \
+    compilerlibs/ocamlcommon__lambda.cmx \
+    compilerlibs/ocamlcommon__instruct.cmx \
+    compilerlibs/ocamlcommon__ident.cmx \
+    compilerlibs/ocamlcommon__env.cmx \
+    compilerlibs/ocamlcommon__config.cmx \
+    compilerlibs/ocamlcommon__cmo_format.cmx \
+    compilerlibs/ocamlcommon__clflags.cmx \
+    compilerlibs/ocamlcommon__btype.cmx \
+    compilerlibs/ocamlcommon__asttypes.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp__bytegen.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamlbytecomp__emitcode.cmi
+compilerlibs/ocamlbytecomp__emitcode.cmi : \
+    compilerlibs/ocamlcommon__misc.cmi \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon__cmo_format.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamlbytecomp__errors.cmo : \
+    compilerlibs/ocamlcommon__location.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamlbytecomp__errors.cmi
+compilerlibs/ocamlbytecomp__errors.cmx : \
+    compilerlibs/ocamlcommon__location.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamlbytecomp__errors.cmi
+compilerlibs/ocamlbytecomp__errors.cmi : \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/ocamlbytecomp__printinstr.cmo : \
+    compilerlibs/ocamlcommon__printlambda.cmi \
+    compilerlibs/ocamlcommon__location.cmi \
+    compilerlibs/ocamlcommon__lambda.cmi \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon__ident.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo \
+    compilerlibs/ocamlbytecomp__printinstr.cmi
+compilerlibs/ocamlbytecomp__printinstr.cmx : \
+    compilerlibs/ocamlcommon__printlambda.cmx \
+    compilerlibs/ocamlcommon__location.cmx \
+    compilerlibs/ocamlcommon__lambda.cmx \
+    compilerlibs/ocamlcommon__instruct.cmx \
+    compilerlibs/ocamlcommon__ident.cmx \
+    compilerlibs/ocamlcommon.cmx \
+    compilerlibs/ocamlbytecomp.cmx \
+    compilerlibs/ocamlbytecomp__printinstr.cmi
+compilerlibs/ocamlbytecomp__printinstr.cmi : \
+    compilerlibs/ocamlcommon__instruct.cmi \
+    compilerlibs/ocamlcommon.cmo \
+    compilerlibs/ocamlbytecomp.cmo
 compilerlibs/unprefixed/annot.cmo : \
     compilerlibs/ocamlcommon__annot.cmi \
     compilerlibs/ocamlcommon.cmo
@@ -2673,6 +2947,30 @@ compilerlibs/unprefixed/builtin_attributes.cmo : \
 compilerlibs/unprefixed/builtin_attributes.cmx : \
     compilerlibs/ocamlcommon__builtin_attributes.cmx \
     compilerlibs/ocamlcommon.cmx
+compilerlibs/unprefixed/bytegen.cmo : \
+    compilerlibs/ocamlbytecomp__bytegen.cmi \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/unprefixed/bytegen.cmx : \
+    compilerlibs/ocamlbytecomp__bytegen.cmx \
+    compilerlibs/ocamlbytecomp.cmx
+compilerlibs/unprefixed/bytelibrarian.cmo : \
+    compilerlibs/ocamlbytecomp__bytelibrarian.cmi \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/unprefixed/bytelibrarian.cmx : \
+    compilerlibs/ocamlbytecomp__bytelibrarian.cmx \
+    compilerlibs/ocamlbytecomp.cmx
+compilerlibs/unprefixed/bytelink.cmo : \
+    compilerlibs/ocamlbytecomp__bytelink.cmi \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/unprefixed/bytelink.cmx : \
+    compilerlibs/ocamlbytecomp__bytelink.cmx \
+    compilerlibs/ocamlbytecomp.cmx
+compilerlibs/unprefixed/bytepackager.cmo : \
+    compilerlibs/ocamlbytecomp__bytepackager.cmi \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/unprefixed/bytepackager.cmx : \
+    compilerlibs/ocamlbytecomp__bytepackager.cmx \
+    compilerlibs/ocamlbytecomp.cmx
 compilerlibs/unprefixed/bytesections.cmo : \
     compilerlibs/ocamlcommon__bytesections.cmi \
     compilerlibs/ocamlcommon.cmo
@@ -2721,6 +3019,12 @@ compilerlibs/unprefixed/compenv.cmo : \
 compilerlibs/unprefixed/compenv.cmx : \
     compilerlibs/ocamlcommon__compenv.cmx \
     compilerlibs/ocamlcommon.cmx
+compilerlibs/unprefixed/compile.cmo : \
+    compilerlibs/ocamlbytecomp__compile.cmi \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/unprefixed/compile.cmx : \
+    compilerlibs/ocamlbytecomp__compile.cmx \
+    compilerlibs/ocamlbytecomp.cmx
 compilerlibs/unprefixed/compile_common.cmo : \
     compilerlibs/ocamlcommon__compile_common.cmi \
     compilerlibs/ocamlcommon.cmo
@@ -2775,6 +3079,12 @@ compilerlibs/unprefixed/docstrings.cmo : \
 compilerlibs/unprefixed/docstrings.cmx : \
     compilerlibs/ocamlcommon__docstrings.cmx \
     compilerlibs/ocamlcommon.cmx
+compilerlibs/unprefixed/emitcode.cmo : \
+    compilerlibs/ocamlbytecomp__emitcode.cmi \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/unprefixed/emitcode.cmx : \
+    compilerlibs/ocamlbytecomp__emitcode.cmx \
+    compilerlibs/ocamlbytecomp.cmx
 compilerlibs/unprefixed/env.cmo : \
     compilerlibs/ocamlcommon__env.cmi \
     compilerlibs/ocamlcommon.cmo
@@ -2787,6 +3097,12 @@ compilerlibs/unprefixed/envaux.cmo : \
 compilerlibs/unprefixed/envaux.cmx : \
     compilerlibs/ocamlcommon__envaux.cmx \
     compilerlibs/ocamlcommon.cmx
+compilerlibs/unprefixed/errors.cmo : \
+    compilerlibs/ocamlbytecomp__errors.cmi \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/unprefixed/errors.cmx : \
+    compilerlibs/ocamlbytecomp__errors.cmx \
+    compilerlibs/ocamlbytecomp.cmx
 compilerlibs/unprefixed/ident.cmo : \
     compilerlibs/ocamlcommon__ident.cmi \
     compilerlibs/ocamlcommon.cmo
@@ -2979,6 +3295,12 @@ compilerlibs/unprefixed/printast.cmo : \
 compilerlibs/unprefixed/printast.cmx : \
     compilerlibs/ocamlcommon__printast.cmx \
     compilerlibs/ocamlcommon.cmx
+compilerlibs/unprefixed/printinstr.cmo : \
+    compilerlibs/ocamlbytecomp__printinstr.cmi \
+    compilerlibs/ocamlbytecomp.cmo
+compilerlibs/unprefixed/printinstr.cmx : \
+    compilerlibs/ocamlbytecomp__printinstr.cmx \
+    compilerlibs/ocamlbytecomp.cmx
 compilerlibs/unprefixed/printlambda.cmo : \
     compilerlibs/ocamlcommon__printlambda.cmi \
     compilerlibs/ocamlcommon.cmo

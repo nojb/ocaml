@@ -749,6 +749,7 @@ tools/gen_make: tools/gen_make.ml
 
 Makefile.prefix: Makefile tools/gen_make
 	$(CAMLRUN) tools/gen_make ocamlcommon $(COMMON) > $@
+	$(CAMLRUN) tools/gen_make ocamlbytecomp $(BYTECOMP) >> $@
 
 -include Makefile.prefix
 
@@ -761,7 +762,7 @@ partialclean::
 
 # The bytecode compiler
 
-compilerlibs/ocamlbytecomp.cma: $(BYTECOMP)
+compilerlibs/ocamlbytecomp.cma: $(addprefix compilerlibs/ocamlbytecomp__,$(notdir $(BYTECOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(BYTECOMP))) compilerlibs/ocamlbytecomp.cmo
 	$(CAMLC) -a -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlbytecomp.cma
@@ -1295,12 +1296,15 @@ partialclean::
 	rm -f *~
 
 MAPS=\
-  -map compilerlibs/ocamlcommon.ml
+  -map compilerlibs/ocamlcommon.ml \
+  -map compilerlibs/ocamlbytecomp.ml
 
 .PHONY: depend
 depend: beforedepend
 	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
 	  -open Ocamlcommon compilerlibs/ocamlcommon__*.{mli,ml} > .depend
+	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
+	  -open Ocamlcommon -open Ocamlbytecomp compilerlibs/ocamlbytecomp__*.{mli,ml} >> .depend
 	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
 	  compilerlibs/unprefixed/*.{mli,ml} >> .depend
 	# (for d in utils parsing typing bytecomp asmcomp middle_end \
