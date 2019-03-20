@@ -208,6 +208,18 @@ ASMCOMP=\
   asmcomp/asmlink.cmo asmcomp/asmlibrarian.cmo asmcomp/asmpackager.cmo \
   driver/opterrors.cmo driver/optcompile.cmo
 
+asmcomp/branch_relaxation_intf.mli: asmcomp/branch_relaxation_intf.ml
+	cp $< $@
+
+asmcomp/debug/compute_ranges_intf.mli: asmcomp/debug/compute_ranges_intf.ml
+	cp $< $@
+
+middle_end/backend_intf.ml: middle_end/backend_intf.mli
+	cp $< $@
+
+middle_end/simplify_boxed_integer_ops_intf.ml: middle_end/simplify_boxed_integer_ops_intf.mli
+	cp $< $@
+
 MIDDLE_END=\
   middle_end/int_replace_polymorphic_compare.cmo \
   middle_end/debuginfo.cmo \
@@ -243,6 +255,7 @@ MIDDLE_END=\
   middle_end/freshening.cmo \
   middle_end/simple_value_approx.cmo \
   middle_end/lift_code.cmo \
+  middle_end/backend_intf.cmo \
   middle_end/closure_conversion_aux.cmo \
   middle_end/closure_conversion.cmo \
   middle_end/initialize_symbol_to_let_symbol.cmo \
@@ -257,6 +270,7 @@ MIDDLE_END=\
   middle_end/remove_unused_arguments.cmo \
   middle_end/remove_unused_closure_vars.cmo \
   middle_end/remove_unused_program_constructs.cmo \
+  middle_end/simplify_boxed_integer_ops_intf.cmo \
   middle_end/simplify_boxed_integer_ops.cmo \
   middle_end/simplify_primitives.cmo \
   middle_end/inlining_stats_types.cmo \
@@ -750,6 +764,7 @@ tools/gen_make: tools/gen_make.ml
 Makefile.prefix: Makefile tools/gen_make
 	$(CAMLRUN) tools/gen_make ocamlcommon $(COMMON) > $@
 	$(CAMLRUN) tools/gen_make ocamlbytecomp $(BYTECOMP) >> $@
+	$(CAMLRUN) tools/gen_make ocamloptcomp $(OPTCOMP) >> $@
 
 -include Makefile.prefix
 
@@ -775,7 +790,7 @@ partialclean::
 
 # The native-code compiler
 
-compilerlibs/ocamloptcomp.cma: $(OPTCOMP)
+compilerlibs/ocamloptcomp.cma: $(addprefix compilerlibs/ocamloptcomp__,$(notdir $(OPTCOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(OPTCOMP))) compilerlibs/ocamloptcomp.ml
 	$(CAMLC) -a -o $@ $^
 
 partialclean::
@@ -1297,7 +1312,11 @@ partialclean::
 
 MAPS=\
   -map compilerlibs/ocamlcommon.ml \
-  -map compilerlibs/ocamlbytecomp.ml
+  -map compilerlibs/ocamlbytecomp.ml \
+  -map compilerlibs/ocamloptcomp.ml
+
+asmcomp/arch.mli: asmcomp/arch.ml
+	$(CAMLC) -I compilerlibs -open Ocamlcommon -open Ocamlbytecomp -i $< > $@
 
 .PHONY: depend
 depend: beforedepend
@@ -1305,6 +1324,8 @@ depend: beforedepend
 	  -open Ocamlcommon compilerlibs/ocamlcommon__*.{mli,ml} > .depend
 	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
 	  -open Ocamlcommon -open Ocamlbytecomp compilerlibs/ocamlbytecomp__*.{mli,ml} >> .depend
+	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
+	  -open Ocamlcommon -open Ocamlbytecomp -open Ocamloptcomp compilerlibs/ocamloptcomp__*.{mli,ml} >> .depend
 	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
 	  compilerlibs/unprefixed/*.{mli,ml} >> .depend
 	# (for d in utils parsing typing bytecomp asmcomp middle_end \

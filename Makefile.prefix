@@ -1190,3 +1190,1435 @@ beforedepend:: compilerlibs/ocamlbytecomp.ml \
 	compilerlibs/ocamlbytecomp__printinstr.ml \
 	compilerlibs/ocamlbytecomp__printinstr.mli \
 	compilerlibs/unprefixed/printinstr.ml
+compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.ml: middle_end/int_replace_polymorphic_compare.ml
+	(echo "# 1 \"middle_end/int_replace_polymorphic_compare.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.mli: middle_end/int_replace_polymorphic_compare.mli
+	(echo "# 1 \"middle_end/int_replace_polymorphic_compare.mli\""; cat $<) > $@
+compilerlibs/unprefixed/int_replace_polymorphic_compare.ml: middle_end/int_replace_polymorphic_compare.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Int_replace_polymorphic_compare instead.\"]" > $@
+	echo "include Ocamloptcomp.Int_replace_polymorphic_compare" >> $@
+compilerlibs/ocamloptcomp__debuginfo.ml: middle_end/debuginfo.ml
+	(echo "# 1 \"middle_end/debuginfo.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__debuginfo.mli: middle_end/debuginfo.mli
+	(echo "# 1 \"middle_end/debuginfo.mli\""; cat $<) > $@
+compilerlibs/unprefixed/debuginfo.ml: middle_end/debuginfo.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Debuginfo instead.\"]" > $@
+	echo "include Ocamloptcomp.Debuginfo" >> $@
+compilerlibs/ocamloptcomp__clambda_primitives.ml: asmcomp/clambda_primitives.ml
+	(echo "# 1 \"asmcomp/clambda_primitives.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__clambda_primitives.mli: asmcomp/clambda_primitives.mli
+	(echo "# 1 \"asmcomp/clambda_primitives.mli\""; cat $<) > $@
+compilerlibs/unprefixed/clambda_primitives.ml: asmcomp/clambda_primitives.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Clambda_primitives instead.\"]" > $@
+	echo "include Ocamloptcomp.Clambda_primitives" >> $@
+compilerlibs/ocamloptcomp__semantics_of_primitives.ml: asmcomp/semantics_of_primitives.ml
+	(echo "# 1 \"asmcomp/semantics_of_primitives.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__semantics_of_primitives.mli: asmcomp/semantics_of_primitives.mli
+	(echo "# 1 \"asmcomp/semantics_of_primitives.mli\""; cat $<) > $@
+compilerlibs/unprefixed/semantics_of_primitives.ml: asmcomp/semantics_of_primitives.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Semantics_of_primitives instead.\"]" > $@
+	echo "include Ocamloptcomp.Semantics_of_primitives" >> $@
+compilerlibs/ocamloptcomp__convert_primitives.ml: asmcomp/convert_primitives.ml
+	(echo "# 1 \"asmcomp/convert_primitives.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__convert_primitives.mli: asmcomp/convert_primitives.mli
+	(echo "# 1 \"asmcomp/convert_primitives.mli\""; cat $<) > $@
+compilerlibs/unprefixed/convert_primitives.ml: asmcomp/convert_primitives.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Convert_primitives instead.\"]" > $@
+	echo "include Ocamloptcomp.Convert_primitives" >> $@
+compilerlibs/ocamloptcomp__printclambda_primitives.ml: asmcomp/printclambda_primitives.ml
+	(echo "# 1 \"asmcomp/printclambda_primitives.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__printclambda_primitives.mli: asmcomp/printclambda_primitives.mli
+	(echo "# 1 \"asmcomp/printclambda_primitives.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printclambda_primitives.ml: asmcomp/printclambda_primitives.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Printclambda_primitives instead.\"]" > $@
+	echo "include Ocamloptcomp.Printclambda_primitives" >> $@
+compilerlibs/ocamloptcomp__tag.ml: middle_end/base_types/tag.ml
+	(echo "# 1 \"middle_end/base_types/tag.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__tag.mli: middle_end/base_types/tag.mli
+	(echo "# 1 \"middle_end/base_types/tag.mli\""; cat $<) > $@
+compilerlibs/unprefixed/tag.ml: middle_end/base_types/tag.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Tag instead.\"]" > $@
+	echo "include Ocamloptcomp.Tag" >> $@
+compilerlibs/ocamloptcomp__linkage_name.ml: middle_end/base_types/linkage_name.ml
+	(echo "# 1 \"middle_end/base_types/linkage_name.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__linkage_name.mli: middle_end/base_types/linkage_name.mli
+	(echo "# 1 \"middle_end/base_types/linkage_name.mli\""; cat $<) > $@
+compilerlibs/unprefixed/linkage_name.ml: middle_end/base_types/linkage_name.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Linkage_name instead.\"]" > $@
+	echo "include Ocamloptcomp.Linkage_name" >> $@
+compilerlibs/ocamloptcomp__compilation_unit.ml: middle_end/base_types/compilation_unit.ml
+	(echo "# 1 \"middle_end/base_types/compilation_unit.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__compilation_unit.mli: middle_end/base_types/compilation_unit.mli
+	(echo "# 1 \"middle_end/base_types/compilation_unit.mli\""; cat $<) > $@
+compilerlibs/unprefixed/compilation_unit.ml: middle_end/base_types/compilation_unit.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Compilation_unit instead.\"]" > $@
+	echo "include Ocamloptcomp.Compilation_unit" >> $@
+compilerlibs/ocamloptcomp__internal_variable_names.ml: middle_end/internal_variable_names.ml
+	(echo "# 1 \"middle_end/internal_variable_names.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__internal_variable_names.mli: middle_end/internal_variable_names.mli
+	(echo "# 1 \"middle_end/internal_variable_names.mli\""; cat $<) > $@
+compilerlibs/unprefixed/internal_variable_names.ml: middle_end/internal_variable_names.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Internal_variable_names instead.\"]" > $@
+	echo "include Ocamloptcomp.Internal_variable_names" >> $@
+compilerlibs/ocamloptcomp__variable.ml: middle_end/base_types/variable.ml
+	(echo "# 1 \"middle_end/base_types/variable.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__variable.mli: middle_end/base_types/variable.mli
+	(echo "# 1 \"middle_end/base_types/variable.mli\""; cat $<) > $@
+compilerlibs/unprefixed/variable.ml: middle_end/base_types/variable.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Variable instead.\"]" > $@
+	echo "include Ocamloptcomp.Variable" >> $@
+compilerlibs/ocamloptcomp__mutable_variable.ml: middle_end/base_types/mutable_variable.ml
+	(echo "# 1 \"middle_end/base_types/mutable_variable.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__mutable_variable.mli: middle_end/base_types/mutable_variable.mli
+	(echo "# 1 \"middle_end/base_types/mutable_variable.mli\""; cat $<) > $@
+compilerlibs/unprefixed/mutable_variable.ml: middle_end/base_types/mutable_variable.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Mutable_variable instead.\"]" > $@
+	echo "include Ocamloptcomp.Mutable_variable" >> $@
+compilerlibs/ocamloptcomp__id_types.ml: middle_end/base_types/id_types.ml
+	(echo "# 1 \"middle_end/base_types/id_types.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__id_types.mli: middle_end/base_types/id_types.mli
+	(echo "# 1 \"middle_end/base_types/id_types.mli\""; cat $<) > $@
+compilerlibs/unprefixed/id_types.ml: middle_end/base_types/id_types.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Id_types instead.\"]" > $@
+	echo "include Ocamloptcomp.Id_types" >> $@
+compilerlibs/ocamloptcomp__set_of_closures_id.ml: middle_end/base_types/set_of_closures_id.ml
+	(echo "# 1 \"middle_end/base_types/set_of_closures_id.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__set_of_closures_id.mli: middle_end/base_types/set_of_closures_id.mli
+	(echo "# 1 \"middle_end/base_types/set_of_closures_id.mli\""; cat $<) > $@
+compilerlibs/unprefixed/set_of_closures_id.ml: middle_end/base_types/set_of_closures_id.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Set_of_closures_id instead.\"]" > $@
+	echo "include Ocamloptcomp.Set_of_closures_id" >> $@
+compilerlibs/ocamloptcomp__set_of_closures_origin.ml: middle_end/base_types/set_of_closures_origin.ml
+	(echo "# 1 \"middle_end/base_types/set_of_closures_origin.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__set_of_closures_origin.mli: middle_end/base_types/set_of_closures_origin.mli
+	(echo "# 1 \"middle_end/base_types/set_of_closures_origin.mli\""; cat $<) > $@
+compilerlibs/unprefixed/set_of_closures_origin.ml: middle_end/base_types/set_of_closures_origin.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Set_of_closures_origin instead.\"]" > $@
+	echo "include Ocamloptcomp.Set_of_closures_origin" >> $@
+compilerlibs/ocamloptcomp__closure_element.ml: middle_end/base_types/closure_element.ml
+	(echo "# 1 \"middle_end/base_types/closure_element.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__closure_element.mli: middle_end/base_types/closure_element.mli
+	(echo "# 1 \"middle_end/base_types/closure_element.mli\""; cat $<) > $@
+compilerlibs/unprefixed/closure_element.ml: middle_end/base_types/closure_element.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Closure_element instead.\"]" > $@
+	echo "include Ocamloptcomp.Closure_element" >> $@
+compilerlibs/ocamloptcomp__closure_id.ml: middle_end/base_types/closure_id.ml
+	(echo "# 1 \"middle_end/base_types/closure_id.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__closure_id.mli: middle_end/base_types/closure_id.mli
+	(echo "# 1 \"middle_end/base_types/closure_id.mli\""; cat $<) > $@
+compilerlibs/unprefixed/closure_id.ml: middle_end/base_types/closure_id.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Closure_id instead.\"]" > $@
+	echo "include Ocamloptcomp.Closure_id" >> $@
+compilerlibs/ocamloptcomp__closure_origin.ml: middle_end/base_types/closure_origin.ml
+	(echo "# 1 \"middle_end/base_types/closure_origin.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__closure_origin.mli: middle_end/base_types/closure_origin.mli
+	(echo "# 1 \"middle_end/base_types/closure_origin.mli\""; cat $<) > $@
+compilerlibs/unprefixed/closure_origin.ml: middle_end/base_types/closure_origin.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Closure_origin instead.\"]" > $@
+	echo "include Ocamloptcomp.Closure_origin" >> $@
+compilerlibs/ocamloptcomp__var_within_closure.ml: middle_end/base_types/var_within_closure.ml
+	(echo "# 1 \"middle_end/base_types/var_within_closure.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__var_within_closure.mli: middle_end/base_types/var_within_closure.mli
+	(echo "# 1 \"middle_end/base_types/var_within_closure.mli\""; cat $<) > $@
+compilerlibs/unprefixed/var_within_closure.ml: middle_end/base_types/var_within_closure.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Var_within_closure instead.\"]" > $@
+	echo "include Ocamloptcomp.Var_within_closure" >> $@
+compilerlibs/ocamloptcomp__static_exception.ml: middle_end/base_types/static_exception.ml
+	(echo "# 1 \"middle_end/base_types/static_exception.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__static_exception.mli: middle_end/base_types/static_exception.mli
+	(echo "# 1 \"middle_end/base_types/static_exception.mli\""; cat $<) > $@
+compilerlibs/unprefixed/static_exception.ml: middle_end/base_types/static_exception.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Static_exception instead.\"]" > $@
+	echo "include Ocamloptcomp.Static_exception" >> $@
+compilerlibs/ocamloptcomp__export_id.ml: middle_end/base_types/export_id.ml
+	(echo "# 1 \"middle_end/base_types/export_id.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__export_id.mli: middle_end/base_types/export_id.mli
+	(echo "# 1 \"middle_end/base_types/export_id.mli\""; cat $<) > $@
+compilerlibs/unprefixed/export_id.ml: middle_end/base_types/export_id.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Export_id instead.\"]" > $@
+	echo "include Ocamloptcomp.Export_id" >> $@
+compilerlibs/ocamloptcomp__symbol.ml: middle_end/base_types/symbol.ml
+	(echo "# 1 \"middle_end/base_types/symbol.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__symbol.mli: middle_end/base_types/symbol.mli
+	(echo "# 1 \"middle_end/base_types/symbol.mli\""; cat $<) > $@
+compilerlibs/unprefixed/symbol.ml: middle_end/base_types/symbol.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Symbol instead.\"]" > $@
+	echo "include Ocamloptcomp.Symbol" >> $@
+compilerlibs/ocamloptcomp__pass_wrapper.ml: middle_end/pass_wrapper.ml
+	(echo "# 1 \"middle_end/pass_wrapper.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__pass_wrapper.mli: middle_end/pass_wrapper.mli
+	(echo "# 1 \"middle_end/pass_wrapper.mli\""; cat $<) > $@
+compilerlibs/unprefixed/pass_wrapper.ml: middle_end/pass_wrapper.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Pass_wrapper instead.\"]" > $@
+	echo "include Ocamloptcomp.Pass_wrapper" >> $@
+compilerlibs/ocamloptcomp__allocated_const.ml: middle_end/allocated_const.ml
+	(echo "# 1 \"middle_end/allocated_const.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__allocated_const.mli: middle_end/allocated_const.mli
+	(echo "# 1 \"middle_end/allocated_const.mli\""; cat $<) > $@
+compilerlibs/unprefixed/allocated_const.ml: middle_end/allocated_const.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Allocated_const instead.\"]" > $@
+	echo "include Ocamloptcomp.Allocated_const" >> $@
+compilerlibs/ocamloptcomp__parameter.ml: middle_end/parameter.ml
+	(echo "# 1 \"middle_end/parameter.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__parameter.mli: middle_end/parameter.mli
+	(echo "# 1 \"middle_end/parameter.mli\""; cat $<) > $@
+compilerlibs/unprefixed/parameter.ml: middle_end/parameter.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Parameter instead.\"]" > $@
+	echo "include Ocamloptcomp.Parameter" >> $@
+compilerlibs/ocamloptcomp__projection.ml: middle_end/projection.ml
+	(echo "# 1 \"middle_end/projection.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__projection.mli: middle_end/projection.mli
+	(echo "# 1 \"middle_end/projection.mli\""; cat $<) > $@
+compilerlibs/unprefixed/projection.ml: middle_end/projection.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Projection instead.\"]" > $@
+	echo "include Ocamloptcomp.Projection" >> $@
+compilerlibs/ocamloptcomp__flambda.ml: middle_end/flambda.ml
+	(echo "# 1 \"middle_end/flambda.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__flambda.mli: middle_end/flambda.mli
+	(echo "# 1 \"middle_end/flambda.mli\""; cat $<) > $@
+compilerlibs/unprefixed/flambda.ml: middle_end/flambda.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Flambda instead.\"]" > $@
+	echo "include Ocamloptcomp.Flambda" >> $@
+compilerlibs/ocamloptcomp__flambda_iterators.ml: middle_end/flambda_iterators.ml
+	(echo "# 1 \"middle_end/flambda_iterators.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__flambda_iterators.mli: middle_end/flambda_iterators.mli
+	(echo "# 1 \"middle_end/flambda_iterators.mli\""; cat $<) > $@
+compilerlibs/unprefixed/flambda_iterators.ml: middle_end/flambda_iterators.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Flambda_iterators instead.\"]" > $@
+	echo "include Ocamloptcomp.Flambda_iterators" >> $@
+compilerlibs/ocamloptcomp__flambda_utils.ml: middle_end/flambda_utils.ml
+	(echo "# 1 \"middle_end/flambda_utils.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__flambda_utils.mli: middle_end/flambda_utils.mli
+	(echo "# 1 \"middle_end/flambda_utils.mli\""; cat $<) > $@
+compilerlibs/unprefixed/flambda_utils.ml: middle_end/flambda_utils.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Flambda_utils instead.\"]" > $@
+	echo "include Ocamloptcomp.Flambda_utils" >> $@
+compilerlibs/ocamloptcomp__inlining_cost.ml: middle_end/inlining_cost.ml
+	(echo "# 1 \"middle_end/inlining_cost.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__inlining_cost.mli: middle_end/inlining_cost.mli
+	(echo "# 1 \"middle_end/inlining_cost.mli\""; cat $<) > $@
+compilerlibs/unprefixed/inlining_cost.ml: middle_end/inlining_cost.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Inlining_cost instead.\"]" > $@
+	echo "include Ocamloptcomp.Inlining_cost" >> $@
+compilerlibs/ocamloptcomp__effect_analysis.ml: middle_end/effect_analysis.ml
+	(echo "# 1 \"middle_end/effect_analysis.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__effect_analysis.mli: middle_end/effect_analysis.mli
+	(echo "# 1 \"middle_end/effect_analysis.mli\""; cat $<) > $@
+compilerlibs/unprefixed/effect_analysis.ml: middle_end/effect_analysis.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Effect_analysis instead.\"]" > $@
+	echo "include Ocamloptcomp.Effect_analysis" >> $@
+compilerlibs/ocamloptcomp__freshening.ml: middle_end/freshening.ml
+	(echo "# 1 \"middle_end/freshening.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__freshening.mli: middle_end/freshening.mli
+	(echo "# 1 \"middle_end/freshening.mli\""; cat $<) > $@
+compilerlibs/unprefixed/freshening.ml: middle_end/freshening.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Freshening instead.\"]" > $@
+	echo "include Ocamloptcomp.Freshening" >> $@
+compilerlibs/ocamloptcomp__simple_value_approx.ml: middle_end/simple_value_approx.ml
+	(echo "# 1 \"middle_end/simple_value_approx.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__simple_value_approx.mli: middle_end/simple_value_approx.mli
+	(echo "# 1 \"middle_end/simple_value_approx.mli\""; cat $<) > $@
+compilerlibs/unprefixed/simple_value_approx.ml: middle_end/simple_value_approx.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Simple_value_approx instead.\"]" > $@
+	echo "include Ocamloptcomp.Simple_value_approx" >> $@
+compilerlibs/ocamloptcomp__lift_code.ml: middle_end/lift_code.ml
+	(echo "# 1 \"middle_end/lift_code.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__lift_code.mli: middle_end/lift_code.mli
+	(echo "# 1 \"middle_end/lift_code.mli\""; cat $<) > $@
+compilerlibs/unprefixed/lift_code.ml: middle_end/lift_code.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Lift_code instead.\"]" > $@
+	echo "include Ocamloptcomp.Lift_code" >> $@
+compilerlibs/ocamloptcomp__backend_intf.ml: middle_end/backend_intf.ml
+	(echo "# 1 \"middle_end/backend_intf.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__backend_intf.mli: middle_end/backend_intf.mli
+	(echo "# 1 \"middle_end/backend_intf.mli\""; cat $<) > $@
+compilerlibs/unprefixed/backend_intf.ml: middle_end/backend_intf.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Backend_intf instead.\"]" > $@
+	echo "include Ocamloptcomp.Backend_intf" >> $@
+compilerlibs/ocamloptcomp__closure_conversion_aux.ml: middle_end/closure_conversion_aux.ml
+	(echo "# 1 \"middle_end/closure_conversion_aux.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__closure_conversion_aux.mli: middle_end/closure_conversion_aux.mli
+	(echo "# 1 \"middle_end/closure_conversion_aux.mli\""; cat $<) > $@
+compilerlibs/unprefixed/closure_conversion_aux.ml: middle_end/closure_conversion_aux.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Closure_conversion_aux instead.\"]" > $@
+	echo "include Ocamloptcomp.Closure_conversion_aux" >> $@
+compilerlibs/ocamloptcomp__closure_conversion.ml: middle_end/closure_conversion.ml
+	(echo "# 1 \"middle_end/closure_conversion.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__closure_conversion.mli: middle_end/closure_conversion.mli
+	(echo "# 1 \"middle_end/closure_conversion.mli\""; cat $<) > $@
+compilerlibs/unprefixed/closure_conversion.ml: middle_end/closure_conversion.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Closure_conversion instead.\"]" > $@
+	echo "include Ocamloptcomp.Closure_conversion" >> $@
+compilerlibs/ocamloptcomp__initialize_symbol_to_let_symbol.ml: middle_end/initialize_symbol_to_let_symbol.ml
+	(echo "# 1 \"middle_end/initialize_symbol_to_let_symbol.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__initialize_symbol_to_let_symbol.mli: middle_end/initialize_symbol_to_let_symbol.mli
+	(echo "# 1 \"middle_end/initialize_symbol_to_let_symbol.mli\""; cat $<) > $@
+compilerlibs/unprefixed/initialize_symbol_to_let_symbol.ml: middle_end/initialize_symbol_to_let_symbol.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Initialize_symbol_to_let_symbol instead.\"]" > $@
+	echo "include Ocamloptcomp.Initialize_symbol_to_let_symbol" >> $@
+compilerlibs/ocamloptcomp__lift_let_to_initialize_symbol.ml: middle_end/lift_let_to_initialize_symbol.ml
+	(echo "# 1 \"middle_end/lift_let_to_initialize_symbol.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__lift_let_to_initialize_symbol.mli: middle_end/lift_let_to_initialize_symbol.mli
+	(echo "# 1 \"middle_end/lift_let_to_initialize_symbol.mli\""; cat $<) > $@
+compilerlibs/unprefixed/lift_let_to_initialize_symbol.ml: middle_end/lift_let_to_initialize_symbol.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Lift_let_to_initialize_symbol instead.\"]" > $@
+	echo "include Ocamloptcomp.Lift_let_to_initialize_symbol" >> $@
+compilerlibs/ocamloptcomp__find_recursive_functions.ml: middle_end/find_recursive_functions.ml
+	(echo "# 1 \"middle_end/find_recursive_functions.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__find_recursive_functions.mli: middle_end/find_recursive_functions.mli
+	(echo "# 1 \"middle_end/find_recursive_functions.mli\""; cat $<) > $@
+compilerlibs/unprefixed/find_recursive_functions.ml: middle_end/find_recursive_functions.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Find_recursive_functions instead.\"]" > $@
+	echo "include Ocamloptcomp.Find_recursive_functions" >> $@
+compilerlibs/ocamloptcomp__invariant_params.ml: middle_end/invariant_params.ml
+	(echo "# 1 \"middle_end/invariant_params.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__invariant_params.mli: middle_end/invariant_params.mli
+	(echo "# 1 \"middle_end/invariant_params.mli\""; cat $<) > $@
+compilerlibs/unprefixed/invariant_params.ml: middle_end/invariant_params.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Invariant_params instead.\"]" > $@
+	echo "include Ocamloptcomp.Invariant_params" >> $@
+compilerlibs/ocamloptcomp__inconstant_idents.ml: middle_end/inconstant_idents.ml
+	(echo "# 1 \"middle_end/inconstant_idents.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__inconstant_idents.mli: middle_end/inconstant_idents.mli
+	(echo "# 1 \"middle_end/inconstant_idents.mli\""; cat $<) > $@
+compilerlibs/unprefixed/inconstant_idents.ml: middle_end/inconstant_idents.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Inconstant_idents instead.\"]" > $@
+	echo "include Ocamloptcomp.Inconstant_idents" >> $@
+compilerlibs/ocamloptcomp__alias_analysis.ml: middle_end/alias_analysis.ml
+	(echo "# 1 \"middle_end/alias_analysis.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__alias_analysis.mli: middle_end/alias_analysis.mli
+	(echo "# 1 \"middle_end/alias_analysis.mli\""; cat $<) > $@
+compilerlibs/unprefixed/alias_analysis.ml: middle_end/alias_analysis.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Alias_analysis instead.\"]" > $@
+	echo "include Ocamloptcomp.Alias_analysis" >> $@
+compilerlibs/ocamloptcomp__lift_constants.ml: middle_end/lift_constants.ml
+	(echo "# 1 \"middle_end/lift_constants.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__lift_constants.mli: middle_end/lift_constants.mli
+	(echo "# 1 \"middle_end/lift_constants.mli\""; cat $<) > $@
+compilerlibs/unprefixed/lift_constants.ml: middle_end/lift_constants.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Lift_constants instead.\"]" > $@
+	echo "include Ocamloptcomp.Lift_constants" >> $@
+compilerlibs/ocamloptcomp__share_constants.ml: middle_end/share_constants.ml
+	(echo "# 1 \"middle_end/share_constants.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__share_constants.mli: middle_end/share_constants.mli
+	(echo "# 1 \"middle_end/share_constants.mli\""; cat $<) > $@
+compilerlibs/unprefixed/share_constants.ml: middle_end/share_constants.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Share_constants instead.\"]" > $@
+	echo "include Ocamloptcomp.Share_constants" >> $@
+compilerlibs/ocamloptcomp__simplify_common.ml: middle_end/simplify_common.ml
+	(echo "# 1 \"middle_end/simplify_common.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__simplify_common.mli: middle_end/simplify_common.mli
+	(echo "# 1 \"middle_end/simplify_common.mli\""; cat $<) > $@
+compilerlibs/unprefixed/simplify_common.ml: middle_end/simplify_common.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Simplify_common instead.\"]" > $@
+	echo "include Ocamloptcomp.Simplify_common" >> $@
+compilerlibs/ocamloptcomp__remove_unused_arguments.ml: middle_end/remove_unused_arguments.ml
+	(echo "# 1 \"middle_end/remove_unused_arguments.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__remove_unused_arguments.mli: middle_end/remove_unused_arguments.mli
+	(echo "# 1 \"middle_end/remove_unused_arguments.mli\""; cat $<) > $@
+compilerlibs/unprefixed/remove_unused_arguments.ml: middle_end/remove_unused_arguments.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Remove_unused_arguments instead.\"]" > $@
+	echo "include Ocamloptcomp.Remove_unused_arguments" >> $@
+compilerlibs/ocamloptcomp__remove_unused_closure_vars.ml: middle_end/remove_unused_closure_vars.ml
+	(echo "# 1 \"middle_end/remove_unused_closure_vars.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__remove_unused_closure_vars.mli: middle_end/remove_unused_closure_vars.mli
+	(echo "# 1 \"middle_end/remove_unused_closure_vars.mli\""; cat $<) > $@
+compilerlibs/unprefixed/remove_unused_closure_vars.ml: middle_end/remove_unused_closure_vars.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Remove_unused_closure_vars instead.\"]" > $@
+	echo "include Ocamloptcomp.Remove_unused_closure_vars" >> $@
+compilerlibs/ocamloptcomp__remove_unused_program_constructs.ml: middle_end/remove_unused_program_constructs.ml
+	(echo "# 1 \"middle_end/remove_unused_program_constructs.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__remove_unused_program_constructs.mli: middle_end/remove_unused_program_constructs.mli
+	(echo "# 1 \"middle_end/remove_unused_program_constructs.mli\""; cat $<) > $@
+compilerlibs/unprefixed/remove_unused_program_constructs.ml: middle_end/remove_unused_program_constructs.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Remove_unused_program_constructs instead.\"]" > $@
+	echo "include Ocamloptcomp.Remove_unused_program_constructs" >> $@
+compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.ml: middle_end/simplify_boxed_integer_ops_intf.ml
+	(echo "# 1 \"middle_end/simplify_boxed_integer_ops_intf.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.mli: middle_end/simplify_boxed_integer_ops_intf.mli
+	(echo "# 1 \"middle_end/simplify_boxed_integer_ops_intf.mli\""; cat $<) > $@
+compilerlibs/unprefixed/simplify_boxed_integer_ops_intf.ml: middle_end/simplify_boxed_integer_ops_intf.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Simplify_boxed_integer_ops_intf instead.\"]" > $@
+	echo "include Ocamloptcomp.Simplify_boxed_integer_ops_intf" >> $@
+compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.ml: middle_end/simplify_boxed_integer_ops.ml
+	(echo "# 1 \"middle_end/simplify_boxed_integer_ops.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.mli: middle_end/simplify_boxed_integer_ops.mli
+	(echo "# 1 \"middle_end/simplify_boxed_integer_ops.mli\""; cat $<) > $@
+compilerlibs/unprefixed/simplify_boxed_integer_ops.ml: middle_end/simplify_boxed_integer_ops.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Simplify_boxed_integer_ops instead.\"]" > $@
+	echo "include Ocamloptcomp.Simplify_boxed_integer_ops" >> $@
+compilerlibs/ocamloptcomp__simplify_primitives.ml: middle_end/simplify_primitives.ml
+	(echo "# 1 \"middle_end/simplify_primitives.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__simplify_primitives.mli: middle_end/simplify_primitives.mli
+	(echo "# 1 \"middle_end/simplify_primitives.mli\""; cat $<) > $@
+compilerlibs/unprefixed/simplify_primitives.ml: middle_end/simplify_primitives.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Simplify_primitives instead.\"]" > $@
+	echo "include Ocamloptcomp.Simplify_primitives" >> $@
+compilerlibs/ocamloptcomp__inlining_stats_types.ml: middle_end/inlining_stats_types.ml
+	(echo "# 1 \"middle_end/inlining_stats_types.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__inlining_stats_types.mli: middle_end/inlining_stats_types.mli
+	(echo "# 1 \"middle_end/inlining_stats_types.mli\""; cat $<) > $@
+compilerlibs/unprefixed/inlining_stats_types.ml: middle_end/inlining_stats_types.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Inlining_stats_types instead.\"]" > $@
+	echo "include Ocamloptcomp.Inlining_stats_types" >> $@
+compilerlibs/ocamloptcomp__inlining_stats.ml: middle_end/inlining_stats.ml
+	(echo "# 1 \"middle_end/inlining_stats.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__inlining_stats.mli: middle_end/inlining_stats.mli
+	(echo "# 1 \"middle_end/inlining_stats.mli\""; cat $<) > $@
+compilerlibs/unprefixed/inlining_stats.ml: middle_end/inlining_stats.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Inlining_stats instead.\"]" > $@
+	echo "include Ocamloptcomp.Inlining_stats" >> $@
+compilerlibs/ocamloptcomp__inline_and_simplify_aux.ml: middle_end/inline_and_simplify_aux.ml
+	(echo "# 1 \"middle_end/inline_and_simplify_aux.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__inline_and_simplify_aux.mli: middle_end/inline_and_simplify_aux.mli
+	(echo "# 1 \"middle_end/inline_and_simplify_aux.mli\""; cat $<) > $@
+compilerlibs/unprefixed/inline_and_simplify_aux.ml: middle_end/inline_and_simplify_aux.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Inline_and_simplify_aux instead.\"]" > $@
+	echo "include Ocamloptcomp.Inline_and_simplify_aux" >> $@
+compilerlibs/ocamloptcomp__remove_free_vars_equal_to_args.ml: middle_end/remove_free_vars_equal_to_args.ml
+	(echo "# 1 \"middle_end/remove_free_vars_equal_to_args.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__remove_free_vars_equal_to_args.mli: middle_end/remove_free_vars_equal_to_args.mli
+	(echo "# 1 \"middle_end/remove_free_vars_equal_to_args.mli\""; cat $<) > $@
+compilerlibs/unprefixed/remove_free_vars_equal_to_args.ml: middle_end/remove_free_vars_equal_to_args.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Remove_free_vars_equal_to_args instead.\"]" > $@
+	echo "include Ocamloptcomp.Remove_free_vars_equal_to_args" >> $@
+compilerlibs/ocamloptcomp__extract_projections.ml: middle_end/extract_projections.ml
+	(echo "# 1 \"middle_end/extract_projections.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__extract_projections.mli: middle_end/extract_projections.mli
+	(echo "# 1 \"middle_end/extract_projections.mli\""; cat $<) > $@
+compilerlibs/unprefixed/extract_projections.ml: middle_end/extract_projections.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Extract_projections instead.\"]" > $@
+	echo "include Ocamloptcomp.Extract_projections" >> $@
+compilerlibs/ocamloptcomp__augment_specialised_args.ml: middle_end/augment_specialised_args.ml
+	(echo "# 1 \"middle_end/augment_specialised_args.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__augment_specialised_args.mli: middle_end/augment_specialised_args.mli
+	(echo "# 1 \"middle_end/augment_specialised_args.mli\""; cat $<) > $@
+compilerlibs/unprefixed/augment_specialised_args.ml: middle_end/augment_specialised_args.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Augment_specialised_args instead.\"]" > $@
+	echo "include Ocamloptcomp.Augment_specialised_args" >> $@
+compilerlibs/ocamloptcomp__unbox_free_vars_of_closures.ml: middle_end/unbox_free_vars_of_closures.ml
+	(echo "# 1 \"middle_end/unbox_free_vars_of_closures.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__unbox_free_vars_of_closures.mli: middle_end/unbox_free_vars_of_closures.mli
+	(echo "# 1 \"middle_end/unbox_free_vars_of_closures.mli\""; cat $<) > $@
+compilerlibs/unprefixed/unbox_free_vars_of_closures.ml: middle_end/unbox_free_vars_of_closures.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Unbox_free_vars_of_closures instead.\"]" > $@
+	echo "include Ocamloptcomp.Unbox_free_vars_of_closures" >> $@
+compilerlibs/ocamloptcomp__unbox_specialised_args.ml: middle_end/unbox_specialised_args.ml
+	(echo "# 1 \"middle_end/unbox_specialised_args.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__unbox_specialised_args.mli: middle_end/unbox_specialised_args.mli
+	(echo "# 1 \"middle_end/unbox_specialised_args.mli\""; cat $<) > $@
+compilerlibs/unprefixed/unbox_specialised_args.ml: middle_end/unbox_specialised_args.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Unbox_specialised_args instead.\"]" > $@
+	echo "include Ocamloptcomp.Unbox_specialised_args" >> $@
+compilerlibs/ocamloptcomp__unbox_closures.ml: middle_end/unbox_closures.ml
+	(echo "# 1 \"middle_end/unbox_closures.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__unbox_closures.mli: middle_end/unbox_closures.mli
+	(echo "# 1 \"middle_end/unbox_closures.mli\""; cat $<) > $@
+compilerlibs/unprefixed/unbox_closures.ml: middle_end/unbox_closures.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Unbox_closures instead.\"]" > $@
+	echo "include Ocamloptcomp.Unbox_closures" >> $@
+compilerlibs/ocamloptcomp__inlining_transforms.ml: middle_end/inlining_transforms.ml
+	(echo "# 1 \"middle_end/inlining_transforms.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__inlining_transforms.mli: middle_end/inlining_transforms.mli
+	(echo "# 1 \"middle_end/inlining_transforms.mli\""; cat $<) > $@
+compilerlibs/unprefixed/inlining_transforms.ml: middle_end/inlining_transforms.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Inlining_transforms instead.\"]" > $@
+	echo "include Ocamloptcomp.Inlining_transforms" >> $@
+compilerlibs/ocamloptcomp__inlining_decision.ml: middle_end/inlining_decision.ml
+	(echo "# 1 \"middle_end/inlining_decision.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__inlining_decision.mli: middle_end/inlining_decision.mli
+	(echo "# 1 \"middle_end/inlining_decision.mli\""; cat $<) > $@
+compilerlibs/unprefixed/inlining_decision.ml: middle_end/inlining_decision.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Inlining_decision instead.\"]" > $@
+	echo "include Ocamloptcomp.Inlining_decision" >> $@
+compilerlibs/ocamloptcomp__inline_and_simplify.ml: middle_end/inline_and_simplify.ml
+	(echo "# 1 \"middle_end/inline_and_simplify.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__inline_and_simplify.mli: middle_end/inline_and_simplify.mli
+	(echo "# 1 \"middle_end/inline_and_simplify.mli\""; cat $<) > $@
+compilerlibs/unprefixed/inline_and_simplify.ml: middle_end/inline_and_simplify.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Inline_and_simplify instead.\"]" > $@
+	echo "include Ocamloptcomp.Inline_and_simplify" >> $@
+compilerlibs/ocamloptcomp__ref_to_variables.ml: middle_end/ref_to_variables.ml
+	(echo "# 1 \"middle_end/ref_to_variables.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__ref_to_variables.mli: middle_end/ref_to_variables.mli
+	(echo "# 1 \"middle_end/ref_to_variables.mli\""; cat $<) > $@
+compilerlibs/unprefixed/ref_to_variables.ml: middle_end/ref_to_variables.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Ref_to_variables instead.\"]" > $@
+	echo "include Ocamloptcomp.Ref_to_variables" >> $@
+compilerlibs/ocamloptcomp__flambda_invariants.ml: middle_end/flambda_invariants.ml
+	(echo "# 1 \"middle_end/flambda_invariants.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__flambda_invariants.mli: middle_end/flambda_invariants.mli
+	(echo "# 1 \"middle_end/flambda_invariants.mli\""; cat $<) > $@
+compilerlibs/unprefixed/flambda_invariants.ml: middle_end/flambda_invariants.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Flambda_invariants instead.\"]" > $@
+	echo "include Ocamloptcomp.Flambda_invariants" >> $@
+compilerlibs/ocamloptcomp__middle_end.ml: middle_end/middle_end.ml
+	(echo "# 1 \"middle_end/middle_end.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__middle_end.mli: middle_end/middle_end.mli
+	(echo "# 1 \"middle_end/middle_end.mli\""; cat $<) > $@
+compilerlibs/unprefixed/middle_end.ml: middle_end/middle_end.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Middle_end instead.\"]" > $@
+	echo "include Ocamloptcomp.Middle_end" >> $@
+compilerlibs/ocamloptcomp__x86_proc.ml: asmcomp/x86_proc.ml
+	(echo "# 1 \"asmcomp/x86_proc.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__x86_proc.mli: asmcomp/x86_proc.mli
+	(echo "# 1 \"asmcomp/x86_proc.mli\""; cat $<) > $@
+compilerlibs/unprefixed/x86_proc.ml: asmcomp/x86_proc.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.X86_proc instead.\"]" > $@
+	echo "include Ocamloptcomp.X86_proc" >> $@
+compilerlibs/ocamloptcomp__x86_dsl.ml: asmcomp/x86_dsl.ml
+	(echo "# 1 \"asmcomp/x86_dsl.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__x86_dsl.mli: asmcomp/x86_dsl.mli
+	(echo "# 1 \"asmcomp/x86_dsl.mli\""; cat $<) > $@
+compilerlibs/unprefixed/x86_dsl.ml: asmcomp/x86_dsl.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.X86_dsl instead.\"]" > $@
+	echo "include Ocamloptcomp.X86_dsl" >> $@
+compilerlibs/ocamloptcomp__x86_gas.ml: asmcomp/x86_gas.ml
+	(echo "# 1 \"asmcomp/x86_gas.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__x86_gas.mli: asmcomp/x86_gas.mli
+	(echo "# 1 \"asmcomp/x86_gas.mli\""; cat $<) > $@
+compilerlibs/unprefixed/x86_gas.ml: asmcomp/x86_gas.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.X86_gas instead.\"]" > $@
+	echo "include Ocamloptcomp.X86_gas" >> $@
+compilerlibs/ocamloptcomp__x86_masm.ml: asmcomp/x86_masm.ml
+	(echo "# 1 \"asmcomp/x86_masm.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__x86_masm.mli: asmcomp/x86_masm.mli
+	(echo "# 1 \"asmcomp/x86_masm.mli\""; cat $<) > $@
+compilerlibs/unprefixed/x86_masm.ml: asmcomp/x86_masm.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.X86_masm instead.\"]" > $@
+	echo "include Ocamloptcomp.X86_masm" >> $@
+compilerlibs/ocamloptcomp__arch.ml: asmcomp/arch.ml
+	(echo "# 1 \"asmcomp/arch.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__arch.mli: asmcomp/arch.mli
+	(echo "# 1 \"asmcomp/arch.mli\""; cat $<) > $@
+compilerlibs/unprefixed/arch.ml: asmcomp/arch.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Arch instead.\"]" > $@
+	echo "include Ocamloptcomp.Arch" >> $@
+compilerlibs/ocamloptcomp__backend_var.ml: asmcomp/backend_var.ml
+	(echo "# 1 \"asmcomp/backend_var.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__backend_var.mli: asmcomp/backend_var.mli
+	(echo "# 1 \"asmcomp/backend_var.mli\""; cat $<) > $@
+compilerlibs/unprefixed/backend_var.ml: asmcomp/backend_var.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Backend_var instead.\"]" > $@
+	echo "include Ocamloptcomp.Backend_var" >> $@
+compilerlibs/ocamloptcomp__cmm.ml: asmcomp/cmm.ml
+	(echo "# 1 \"asmcomp/cmm.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__cmm.mli: asmcomp/cmm.mli
+	(echo "# 1 \"asmcomp/cmm.mli\""; cat $<) > $@
+compilerlibs/unprefixed/cmm.ml: asmcomp/cmm.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Cmm instead.\"]" > $@
+	echo "include Ocamloptcomp.Cmm" >> $@
+compilerlibs/ocamloptcomp__printcmm.ml: asmcomp/printcmm.ml
+	(echo "# 1 \"asmcomp/printcmm.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__printcmm.mli: asmcomp/printcmm.mli
+	(echo "# 1 \"asmcomp/printcmm.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printcmm.ml: asmcomp/printcmm.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Printcmm instead.\"]" > $@
+	echo "include Ocamloptcomp.Printcmm" >> $@
+compilerlibs/ocamloptcomp__reg.ml: asmcomp/reg.ml
+	(echo "# 1 \"asmcomp/reg.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__reg.mli: asmcomp/reg.mli
+	(echo "# 1 \"asmcomp/reg.mli\""; cat $<) > $@
+compilerlibs/unprefixed/reg.ml: asmcomp/reg.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Reg instead.\"]" > $@
+	echo "include Ocamloptcomp.Reg" >> $@
+compilerlibs/ocamloptcomp__reg_with_debug_info.ml: asmcomp/debug/reg_with_debug_info.ml
+	(echo "# 1 \"asmcomp/debug/reg_with_debug_info.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__reg_with_debug_info.mli: asmcomp/debug/reg_with_debug_info.mli
+	(echo "# 1 \"asmcomp/debug/reg_with_debug_info.mli\""; cat $<) > $@
+compilerlibs/unprefixed/reg_with_debug_info.ml: asmcomp/debug/reg_with_debug_info.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Reg_with_debug_info instead.\"]" > $@
+	echo "include Ocamloptcomp.Reg_with_debug_info" >> $@
+compilerlibs/ocamloptcomp__reg_availability_set.ml: asmcomp/debug/reg_availability_set.ml
+	(echo "# 1 \"asmcomp/debug/reg_availability_set.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__reg_availability_set.mli: asmcomp/debug/reg_availability_set.mli
+	(echo "# 1 \"asmcomp/debug/reg_availability_set.mli\""; cat $<) > $@
+compilerlibs/unprefixed/reg_availability_set.ml: asmcomp/debug/reg_availability_set.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Reg_availability_set instead.\"]" > $@
+	echo "include Ocamloptcomp.Reg_availability_set" >> $@
+compilerlibs/ocamloptcomp__mach.ml: asmcomp/mach.ml
+	(echo "# 1 \"asmcomp/mach.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__mach.mli: asmcomp/mach.mli
+	(echo "# 1 \"asmcomp/mach.mli\""; cat $<) > $@
+compilerlibs/unprefixed/mach.ml: asmcomp/mach.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Mach instead.\"]" > $@
+	echo "include Ocamloptcomp.Mach" >> $@
+compilerlibs/ocamloptcomp__proc.ml: asmcomp/proc.ml
+	(echo "# 1 \"asmcomp/proc.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__proc.mli: asmcomp/proc.mli
+	(echo "# 1 \"asmcomp/proc.mli\""; cat $<) > $@
+compilerlibs/unprefixed/proc.ml: asmcomp/proc.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Proc instead.\"]" > $@
+	echo "include Ocamloptcomp.Proc" >> $@
+compilerlibs/ocamloptcomp__clambda.ml: asmcomp/clambda.ml
+	(echo "# 1 \"asmcomp/clambda.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__clambda.mli: asmcomp/clambda.mli
+	(echo "# 1 \"asmcomp/clambda.mli\""; cat $<) > $@
+compilerlibs/unprefixed/clambda.ml: asmcomp/clambda.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Clambda instead.\"]" > $@
+	echo "include Ocamloptcomp.Clambda" >> $@
+compilerlibs/ocamloptcomp__printclambda.ml: asmcomp/printclambda.ml
+	(echo "# 1 \"asmcomp/printclambda.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__printclambda.mli: asmcomp/printclambda.mli
+	(echo "# 1 \"asmcomp/printclambda.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printclambda.ml: asmcomp/printclambda.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Printclambda instead.\"]" > $@
+	echo "include Ocamloptcomp.Printclambda" >> $@
+compilerlibs/ocamloptcomp__export_info.ml: asmcomp/export_info.ml
+	(echo "# 1 \"asmcomp/export_info.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__export_info.mli: asmcomp/export_info.mli
+	(echo "# 1 \"asmcomp/export_info.mli\""; cat $<) > $@
+compilerlibs/unprefixed/export_info.ml: asmcomp/export_info.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Export_info instead.\"]" > $@
+	echo "include Ocamloptcomp.Export_info" >> $@
+compilerlibs/ocamloptcomp__export_info_for_pack.ml: asmcomp/export_info_for_pack.ml
+	(echo "# 1 \"asmcomp/export_info_for_pack.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__export_info_for_pack.mli: asmcomp/export_info_for_pack.mli
+	(echo "# 1 \"asmcomp/export_info_for_pack.mli\""; cat $<) > $@
+compilerlibs/unprefixed/export_info_for_pack.ml: asmcomp/export_info_for_pack.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Export_info_for_pack instead.\"]" > $@
+	echo "include Ocamloptcomp.Export_info_for_pack" >> $@
+compilerlibs/ocamloptcomp__compilenv.ml: asmcomp/compilenv.ml
+	(echo "# 1 \"asmcomp/compilenv.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__compilenv.mli: asmcomp/compilenv.mli
+	(echo "# 1 \"asmcomp/compilenv.mli\""; cat $<) > $@
+compilerlibs/unprefixed/compilenv.ml: asmcomp/compilenv.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Compilenv instead.\"]" > $@
+	echo "include Ocamloptcomp.Compilenv" >> $@
+compilerlibs/ocamloptcomp__closure.ml: asmcomp/closure.ml
+	(echo "# 1 \"asmcomp/closure.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__closure.mli: asmcomp/closure.mli
+	(echo "# 1 \"asmcomp/closure.mli\""; cat $<) > $@
+compilerlibs/unprefixed/closure.ml: asmcomp/closure.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Closure instead.\"]" > $@
+	echo "include Ocamloptcomp.Closure" >> $@
+compilerlibs/ocamloptcomp__traverse_for_exported_symbols.ml: asmcomp/traverse_for_exported_symbols.ml
+	(echo "# 1 \"asmcomp/traverse_for_exported_symbols.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__traverse_for_exported_symbols.mli: asmcomp/traverse_for_exported_symbols.mli
+	(echo "# 1 \"asmcomp/traverse_for_exported_symbols.mli\""; cat $<) > $@
+compilerlibs/unprefixed/traverse_for_exported_symbols.ml: asmcomp/traverse_for_exported_symbols.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Traverse_for_exported_symbols instead.\"]" > $@
+	echo "include Ocamloptcomp.Traverse_for_exported_symbols" >> $@
+compilerlibs/ocamloptcomp__build_export_info.ml: asmcomp/build_export_info.ml
+	(echo "# 1 \"asmcomp/build_export_info.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__build_export_info.mli: asmcomp/build_export_info.mli
+	(echo "# 1 \"asmcomp/build_export_info.mli\""; cat $<) > $@
+compilerlibs/unprefixed/build_export_info.ml: asmcomp/build_export_info.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Build_export_info instead.\"]" > $@
+	echo "include Ocamloptcomp.Build_export_info" >> $@
+compilerlibs/ocamloptcomp__closure_offsets.ml: asmcomp/closure_offsets.ml
+	(echo "# 1 \"asmcomp/closure_offsets.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__closure_offsets.mli: asmcomp/closure_offsets.mli
+	(echo "# 1 \"asmcomp/closure_offsets.mli\""; cat $<) > $@
+compilerlibs/unprefixed/closure_offsets.ml: asmcomp/closure_offsets.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Closure_offsets instead.\"]" > $@
+	echo "include Ocamloptcomp.Closure_offsets" >> $@
+compilerlibs/ocamloptcomp__flambda_to_clambda.ml: asmcomp/flambda_to_clambda.ml
+	(echo "# 1 \"asmcomp/flambda_to_clambda.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__flambda_to_clambda.mli: asmcomp/flambda_to_clambda.mli
+	(echo "# 1 \"asmcomp/flambda_to_clambda.mli\""; cat $<) > $@
+compilerlibs/unprefixed/flambda_to_clambda.ml: asmcomp/flambda_to_clambda.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Flambda_to_clambda instead.\"]" > $@
+	echo "include Ocamloptcomp.Flambda_to_clambda" >> $@
+compilerlibs/ocamloptcomp__import_approx.ml: asmcomp/import_approx.ml
+	(echo "# 1 \"asmcomp/import_approx.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__import_approx.mli: asmcomp/import_approx.mli
+	(echo "# 1 \"asmcomp/import_approx.mli\""; cat $<) > $@
+compilerlibs/unprefixed/import_approx.ml: asmcomp/import_approx.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Import_approx instead.\"]" > $@
+	echo "include Ocamloptcomp.Import_approx" >> $@
+compilerlibs/ocamloptcomp__un_anf.ml: asmcomp/un_anf.ml
+	(echo "# 1 \"asmcomp/un_anf.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__un_anf.mli: asmcomp/un_anf.mli
+	(echo "# 1 \"asmcomp/un_anf.mli\""; cat $<) > $@
+compilerlibs/unprefixed/un_anf.ml: asmcomp/un_anf.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Un_anf instead.\"]" > $@
+	echo "include Ocamloptcomp.Un_anf" >> $@
+compilerlibs/ocamloptcomp__afl_instrument.ml: asmcomp/afl_instrument.ml
+	(echo "# 1 \"asmcomp/afl_instrument.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__afl_instrument.mli: asmcomp/afl_instrument.mli
+	(echo "# 1 \"asmcomp/afl_instrument.mli\""; cat $<) > $@
+compilerlibs/unprefixed/afl_instrument.ml: asmcomp/afl_instrument.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Afl_instrument instead.\"]" > $@
+	echo "include Ocamloptcomp.Afl_instrument" >> $@
+compilerlibs/ocamloptcomp__strmatch.ml: asmcomp/strmatch.ml
+	(echo "# 1 \"asmcomp/strmatch.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__strmatch.mli: asmcomp/strmatch.mli
+	(echo "# 1 \"asmcomp/strmatch.mli\""; cat $<) > $@
+compilerlibs/unprefixed/strmatch.ml: asmcomp/strmatch.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Strmatch instead.\"]" > $@
+	echo "include Ocamloptcomp.Strmatch" >> $@
+compilerlibs/ocamloptcomp__cmmgen_state.ml: asmcomp/cmmgen_state.ml
+	(echo "# 1 \"asmcomp/cmmgen_state.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__cmmgen_state.mli: asmcomp/cmmgen_state.mli
+	(echo "# 1 \"asmcomp/cmmgen_state.mli\""; cat $<) > $@
+compilerlibs/unprefixed/cmmgen_state.ml: asmcomp/cmmgen_state.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Cmmgen_state instead.\"]" > $@
+	echo "include Ocamloptcomp.Cmmgen_state" >> $@
+compilerlibs/ocamloptcomp__cmmgen.ml: asmcomp/cmmgen.ml
+	(echo "# 1 \"asmcomp/cmmgen.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__cmmgen.mli: asmcomp/cmmgen.mli
+	(echo "# 1 \"asmcomp/cmmgen.mli\""; cat $<) > $@
+compilerlibs/unprefixed/cmmgen.ml: asmcomp/cmmgen.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Cmmgen instead.\"]" > $@
+	echo "include Ocamloptcomp.Cmmgen" >> $@
+compilerlibs/ocamloptcomp__interval.ml: asmcomp/interval.ml
+	(echo "# 1 \"asmcomp/interval.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__interval.mli: asmcomp/interval.mli
+	(echo "# 1 \"asmcomp/interval.mli\""; cat $<) > $@
+compilerlibs/unprefixed/interval.ml: asmcomp/interval.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Interval instead.\"]" > $@
+	echo "include Ocamloptcomp.Interval" >> $@
+compilerlibs/ocamloptcomp__printmach.ml: asmcomp/printmach.ml
+	(echo "# 1 \"asmcomp/printmach.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__printmach.mli: asmcomp/printmach.mli
+	(echo "# 1 \"asmcomp/printmach.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printmach.ml: asmcomp/printmach.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Printmach instead.\"]" > $@
+	echo "include Ocamloptcomp.Printmach" >> $@
+compilerlibs/ocamloptcomp__selectgen.ml: asmcomp/selectgen.ml
+	(echo "# 1 \"asmcomp/selectgen.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__selectgen.mli: asmcomp/selectgen.mli
+	(echo "# 1 \"asmcomp/selectgen.mli\""; cat $<) > $@
+compilerlibs/unprefixed/selectgen.ml: asmcomp/selectgen.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Selectgen instead.\"]" > $@
+	echo "include Ocamloptcomp.Selectgen" >> $@
+compilerlibs/ocamloptcomp__spacetime_profiling.ml: asmcomp/spacetime_profiling.ml
+	(echo "# 1 \"asmcomp/spacetime_profiling.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__spacetime_profiling.mli: asmcomp/spacetime_profiling.mli
+	(echo "# 1 \"asmcomp/spacetime_profiling.mli\""; cat $<) > $@
+compilerlibs/unprefixed/spacetime_profiling.ml: asmcomp/spacetime_profiling.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Spacetime_profiling instead.\"]" > $@
+	echo "include Ocamloptcomp.Spacetime_profiling" >> $@
+compilerlibs/ocamloptcomp__selection.ml: asmcomp/selection.ml
+	(echo "# 1 \"asmcomp/selection.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__selection.mli: asmcomp/selection.mli
+	(echo "# 1 \"asmcomp/selection.mli\""; cat $<) > $@
+compilerlibs/unprefixed/selection.ml: asmcomp/selection.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Selection instead.\"]" > $@
+	echo "include Ocamloptcomp.Selection" >> $@
+compilerlibs/ocamloptcomp__comballoc.ml: asmcomp/comballoc.ml
+	(echo "# 1 \"asmcomp/comballoc.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__comballoc.mli: asmcomp/comballoc.mli
+	(echo "# 1 \"asmcomp/comballoc.mli\""; cat $<) > $@
+compilerlibs/unprefixed/comballoc.ml: asmcomp/comballoc.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Comballoc instead.\"]" > $@
+	echo "include Ocamloptcomp.Comballoc" >> $@
+compilerlibs/ocamloptcomp__CSEgen.ml: asmcomp/CSEgen.ml
+	(echo "# 1 \"asmcomp/CSEgen.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__CSEgen.mli: asmcomp/CSEgen.mli
+	(echo "# 1 \"asmcomp/CSEgen.mli\""; cat $<) > $@
+compilerlibs/unprefixed/CSEgen.ml: asmcomp/CSEgen.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.CSEgen instead.\"]" > $@
+	echo "include Ocamloptcomp.CSEgen" >> $@
+compilerlibs/ocamloptcomp__CSE.ml: asmcomp/CSE.ml
+	(echo "# 1 \"asmcomp/CSE.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__CSE.mli: asmcomp/CSE.mli
+	(echo "# 1 \"asmcomp/CSE.mli\""; cat $<) > $@
+compilerlibs/unprefixed/CSE.ml: asmcomp/CSE.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.CSE instead.\"]" > $@
+	echo "include Ocamloptcomp.CSE" >> $@
+compilerlibs/ocamloptcomp__liveness.ml: asmcomp/liveness.ml
+	(echo "# 1 \"asmcomp/liveness.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__liveness.mli: asmcomp/liveness.mli
+	(echo "# 1 \"asmcomp/liveness.mli\""; cat $<) > $@
+compilerlibs/unprefixed/liveness.ml: asmcomp/liveness.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Liveness instead.\"]" > $@
+	echo "include Ocamloptcomp.Liveness" >> $@
+compilerlibs/ocamloptcomp__spill.ml: asmcomp/spill.ml
+	(echo "# 1 \"asmcomp/spill.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__spill.mli: asmcomp/spill.mli
+	(echo "# 1 \"asmcomp/spill.mli\""; cat $<) > $@
+compilerlibs/unprefixed/spill.ml: asmcomp/spill.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Spill instead.\"]" > $@
+	echo "include Ocamloptcomp.Spill" >> $@
+compilerlibs/ocamloptcomp__split.ml: asmcomp/split.ml
+	(echo "# 1 \"asmcomp/split.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__split.mli: asmcomp/split.mli
+	(echo "# 1 \"asmcomp/split.mli\""; cat $<) > $@
+compilerlibs/unprefixed/split.ml: asmcomp/split.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Split instead.\"]" > $@
+	echo "include Ocamloptcomp.Split" >> $@
+compilerlibs/ocamloptcomp__interf.ml: asmcomp/interf.ml
+	(echo "# 1 \"asmcomp/interf.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__interf.mli: asmcomp/interf.mli
+	(echo "# 1 \"asmcomp/interf.mli\""; cat $<) > $@
+compilerlibs/unprefixed/interf.ml: asmcomp/interf.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Interf instead.\"]" > $@
+	echo "include Ocamloptcomp.Interf" >> $@
+compilerlibs/ocamloptcomp__coloring.ml: asmcomp/coloring.ml
+	(echo "# 1 \"asmcomp/coloring.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__coloring.mli: asmcomp/coloring.mli
+	(echo "# 1 \"asmcomp/coloring.mli\""; cat $<) > $@
+compilerlibs/unprefixed/coloring.ml: asmcomp/coloring.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Coloring instead.\"]" > $@
+	echo "include Ocamloptcomp.Coloring" >> $@
+compilerlibs/ocamloptcomp__linscan.ml: asmcomp/linscan.ml
+	(echo "# 1 \"asmcomp/linscan.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__linscan.mli: asmcomp/linscan.mli
+	(echo "# 1 \"asmcomp/linscan.mli\""; cat $<) > $@
+compilerlibs/unprefixed/linscan.ml: asmcomp/linscan.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Linscan instead.\"]" > $@
+	echo "include Ocamloptcomp.Linscan" >> $@
+compilerlibs/ocamloptcomp__reloadgen.ml: asmcomp/reloadgen.ml
+	(echo "# 1 \"asmcomp/reloadgen.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__reloadgen.mli: asmcomp/reloadgen.mli
+	(echo "# 1 \"asmcomp/reloadgen.mli\""; cat $<) > $@
+compilerlibs/unprefixed/reloadgen.ml: asmcomp/reloadgen.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Reloadgen instead.\"]" > $@
+	echo "include Ocamloptcomp.Reloadgen" >> $@
+compilerlibs/ocamloptcomp__reload.ml: asmcomp/reload.ml
+	(echo "# 1 \"asmcomp/reload.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__reload.mli: asmcomp/reload.mli
+	(echo "# 1 \"asmcomp/reload.mli\""; cat $<) > $@
+compilerlibs/unprefixed/reload.ml: asmcomp/reload.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Reload instead.\"]" > $@
+	echo "include Ocamloptcomp.Reload" >> $@
+compilerlibs/ocamloptcomp__deadcode.ml: asmcomp/deadcode.ml
+	(echo "# 1 \"asmcomp/deadcode.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__deadcode.mli: asmcomp/deadcode.mli
+	(echo "# 1 \"asmcomp/deadcode.mli\""; cat $<) > $@
+compilerlibs/unprefixed/deadcode.ml: asmcomp/deadcode.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Deadcode instead.\"]" > $@
+	echo "include Ocamloptcomp.Deadcode" >> $@
+compilerlibs/ocamloptcomp__printlinear.ml: asmcomp/printlinear.ml
+	(echo "# 1 \"asmcomp/printlinear.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__printlinear.mli: asmcomp/printlinear.mli
+	(echo "# 1 \"asmcomp/printlinear.mli\""; cat $<) > $@
+compilerlibs/unprefixed/printlinear.ml: asmcomp/printlinear.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Printlinear instead.\"]" > $@
+	echo "include Ocamloptcomp.Printlinear" >> $@
+compilerlibs/ocamloptcomp__linearize.ml: asmcomp/linearize.ml
+	(echo "# 1 \"asmcomp/linearize.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__linearize.mli: asmcomp/linearize.mli
+	(echo "# 1 \"asmcomp/linearize.mli\""; cat $<) > $@
+compilerlibs/unprefixed/linearize.ml: asmcomp/linearize.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Linearize instead.\"]" > $@
+	echo "include Ocamloptcomp.Linearize" >> $@
+compilerlibs/ocamloptcomp__available_regs.ml: asmcomp/debug/available_regs.ml
+	(echo "# 1 \"asmcomp/debug/available_regs.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__available_regs.mli: asmcomp/debug/available_regs.mli
+	(echo "# 1 \"asmcomp/debug/available_regs.mli\""; cat $<) > $@
+compilerlibs/unprefixed/available_regs.ml: asmcomp/debug/available_regs.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Available_regs instead.\"]" > $@
+	echo "include Ocamloptcomp.Available_regs" >> $@
+compilerlibs/ocamloptcomp__compute_ranges_intf.ml: asmcomp/debug/compute_ranges_intf.ml
+	(echo "# 1 \"asmcomp/debug/compute_ranges_intf.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__compute_ranges_intf.mli: asmcomp/debug/compute_ranges_intf.mli
+	(echo "# 1 \"asmcomp/debug/compute_ranges_intf.mli\""; cat $<) > $@
+compilerlibs/unprefixed/compute_ranges_intf.ml: asmcomp/debug/compute_ranges_intf.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Compute_ranges_intf instead.\"]" > $@
+	echo "include Ocamloptcomp.Compute_ranges_intf" >> $@
+compilerlibs/ocamloptcomp__compute_ranges.ml: asmcomp/debug/compute_ranges.ml
+	(echo "# 1 \"asmcomp/debug/compute_ranges.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__compute_ranges.mli: asmcomp/debug/compute_ranges.mli
+	(echo "# 1 \"asmcomp/debug/compute_ranges.mli\""; cat $<) > $@
+compilerlibs/unprefixed/compute_ranges.ml: asmcomp/debug/compute_ranges.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Compute_ranges instead.\"]" > $@
+	echo "include Ocamloptcomp.Compute_ranges" >> $@
+compilerlibs/ocamloptcomp__schedgen.ml: asmcomp/schedgen.ml
+	(echo "# 1 \"asmcomp/schedgen.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__schedgen.mli: asmcomp/schedgen.mli
+	(echo "# 1 \"asmcomp/schedgen.mli\""; cat $<) > $@
+compilerlibs/unprefixed/schedgen.ml: asmcomp/schedgen.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Schedgen instead.\"]" > $@
+	echo "include Ocamloptcomp.Schedgen" >> $@
+compilerlibs/ocamloptcomp__scheduling.ml: asmcomp/scheduling.ml
+	(echo "# 1 \"asmcomp/scheduling.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__scheduling.mli: asmcomp/scheduling.mli
+	(echo "# 1 \"asmcomp/scheduling.mli\""; cat $<) > $@
+compilerlibs/unprefixed/scheduling.ml: asmcomp/scheduling.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Scheduling instead.\"]" > $@
+	echo "include Ocamloptcomp.Scheduling" >> $@
+compilerlibs/ocamloptcomp__branch_relaxation_intf.ml: asmcomp/branch_relaxation_intf.ml
+	(echo "# 1 \"asmcomp/branch_relaxation_intf.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__branch_relaxation_intf.mli: asmcomp/branch_relaxation_intf.mli
+	(echo "# 1 \"asmcomp/branch_relaxation_intf.mli\""; cat $<) > $@
+compilerlibs/unprefixed/branch_relaxation_intf.ml: asmcomp/branch_relaxation_intf.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Branch_relaxation_intf instead.\"]" > $@
+	echo "include Ocamloptcomp.Branch_relaxation_intf" >> $@
+compilerlibs/ocamloptcomp__branch_relaxation.ml: asmcomp/branch_relaxation.ml
+	(echo "# 1 \"asmcomp/branch_relaxation.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__branch_relaxation.mli: asmcomp/branch_relaxation.mli
+	(echo "# 1 \"asmcomp/branch_relaxation.mli\""; cat $<) > $@
+compilerlibs/unprefixed/branch_relaxation.ml: asmcomp/branch_relaxation.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Branch_relaxation instead.\"]" > $@
+	echo "include Ocamloptcomp.Branch_relaxation" >> $@
+compilerlibs/ocamloptcomp__emitaux.ml: asmcomp/emitaux.ml
+	(echo "# 1 \"asmcomp/emitaux.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__emitaux.mli: asmcomp/emitaux.mli
+	(echo "# 1 \"asmcomp/emitaux.mli\""; cat $<) > $@
+compilerlibs/unprefixed/emitaux.ml: asmcomp/emitaux.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Emitaux instead.\"]" > $@
+	echo "include Ocamloptcomp.Emitaux" >> $@
+compilerlibs/ocamloptcomp__emit.ml: asmcomp/emit.ml
+	(echo "# 1 \"asmcomp/emit.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__emit.mli: asmcomp/emit.mli
+	(echo "# 1 \"asmcomp/emit.mli\""; cat $<) > $@
+compilerlibs/unprefixed/emit.ml: asmcomp/emit.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Emit instead.\"]" > $@
+	echo "include Ocamloptcomp.Emit" >> $@
+compilerlibs/ocamloptcomp__asmgen.ml: asmcomp/asmgen.ml
+	(echo "# 1 \"asmcomp/asmgen.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__asmgen.mli: asmcomp/asmgen.mli
+	(echo "# 1 \"asmcomp/asmgen.mli\""; cat $<) > $@
+compilerlibs/unprefixed/asmgen.ml: asmcomp/asmgen.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Asmgen instead.\"]" > $@
+	echo "include Ocamloptcomp.Asmgen" >> $@
+compilerlibs/ocamloptcomp__asmlink.ml: asmcomp/asmlink.ml
+	(echo "# 1 \"asmcomp/asmlink.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__asmlink.mli: asmcomp/asmlink.mli
+	(echo "# 1 \"asmcomp/asmlink.mli\""; cat $<) > $@
+compilerlibs/unprefixed/asmlink.ml: asmcomp/asmlink.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Asmlink instead.\"]" > $@
+	echo "include Ocamloptcomp.Asmlink" >> $@
+compilerlibs/ocamloptcomp__asmlibrarian.ml: asmcomp/asmlibrarian.ml
+	(echo "# 1 \"asmcomp/asmlibrarian.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__asmlibrarian.mli: asmcomp/asmlibrarian.mli
+	(echo "# 1 \"asmcomp/asmlibrarian.mli\""; cat $<) > $@
+compilerlibs/unprefixed/asmlibrarian.ml: asmcomp/asmlibrarian.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Asmlibrarian instead.\"]" > $@
+	echo "include Ocamloptcomp.Asmlibrarian" >> $@
+compilerlibs/ocamloptcomp__asmpackager.ml: asmcomp/asmpackager.ml
+	(echo "# 1 \"asmcomp/asmpackager.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__asmpackager.mli: asmcomp/asmpackager.mli
+	(echo "# 1 \"asmcomp/asmpackager.mli\""; cat $<) > $@
+compilerlibs/unprefixed/asmpackager.ml: asmcomp/asmpackager.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Asmpackager instead.\"]" > $@
+	echo "include Ocamloptcomp.Asmpackager" >> $@
+compilerlibs/ocamloptcomp__opterrors.ml: driver/opterrors.ml
+	(echo "# 1 \"driver/opterrors.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__opterrors.mli: driver/opterrors.mli
+	(echo "# 1 \"driver/opterrors.mli\""; cat $<) > $@
+compilerlibs/unprefixed/opterrors.ml: driver/opterrors.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Opterrors instead.\"]" > $@
+	echo "include Ocamloptcomp.Opterrors" >> $@
+compilerlibs/ocamloptcomp__optcompile.ml: driver/optcompile.ml
+	(echo "# 1 \"driver/optcompile.ml\""; cat $<) > $@
+compilerlibs/ocamloptcomp__optcompile.mli: driver/optcompile.mli
+	(echo "# 1 \"driver/optcompile.mli\""; cat $<) > $@
+compilerlibs/unprefixed/optcompile.ml: driver/optcompile.ml
+	echo "[@@@ocaml.deprecated \"Use Ocamloptcomp.Optcompile instead.\"]" > $@
+	echo "include Ocamloptcomp.Optcompile" >> $@
+compilerlibs/ocamloptcomp.ml: Makefile
+	echo "module CSE                              = Ocamloptcomp__CSE" > $@
+	echo "module CSEgen                           = Ocamloptcomp__CSEgen" >> $@
+	echo "module Afl_instrument                   = Ocamloptcomp__afl_instrument" >> $@
+	echo "module Alias_analysis                   = Ocamloptcomp__alias_analysis" >> $@
+	echo "module Allocated_const                  = Ocamloptcomp__allocated_const" >> $@
+	echo "module Arch                             = Ocamloptcomp__arch" >> $@
+	echo "module Asmgen                           = Ocamloptcomp__asmgen" >> $@
+	echo "module Asmlibrarian                     = Ocamloptcomp__asmlibrarian" >> $@
+	echo "module Asmlink                          = Ocamloptcomp__asmlink" >> $@
+	echo "module Asmpackager                      = Ocamloptcomp__asmpackager" >> $@
+	echo "module Augment_specialised_args         = Ocamloptcomp__augment_specialised_args" >> $@
+	echo "module Available_regs                   = Ocamloptcomp__available_regs" >> $@
+	echo "module Backend_intf                     = Ocamloptcomp__backend_intf" >> $@
+	echo "module Backend_var                      = Ocamloptcomp__backend_var" >> $@
+	echo "module Branch_relaxation                = Ocamloptcomp__branch_relaxation" >> $@
+	echo "module Branch_relaxation_intf           = Ocamloptcomp__branch_relaxation_intf" >> $@
+	echo "module Build_export_info                = Ocamloptcomp__build_export_info" >> $@
+	echo "module Clambda                          = Ocamloptcomp__clambda" >> $@
+	echo "module Clambda_primitives               = Ocamloptcomp__clambda_primitives" >> $@
+	echo "module Closure                          = Ocamloptcomp__closure" >> $@
+	echo "module Closure_conversion               = Ocamloptcomp__closure_conversion" >> $@
+	echo "module Closure_conversion_aux           = Ocamloptcomp__closure_conversion_aux" >> $@
+	echo "module Closure_element                  = Ocamloptcomp__closure_element" >> $@
+	echo "module Closure_id                       = Ocamloptcomp__closure_id" >> $@
+	echo "module Closure_offsets                  = Ocamloptcomp__closure_offsets" >> $@
+	echo "module Closure_origin                   = Ocamloptcomp__closure_origin" >> $@
+	echo "module Cmm                              = Ocamloptcomp__cmm" >> $@
+	echo "module Cmmgen                           = Ocamloptcomp__cmmgen" >> $@
+	echo "module Cmmgen_state                     = Ocamloptcomp__cmmgen_state" >> $@
+	echo "module Coloring                         = Ocamloptcomp__coloring" >> $@
+	echo "module Comballoc                        = Ocamloptcomp__comballoc" >> $@
+	echo "module Compilation_unit                 = Ocamloptcomp__compilation_unit" >> $@
+	echo "module Compilenv                        = Ocamloptcomp__compilenv" >> $@
+	echo "module Compute_ranges                   = Ocamloptcomp__compute_ranges" >> $@
+	echo "module Compute_ranges_intf              = Ocamloptcomp__compute_ranges_intf" >> $@
+	echo "module Convert_primitives               = Ocamloptcomp__convert_primitives" >> $@
+	echo "module Deadcode                         = Ocamloptcomp__deadcode" >> $@
+	echo "module Debuginfo                        = Ocamloptcomp__debuginfo" >> $@
+	echo "module Effect_analysis                  = Ocamloptcomp__effect_analysis" >> $@
+	echo "module Emit                             = Ocamloptcomp__emit" >> $@
+	echo "module Emitaux                          = Ocamloptcomp__emitaux" >> $@
+	echo "module Export_id                        = Ocamloptcomp__export_id" >> $@
+	echo "module Export_info                      = Ocamloptcomp__export_info" >> $@
+	echo "module Export_info_for_pack             = Ocamloptcomp__export_info_for_pack" >> $@
+	echo "module Extract_projections              = Ocamloptcomp__extract_projections" >> $@
+	echo "module Find_recursive_functions         = Ocamloptcomp__find_recursive_functions" >> $@
+	echo "module Flambda                          = Ocamloptcomp__flambda" >> $@
+	echo "module Flambda_invariants               = Ocamloptcomp__flambda_invariants" >> $@
+	echo "module Flambda_iterators                = Ocamloptcomp__flambda_iterators" >> $@
+	echo "module Flambda_to_clambda               = Ocamloptcomp__flambda_to_clambda" >> $@
+	echo "module Flambda_utils                    = Ocamloptcomp__flambda_utils" >> $@
+	echo "module Freshening                       = Ocamloptcomp__freshening" >> $@
+	echo "module Id_types                         = Ocamloptcomp__id_types" >> $@
+	echo "module Import_approx                    = Ocamloptcomp__import_approx" >> $@
+	echo "module Inconstant_idents                = Ocamloptcomp__inconstant_idents" >> $@
+	echo "module Initialize_symbol_to_let_symbol  = Ocamloptcomp__initialize_symbol_to_let_symbol" >> $@
+	echo "module Inline_and_simplify              = Ocamloptcomp__inline_and_simplify" >> $@
+	echo "module Inline_and_simplify_aux          = Ocamloptcomp__inline_and_simplify_aux" >> $@
+	echo "module Inlining_cost                    = Ocamloptcomp__inlining_cost" >> $@
+	echo "module Inlining_decision                = Ocamloptcomp__inlining_decision" >> $@
+	echo "module Inlining_stats                   = Ocamloptcomp__inlining_stats" >> $@
+	echo "module Inlining_stats_types             = Ocamloptcomp__inlining_stats_types" >> $@
+	echo "module Inlining_transforms              = Ocamloptcomp__inlining_transforms" >> $@
+	echo "module Int_replace_polymorphic_compare  = Ocamloptcomp__int_replace_polymorphic_compare" >> $@
+	echo "module Interf                           = Ocamloptcomp__interf" >> $@
+	echo "module Internal_variable_names          = Ocamloptcomp__internal_variable_names" >> $@
+	echo "module Interval                         = Ocamloptcomp__interval" >> $@
+	echo "module Invariant_params                 = Ocamloptcomp__invariant_params" >> $@
+	echo "module Lift_code                        = Ocamloptcomp__lift_code" >> $@
+	echo "module Lift_constants                   = Ocamloptcomp__lift_constants" >> $@
+	echo "module Lift_let_to_initialize_symbol    = Ocamloptcomp__lift_let_to_initialize_symbol" >> $@
+	echo "module Linearize                        = Ocamloptcomp__linearize" >> $@
+	echo "module Linkage_name                     = Ocamloptcomp__linkage_name" >> $@
+	echo "module Linscan                          = Ocamloptcomp__linscan" >> $@
+	echo "module Liveness                         = Ocamloptcomp__liveness" >> $@
+	echo "module Mach                             = Ocamloptcomp__mach" >> $@
+	echo "module Middle_end                       = Ocamloptcomp__middle_end" >> $@
+	echo "module Mutable_variable                 = Ocamloptcomp__mutable_variable" >> $@
+	echo "module Optcompile                       = Ocamloptcomp__optcompile" >> $@
+	echo "module Opterrors                        = Ocamloptcomp__opterrors" >> $@
+	echo "module Parameter                        = Ocamloptcomp__parameter" >> $@
+	echo "module Pass_wrapper                     = Ocamloptcomp__pass_wrapper" >> $@
+	echo "module Printclambda                     = Ocamloptcomp__printclambda" >> $@
+	echo "module Printclambda_primitives          = Ocamloptcomp__printclambda_primitives" >> $@
+	echo "module Printcmm                         = Ocamloptcomp__printcmm" >> $@
+	echo "module Printlinear                      = Ocamloptcomp__printlinear" >> $@
+	echo "module Printmach                        = Ocamloptcomp__printmach" >> $@
+	echo "module Proc                             = Ocamloptcomp__proc" >> $@
+	echo "module Projection                       = Ocamloptcomp__projection" >> $@
+	echo "module Ref_to_variables                 = Ocamloptcomp__ref_to_variables" >> $@
+	echo "module Reg                              = Ocamloptcomp__reg" >> $@
+	echo "module Reg_availability_set             = Ocamloptcomp__reg_availability_set" >> $@
+	echo "module Reg_with_debug_info              = Ocamloptcomp__reg_with_debug_info" >> $@
+	echo "module Reload                           = Ocamloptcomp__reload" >> $@
+	echo "module Reloadgen                        = Ocamloptcomp__reloadgen" >> $@
+	echo "module Remove_free_vars_equal_to_args   = Ocamloptcomp__remove_free_vars_equal_to_args" >> $@
+	echo "module Remove_unused_arguments          = Ocamloptcomp__remove_unused_arguments" >> $@
+	echo "module Remove_unused_closure_vars       = Ocamloptcomp__remove_unused_closure_vars" >> $@
+	echo "module Remove_unused_program_constructs = Ocamloptcomp__remove_unused_program_constructs" >> $@
+	echo "module Schedgen                         = Ocamloptcomp__schedgen" >> $@
+	echo "module Scheduling                       = Ocamloptcomp__scheduling" >> $@
+	echo "module Selectgen                        = Ocamloptcomp__selectgen" >> $@
+	echo "module Selection                        = Ocamloptcomp__selection" >> $@
+	echo "module Semantics_of_primitives          = Ocamloptcomp__semantics_of_primitives" >> $@
+	echo "module Set_of_closures_id               = Ocamloptcomp__set_of_closures_id" >> $@
+	echo "module Set_of_closures_origin           = Ocamloptcomp__set_of_closures_origin" >> $@
+	echo "module Share_constants                  = Ocamloptcomp__share_constants" >> $@
+	echo "module Simple_value_approx              = Ocamloptcomp__simple_value_approx" >> $@
+	echo "module Simplify_boxed_integer_ops       = Ocamloptcomp__simplify_boxed_integer_ops" >> $@
+	echo "module Simplify_boxed_integer_ops_intf  = Ocamloptcomp__simplify_boxed_integer_ops_intf" >> $@
+	echo "module Simplify_common                  = Ocamloptcomp__simplify_common" >> $@
+	echo "module Simplify_primitives              = Ocamloptcomp__simplify_primitives" >> $@
+	echo "module Spacetime_profiling              = Ocamloptcomp__spacetime_profiling" >> $@
+	echo "module Spill                            = Ocamloptcomp__spill" >> $@
+	echo "module Split                            = Ocamloptcomp__split" >> $@
+	echo "module Static_exception                 = Ocamloptcomp__static_exception" >> $@
+	echo "module Strmatch                         = Ocamloptcomp__strmatch" >> $@
+	echo "module Symbol                           = Ocamloptcomp__symbol" >> $@
+	echo "module Tag                              = Ocamloptcomp__tag" >> $@
+	echo "module Traverse_for_exported_symbols    = Ocamloptcomp__traverse_for_exported_symbols" >> $@
+	echo "module Un_anf                           = Ocamloptcomp__un_anf" >> $@
+	echo "module Unbox_closures                   = Ocamloptcomp__unbox_closures" >> $@
+	echo "module Unbox_free_vars_of_closures      = Ocamloptcomp__unbox_free_vars_of_closures" >> $@
+	echo "module Unbox_specialised_args           = Ocamloptcomp__unbox_specialised_args" >> $@
+	echo "module Var_within_closure               = Ocamloptcomp__var_within_closure" >> $@
+	echo "module Variable                         = Ocamloptcomp__variable" >> $@
+	echo "module X86_dsl                          = Ocamloptcomp__x86_dsl" >> $@
+	echo "module X86_gas                          = Ocamloptcomp__x86_gas" >> $@
+	echo "module X86_masm                         = Ocamloptcomp__x86_masm" >> $@
+	echo "module X86_proc                         = Ocamloptcomp__x86_proc" >> $@
+beforedepend:: compilerlibs/ocamloptcomp.ml \
+	compilerlibs/ocamloptcomp__CSE.ml \
+	compilerlibs/ocamloptcomp__CSE.mli \
+	compilerlibs/unprefixed/CSE.ml \
+	compilerlibs/ocamloptcomp__CSEgen.ml \
+	compilerlibs/ocamloptcomp__CSEgen.mli \
+	compilerlibs/unprefixed/CSEgen.ml \
+	compilerlibs/ocamloptcomp__afl_instrument.ml \
+	compilerlibs/ocamloptcomp__afl_instrument.mli \
+	compilerlibs/unprefixed/afl_instrument.ml \
+	compilerlibs/ocamloptcomp__alias_analysis.ml \
+	compilerlibs/ocamloptcomp__alias_analysis.mli \
+	compilerlibs/unprefixed/alias_analysis.ml \
+	compilerlibs/ocamloptcomp__allocated_const.ml \
+	compilerlibs/ocamloptcomp__allocated_const.mli \
+	compilerlibs/unprefixed/allocated_const.ml \
+	compilerlibs/ocamloptcomp__arch.ml \
+	compilerlibs/ocamloptcomp__arch.mli \
+	compilerlibs/unprefixed/arch.ml \
+	compilerlibs/ocamloptcomp__asmgen.ml \
+	compilerlibs/ocamloptcomp__asmgen.mli \
+	compilerlibs/unprefixed/asmgen.ml \
+	compilerlibs/ocamloptcomp__asmlibrarian.ml \
+	compilerlibs/ocamloptcomp__asmlibrarian.mli \
+	compilerlibs/unprefixed/asmlibrarian.ml \
+	compilerlibs/ocamloptcomp__asmlink.ml \
+	compilerlibs/ocamloptcomp__asmlink.mli \
+	compilerlibs/unprefixed/asmlink.ml \
+	compilerlibs/ocamloptcomp__asmpackager.ml \
+	compilerlibs/ocamloptcomp__asmpackager.mli \
+	compilerlibs/unprefixed/asmpackager.ml \
+	compilerlibs/ocamloptcomp__augment_specialised_args.ml \
+	compilerlibs/ocamloptcomp__augment_specialised_args.mli \
+	compilerlibs/unprefixed/augment_specialised_args.ml \
+	compilerlibs/ocamloptcomp__available_regs.ml \
+	compilerlibs/ocamloptcomp__available_regs.mli \
+	compilerlibs/unprefixed/available_regs.ml \
+	compilerlibs/ocamloptcomp__backend_intf.ml \
+	compilerlibs/ocamloptcomp__backend_intf.mli \
+	compilerlibs/unprefixed/backend_intf.ml \
+	compilerlibs/ocamloptcomp__backend_var.ml \
+	compilerlibs/ocamloptcomp__backend_var.mli \
+	compilerlibs/unprefixed/backend_var.ml \
+	compilerlibs/ocamloptcomp__branch_relaxation.ml \
+	compilerlibs/ocamloptcomp__branch_relaxation.mli \
+	compilerlibs/unprefixed/branch_relaxation.ml \
+	compilerlibs/ocamloptcomp__branch_relaxation_intf.ml \
+	compilerlibs/ocamloptcomp__branch_relaxation_intf.mli \
+	compilerlibs/unprefixed/branch_relaxation_intf.ml \
+	compilerlibs/ocamloptcomp__build_export_info.ml \
+	compilerlibs/ocamloptcomp__build_export_info.mli \
+	compilerlibs/unprefixed/build_export_info.ml \
+	compilerlibs/ocamloptcomp__clambda.ml \
+	compilerlibs/ocamloptcomp__clambda.mli \
+	compilerlibs/unprefixed/clambda.ml \
+	compilerlibs/ocamloptcomp__clambda_primitives.ml \
+	compilerlibs/ocamloptcomp__clambda_primitives.mli \
+	compilerlibs/unprefixed/clambda_primitives.ml \
+	compilerlibs/ocamloptcomp__closure.ml \
+	compilerlibs/ocamloptcomp__closure.mli \
+	compilerlibs/unprefixed/closure.ml \
+	compilerlibs/ocamloptcomp__closure_conversion.ml \
+	compilerlibs/ocamloptcomp__closure_conversion.mli \
+	compilerlibs/unprefixed/closure_conversion.ml \
+	compilerlibs/ocamloptcomp__closure_conversion_aux.ml \
+	compilerlibs/ocamloptcomp__closure_conversion_aux.mli \
+	compilerlibs/unprefixed/closure_conversion_aux.ml \
+	compilerlibs/ocamloptcomp__closure_element.ml \
+	compilerlibs/ocamloptcomp__closure_element.mli \
+	compilerlibs/unprefixed/closure_element.ml \
+	compilerlibs/ocamloptcomp__closure_id.ml \
+	compilerlibs/ocamloptcomp__closure_id.mli \
+	compilerlibs/unprefixed/closure_id.ml \
+	compilerlibs/ocamloptcomp__closure_offsets.ml \
+	compilerlibs/ocamloptcomp__closure_offsets.mli \
+	compilerlibs/unprefixed/closure_offsets.ml \
+	compilerlibs/ocamloptcomp__closure_origin.ml \
+	compilerlibs/ocamloptcomp__closure_origin.mli \
+	compilerlibs/unprefixed/closure_origin.ml \
+	compilerlibs/ocamloptcomp__cmm.ml \
+	compilerlibs/ocamloptcomp__cmm.mli \
+	compilerlibs/unprefixed/cmm.ml \
+	compilerlibs/ocamloptcomp__cmmgen.ml \
+	compilerlibs/ocamloptcomp__cmmgen.mli \
+	compilerlibs/unprefixed/cmmgen.ml \
+	compilerlibs/ocamloptcomp__cmmgen_state.ml \
+	compilerlibs/ocamloptcomp__cmmgen_state.mli \
+	compilerlibs/unprefixed/cmmgen_state.ml \
+	compilerlibs/ocamloptcomp__coloring.ml \
+	compilerlibs/ocamloptcomp__coloring.mli \
+	compilerlibs/unprefixed/coloring.ml \
+	compilerlibs/ocamloptcomp__comballoc.ml \
+	compilerlibs/ocamloptcomp__comballoc.mli \
+	compilerlibs/unprefixed/comballoc.ml \
+	compilerlibs/ocamloptcomp__compilation_unit.ml \
+	compilerlibs/ocamloptcomp__compilation_unit.mli \
+	compilerlibs/unprefixed/compilation_unit.ml \
+	compilerlibs/ocamloptcomp__compilenv.ml \
+	compilerlibs/ocamloptcomp__compilenv.mli \
+	compilerlibs/unprefixed/compilenv.ml \
+	compilerlibs/ocamloptcomp__compute_ranges.ml \
+	compilerlibs/ocamloptcomp__compute_ranges.mli \
+	compilerlibs/unprefixed/compute_ranges.ml \
+	compilerlibs/ocamloptcomp__compute_ranges_intf.ml \
+	compilerlibs/ocamloptcomp__compute_ranges_intf.mli \
+	compilerlibs/unprefixed/compute_ranges_intf.ml \
+	compilerlibs/ocamloptcomp__convert_primitives.ml \
+	compilerlibs/ocamloptcomp__convert_primitives.mli \
+	compilerlibs/unprefixed/convert_primitives.ml \
+	compilerlibs/ocamloptcomp__deadcode.ml \
+	compilerlibs/ocamloptcomp__deadcode.mli \
+	compilerlibs/unprefixed/deadcode.ml \
+	compilerlibs/ocamloptcomp__debuginfo.ml \
+	compilerlibs/ocamloptcomp__debuginfo.mli \
+	compilerlibs/unprefixed/debuginfo.ml \
+	compilerlibs/ocamloptcomp__effect_analysis.ml \
+	compilerlibs/ocamloptcomp__effect_analysis.mli \
+	compilerlibs/unprefixed/effect_analysis.ml \
+	compilerlibs/ocamloptcomp__emit.ml \
+	compilerlibs/ocamloptcomp__emit.mli \
+	compilerlibs/unprefixed/emit.ml \
+	compilerlibs/ocamloptcomp__emitaux.ml \
+	compilerlibs/ocamloptcomp__emitaux.mli \
+	compilerlibs/unprefixed/emitaux.ml \
+	compilerlibs/ocamloptcomp__export_id.ml \
+	compilerlibs/ocamloptcomp__export_id.mli \
+	compilerlibs/unprefixed/export_id.ml \
+	compilerlibs/ocamloptcomp__export_info.ml \
+	compilerlibs/ocamloptcomp__export_info.mli \
+	compilerlibs/unprefixed/export_info.ml \
+	compilerlibs/ocamloptcomp__export_info_for_pack.ml \
+	compilerlibs/ocamloptcomp__export_info_for_pack.mli \
+	compilerlibs/unprefixed/export_info_for_pack.ml \
+	compilerlibs/ocamloptcomp__extract_projections.ml \
+	compilerlibs/ocamloptcomp__extract_projections.mli \
+	compilerlibs/unprefixed/extract_projections.ml \
+	compilerlibs/ocamloptcomp__find_recursive_functions.ml \
+	compilerlibs/ocamloptcomp__find_recursive_functions.mli \
+	compilerlibs/unprefixed/find_recursive_functions.ml \
+	compilerlibs/ocamloptcomp__flambda.ml \
+	compilerlibs/ocamloptcomp__flambda.mli \
+	compilerlibs/unprefixed/flambda.ml \
+	compilerlibs/ocamloptcomp__flambda_invariants.ml \
+	compilerlibs/ocamloptcomp__flambda_invariants.mli \
+	compilerlibs/unprefixed/flambda_invariants.ml \
+	compilerlibs/ocamloptcomp__flambda_iterators.ml \
+	compilerlibs/ocamloptcomp__flambda_iterators.mli \
+	compilerlibs/unprefixed/flambda_iterators.ml \
+	compilerlibs/ocamloptcomp__flambda_to_clambda.ml \
+	compilerlibs/ocamloptcomp__flambda_to_clambda.mli \
+	compilerlibs/unprefixed/flambda_to_clambda.ml \
+	compilerlibs/ocamloptcomp__flambda_utils.ml \
+	compilerlibs/ocamloptcomp__flambda_utils.mli \
+	compilerlibs/unprefixed/flambda_utils.ml \
+	compilerlibs/ocamloptcomp__freshening.ml \
+	compilerlibs/ocamloptcomp__freshening.mli \
+	compilerlibs/unprefixed/freshening.ml \
+	compilerlibs/ocamloptcomp__id_types.ml \
+	compilerlibs/ocamloptcomp__id_types.mli \
+	compilerlibs/unprefixed/id_types.ml \
+	compilerlibs/ocamloptcomp__import_approx.ml \
+	compilerlibs/ocamloptcomp__import_approx.mli \
+	compilerlibs/unprefixed/import_approx.ml \
+	compilerlibs/ocamloptcomp__inconstant_idents.ml \
+	compilerlibs/ocamloptcomp__inconstant_idents.mli \
+	compilerlibs/unprefixed/inconstant_idents.ml \
+	compilerlibs/ocamloptcomp__initialize_symbol_to_let_symbol.ml \
+	compilerlibs/ocamloptcomp__initialize_symbol_to_let_symbol.mli \
+	compilerlibs/unprefixed/initialize_symbol_to_let_symbol.ml \
+	compilerlibs/ocamloptcomp__inline_and_simplify.ml \
+	compilerlibs/ocamloptcomp__inline_and_simplify.mli \
+	compilerlibs/unprefixed/inline_and_simplify.ml \
+	compilerlibs/ocamloptcomp__inline_and_simplify_aux.ml \
+	compilerlibs/ocamloptcomp__inline_and_simplify_aux.mli \
+	compilerlibs/unprefixed/inline_and_simplify_aux.ml \
+	compilerlibs/ocamloptcomp__inlining_cost.ml \
+	compilerlibs/ocamloptcomp__inlining_cost.mli \
+	compilerlibs/unprefixed/inlining_cost.ml \
+	compilerlibs/ocamloptcomp__inlining_decision.ml \
+	compilerlibs/ocamloptcomp__inlining_decision.mli \
+	compilerlibs/unprefixed/inlining_decision.ml \
+	compilerlibs/ocamloptcomp__inlining_stats.ml \
+	compilerlibs/ocamloptcomp__inlining_stats.mli \
+	compilerlibs/unprefixed/inlining_stats.ml \
+	compilerlibs/ocamloptcomp__inlining_stats_types.ml \
+	compilerlibs/ocamloptcomp__inlining_stats_types.mli \
+	compilerlibs/unprefixed/inlining_stats_types.ml \
+	compilerlibs/ocamloptcomp__inlining_transforms.ml \
+	compilerlibs/ocamloptcomp__inlining_transforms.mli \
+	compilerlibs/unprefixed/inlining_transforms.ml \
+	compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.ml \
+	compilerlibs/ocamloptcomp__int_replace_polymorphic_compare.mli \
+	compilerlibs/unprefixed/int_replace_polymorphic_compare.ml \
+	compilerlibs/ocamloptcomp__interf.ml \
+	compilerlibs/ocamloptcomp__interf.mli \
+	compilerlibs/unprefixed/interf.ml \
+	compilerlibs/ocamloptcomp__internal_variable_names.ml \
+	compilerlibs/ocamloptcomp__internal_variable_names.mli \
+	compilerlibs/unprefixed/internal_variable_names.ml \
+	compilerlibs/ocamloptcomp__interval.ml \
+	compilerlibs/ocamloptcomp__interval.mli \
+	compilerlibs/unprefixed/interval.ml \
+	compilerlibs/ocamloptcomp__invariant_params.ml \
+	compilerlibs/ocamloptcomp__invariant_params.mli \
+	compilerlibs/unprefixed/invariant_params.ml \
+	compilerlibs/ocamloptcomp__lift_code.ml \
+	compilerlibs/ocamloptcomp__lift_code.mli \
+	compilerlibs/unprefixed/lift_code.ml \
+	compilerlibs/ocamloptcomp__lift_constants.ml \
+	compilerlibs/ocamloptcomp__lift_constants.mli \
+	compilerlibs/unprefixed/lift_constants.ml \
+	compilerlibs/ocamloptcomp__lift_let_to_initialize_symbol.ml \
+	compilerlibs/ocamloptcomp__lift_let_to_initialize_symbol.mli \
+	compilerlibs/unprefixed/lift_let_to_initialize_symbol.ml \
+	compilerlibs/ocamloptcomp__linearize.ml \
+	compilerlibs/ocamloptcomp__linearize.mli \
+	compilerlibs/unprefixed/linearize.ml \
+	compilerlibs/ocamloptcomp__linkage_name.ml \
+	compilerlibs/ocamloptcomp__linkage_name.mli \
+	compilerlibs/unprefixed/linkage_name.ml \
+	compilerlibs/ocamloptcomp__linscan.ml \
+	compilerlibs/ocamloptcomp__linscan.mli \
+	compilerlibs/unprefixed/linscan.ml \
+	compilerlibs/ocamloptcomp__liveness.ml \
+	compilerlibs/ocamloptcomp__liveness.mli \
+	compilerlibs/unprefixed/liveness.ml \
+	compilerlibs/ocamloptcomp__mach.ml \
+	compilerlibs/ocamloptcomp__mach.mli \
+	compilerlibs/unprefixed/mach.ml \
+	compilerlibs/ocamloptcomp__middle_end.ml \
+	compilerlibs/ocamloptcomp__middle_end.mli \
+	compilerlibs/unprefixed/middle_end.ml \
+	compilerlibs/ocamloptcomp__mutable_variable.ml \
+	compilerlibs/ocamloptcomp__mutable_variable.mli \
+	compilerlibs/unprefixed/mutable_variable.ml \
+	compilerlibs/ocamloptcomp__optcompile.ml \
+	compilerlibs/ocamloptcomp__optcompile.mli \
+	compilerlibs/unprefixed/optcompile.ml \
+	compilerlibs/ocamloptcomp__opterrors.ml \
+	compilerlibs/ocamloptcomp__opterrors.mli \
+	compilerlibs/unprefixed/opterrors.ml \
+	compilerlibs/ocamloptcomp__parameter.ml \
+	compilerlibs/ocamloptcomp__parameter.mli \
+	compilerlibs/unprefixed/parameter.ml \
+	compilerlibs/ocamloptcomp__pass_wrapper.ml \
+	compilerlibs/ocamloptcomp__pass_wrapper.mli \
+	compilerlibs/unprefixed/pass_wrapper.ml \
+	compilerlibs/ocamloptcomp__printclambda.ml \
+	compilerlibs/ocamloptcomp__printclambda.mli \
+	compilerlibs/unprefixed/printclambda.ml \
+	compilerlibs/ocamloptcomp__printclambda_primitives.ml \
+	compilerlibs/ocamloptcomp__printclambda_primitives.mli \
+	compilerlibs/unprefixed/printclambda_primitives.ml \
+	compilerlibs/ocamloptcomp__printcmm.ml \
+	compilerlibs/ocamloptcomp__printcmm.mli \
+	compilerlibs/unprefixed/printcmm.ml \
+	compilerlibs/ocamloptcomp__printlinear.ml \
+	compilerlibs/ocamloptcomp__printlinear.mli \
+	compilerlibs/unprefixed/printlinear.ml \
+	compilerlibs/ocamloptcomp__printmach.ml \
+	compilerlibs/ocamloptcomp__printmach.mli \
+	compilerlibs/unprefixed/printmach.ml \
+	compilerlibs/ocamloptcomp__proc.ml \
+	compilerlibs/ocamloptcomp__proc.mli \
+	compilerlibs/unprefixed/proc.ml \
+	compilerlibs/ocamloptcomp__projection.ml \
+	compilerlibs/ocamloptcomp__projection.mli \
+	compilerlibs/unprefixed/projection.ml \
+	compilerlibs/ocamloptcomp__ref_to_variables.ml \
+	compilerlibs/ocamloptcomp__ref_to_variables.mli \
+	compilerlibs/unprefixed/ref_to_variables.ml \
+	compilerlibs/ocamloptcomp__reg.ml \
+	compilerlibs/ocamloptcomp__reg.mli \
+	compilerlibs/unprefixed/reg.ml \
+	compilerlibs/ocamloptcomp__reg_availability_set.ml \
+	compilerlibs/ocamloptcomp__reg_availability_set.mli \
+	compilerlibs/unprefixed/reg_availability_set.ml \
+	compilerlibs/ocamloptcomp__reg_with_debug_info.ml \
+	compilerlibs/ocamloptcomp__reg_with_debug_info.mli \
+	compilerlibs/unprefixed/reg_with_debug_info.ml \
+	compilerlibs/ocamloptcomp__reload.ml \
+	compilerlibs/ocamloptcomp__reload.mli \
+	compilerlibs/unprefixed/reload.ml \
+	compilerlibs/ocamloptcomp__reloadgen.ml \
+	compilerlibs/ocamloptcomp__reloadgen.mli \
+	compilerlibs/unprefixed/reloadgen.ml \
+	compilerlibs/ocamloptcomp__remove_free_vars_equal_to_args.ml \
+	compilerlibs/ocamloptcomp__remove_free_vars_equal_to_args.mli \
+	compilerlibs/unprefixed/remove_free_vars_equal_to_args.ml \
+	compilerlibs/ocamloptcomp__remove_unused_arguments.ml \
+	compilerlibs/ocamloptcomp__remove_unused_arguments.mli \
+	compilerlibs/unprefixed/remove_unused_arguments.ml \
+	compilerlibs/ocamloptcomp__remove_unused_closure_vars.ml \
+	compilerlibs/ocamloptcomp__remove_unused_closure_vars.mli \
+	compilerlibs/unprefixed/remove_unused_closure_vars.ml \
+	compilerlibs/ocamloptcomp__remove_unused_program_constructs.ml \
+	compilerlibs/ocamloptcomp__remove_unused_program_constructs.mli \
+	compilerlibs/unprefixed/remove_unused_program_constructs.ml \
+	compilerlibs/ocamloptcomp__schedgen.ml \
+	compilerlibs/ocamloptcomp__schedgen.mli \
+	compilerlibs/unprefixed/schedgen.ml \
+	compilerlibs/ocamloptcomp__scheduling.ml \
+	compilerlibs/ocamloptcomp__scheduling.mli \
+	compilerlibs/unprefixed/scheduling.ml \
+	compilerlibs/ocamloptcomp__selectgen.ml \
+	compilerlibs/ocamloptcomp__selectgen.mli \
+	compilerlibs/unprefixed/selectgen.ml \
+	compilerlibs/ocamloptcomp__selection.ml \
+	compilerlibs/ocamloptcomp__selection.mli \
+	compilerlibs/unprefixed/selection.ml \
+	compilerlibs/ocamloptcomp__semantics_of_primitives.ml \
+	compilerlibs/ocamloptcomp__semantics_of_primitives.mli \
+	compilerlibs/unprefixed/semantics_of_primitives.ml \
+	compilerlibs/ocamloptcomp__set_of_closures_id.ml \
+	compilerlibs/ocamloptcomp__set_of_closures_id.mli \
+	compilerlibs/unprefixed/set_of_closures_id.ml \
+	compilerlibs/ocamloptcomp__set_of_closures_origin.ml \
+	compilerlibs/ocamloptcomp__set_of_closures_origin.mli \
+	compilerlibs/unprefixed/set_of_closures_origin.ml \
+	compilerlibs/ocamloptcomp__share_constants.ml \
+	compilerlibs/ocamloptcomp__share_constants.mli \
+	compilerlibs/unprefixed/share_constants.ml \
+	compilerlibs/ocamloptcomp__simple_value_approx.ml \
+	compilerlibs/ocamloptcomp__simple_value_approx.mli \
+	compilerlibs/unprefixed/simple_value_approx.ml \
+	compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.ml \
+	compilerlibs/ocamloptcomp__simplify_boxed_integer_ops.mli \
+	compilerlibs/unprefixed/simplify_boxed_integer_ops.ml \
+	compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.ml \
+	compilerlibs/ocamloptcomp__simplify_boxed_integer_ops_intf.mli \
+	compilerlibs/unprefixed/simplify_boxed_integer_ops_intf.ml \
+	compilerlibs/ocamloptcomp__simplify_common.ml \
+	compilerlibs/ocamloptcomp__simplify_common.mli \
+	compilerlibs/unprefixed/simplify_common.ml \
+	compilerlibs/ocamloptcomp__simplify_primitives.ml \
+	compilerlibs/ocamloptcomp__simplify_primitives.mli \
+	compilerlibs/unprefixed/simplify_primitives.ml \
+	compilerlibs/ocamloptcomp__spacetime_profiling.ml \
+	compilerlibs/ocamloptcomp__spacetime_profiling.mli \
+	compilerlibs/unprefixed/spacetime_profiling.ml \
+	compilerlibs/ocamloptcomp__spill.ml \
+	compilerlibs/ocamloptcomp__spill.mli \
+	compilerlibs/unprefixed/spill.ml \
+	compilerlibs/ocamloptcomp__split.ml \
+	compilerlibs/ocamloptcomp__split.mli \
+	compilerlibs/unprefixed/split.ml \
+	compilerlibs/ocamloptcomp__static_exception.ml \
+	compilerlibs/ocamloptcomp__static_exception.mli \
+	compilerlibs/unprefixed/static_exception.ml \
+	compilerlibs/ocamloptcomp__strmatch.ml \
+	compilerlibs/ocamloptcomp__strmatch.mli \
+	compilerlibs/unprefixed/strmatch.ml \
+	compilerlibs/ocamloptcomp__symbol.ml \
+	compilerlibs/ocamloptcomp__symbol.mli \
+	compilerlibs/unprefixed/symbol.ml \
+	compilerlibs/ocamloptcomp__tag.ml \
+	compilerlibs/ocamloptcomp__tag.mli \
+	compilerlibs/unprefixed/tag.ml \
+	compilerlibs/ocamloptcomp__traverse_for_exported_symbols.ml \
+	compilerlibs/ocamloptcomp__traverse_for_exported_symbols.mli \
+	compilerlibs/unprefixed/traverse_for_exported_symbols.ml \
+	compilerlibs/ocamloptcomp__un_anf.ml \
+	compilerlibs/ocamloptcomp__un_anf.mli \
+	compilerlibs/unprefixed/un_anf.ml \
+	compilerlibs/ocamloptcomp__unbox_closures.ml \
+	compilerlibs/ocamloptcomp__unbox_closures.mli \
+	compilerlibs/unprefixed/unbox_closures.ml \
+	compilerlibs/ocamloptcomp__unbox_free_vars_of_closures.ml \
+	compilerlibs/ocamloptcomp__unbox_free_vars_of_closures.mli \
+	compilerlibs/unprefixed/unbox_free_vars_of_closures.ml \
+	compilerlibs/ocamloptcomp__unbox_specialised_args.ml \
+	compilerlibs/ocamloptcomp__unbox_specialised_args.mli \
+	compilerlibs/unprefixed/unbox_specialised_args.ml \
+	compilerlibs/ocamloptcomp__var_within_closure.ml \
+	compilerlibs/ocamloptcomp__var_within_closure.mli \
+	compilerlibs/unprefixed/var_within_closure.ml \
+	compilerlibs/ocamloptcomp__variable.ml \
+	compilerlibs/ocamloptcomp__variable.mli \
+	compilerlibs/unprefixed/variable.ml \
+	compilerlibs/ocamloptcomp__x86_dsl.ml \
+	compilerlibs/ocamloptcomp__x86_dsl.mli \
+	compilerlibs/unprefixed/x86_dsl.ml \
+	compilerlibs/ocamloptcomp__x86_gas.ml \
+	compilerlibs/ocamloptcomp__x86_gas.mli \
+	compilerlibs/unprefixed/x86_gas.ml \
+	compilerlibs/ocamloptcomp__x86_masm.ml \
+	compilerlibs/ocamloptcomp__x86_masm.mli \
+	compilerlibs/unprefixed/x86_masm.ml \
+	compilerlibs/ocamloptcomp__x86_proc.ml \
+	compilerlibs/ocamloptcomp__x86_proc.mli \
+	compilerlibs/unprefixed/x86_proc.ml
