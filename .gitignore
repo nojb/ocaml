@@ -263,3 +263,12 @@ _build
 /yacc/ocamlyacc
 /yacc/version.h
 /yacc/.gdb_history
+
+/bytecomp/cmo_format.ml
+/middle_end/backend_intf.ml
+/middle_end/simplify_boxed_integer_ops_intf.ml
+/parsing/asttypes.ml
+/typing/annot.ml
+/typing/outcometree.ml
+
+/tools/gen_make

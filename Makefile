@@ -220,6 +220,9 @@ middle_end/backend_intf.ml: middle_end/backend_intf.mli
 middle_end/simplify_boxed_integer_ops_intf.ml: middle_end/simplify_boxed_integer_ops_intf.mli
 	cp $< $@
 
+middle_end/inlining_decision_intf.ml: middle_end/inlining_decision_intf.mli
+	cp $< $@
+
 MIDDLE_END=\
   middle_end/int_replace_polymorphic_compare.cmo \
   middle_end/debuginfo.cmo \
@@ -282,6 +285,7 @@ MIDDLE_END=\
   middle_end/unbox_free_vars_of_closures.cmo \
   middle_end/unbox_specialised_args.cmo \
   middle_end/unbox_closures.cmo \
+  middle_end/inlining_decision_intf.cmo \
   middle_end/inlining_transforms.cmo \
   middle_end/inlining_decision.cmo \
   middle_end/inline_and_simplify.cmo \
