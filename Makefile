@@ -748,7 +748,7 @@ tools/gen_make: tools/gen_make.ml
 	$(CAMLC) -o $@ $^
 
 Makefile.prefix: Makefile tools/gen_make
-	$(CAMLRUN) tools/gen_make $(COMMON) > $@
+	$(CAMLRUN) tools/gen_make ocamlcommon $(COMMON) > $@
 
 -include Makefile.prefix
 
