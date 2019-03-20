@@ -270,5 +270,10 @@ _build
 /parsing/asttypes.ml
 /typing/annot.ml
 /typing/outcometree.ml
+/asmcomp/cmx_format.ml
+/asmcomp/cmxs_format.ml
+/parsing/parsetree.ml
+/middle_end/inlining_decision_intf.ml
+/asmcomp/x86_ast.ml
 
 /tools/gen_make
