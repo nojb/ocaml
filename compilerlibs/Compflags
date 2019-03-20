@@ -1,0 +1,39 @@
+#!/bin/sh
+#**************************************************************************
+#*                                                                        *
+#*                                 OCaml                                  *
+#*                                                                        *
+#*            Xavier Leroy, projet Cristal, INRIA Rocquencourt            *
+#*                                                                        *
+#*   Copyright 2019 Institut National de Recherche en Informatique et     *
+#*     en Automatique.                                                    *
+#*                                                                        *
+#*   All rights reserved.  This file is distributed under the terms of    *
+#*   the GNU Lesser General Public License version 2.1, with the          *
+#*   special exception on linking described in the file LICENSE.          *
+#*                                                                        *
+#**************************************************************************
+
+case $1 in
+  compilerlibs/ocamlcommon.cm*)
+      echo ' -no-alias-deps -w -49';;
+  compilerlibs/ocamlbytecomp.cm*)
+      echo ' -no-alias-deps -w -49';;
+  compilerlibs/ocamloptcomp.cm*)
+      echo ' -no-alias-deps -w -49';;
+  compilerlibs/ocamlcommon__*.cm*)
+      echo ' -I compilerlibs' \
+           ' -open Ocamlcommon';;
+  compilerlibs/ocamlbytecomp__*.cm*)
+      echo ' -I compilerlibs' \
+           ' -open Ocamlcommon' \
+           ' -open Ocamlbytecomp';;
+  compilerlibs/ocamloptcomp__*.cm*)
+      echo ' -I compilerlibs' \
+           ' -open Ocamlcommon' \
+           ' -open Ocamloptcomp';;
+  compilerlibs/unprefixed/*.cm*)
+      echo ' -I compilerlibs';;
+  *)
+      echo ' ';;
+esac
