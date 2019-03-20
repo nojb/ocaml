@@ -47,10 +47,14 @@ include stdlib/StdlibModules
 CAMLC=$(CAMLRUN) boot/ocamlc -g -nostdlib -I boot -use-prims runtime/primitives
 CAMLOPT=$(CAMLRUN) ./ocamlopt -g -nostdlib -I stdlib -I otherlibs/dynlink
 ARCHES=amd64 i386 arm arm64 power s390x
+INCLUDES=-I utils -I parsing -I typing -I bytecomp -I middle_end \
+        -I middle_end/base_types -I asmcomp -I asmcomp/debug \
+        -I driver -I toplevel
 
 COMPFLAGS=-strict-sequence -principal -absname -w +a-4-9-41-42-44-45-48-66 \
 	  -warn-error A \
-          -bin-annot -safe-string -strict-formats
+          -bin-annot -safe-string -strict-formats $(INCLUDES) \
+	  $(shell compilerlibs/Compflags $@)
 LINKFLAGS=
 
 ifeq "$(strip $(NATDYNLINKOPTS))" ""
@@ -67,84 +71,6 @@ DEPINCLUDES=$(INCLUDES)
 
 OCAMLDOC_OPT=$(WITH_OCAMLDOC:=.opt)
 
-UTILS=utils/config.cmo utils/build_path_prefix_map.cmo utils/misc.cmo \
-  utils/identifiable.cmo utils/numbers.cmo utils/arg_helper.cmo \
-  utils/clflags.cmo utils/profile.cmo \
-  utils/load_path.cmo \
-  utils/terminfo.cmo utils/ccomp.cmo utils/warnings.cmo \
-  utils/consistbl.cmo \
-  utils/strongly_connected_components.cmo \
-  utils/targetint.cmo
-
-PARSING=parsing/location.cmo parsing/longident.cmo \
-  parsing/asttypes.cmo parsing/parsetree.cmo \
-  parsing/docstrings.cmo parsing/syntaxerr.cmo \
-  parsing/ast_helper.cmo \
-  parsing/pprintast.cmo \
-  parsing/camlinternalMenhirLib.cmo parsing/parser.cmo \
-  parsing/lexer.cmo parsing/parse.cmo parsing/printast.cmo \
-  parsing/ast_mapper.cmo parsing/ast_iterator.cmo parsing/attr_helper.cmo \
-  parsing/builtin_attributes.cmo parsing/ast_invariants.cmo parsing/depend.cmo
-
-typing/outcometree.ml: typing/outcometree.mli
-	cp $< $@
-
-typing/annot.ml: typing/annot.mli
-	cp $< $@
-
-parsing/asttypes.ml: parsing/asttypes.mli
-	cp $< $@
-
-parsing/parsetree.ml: parsing/parsetree.mli
-	cp $< $@
-
-bytecomp/cmo_format.ml: bytecomp/cmo_format.mli
-	cp $< $@
-
-TYPING=typing/ident.cmo typing/path.cmo \
-  typing/outcometree.cmo \
-  typing/primitive.cmo typing/types.cmo \
-  typing/btype.cmo typing/oprint.cmo \
-  typing/subst.cmo typing/predef.cmo \
-  typing/datarepr.cmo typing/cmi_format.cmo \
-  typing/persistent_env.cmo \
-  typing/env.cmo \
-  typing/typedtree.cmo typing/printtyped.cmo typing/ctype.cmo \
-  typing/printtyp.cmo typing/includeclass.cmo \
-  typing/mtype.cmo typing/envaux.cmo typing/includecore.cmo \
-  typing/typedtreeIter.cmo typing/tast_mapper.cmo \
-  typing/cmt_format.cmo typing/untypeast.cmo \
-  typing/includemod.cmo typing/typetexp.cmo typing/printpat.cmo \
-  typing/parmatch.cmo typing/annot.cmo typing/stypes.cmo \
-  typing/typedecl_properties.cmo typing/typedecl_variance.cmo \
-  typing/typedecl_unboxed.cmo typing/typedecl_immediacy.cmo \
-  typing/typedecl.cmo typing/typeopt.cmo \
-  typing/rec_check.cmo typing/typecore.cmo typing/typeclass.cmo \
-  typing/typemod.cmo
-
-COMP=bytecomp/lambda.cmo bytecomp/printlambda.cmo \
-  bytecomp/switch.cmo bytecomp/matching.cmo \
-  bytecomp/translobj.cmo bytecomp/translattribute.cmo \
-  bytecomp/translprim.cmo bytecomp/translcore.cmo \
-  bytecomp/translclass.cmo bytecomp/translmod.cmo \
-  bytecomp/simplif.cmo bytecomp/runtimedef.cmo \
-  bytecomp/instruct.cmo \
-  bytecomp/meta.cmo bytecomp/opcodes.cmo \
-  bytecomp/bytesections.cmo bytecomp/dll.cmo \
-  bytecomp/cmo_format.cmo bytecomp/symtable.cmo \
-  driver/pparse.cmo driver/main_args.cmo \
-  driver/compenv.cmo driver/compmisc.cmo \
-  driver/makedepend.cmo \
-  driver/compile_common.cmo
-
-
-COMMON=$(UTILS) $(PARSING) $(TYPING) $(COMP)
-
-BYTECOMP=bytecomp/bytegen.cmo \
-  bytecomp/printinstr.cmo bytecomp/emitcode.cmo \
-  bytecomp/bytelink.cmo bytecomp/bytelibrarian.cmo bytecomp/bytepackager.cmo \
-  driver/errors.cmo driver/compile.cmo
-
 ARCH_SPECIFIC =\
   asmcomp/arch.ml asmcomp/proc.ml asmcomp/CSE.ml asmcomp/selection.ml \
   asmcomp/scheduling.ml asmcomp/reload.ml
@@ -155,9 +81,6 @@ INTEL_ASM=\
   asmcomp/x86_dsl.cmo \
   asmcomp/x86_gas.cmo \
   asmcomp/x86_masm.cmo
-
-asmcomp/x86_ast.ml: asmcomp/x86_ast.mli
-	cp $< $@
 
 ARCH_SPECIFIC_ASMCOMP=
 ifeq ($(ARCH),i386)
@@ -212,21 +135,6 @@ ASMCOMP=\
   asmcomp/emitaux.cmo asmcomp/emit.cmo asmcomp/asmgen.cmo \
   asmcomp/asmlink.cmo asmcomp/asmlibrarian.cmo asmcomp/asmpackager.cmo \
   driver/opterrors.cmo driver/optcompile.cmo
-
-asmcomp/branch_relaxation_intf.mli: asmcomp/branch_relaxation_intf.ml
-	cp $< $@
-
-asmcomp/debug/compute_ranges_intf.mli: asmcomp/debug/compute_ranges_intf.ml
-	cp $< $@
-
-middle_end/backend_intf.ml: middle_end/backend_intf.mli
-	cp $< $@
-
-middle_end/simplify_boxed_integer_ops_intf.ml: middle_end/simplify_boxed_integer_ops_intf.mli
-	cp $< $@
-
-middle_end/inlining_decision_intf.ml: middle_end/inlining_decision_intf.mli
-	cp $< $@
 
 MIDDLE_END=\
   middle_end/int_replace_polymorphic_compare.cmo \
@@ -767,13 +675,11 @@ clean:: partialclean
 
 # Prefixed compiler-libs
 
-tools/gen_make: tools/gen_make.ml
+compilerlibs/gen: compilerlibs/gen.ml
 	$(CAMLC) -o $@ $^
 
-Makefile.prefix: Makefile tools/gen_make
-	$(CAMLRUN) tools/gen_make ocamlcommon $(COMMON) > $@
-	$(CAMLRUN) tools/gen_make ocamlbytecomp $(BYTECOMP) >> $@
-	$(CAMLRUN) tools/gen_make ocamloptcomp $(OPTCOMP) >> $@
+Makefile.prefix: compilerlibs/gen
+	$(CAMLRUN) compilerlibs/gen -generate-makefile > $@
 
 -include Makefile.prefix
 
@@ -1303,13 +1209,13 @@ partialclean::
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .ml.cmo:
-	$(CAMLC) $(COMPFLAGS) $(shell compilerlibs/Compflags $@) -c $<
+	$(CAMLC) $(COMPFLAGS) -c $<
 
 .mli.cmi:
-	$(CAMLC) $(COMPFLAGS) $(shell compilerlibs/Compflags $@) -c $<
+	$(CAMLC) $(COMPFLAGS) -c $<
 
 .ml.cmx:
-	$(CAMLOPT) $(COMPFLAGS) $(shell compilerlibs/Compflags $@) -c $<
+	$(CAMLOPT) $(COMPFLAGS) -c $<
 
 partialclean::
 	for d in utils parsing typing bytecomp asmcomp middle_end \
@@ -1319,33 +1225,16 @@ partialclean::
 	done
 	rm -f *~
 
-MAPS=\
-  -map compilerlibs/ocamlcommon.ml \
-  -map compilerlibs/ocamlbytecomp.ml \
-  -map compilerlibs/ocamloptcomp.ml
-
-asmcomp/arch.mli: asmcomp/arch.ml
-	$(CAMLC) -I compilerlibs -open Ocamlcommon -i $< > $@
-
-asmcomp/cmx_format.ml: asmcomp/cmx_format.mli
-	cp $< $@
-
-asmcomp/cmxs_format.ml: asmcomp/cmxs_format.mli
-	cp $< $@
-
 .PHONY: depend
 depend: beforedepend
-	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
-	  -open Ocamlcommon compilerlibs/ocamlcommon__*.{mli,ml} > .depend
-	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
-	  -open Ocamlcommon -open Ocamlbytecomp compilerlibs/ocamlbytecomp__*.{mli,ml} >> .depend
-	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
-	  -open Ocamlcommon -open Ocamlbytecomp -open Ocamloptcomp compilerlibs/ocamloptcomp__*.{mli,ml} >> .depend
-	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
-	  compilerlibs/unprefixed/*.{mli,ml} >> .depend
-	$(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
-	  -open Ocamlcommon -open Ocamlbytecomp -open Ocamloptcomp \
-	  driver/*main.{mli,ml} >> .depend
+	(for d in utils parsing typing bytecomp asmcomp middle_end \
+	 middle_end/base_types asmcomp/debug driver toplevel; \
+	 do $(CAMLDEP) $(DEPFLAGS) $(DEPINCLUDES) $$d/*.mli $$d/*.ml || exit; \
+	 done) > .depend.tmp
+	$(CAMLRUN) compilerlibs/gen < .depend.tmp > .depend
+	rm .depend.tmp
+	# $(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
+	#   compilerlibs/unprefixed/*.{mli,ml} >> .depend
 
 .PHONY: distclean
 distclean: clean
