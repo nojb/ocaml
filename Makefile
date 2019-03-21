@@ -679,7 +679,7 @@ compilerlibs/gen: compilerlibs/gen.ml
 	$(CAMLC) -o $@ $^
 
 Makefile.prefix: compilerlibs/gen
-	$(CAMLRUN) compilerlibs/gen -generate-makefile > $@
+	$(CAMLRUN) compilerlibs/gen > $@
 
 -include Makefile.prefix
 
@@ -1227,14 +1227,17 @@ partialclean::
 
 .PHONY: depend
 depend: beforedepend
-	(for d in utils parsing typing bytecomp asmcomp middle_end \
-	 middle_end/base_types asmcomp/debug driver toplevel; \
-	 do $(CAMLDEP) $(DEPFLAGS) $(DEPINCLUDES) $$d/*.mli $$d/*.ml || exit; \
-	 done) > .depend.tmp
-	$(CAMLRUN) compilerlibs/gen < .depend.tmp > .depend
-	rm .depend.tmp
-	# $(CAMLDEP) $(DEPFLAGS) $(MAPS) -I compilerlibs \
-	#   compilerlibs/unprefixed/*.{mli,ml} >> .depend
+	$(CAMLDEP) $(DEPFLAGS) -map compilerlibs/ocamlcommon.ml -I compilerlibs \
+	  -open Ocamlcommon compilerlibs/ocamlcommon__*.{mli,ml} > .depend
+	$(CAMLDEP) $(DEPFLAGS) -map compilerlibs/ocamlcommon.ml -map compilerlibs/ocamlbytecomp.ml -I compilerlibs \
+	  -open Ocamlcommon -open Ocamlbytecomp compilerlibs/ocamlbytecomp__*.{mli,ml} >> .depend
+	$(CAMLDEP) $(DEPFLAGS) -map compilerlibs/ocamlcommon.ml -map compilerlibs/ocamloptcomp.ml -I compilerlibs \
+	  -open Ocamlcommon -open Ocamlbytecomp -open Ocamloptcomp compilerlibs/ocamloptcomp__*.{mli,ml} >> .depend
+	$(CAMLDEP) $(DEPFLAGS) -I compilerlibs \
+	  compilerlibs/unprefixed/*.{mli,ml} >> .depend
+	$(CAMLDEP) $(DEPFLAGS) -I compilerlibs \
+	  -open Ocamlcommon -open Ocamlbytecomp -open Ocamloptcomp \
+	  driver/*main.{mli,ml} >> .depend
 
 .PHONY: distclean
 distclean: clean

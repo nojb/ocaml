@@ -174,60 +174,42 @@ let build_lib prefix modules =
         Printf.printf "%s/%s__%s.cmi: %s.mli\n"
           (Filename.dirname module_) prefix (Filename.basename module_) module_;
         Printf.printf "\t$(CAMLC) $(COMPFLAGS) -o $@ -c $<\n"
+      end;
+      if has_implementation module_ then begin
+        Printf.printf "compilerlibs/unprefixed/%s.ml: %s.ml\n" (Filename.basename module_) module_;
+        Printf.printf "\techo \"[@@@ocaml.deprecated \\\"Use %s.%s instead.\\\"]\" > $@\n"
+          (String.capitalize_ascii prefix) (String.capitalize_ascii (Filename.basename module_));
+        Printf.printf "\techo \"include %s__%s\" >> $@\n"
+          (String.capitalize_ascii prefix) (Filename.basename module_)
+      end else begin
+        Printf.printf "compilerlibs/unprefixed/%s.mli: %s.mli\n" (Filename.basename module_) module_;
+        Printf.printf "\techo \"[@@@ocaml.deprecated \\\"Use %s.%s instead.\\\"]\" > $@\n"
+          (String.capitalize_ascii prefix) (String.capitalize_ascii (Filename.basename module_));
+        Printf.printf "\techo \"include module type of struct include %s_%s end\" >> $@\n"
+          (String.capitalize_ascii prefix) (Filename.basename module_)
       end
-      (* Printf.printf "compilerlibs/unprefixed/%s.ml: %s.ml\n" (Filename.basename module_) module_; *)
-      (* Printf.printf "\techo \"[@@@ocaml.deprecated \\\"Use %s.%s instead.\\\"]\" > $@\n" *)
-      (*   (String.capitalize_ascii prefix) (String.capitalize_ascii (Filename.basename module_)); *)
-      (* Printf.printf "\techo \"include %s.%s\" >> $@\n" *)
-      (*   (String.capitalize_ascii prefix) (String.capitalize_ascii (Filename.basename module_)) *)
     ) modules;
   Printf.printf "compilerlibs/%s.ml: compilerlibs/gen.ml\n" prefix;
-  let modules = List.map Filename.basename modules |> List.sort Stdlib.compare in
-  let len = max_length modules in
-  List.iteri (fun i module_ ->
+  let sorted_modules = List.map Filename.basename modules |> List.sort Stdlib.compare in
+  let len = max_length sorted_modules in
+  List.iteri (fun i m ->
       Printf.printf "\techo \"module %-*s = %s__%s\" %s $@\n"
-        len (String.capitalize_ascii module_)
-        (String.capitalize_ascii prefix) module_ (if i = 0 then ">" else ">>")
+        len (String.capitalize_ascii m)
+        (String.capitalize_ascii prefix) m (if i = 0 then ">" else ">>")
+    ) sorted_modules;
+  Printf.printf "\n";
+  Printf.printf "beforedepend:: compilerlibs/%s.ml" prefix;
+  List.iter (fun m ->
+      if has_implementation m then
+        Printf.printf " \\\n\tcompilerlibs/unprefixed/%s.ml" (Filename.basename m)
+      else
+        Printf.printf " \\\n\tcompilerlibs/unprefixed/%s.mli" (Filename.basename m)
     ) modules;
-  (* List.iter (fun module_ -> *)
-  (*     Printf.printf " \\\n\tcompilerlibs/unprefixed/%s.ml" module_ *)
-  (*   ) modules; *)
   Printf.printf "\n"
 
 let generate_makefile () =
   build_lib "ocamlcommon" common;
   build_lib "ocamlbytecomp" bytecomp
 
-let postprocess_depend () =
-  let rec loop () =
-    let s = read_line () in
-    prerr_endline s;
-    let rec scan start i =
-      match s.[i] with
-      | ' ' as c when start < 0 ->
-          print_char c;
-          scan start (i + 1)
-      | 'a'..'z' | 'A'..'Z' | '0'..'9' | '/' | '.' ->
-          scan (if start < 0 then i else start) (i + 1)
-      | _ ->
-          let filename = String.sub s start (i - start) in
-          let dirname, basename = Filename.dirname filename, Filename.basename filename in
-          if List.mem (Filename.remove_extension filename) common then begin
-            Printf.printf "%s/%s%s" dirname "ocamlcommon__" basename;
-            print_endline (String.sub s i (String.length s - i))
-          end else
-            print_endline s
-    in
-    scan (-1) 0;
-    loop ()
-  in
-  try loop () with End_of_file -> ()
-
-let spec =
-  [
-    "-generate-makefile", Arg.Unit generate_makefile, " Generate Makefile";
-    "-postprocess-depend", Arg.Unit postprocess_depend, " Post-process .depend";
-  ]
-
 let () =
-  Arg.parse (Arg.align spec) ignore "Build tool"
+  generate_makefile ()
