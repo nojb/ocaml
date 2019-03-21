@@ -685,7 +685,7 @@ Makefile.prefix: compilerlibs/gen
 
 # Shared parts of the system
 
-compilerlibs/ocamlcommon.cma: compilerlibs/ocamlcommon.cmo $(addprefix compilerlibs/ocamlcommon__,$(notdir $(COMMON))) $(addprefix compilerlibs/unprefixed/,$(notdir $(COMMON)))
+compilerlibs/ocamlcommon.cma: $(OCAMLCOMMON)
 	$(CAMLC) -a -linkall -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlcommon.cma

@@ -205,6 +205,13 @@ let build_lib prefix modules =
       else
         Printf.printf " \\\n\tcompilerlibs/unprefixed/%s.mli" (Filename.basename m)
     ) modules;
+  Printf.printf "\n";
+  Printf.printf "%s =" (String.uppercase_ascii prefix);
+  Printf.printf " compilerlibs/%s.cmo" prefix;
+  List.iter (fun m ->
+      if has_implementation m then
+        Printf.printf " \\\n  compilerlibs/%s__%s.cmo" prefix (Filename.basename m)
+    ) modules;
   Printf.printf "\n"
 
 let generate_makefile () =

@@ -22,16 +22,23 @@ case $1 in
   compilerlibs/ocamloptcomp.cm*)
       echo ' -no-alias-deps -w -49';;
   compilerlibs/ocamlcommon__*.cm*)
-      echo ' -open Ocamlcommon';;
+      echo ' -I compilerlibs' \
+           ' -open Ocamlcommon';;
   compilerlibs/ocamlbytecomp__*.cm*)
-      echo ' -open Ocamlcommon' \
+      echo ' -I compilerlibs' \
+           ' -open Ocamlcommon' \
            ' -open Ocamlbytecomp';;
   compilerlibs/ocamloptcomp__*.cm*)
-      echo ' -open Ocamlcommon' \
+      echo ' -I compilerlibs' \
+           ' -open Ocamlcommon' \
            ' -open Ocamloptcomp';;
-  driver/*main.cm*)
-      echo ' -open Ocamlcommon' \
-           ' -open Ocamlbytecomp' \
+  driver/main.cm*)
+      echo ' -I compilerlibs' \
+           ' -open Ocamlcommon' \
+           ' -open Ocamlbytecomp';;
+  driver/optmain.cm*)
+      echo ' -I compilerlibs' \
+           ' -open Ocamlcommon' \
            ' -open Ocamloptcomp';;
   *)
       ;;
