@@ -32,6 +32,8 @@ case $1 in
       echo ' -I compilerlibs' \
            ' -open Ocamlcommon' \
            ' -open Ocamloptcomp';;
+  compilerlibs/unprefixed/*.cm*)
+      echo ' -I compilerlibs';;
   driver/main.cm*)
       echo ' -I compilerlibs' \
            ' -open Ocamlcommon' \

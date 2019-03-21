@@ -692,7 +692,7 @@ partialclean::
 
 # The bytecode compiler
 
-compilerlibs/ocamlbytecomp.cma: compilerlibs/ocamlbytecomp.cmo $(addprefix compilerlibs/ocamlbytecomp__,$(notdir $(BYTECOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(BYTECOMP)))
+compilerlibs/ocamlbytecomp.cma: $(OCAMLBYTECOMP)
 	$(CAMLC) -a -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlbytecomp.cma

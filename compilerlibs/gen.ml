@@ -209,8 +209,10 @@ let build_lib prefix modules =
   Printf.printf "%s =" (String.uppercase_ascii prefix);
   Printf.printf " compilerlibs/%s.cmo" prefix;
   List.iter (fun m ->
-      if has_implementation m then
-        Printf.printf " \\\n  compilerlibs/%s__%s.cmo" prefix (Filename.basename m)
+      if has_implementation m then begin
+        Printf.printf " \\\n  compilerlibs/%s__%s.cmo" prefix (Filename.basename m);
+        Printf.printf " \\\n  compilerlibs/unprefixed/%s.cmo" (Filename.basename m)
+      end
     ) modules;
   Printf.printf "\n"
 
