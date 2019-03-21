@@ -47,13 +47,10 @@ include stdlib/StdlibModules
 CAMLC=$(CAMLRUN) boot/ocamlc -g -nostdlib -I boot -use-prims runtime/primitives
 CAMLOPT=$(CAMLRUN) ./ocamlopt -g -nostdlib -I stdlib -I otherlibs/dynlink
 ARCHES=amd64 i386 arm arm64 power s390x
-INCLUDES=-I utils -I parsing -I typing -I bytecomp -I middle_end \
-        -I middle_end/base_types -I asmcomp -I asmcomp/debug \
-        -I driver -I toplevel
 
 COMPFLAGS=-strict-sequence -principal -absname -w +a-4-9-41-42-44-45-48-66 \
 	  -warn-error A \
-          -bin-annot -safe-string -strict-formats $(INCLUDES) \
+          -bin-annot -safe-string -strict-formats \
 	  $(shell compilerlibs/Compflags $@)
 LINKFLAGS=
 
@@ -71,142 +68,58 @@ DEPINCLUDES=$(INCLUDES)
 
 OCAMLDOC_OPT=$(WITH_OCAMLDOC:=.opt)
 
+include compilerlibs/CompilerModules
+
+Makefile.prefix: compilerlibs/CompilerModules
+	cat /dev/null > $@
+	$(foreach LIBNAME,COMMON BYTECOMP OPTCOMP,\
+	libname="$$(echo $(LIBNAME) | tr [:upper:] [:lower:])"; \
+	for ml in $(filter-out $(MODULES_WITHOUT_IMPLEMENTATION),$($(LIBNAME))); do \
+	  mod="$$(echo $$(basename $$ml) | awk '{print toupper(substr($$0,1,1)) substr($$0,2)}')"; \
+	  echo "compilerlibs/ocaml$${libname}__$$(basename $$ml).ml: $$ml.ml" >> $@; \
+	  echo "	(echo \"# 1 \\\"$$ml.ml\\\"\"; cat \$$<) > \$$@" >> $@; \
+	  echo "compilerlibs/unprefixed/$$(basename $$ml).ml:" >> $@; \
+	  echo "	(echo \"[@@@ocaml.deprecated \\\"Use Ocaml$${libname}.$$mod instead.\\\"]\"; \\" >> $@; \
+	  echo "	 echo \"include Ocaml$${libname}.$$mod\") > \$$@" >> $@; \
+	done; \
+	for mli in $(filter-out $(MODULES_WITHOUT_INTERFACE),$($(LIBNAME))); do \
+	  echo "compilerlibs/ocaml$${libname}__$$(basename $$mli).mli: $$mli.mli" >> $@; \
+	  echo "	(echo \"# 1 \\\"$$mli.mli\\\"\"; cat \$$<) > \$$@" >> $@; \
+	done; \
+	for mli in $(filter $(MODULES_WITHOUT_IMPLEMENTATION), $($(LIBNAME))); do \
+	  mod="$$(echo $$(basename $$mli) | awk '{print toupper(substr($$0,1,1)) substr($$0,2)}')"; \
+	  echo "compilerlibs/unprefixed/$$(basename $$mli).mli:" >> $@; \
+	  echo "	(echo \"[@@@ocaml.deprecated \\\"Use Ocaml$${libname}.$$mod instead.\\\"]\"; \\" >> $@; \
+	  echo "	 echo \"include module type of Ocaml$${libname}.$$mod\") > \$$@" >> $@; \
+	done; \
+	echo "compilerlibs/ocaml$${libname}.ml: compilerlibs/CompilerModules" >> $@; \
+	echo "	cat /dev/null > \$$@" >> $@; \
+	for mod in $($(LIBNAME)); do \
+	  base="$$(basename $$mod)"; \
+	  modname="$$(echo $$base | awk '{print toupper(substr($$0,1,1)) substr($$0,2)}')"; \
+	  echo "	echo \"module $$modname = Ocaml$${libname}__$$base\" >> \$$@" >> $@; \
+	done; \
+	echo "beforedepend:: \\" >> $@; \
+	echo "  compilerlibs/ocaml$${libname}.ml \\" >> $@; \
+	for ml in $(filter-out $(MODULES_WITHOUT_IMPLEMENTATION),$($(LIBNAME))); do \
+	  echo "  compilerlibs/ocaml$${libname}__$$(basename $$ml).ml \\" >> $@; \
+	  echo "  compilerlibs/unprefixed/$$(basename $$ml).ml \\" >> $@; \
+	done; \
+	for mli in $(filter $(MODULES_WITHOUT_IMPLEMENTATION),$($(LIBNAME))); do \
+	  echo "  compilerlibs/ocaml$${libname}__$$(basename $$mli).mli \\" >> $@; \
+	  echo "  compilerlibs/unprefixed/$$(basename $$mli).mli \\" >> $@; \
+	done; \
+	echo "" >> $@; \
+	echo "$(LIBNAME)_CMO = \\" >> $@; \
+	echo "  compilerlibs/ocaml$${libname}.cmo \\" >> $@; \
+	for ml in $(filter-out $(MODULES_WITHOUT_IMPLEMENTATION),$($(LIBNAME))); do \
+	  echo "  compilerlibs/ocaml$${libname}__$$(basename $$ml).cmo \\" >> $@; \
+	done; \
+	echo "" >> $@; )
+
 ARCH_SPECIFIC =\
   asmcomp/arch.ml asmcomp/proc.ml asmcomp/CSE.ml asmcomp/selection.ml \
   asmcomp/scheduling.ml asmcomp/reload.ml
-
-INTEL_ASM=\
-  asmcomp/x86_ast.cmo \
-  asmcomp/x86_proc.cmo \
-  asmcomp/x86_dsl.cmo \
-  asmcomp/x86_gas.cmo \
-  asmcomp/x86_masm.cmo
-
-ARCH_SPECIFIC_ASMCOMP=
-ifeq ($(ARCH),i386)
-ARCH_SPECIFIC_ASMCOMP=$(INTEL_ASM)
-endif
-ifeq ($(ARCH),amd64)
-ARCH_SPECIFIC_ASMCOMP=$(INTEL_ASM)
-endif
-
-ASMCOMP=\
-  $(ARCH_SPECIFIC_ASMCOMP) \
-  asmcomp/arch.cmo \
-  asmcomp/backend_var.cmo \
-  asmcomp/cmm.cmo asmcomp/printcmm.cmo \
-  asmcomp/reg.cmo asmcomp/debug/reg_with_debug_info.cmo \
-  asmcomp/debug/reg_availability_set.cmo \
-  asmcomp/mach.cmo asmcomp/proc.cmo \
-  asmcomp/clambda.cmo asmcomp/printclambda.cmo \
-  asmcomp/export_info.cmo \
-  asmcomp/export_info_for_pack.cmo \
-  asmcomp/cmx_format.cmo asmcomp/cmxs_format.cmo \
-  asmcomp/compilenv.cmo \
-  asmcomp/closure.cmo \
-  asmcomp/traverse_for_exported_symbols.cmo \
-  asmcomp/build_export_info.cmo \
-  asmcomp/closure_offsets.cmo \
-  asmcomp/flambda_to_clambda.cmo \
-  asmcomp/import_approx.cmo \
-  asmcomp/un_anf.cmo \
-  asmcomp/afl_instrument.cmo \
-  asmcomp/strmatch.cmo \
-  asmcomp/cmmgen_state.cmo \
-  asmcomp/cmmgen.cmo \
-  asmcomp/interval.cmo \
-  asmcomp/printmach.cmo asmcomp/selectgen.cmo \
-  asmcomp/spacetime_profiling.cmo asmcomp/selection.cmo \
-  asmcomp/comballoc.cmo \
-  asmcomp/CSEgen.cmo asmcomp/CSE.cmo \
-  asmcomp/liveness.cmo \
-  asmcomp/spill.cmo asmcomp/split.cmo \
-  asmcomp/interf.cmo asmcomp/coloring.cmo \
-  asmcomp/linscan.cmo \
-  asmcomp/reloadgen.cmo asmcomp/reload.cmo \
-  asmcomp/deadcode.cmo \
-  asmcomp/printlinear.cmo asmcomp/linearize.cmo \
-  asmcomp/debug/available_regs.cmo \
-  asmcomp/debug/compute_ranges_intf.cmo \
-  asmcomp/debug/compute_ranges.cmo \
-  asmcomp/schedgen.cmo asmcomp/scheduling.cmo \
-  asmcomp/branch_relaxation_intf.cmo \
-  asmcomp/branch_relaxation.cmo \
-  asmcomp/emitaux.cmo asmcomp/emit.cmo asmcomp/asmgen.cmo \
-  asmcomp/asmlink.cmo asmcomp/asmlibrarian.cmo asmcomp/asmpackager.cmo \
-  driver/opterrors.cmo driver/optcompile.cmo
-
-MIDDLE_END=\
-  middle_end/int_replace_polymorphic_compare.cmo \
-  middle_end/debuginfo.cmo \
-  asmcomp/clambda_primitives.cmo \
-  asmcomp/semantics_of_primitives.cmo \
-  asmcomp/convert_primitives.cmo \
-  asmcomp/printclambda_primitives.cmo \
-  middle_end/base_types/tag.cmo \
-  middle_end/base_types/linkage_name.cmo \
-  middle_end/base_types/compilation_unit.cmo \
-  middle_end/internal_variable_names.cmo \
-  middle_end/base_types/variable.cmo \
-  middle_end/base_types/mutable_variable.cmo \
-  middle_end/base_types/id_types.cmo \
-  middle_end/base_types/set_of_closures_id.cmo \
-  middle_end/base_types/set_of_closures_origin.cmo \
-  middle_end/base_types/closure_element.cmo \
-  middle_end/base_types/closure_id.cmo \
-  middle_end/base_types/closure_origin.cmo \
-  middle_end/base_types/var_within_closure.cmo \
-  middle_end/base_types/static_exception.cmo \
-  middle_end/base_types/export_id.cmo \
-  middle_end/base_types/symbol.cmo \
-  middle_end/pass_wrapper.cmo \
-  middle_end/allocated_const.cmo \
-  middle_end/parameter.cmo \
-  middle_end/projection.cmo \
-  middle_end/flambda.cmo \
-  middle_end/flambda_iterators.cmo \
-  middle_end/flambda_utils.cmo \
-  middle_end/inlining_cost.cmo \
-  middle_end/effect_analysis.cmo \
-  middle_end/freshening.cmo \
-  middle_end/simple_value_approx.cmo \
-  middle_end/lift_code.cmo \
-  middle_end/backend_intf.cmo \
-  middle_end/closure_conversion_aux.cmo \
-  middle_end/closure_conversion.cmo \
-  middle_end/initialize_symbol_to_let_symbol.cmo \
-  middle_end/lift_let_to_initialize_symbol.cmo \
-  middle_end/find_recursive_functions.cmo \
-  middle_end/invariant_params.cmo \
-  middle_end/inconstant_idents.cmo \
-  middle_end/alias_analysis.cmo \
-  middle_end/lift_constants.cmo \
-  middle_end/share_constants.cmo \
-  middle_end/simplify_common.cmo \
-  middle_end/remove_unused_arguments.cmo \
-  middle_end/remove_unused_closure_vars.cmo \
-  middle_end/remove_unused_program_constructs.cmo \
-  middle_end/simplify_boxed_integer_ops_intf.cmo \
-  middle_end/simplify_boxed_integer_ops.cmo \
-  middle_end/simplify_primitives.cmo \
-  middle_end/inlining_stats_types.cmo \
-  middle_end/inlining_stats.cmo \
-  middle_end/inline_and_simplify_aux.cmo \
-  middle_end/remove_free_vars_equal_to_args.cmo \
-  middle_end/extract_projections.cmo \
-  middle_end/augment_specialised_args.cmo \
-  middle_end/unbox_free_vars_of_closures.cmo \
-  middle_end/unbox_specialised_args.cmo \
-  middle_end/unbox_closures.cmo \
-  middle_end/inlining_decision_intf.cmo \
-  middle_end/inlining_transforms.cmo \
-  middle_end/inlining_decision.cmo \
-  middle_end/inline_and_simplify.cmo \
-  middle_end/ref_to_variables.cmo \
-  middle_end/flambda_invariants.cmo \
-  middle_end/middle_end.cmo
-
-OPTCOMP=$(MIDDLE_END) $(ASMCOMP)
 
 TOPLEVEL=toplevel/genprintval.cmo toplevel/toploop.cmo \
   toplevel/trace.cmo toplevel/topdirs.cmo toplevel/topmain.cmo
@@ -675,24 +588,18 @@ clean:: partialclean
 
 # Prefixed compiler-libs
 
-compilerlibs/gen: compilerlibs/gen.ml
-	$(CAMLC) -o $@ $^
-
-Makefile.prefix: compilerlibs/gen
-	$(CAMLRUN) compilerlibs/gen > $@
-
 -include Makefile.prefix
 
 # Shared parts of the system
 
-compilerlibs/ocamlcommon.cma: $(OCAMLCOMMON)
+compilerlibs/ocamlcommon.cma: $(COMMON_CMO)
 	$(CAMLC) -a -linkall -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlcommon.cma
 
 # The bytecode compiler
 
-compilerlibs/ocamlbytecomp.cma: $(OCAMLBYTECOMP)
+compilerlibs/ocamlbytecomp.cma: $(BYTECOMP_CMO)
 	$(CAMLC) -a -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlbytecomp.cma
@@ -705,7 +612,7 @@ partialclean::
 
 # The native-code compiler
 
-compilerlibs/ocamloptcomp.cma: compilerlibs/ocamloptcomp.cmo $(addprefix compilerlibs/ocamloptcomp__,$(notdir $(OPTCOMP))) $(addprefix compilerlibs/unprefixed/,$(notdir $(OPTCOMP)))
+compilerlibs/ocamloptcomp.cma: $(OPTCOMP_CMO)
 	$(CAMLC) -a -o $@ $^
 
 partialclean::
@@ -774,14 +681,14 @@ beforedepend:: parsing/lexer.ml
 
 # Shared parts of the system compiled with the native-code compiler
 
-compilerlibs/ocamlcommon.cmxa: $(COMMON:.cmo=.cmx)
+compilerlibs/ocamlcommon.cmxa: $(COMMON_CMO:.cmo=.cmx)
 	$(CAMLOPT) -a -linkall -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlcommon.cmxa compilerlibs/ocamlcommon.$(A)
 
 # The bytecode compiler compiled with the native-code compiler
 
-compilerlibs/ocamlbytecomp.cmxa: $(BYTECOMP:.cmo=.cmx)
+compilerlibs/ocamlbytecomp.cmxa: $(BYTECOMP_CMO:.cmo=.cmx)
 	$(CAMLOPT) -a $(OCAML_NATDYNLINKOPTS) -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamlbytecomp.cmxa compilerlibs/ocamlbytecomp.$(A)
@@ -795,7 +702,7 @@ partialclean::
 
 # The native-code compiler compiled with itself
 
-compilerlibs/ocamloptcomp.cmxa: $(OPTCOMP:.cmo=.cmx)
+compilerlibs/ocamloptcomp.cmxa: $(OPTCOMP_CMO:.cmo=.cmx)
 	$(CAMLOPT) -a -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamloptcomp.cmxa compilerlibs/ocamloptcomp.$(A)
