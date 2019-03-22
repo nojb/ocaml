@@ -72,7 +72,7 @@ include compilerlibs/CompilerModules
 
 Makefile.prefix: compilerlibs/CompilerModules
 	cat /dev/null > $@
-	$(foreach LIBNAME,COMMON BYTECOMP OPTCOMP,\
+	$(foreach LIBNAME,COMMON BYTECOMP TOPLEVEL OPTCOMP,\
 	libname="$$(echo $(LIBNAME) | tr [:upper:] [:lower:])"; \
 	for ml in $(filter-out $(MODULES_WITHOUT_IMPLEMENTATION),$($(LIBNAME))); do \
 	  mod="$$(echo $$(basename $$ml) | awk '{print toupper(substr($$0,1,1)) substr($$0,2)}')"; \
@@ -120,9 +120,6 @@ Makefile.prefix: compilerlibs/CompilerModules
 ARCH_SPECIFIC =\
   asmcomp/arch.ml asmcomp/proc.ml asmcomp/CSE.ml asmcomp/selection.ml \
   asmcomp/scheduling.ml asmcomp/reload.ml
-
-TOPLEVEL=toplevel/genprintval.cmo toplevel/toploop.cmo \
-  toplevel/trace.cmo toplevel/topdirs.cmo toplevel/topmain.cmo
 
 OPTTOPLEVEL=toplevel/genprintval.cmo toplevel/opttoploop.cmo \
   toplevel/opttopdirs.cmo toplevel/opttopmain.cmo
@@ -627,7 +624,7 @@ partialclean::
 
 # The toplevel
 
-compilerlibs/ocamltoplevel.cma: $(TOPLEVEL)
+compilerlibs/ocamltoplevel.cma: $(TOPLEVEL_CMO)
 	$(CAMLC) -a -o $@ $^
 partialclean::
 	rm -f compilerlibs/ocamltoplevel.cma

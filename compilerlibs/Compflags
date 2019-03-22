@@ -21,6 +21,8 @@ case $1 in
       echo '-no-alias-deps -w -49';;
   compilerlibs/ocamloptcomp.cm*)
       echo '-no-alias-deps -w -49';;
+  compilerlibs/ocamltoplevel.cm*)
+      echo '-no-alias-deps -w -49';;
   compilerlibs/ocamlcommon__*.cm*)
       echo '-I compilerlibs' \
            '-open Ocamlcommon';;
@@ -28,6 +30,11 @@ case $1 in
       echo '-I compilerlibs' \
            '-open Ocamlcommon' \
            '-open Ocamlbytecomp';;
+  compilerlibs/ocamltoplevel__*.cm*)
+      echo '-I compilerlibs' \
+           '-open Ocamlcommon' \
+           '-open Ocamlbytecomp' \
+           '-open Ocamltoplevel';;
   compilerlibs/ocamloptcomp__*.cm*)
       echo '-I compilerlibs' \
            '-open Ocamlcommon' \
@@ -44,6 +51,12 @@ case $1 in
            '-I driver' \
            '-open Ocamlcommon' \
            '-open Ocamloptcomp';;
+  toplevel/topstart.cm*)
+      echo '-I compilerlibs' \
+           '-open Ocamltoplevel';;
+  toplevel/expunge.cm*)
+      echo '-I compilerlibs' \
+           '-open Ocamlcommon';;
   *)
       ;;
 esac

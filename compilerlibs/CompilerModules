@@ -210,3 +210,6 @@ MIDDLE_END=\
   middle_end/middle_end
 
 OPTCOMP=$(MIDDLE_END) $(ASMCOMP)
+
+TOPLEVEL=toplevel/genprintval toplevel/toploop \
+  toplevel/trace toplevel/topdirs toplevel/topmain
