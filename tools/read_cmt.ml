@@ -73,7 +73,7 @@ let record_cmt_info cmt =
 
 let generate_annot ?(save_cmt_info = false) target_filename filename cmt =
   Envaux.reset_cache ();
-  List.iter Load_path.add_dir (List.rev cmt.cmt_loadpath);
+  List.iter Load_path.add_dir (List.rev cmt.Cmt_format.cmt_loadpath);
   let target_filename =
     match target_filename with
     | None -> Some (filename ^ ".annot")
