@@ -1773,10 +1773,9 @@ and type_module_aux ~alias sttn funct_body anchor env smod =
                  mod_attributes = smod.pmod_attributes;
                  mod_loc = smod.pmod_loc } in
       let aliasable = not (Env.is_functor_arg path env) in
-      let md =
-        if alias && aliasable then
-          (Env.add_required_global (Path.head path); md)
-        else match (Env.find_module path env).md_type with
+      if alias && aliasable then
+        (Env.add_required_global (Path.head path); md)
+      else begin match (Env.find_module path env).md_type with
         | Mty_alias p1 when not alias ->
             let p1 = Env.normalize_module_path (Some smod.pmod_loc) env p1 in
             let mty = Includemod.expand_module_alias env [] p1 in
