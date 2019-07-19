@@ -550,7 +550,6 @@ let loop ppf =
   while true do
     let snap = Btype.snapshot () in
     try
-      Lexing.flush_input lb;
       Location.reset();
       Warnings.reset_fatal ();
       first_line := true;
@@ -559,10 +558,14 @@ let loop ppf =
       Env.reset_cache_toplevel ();
       ignore(execute_phrase true ppf phr)
     with
-    | End_of_file -> exit 0
-    | Sys.Break -> fprintf ppf "Interrupted.@."; Btype.backtrack snap
-    | PPerror -> ()
-    | x -> Location.report_exception ppf x; Btype.backtrack snap
+    | End_of_file ->
+        exit 0
+    | Sys.Break ->
+        fprintf ppf "Interrupted.@."; Lexing.flush_input lb; Btype.backtrack snap
+    | PPerror ->
+        Lexing.flush_input lb
+    | x ->
+        Location.report_exception ppf x; Lexing.flush_input lb; Btype.backtrack snap
   done
 
 external caml_sys_modify_argv : string array -> unit =
