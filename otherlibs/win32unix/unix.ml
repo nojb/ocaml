@@ -357,9 +357,9 @@ external findnext : int -> string= "win_findnext"
 let opendir dirname =
   try
     let (first_entry, handle) = findfirst (Filename.concat dirname "*.*") in
-    { dirname = dirname; handle = handle; entry_read = Dir_read first_entry }
+    { dirname; handle; entry_read = Dir_read first_entry }
   with End_of_file ->
-    { dirname = dirname; handle = 0; entry_read = Dir_empty }
+    { dirname; handle = 0; entry_read = Dir_empty }
 
 let readdir d =
   match d.entry_read with

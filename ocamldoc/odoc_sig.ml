@@ -1565,8 +1565,8 @@ module Analyser =
                    mp_type =
                     Option.map (Odoc_env.subst_module_type env)
                       param_module_type;
-                   mp_type_code = mp_type_code ;
-                   mp_kind = mp_kind ;
+                   mp_type_code ;
+                   mp_kind ;
                  }
                in
                let k = analyse_module_type_kind ~erased env
@@ -1659,8 +1659,8 @@ module Analyser =
                    mp_name = Name.from_ident ident ;
                    mp_type = Option.map
                     (Odoc_env.subst_module_type env) param_module_type ;
-                   mp_type_code = mp_type_code ;
-                   mp_kind = mp_kind ;
+                   mp_type_code ;
+                   mp_kind ;
                  }
                in
                let k = analyse_module_kind ~erased env

@@ -432,7 +432,7 @@ and transl_exp0 e =
             Lsend (kind, tag, obj, cache, e.exp_loc)
       in
       event_after e lam
-  | Texp_new (cl, {Location.loc=loc}, _) ->
+  | Texp_new (cl, {Location.loc}, _) ->
       Lapply{ap_should_be_tailcall=false;
              ap_loc=loc;
              ap_func=
@@ -672,7 +672,7 @@ and transl_apply ?(should_be_tailcall=false) ?(inlined = Default_inline)
           | lam ->
               Lfunction{kind = Curried; params = [id_arg, Pgenval];
                         return = Pgenval; body = lam;
-                        attr = default_stub_attribute; loc = loc}
+                        attr = default_stub_attribute; loc}
         in
         List.fold_left
           (fun body (id, lam) -> Llet(Strict, Pgenval, id, lam, body))

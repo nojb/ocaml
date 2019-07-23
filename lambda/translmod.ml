@@ -114,7 +114,7 @@ and apply_coercion_result loc strict funct params args cc_res =
                attr = { default_function_attribute with
                         is_a_functor = true;
                         stub = true; };
-               loc = loc;
+               loc;
                body = apply_coercion
                    loc Strict cc_res
                    (Lapply{ap_should_be_tailcall=false;

@@ -157,7 +157,7 @@ let compare_files ?(tool = default_comparison_tool) files =
 
 let check_file ?(tool = default_comparison_tool) files =
   if Sys.file_exists files.reference_filename
-  then compare_files ~tool:tool files
+  then compare_files ~tool files
   else begin
     if Sys.file_is_empty files.output_filename
     then Same

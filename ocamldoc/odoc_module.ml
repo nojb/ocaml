@@ -275,7 +275,7 @@ let module_elements ?(trans=true) m =
           iter_kind k
       | Module_with (tk,_) ->
           print_DEBUG "Odoc_module.module_elements: Module_with";
-          module_type_elements ~trans: trans
+          module_type_elements ~trans
             { mt_name = "" ; mt_info = None ; mt_type = None ;
               mt_is_interface = false ; mt_file = "" ; mt_kind = Some tk ;
               mt_loc = Odoc_types.dummy_loc ;
@@ -283,7 +283,7 @@ let module_elements ?(trans=true) m =
       | Module_constraint (k, _tk) ->
           print_DEBUG "Odoc_module.module_elements: Module_constraint";
           (* FIXME : use k or tk ? *)
-          module_elements visited ~trans: trans
+          module_elements visited ~trans
             { m_name = "" ;
               m_info = None ;
               m_type = Types.Mty_signature [] ;
@@ -429,7 +429,7 @@ and module_parameters ?(trans=true) m =
         else
           []
     | Module_constraint (_k, tk) ->
-        module_type_parameters ~trans: trans
+        module_type_parameters ~trans
           { mt_name = "" ; mt_info = None ; mt_type = None ;
             mt_is_interface = false ; mt_file = "" ; mt_kind = Some tk ;
             mt_loc = Odoc_types.dummy_loc }

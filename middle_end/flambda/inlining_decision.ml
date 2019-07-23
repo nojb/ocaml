@@ -377,7 +377,7 @@ let specialise env r ~lhs_of_application
           ~r:(R.reset_benefit r) ~lhs_of_application
           ~function_decls ~closure_id_being_applied ~function_decl
           ~args ~args_approxs
-          ~invariant_params:invariant_params
+          ~invariant_params
           ~specialised_args:value_set_of_closures.specialised_args
           ~free_vars:value_set_of_closures.free_vars
           ~direct_call_surrogates:value_set_of_closures.direct_call_surrogates
@@ -530,7 +530,7 @@ let for_call_site ~env ~r ~(function_decls : A.function_declarations)
     else if function_decls.is_classic_mode then begin
       let env =
         E.note_entering_call env
-          ~closure_id:closure_id_being_applied ~dbg:dbg
+          ~closure_id:closure_id_being_applied ~dbg
       in
       let simpl =
         match function_decl.function_body with
@@ -614,7 +614,7 @@ let for_call_site ~env ~r ~(function_decls : A.function_declarations)
       let env = E.unset_never_inline_inside_closures env in
       let env =
         E.note_entering_call env
-          ~closure_id:closure_id_being_applied ~dbg:dbg
+          ~closure_id:closure_id_being_applied ~dbg
       in
       let max_level =
         Clflags.Int_arg_helper.get ~key:(E.round env) !Clflags.inline_max_depth

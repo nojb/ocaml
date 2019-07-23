@@ -235,7 +235,7 @@ module Naming =
 class ocaml_code =
   object
     method html_of_code b ?(with_pre=true) code =
-      Odoc_ocamlhtml.html_of_code b ~with_pre: with_pre code
+      Odoc_ocamlhtml.html_of_code b ~with_pre code
   end
 
 let new_buf () = Buffer.create 1024

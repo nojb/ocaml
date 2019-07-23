@@ -250,8 +250,8 @@ method private add_instruction ready_queue instr =
   let delay = self#instr_latency instr in
   let destroyed = self#destroyed_by_instr instr in
   let node =
-    { instr = instr;
-      delay = delay;
+    { instr;
+      delay;
       sons = [];
       date = 0;
       length = -1;

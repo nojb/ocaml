@@ -189,7 +189,7 @@ let of_bytes s =
 
 let of_channel ic =
   Some {count = 0;
-        data = Sbuffio {ic = ic; buff = Bytes.create 4096; len = 0; ind = 0}}
+        data = Sbuffio {ic; buff = Bytes.create 4096; len = 0; ind = 0}}
 
 
 (* Stream expressions builders *)

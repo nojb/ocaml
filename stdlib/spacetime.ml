@@ -38,7 +38,7 @@ module Series = struct
       let channel = open_out path in
       register_channel_for_spacetime channel;
       let t =
-        { channel = channel;
+        { channel;
           closed = false;
         }
       in

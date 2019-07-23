@@ -62,7 +62,7 @@ let string_of_lam lam =
   Format.flush_str_formatter ()
 
 let all_record_args lbls = match lbls with
-| (_,{lbl_all=lbl_all},_)::_ ->
+| (_,{lbl_all},_)::_ ->
     let t =
       Array.map
         (fun lbl -> mknoloc (Longident.Lident "?temp?"), lbl,omega)
@@ -81,7 +81,7 @@ type ctx = {left:pattern list ; right:pattern list}
 
 let pretty_ctx ctx =
   List.iter
-    (fun {left=left ; right=right} ->
+    (fun {left ; right} ->
       Format.eprintf "LEFT:%a RIGHT:%a\n" pretty_line left pretty_line right)
     ctx
 
@@ -89,11 +89,11 @@ let le_ctx c1 c2 =
   le_pats c1.left c2.left &&
   le_pats c1.right c2.right
 
-let lshift {left=left ; right=right} = match right with
+let lshift {left ; right} = match right with
 | x::xs -> {left=x::left ; right=xs}
 | _ ->  assert false
 
-let lforget {left=left ; right=right} = match right with
+let lforget {left ; right} = match right with
 | _::xs -> {left=omega::left ; right=xs}
 |  _ -> assert false
 
@@ -110,7 +110,7 @@ let ctx_lshift ctx =
     get_mins le_ctx (List.map lforget ctx)
   end
 
-let  rshift {left=left ; right=right} = match left with
+let  rshift {left ; right} = match left with
 | p::ps -> {left=ps ; right=p::right}
 | _ -> assert false
 
@@ -124,9 +124,9 @@ let rec nchars n ps =
     p::chars,cdrs
   | _ -> assert false
 
-let  rshift_num n {left=left ; right=right} =
+let  rshift_num n {left ; right} =
   let shifted,left = nchars n left in
-  {left=left ; right = shifted@right}
+  {left ; right = shifted@right}
 
 let ctx_rshift_num n ctx = List.map (rshift_num n) ctx
 
@@ -134,7 +134,7 @@ let ctx_rshift_num n ctx = List.map (rshift_num n) ctx
   All mutable fields are replaced by '_', since side-effects in
   guards can alter these fields *)
 
-let combine {left=left ; right=right} = match left with
+let combine {left ; right} = match left with
 | p::ps -> {left=ps ; right=set_args_erase_mutable p right}
 | _ -> assert false
 
@@ -265,7 +265,7 @@ let filter_ctx q ctx =
             begin let rem = filter_rec rem in
             try
               let to_left, right = matcher p ps in
-              {left=to_left::l.left ; right=right}::rem
+              {left=to_left::l.left ; right}::rem
             with
             | NoMatch -> rem
             end
@@ -280,10 +280,10 @@ let select_columns pss ctx =
   List.fold_right
     (fun ps r ->
       List.fold_right
-        (fun {left=left ; right=right} r ->
+        (fun {left ; right} r ->
           let transfert, right = nchars n right in
           try
-            {left = lubs transfert ps @ left ; right=right}::r
+            {left = lubs transfert ps @ left ; right}::r
           with
           | Empty -> r)
         ctx r)
@@ -291,11 +291,11 @@ let select_columns pss ctx =
 
 let ctx_lub p ctx =
   List.fold_right
-    (fun {left=left ; right=right} r ->
+    (fun {left ; right} r ->
       match right with
       | q::rem ->
           begin try
-            {left=left ; right = lub p q::rem}::r
+            {left ; right = lub p q::rem}::r
           with
           | Empty -> r
           end
@@ -698,7 +698,7 @@ let rec explode_or_pat arg patl mk_action rem vars aliases = function
       let env = mk_alpha_env arg aliases vars in
       (alpha_pat env p::patl,mk_action (List.map snd env))::rem
 
-let pm_free_variables {cases=cases} =
+let pm_free_variables {cases} =
   List.fold_right
     (fun (_,act) r -> Ident.Set.union (free_variables act) r)
     cases Ident.Set.empty
@@ -917,7 +917,7 @@ let rec split_or argo cls args def =
     | [] ->
         precompile_or argo yes yesor args def []
     | rem ->
-        let {me=next ; matrix=matrix ; top_default=def},nexts =
+        let {me=next ; matrix ; top_default=def},nexts =
           do_split [] [] [] rem in
         let idef = next_raise_count () in
         precompile_or
@@ -935,7 +935,7 @@ and split_naive cls args def k =
   let rec split_exc cstr0 yes = function
     | [] ->
         let yes = List.rev yes in
-        { me = Pm {cases=yes; args=args; default=def;} ;
+        { me = Pm {cases=yes; args; default=def;} ;
           matrix = as_matrix yes ;
           top_default=def},
         k
@@ -945,21 +945,21 @@ and split_naive cls args def k =
           if cstr = cstr0 then split_exc cstr0 (cl::yes) rem
           else
             let yes = List.rev yes in
-            let {me=next ; matrix=matrix ; top_default=def}, nexts =
+            let {me=next ; matrix ; top_default=def}, nexts =
               split_exc cstr [cl] rem in
             let idef = next_raise_count () in
             let def = cons_default matrix idef def in
-            { me = Pm {cases=yes; args=args; default=def} ;
+            { me = Pm {cases=yes; args; default=def} ;
               matrix = as_matrix yes ;
               top_default = def; },
             (idef,next)::nexts
         else
           let yes = List.rev yes in
-          let {me=next ; matrix=matrix ; top_default=def}, nexts =
+          let {me=next ; matrix ; top_default=def}, nexts =
               split_noexc [cl] rem in
             let idef = next_raise_count () in
             let def = cons_default matrix idef def in
-            { me = Pm {cases=yes; args=args; default=def} ;
+            { me = Pm {cases=yes; args; default=def} ;
               matrix = as_matrix yes ;
               top_default = def; },
             (idef,next)::nexts
@@ -970,7 +970,7 @@ and split_naive cls args def k =
     | (p::_,_ as cl)::rem ->
         if group_constructor p then
           let yes= List.rev yes in
-          let {me=next; matrix=matrix; top_default=def;},nexts =
+          let {me=next; matrix; top_default=def;},nexts =
             split_exc (pat_as_constr p) [cl] rem in
           let idef = next_raise_count () in
           precompile_var
@@ -1004,7 +1004,7 @@ and split_constr cls args def k =
             let yes = List.rev yes and no = List.rev no in
             begin match no with
             | [] ->
-                {me = Pm {cases=yes ; args=args ; default=def} ;
+                {me = Pm {cases=yes ; args ; default=def} ;
                   matrix = as_matrix yes ;
                   top_default = def},
                 k
@@ -1014,11 +1014,11 @@ and split_constr cls args def k =
                     (* Could not success in raising up a constr matching up *)
                     split_noex [cl] [] rem
                 | _ ->
-                    let {me=next ; matrix=matrix ; top_default=def}, nexts =
+                    let {me=next ; matrix ; top_default=def}, nexts =
                       split_noex [cl] [] rem in
                     let idef = next_raise_count () in
                     let def = cons_default matrix idef def in
-                    {me = Pm {cases=yes ; args=args ; default=def} ;
+                    {me = Pm {cases=yes ; args ; default=def} ;
                       matrix = as_matrix yes ;
                       top_default = def },
                     (idef, next)::nexts
@@ -1037,7 +1037,7 @@ and split_constr cls args def k =
             begin match no with
             | [] -> precompile_var args yes def k
             | cl::rem ->
-                let {me=next ; matrix=matrix ; top_default=def}, nexts =
+                let {me=next ; matrix ; top_default=def}, nexts =
                   split_ex [cl] [] rem in
                 let idef = next_raise_count () in
                 precompile_var
@@ -1077,7 +1077,7 @@ and precompile_var  args cls def k = match args with
             | _::ps -> ps,act | _     -> assert false)
             cls
         and var_def = make_default (fun _ rem -> rem) def in
-        let {me=first ; matrix=matrix}, nexts =
+        let {me=first ; matrix}, nexts =
           split_or (Some v) var_cls (arg::rargs) var_def in
 
 (* Compute top information *)
@@ -1096,7 +1096,7 @@ and precompile_var  args cls def k = match args with
     dont_precompile_var args cls def k
 
 and dont_precompile_var args cls def k =
-  {me =  Pm {cases = cls ; args = args ; default = def } ;
+  {me =  Pm {cases = cls ; args ; default = def } ;
     matrix=as_matrix cls ;
     top_default=def},k
 
@@ -1141,9 +1141,9 @@ and precompile_or argo cls ors args def k = match ors with
 
     let end_body, handlers = do_cases ors in
     let matrix = as_matrix (cls@ors)
-    and body = {cases=cls@end_body ; args=args ; default=def} in
-    {me = PmOr {body=body ; handlers=handlers ; or_matrix=matrix} ;
-      matrix=matrix ;
+    and body = {cases=cls@end_body ; args ; default=def} in
+    {me = PmOr {body ; handlers ; or_matrix=matrix} ;
+      matrix ;
       top_default=def},
     k
 
@@ -1200,7 +1200,7 @@ let divide_line make_ctx make get_args pat ctx pm =
 
   {pm = divide_rec pm.cases ;
   ctx=make_ctx ctx ;
-  pat=pat}
+  pat}
 
 
 
@@ -1250,7 +1250,7 @@ let make_constant_matching p def ctx = function
       and ctx =
         filter_ctx p  ctx in
       {pm = {cases = []; args = argl ; default = def} ;
-        ctx = ctx ;
+        ctx ;
         pat = normalize_pat p}
 
 
@@ -1377,7 +1377,7 @@ let make_variant_matching_constant p lab def ctx = function
       let def = make_default (matcher_variant_const lab) def
       and ctx = filter_ctx p ctx in
       {pm={ cases = []; args = argl ; default=def} ;
-        ctx=ctx ;
+        ctx ;
         pat = normalize_pat p}
 
 let matcher_variant_nonconst lab p rem = match p.pat_desc with
@@ -1395,7 +1395,7 @@ let make_variant_matching_nonconst p lab def ctx = function
       {pm=
         {cases = []; args = (Lprim(Pfield 1, [arg], p.pat_loc), Alias) :: argl;
           default=def} ;
-        ctx=ctx ;
+        ctx ;
         pat = normalize_pat p}
 
 let divide_variant row ctx {cases = cl; args = al; default=def} =
@@ -1699,7 +1699,7 @@ let make_array_matching kind p def ctx = function
       let def = make_default (matcher_array len) def
       and ctx = filter_ctx p ctx in
       {pm={cases = []; args = make_args 0 ; default = def} ;
-        ctx=ctx ;
+        ctx ;
         pat = normalize_pat p}
 
 let divide_array kind ctx pm =
@@ -2790,7 +2790,7 @@ and do_compile_matching repr partial ctx arg pmh = match pmh with
     let lam, total =
       do_compile_matching repr partial (ctx_lshift ctx) arg pmh in
     lam, jumps_map ctx_rshift total
-| PmOr {body=body ; handlers=handlers} ->
+| PmOr {body ; handlers} ->
     let lam, total = compile_match repr partial ctx body in
     compile_orhandlers (compile_match repr partial) lam total ctx handlers
 
@@ -3139,7 +3139,7 @@ let flatten_def size def =
     def
 
 let flatten_pm size args pm =
-    {args = args ; cases = flatten_cases size pm.cases ;
+    {args ; cases = flatten_cases size pm.cases ;
      default = flatten_def size pm.default}
 
 

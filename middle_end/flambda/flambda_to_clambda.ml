@@ -260,7 +260,7 @@ let rec to_clambda t env (flam : Flambda.t) : Clambda.ulambda =
         defs
     in
     Uletrec (defs, to_clambda t env body)
-  | Apply { func; args; kind = Direct direct_func; dbg = dbg } ->
+  | Apply { func; args; kind = Direct direct_func; dbg } ->
     (* The closure _parameter_ of the function is added by cmmgen.
        At the call site, for a direct call, the closure argument must be
        explicitly added (by [to_clambda_direct_apply]); there is no special
@@ -269,7 +269,7 @@ let rec to_clambda t env (flam : Flambda.t) : Clambda.ulambda =
        do the equivalent of the previous paragraph when it generates a direct
        call to [caml_apply]. *)
     to_clambda_direct_apply t func args direct_func dbg env
-  | Apply { func; args; kind = Indirect; dbg = dbg } ->
+  | Apply { func; args; kind = Indirect; dbg } ->
     let callee = subst_var env func in
     Ugeneric_apply (check_closure t callee (Flambda.Expr (Var func)),
       subst_vars env args, dbg)

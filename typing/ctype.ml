@@ -1514,7 +1514,7 @@ let check_abbrev_env env =
 let expand_abbrev_gen kind find_type_expansion env ty =
   check_abbrev_env env;
   match ty with
-    {desc = Tconstr (path, args, abbrev); level = level; scope} ->
+    {desc = Tconstr (path, args, abbrev); level; scope} ->
       let lookup_abbrev = proper_abbrevs path args abbrev in
       begin match find_expans kind path !lookup_abbrev with
         Some ty' ->
@@ -1666,7 +1666,7 @@ let expand_head_opt env ty =
    respect the type constraints *)
 let enforce_constraints env ty =
   match ty with
-    {desc = Tconstr (path, args, _abbrev); level = level} ->
+    {desc = Tconstr (path, args, _abbrev); level} ->
       begin try
         let decl = Env.find_type path env in
         ignore

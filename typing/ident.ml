@@ -195,11 +195,11 @@ let balance l d r =
 
 let rec add id data = function
     Empty ->
-      Node(Empty, {ident = id; data = data; previous = None}, Empty, 1)
+      Node(Empty, {ident = id; data; previous = None}, Empty, 1)
   | Node(l, k, r, h) ->
       let c = compare (name id) (name k.ident) in
       if c = 0 then
-        Node(l, {ident = id; data = data; previous = Some k}, r, h)
+        Node(l, {ident = id; data; previous = Some k}, r, h)
       else if c < 0 then
         balance (add id data l) k r
       else
@@ -317,7 +317,7 @@ let make_key_generator () =
   | Scoped _ ->
       let stamp = !c in
       decr c ;
-      Local { name = key_name; stamp = stamp }
+      Local { name = key_name; stamp }
   | global_id ->
       Misc.fatal_errorf "Ident.make_key_generator () %s" (name global_id)
 

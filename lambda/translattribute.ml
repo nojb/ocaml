@@ -184,7 +184,7 @@ let add_inline_attribute expr loc attributes =
       end;
       let attr = { attr with inline } in
       check_local_inline loc attr;
-      Lfunction { funct with attr = attr }
+      Lfunction { funct with attr }
   | expr, (Always_inline | Never_inline | Unroll _) ->
       Location.prerr_warning loc
         (Warnings.Misplaced_attribute "inline");

@@ -34,7 +34,7 @@ type tsl_item =
 
 type tsl_block = tsl_item list
 
-let make ?(loc = Location.none) foo = { node = foo; loc = loc }
+let make ?(loc = Location.none) foo = { node = foo; loc }
 
 let make_identifier = make
 let make_string = make

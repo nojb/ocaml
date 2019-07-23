@@ -581,7 +581,7 @@ let rec pkey chan  = function
         Arg.bind
           (Arg.make_offset ctx.arg (-l))
           (fun arg ->
-             let ctx = {off= (-l+ctx.off) ; arg=arg} in
+             let ctx = {off= (-l+ctx.off) ; arg} in
              do_make_if_out
                (Arg.make_const d) arg (mk_ifso ctx) (mk_ifno ctx))
 
@@ -596,11 +596,11 @@ let rec pkey chan  = function
         Arg.bind
           (Arg.make_offset ctx.arg (-l))
           (fun arg ->
-             let ctx = {off= (-l+ctx.off) ; arg=arg} in
+             let ctx = {off= (-l+ctx.off) ; arg} in
              do_make_if_in
                (Arg.make_const d) arg (mk_ifso ctx) (mk_ifno ctx))
 
-  let rec c_test ctx ({cases=cases ; actions=actions} as s) =
+  let rec c_test ctx ({cases ; actions} as s) =
     let lcases = Array.length cases in
     assert(lcases > 0) ;
     if lcases = 1 then
@@ -740,7 +740,7 @@ let rec pkey chan  = function
     min_clusters.(len-1),k
 
   (* Assume j > i *)
-  let make_switch loc {cases=cases ; actions=actions} i j =
+  let make_switch loc {cases ; actions} i j =
     let ll,_,_ = cases.(i)
     and _,hh,_ = cases.(j) in
     let tbl = Array.make (hh-ll+1) 0
@@ -776,7 +776,7 @@ let rec pkey chan  = function
              (fun arg -> Arg.make_switch loc arg tbl acts))
 
 
-  let make_clusters loc ({cases=cases ; actions=actions} as s) n_clusters k =
+  let make_clusters loc ({cases ; actions} as s) n_clusters k =
     let len = Array.length cases in
     let r = Array.make n_clusters (0,0,0)
     and t = Hashtbl.create 17
@@ -825,7 +825,7 @@ let rec pkey chan  = function
     ok_inter := (abs low <= inter_limit && abs high <= inter_limit) ;
     if !ok_inter <> old_ok then Hashtbl.clear t ;
 
-    let s = {cases=cases ; actions=actions} in
+    let s = {cases ; actions} in
 
 (*
   Printf.eprintf "ZYVA: %B [low=%i,high=%i]\n" !ok_inter low high ;
@@ -834,7 +834,7 @@ let rec pkey chan  = function
 *)
     let n_clusters,k = comp_clusters s in
     let clusters = make_clusters loc s n_clusters k in
-    c_test {arg=arg ; off=0} clusters
+    c_test {arg ; off=0} clusters
 
   let abstract_shared actions =
     let handlers = ref (fun x -> x) in
@@ -864,14 +864,14 @@ let rec pkey chan  = function
     ok_inter := false ;
     if !ok_inter <> old_ok then Hashtbl.clear t ;
     let s =
-      {cases=cases ;
+      {cases ;
        actions=Array.map (fun act -> (fun _ -> act)) actions} in
 (*
   Printf.eprintf "SEQUENCE: %B\n" !ok_inter ;
   pcases stderr cases ;
   prerr_endline "" ;
 *)
-    hs (c_test {arg=arg ; off=0} s)
+    hs (c_test {arg ; off=0} s)
   ;;
 
 end

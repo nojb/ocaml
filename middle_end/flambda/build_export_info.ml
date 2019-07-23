@@ -440,7 +440,7 @@ let describe_constant_defining_value env export_id symbol
       end;
       let descr =
         Export_info.Value_closure
-          { closure_id = closure_id; set_of_closures; }
+          { closure_id; set_of_closures; }
       in
       Env.record_descr env export_id descr
     | None ->

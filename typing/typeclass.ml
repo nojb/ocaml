@@ -1490,7 +1490,7 @@ let class_infos define_class kind
     }
   and clty =
     {cty_params = params; cty_type = typ;
-     cty_variance = cty_variance;
+     cty_variance;
      cty_path = Path.Pident obj_id;
      cty_new =
        begin match cl.pci_virt with
@@ -1539,7 +1539,7 @@ let class_infos define_class kind
     }
   and clty =
     {cty_params = params'; cty_type = typ';
-     cty_variance = cty_variance;
+     cty_variance;
      cty_path = Path.Pident obj_id;
      cty_new =
        begin match cl.pci_virt with
@@ -1642,7 +1642,7 @@ let final_decl env define_class
     id_loc = cl.pci_name;
     req = { ci_loc = cl.pci_loc;
             ci_virt = cl.pci_virt;
-            ci_params = ci_params;
+            ci_params;
         (* TODO : check that we have the correct use of identifiers *)
             ci_id_name = cl.pci_name;
             ci_id_class = id;

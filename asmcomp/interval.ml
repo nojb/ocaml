@@ -80,14 +80,14 @@ let update_interval_position intervals pos kind reg =
   if i.iend = 0 then begin
     i.ibegin <- rbegin;
     i.reg <- reg;
-    i.ranges <- [{rbegin = rbegin; rend = rend}]
+    i.ranges <- [{rbegin; rend}]
   end else begin
     let r = List.hd i.ranges in
     let ridx = r.rend asr 1 in
     if pos - ridx <= 1 then
       r.rend <- rend
     else
-      i.ranges <- {rbegin = rbegin; rend = rend} :: i.ranges
+      i.ranges <- {rbegin; rend} :: i.ranges
   end;
   i.iend <- rend
 

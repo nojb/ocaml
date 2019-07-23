@@ -930,8 +930,8 @@ let pp_make_formatter f g h i j =
     pp_tbox_stack = Stack.create ();
     pp_tag_stack = Stack.create ();
     pp_mark_stack = Stack.create ();
-    pp_margin = pp_margin;
-    pp_min_space_left = pp_min_space_left;
+    pp_margin;
+    pp_min_space_left;
     pp_max_indent = pp_margin - pp_min_space_left;
     pp_space_left = pp_margin;
     pp_current_indent = 0;
@@ -952,7 +952,7 @@ let pp_make_formatter f g h i j =
     pp_mark_close_tag = default_pp_mark_close_tag;
     pp_print_open_tag = default_pp_print_open_tag;
     pp_print_close_tag = default_pp_print_close_tag;
-    pp_queue = pp_queue;
+    pp_queue;
   }
 
 

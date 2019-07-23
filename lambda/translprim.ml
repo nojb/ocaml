@@ -744,8 +744,8 @@ let transl_primitive loc p env ty path =
                  params;
                  return = Pgenval;
                  attr = default_stub_attribute;
-                 loc = loc;
-                 body = body; }
+                 loc;
+                 body; }
 
 (* Determine if a primitive is a Pccall or will be turned later into
    a C function call that may raise an exception *)

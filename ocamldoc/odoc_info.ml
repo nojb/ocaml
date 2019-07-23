@@ -115,7 +115,7 @@ let analyse_files
   Odoc_global.classic := not labels;
   Odoc_global.sort_modules := sort_modules;
   Odoc_global.no_stop := no_stop;
-  Odoc_analyse.analyse_files ~init: init files
+  Odoc_analyse.analyse_files ~init files
 
 let dump_modules = Odoc_analyse.dump_modules
 

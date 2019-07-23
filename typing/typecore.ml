@@ -2861,20 +2861,20 @@ and type_expect_
                                 exp_loc = loc; exp_extra = [];
                                 exp_type = method_type;
                                 exp_attributes = []; (* check *)
-                                exp_env = exp_env},
+                                exp_env},
                           [ Nolabel,
                             Some {exp_desc = Texp_ident(path, lid, desc);
                                   exp_loc = obj.exp_loc; exp_extra = [];
                                   exp_type = desc.val_type;
                                   exp_attributes = []; (* check *)
-                                  exp_env = exp_env}
+                                  exp_env}
                           ])
                   in
                   (Tmeth_name met, Some (re {exp_desc = exp;
                                              exp_loc = loc; exp_extra = [];
                                              exp_type = typ;
                                              exp_attributes = []; (* check *)
-                                             exp_env = exp_env}), typ)
+                                             exp_env}), typ)
               |  _ ->
                   assert false
               end
@@ -3461,13 +3461,13 @@ and type_format loc str env =
   try
     CamlinternalFormatBasics.(CamlinternalFormat.(
       let mk_exp_loc pexp_desc = {
-        pexp_desc = pexp_desc;
+        pexp_desc;
         pexp_loc = loc;
         pexp_loc_stack = [];
         pexp_attributes = [];
       } and mk_lid_loc lid = {
         txt = lid;
-        loc = loc;
+        loc;
       } in
       let mk_constr name args =
         let lid = Longident.(Ldot(Lident "CamlinternalFormatBasics", name)) in
@@ -3807,7 +3807,7 @@ and type_argument ?explanation ?recarg env sarg ty_expected' ty_expected =
         {pat_desc = Tpat_var (id, mknoloc name); pat_type = ty;pat_extra=[];
          pat_attributes = [];
          pat_loc = Location.none; pat_env = env},
-        {exp_type = ty; exp_loc = Location.none; exp_env = exp_env;
+        {exp_type = ty; exp_loc = Location.none; exp_env;
          exp_extra = []; exp_attributes = [];
          exp_desc =
          Texp_ident(Path.Pident id, mknoloc (Longident.Lident name), desc)}

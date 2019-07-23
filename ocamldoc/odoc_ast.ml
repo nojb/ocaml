@@ -1688,7 +1688,7 @@ module Analyser =
           m_loc = { loc_impl = Some loc ; loc_inter = None } ;
           m_top_deps = [] ;
           m_code = None ; (* code is set by the caller, after the module is created *)
-          m_code_intf = m_code_intf ;
+          m_code_intf ;
           m_text_only = false ;
       }
       in
@@ -1727,11 +1727,11 @@ module Analyser =
            in
            let param =
              {
-               mp_name = mp_name ;
+               mp_name ;
                mp_type = Option.map
                 (fun m -> Odoc_env.subst_module_type env m.mty_type) mtyp ;
-               mp_type_code = mp_type_code ;
-               mp_kind = mp_kind ;
+               mp_type_code ;
+               mp_kind ;
              }
            in
            let dummy_complete_name = (*Name.concat "__"*) param.mp_name in

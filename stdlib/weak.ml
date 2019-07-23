@@ -122,7 +122,7 @@ module Make (H : Hashtbl.HashedType) : (S with type data = H.t) = struct
     {
       table = Array.make sz emptybucket;
       hashes = Array.make sz [| |];
-      limit = limit;
+      limit;
       oversize = 0;
       rover = 0;
     }

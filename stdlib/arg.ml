@@ -281,7 +281,7 @@ let parse_argv_dynamic ?(current=current) argv speclist anonfun errmsg =
 
 
 let parse_argv ?(current=current) argv speclist anonfun errmsg =
-  parse_argv_dynamic ~current:current argv (ref speclist) anonfun errmsg
+  parse_argv_dynamic ~current argv (ref speclist) anonfun errmsg
 
 
 let parse l f msg =

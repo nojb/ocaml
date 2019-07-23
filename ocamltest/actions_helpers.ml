@@ -125,15 +125,15 @@ let run_cmd
       (Environments.to_system_env env)
   in
   Run_command.run {
-    Run_command.progname = progname;
+    Run_command.progname;
     Run_command.argv = arguments;
     Run_command.envp = systemenv;
-    Run_command.stdin_filename = stdin_filename;
-    Run_command.stdout_filename = stdout_filename;
-    Run_command.stderr_filename = stderr_filename;
-    Run_command.append = append;
-    Run_command.timeout = timeout;
-    Run_command.log = log
+    Run_command.stdin_filename;
+    Run_command.stdout_filename;
+    Run_command.stderr_filename;
+    Run_command.append;
+    Run_command.timeout;
+    Run_command.log
   }
 
 let run
@@ -244,7 +244,7 @@ let run_hook hook_name log input_env =
     stderr_filename = "";
     append = false;
     timeout = 0;
-    log = log;
+    log;
   } in let exit_status = run settings in
   let final_value = match exit_status with
     | 0 ->
@@ -284,8 +284,8 @@ let check_output kind_of_output output_variable reference_variable log
   let files =
   {
     Filecompare.filetype = Filecompare.Text;
-    Filecompare.reference_filename = reference_filename;
-    Filecompare.output_filename = output_filename
+    Filecompare.reference_filename;
+    Filecompare.output_filename
   } in
   let tool =
     Filecompare.(make_cmp_tool ~ignore:{lines=skip_lines;bytes=skip_bytes}) in

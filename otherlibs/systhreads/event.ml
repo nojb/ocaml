@@ -194,8 +194,8 @@ let always data =
 let send channel data =
   Communication(fun performed condition evnum ->
     let wcomm =
-      { performed = performed;
-        condition = condition;
+      { performed;
+        condition;
         data = Some data;
         event_number = evnum } in
     { poll = (fun () ->
@@ -222,8 +222,8 @@ let send channel data =
 let receive channel =
   Communication(fun performed condition evnum ->
     let rcomm =
-      { performed = performed;
-        condition = condition;
+      { performed;
+        condition;
         data = None;
         event_number = evnum } in
     { poll = (fun () ->

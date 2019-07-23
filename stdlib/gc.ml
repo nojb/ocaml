@@ -112,7 +112,7 @@ let rec call_alarm arec =
 
 
 let create_alarm f =
-  let arec = { active = ref true; f = f } in
+  let arec = { active = ref true; f } in
   finalise call_alarm arec;
   arec.active
 

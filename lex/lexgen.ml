@@ -497,7 +497,7 @@ let encode_lexdef def =
   chars_count := 0;
   let entry_list =
     List.map
-      (fun {name=entry_name; args=args; shortest=shortest; clauses=casedef} ->
+      (fun {name=entry_name; args; shortest; clauses=casedef} ->
         let (re,actions,_,ntags) = encode_casedef casedef in
         { lex_name = entry_name;
           lex_regexp = re;
@@ -690,7 +690,7 @@ let env_to_class m =
            ) r)
       m TagMap.empty in
   TagMap.fold
-    (fun tag ss r -> MemKey.add {tag=tag ; equiv=ss} r)
+    (fun tag ss r -> MemKey.add {tag ; equiv=ss} r)
     env1 MemKey.empty
 
 
@@ -911,7 +911,7 @@ let sort_mvs mvs =
 let move_to mem_key src tgt =
   let mvs =
     MemKey.fold
-      (fun {tag=tag ; equiv=m} r ->
+      (fun {tag ; equiv=m} r ->
         StateSetSet.fold
           (fun s r ->
             try
@@ -1119,7 +1119,7 @@ let dfollow t =
 
 let make_tag_entry id start act a r = match a with
   | Sum (Mem m,0) ->
-      TagMap.add {id=id ; start=start ; action=act} m r
+      TagMap.add {id ; start ; action=act} m r
   | _ -> r
 
 let extract_tags l =

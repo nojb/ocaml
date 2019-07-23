@@ -73,7 +73,7 @@ let rec power_2_above x n =
 let create ?(random = !randomized) initial_size =
   let s = power_2_above 16 initial_size in
   let seed = if random then Random.State.bits (Lazy.force prng) else 0 in
-  { initial_size = s; size = 0; seed = seed; data = Array.make s Empty }
+  { initial_size = s; size = 0; seed; data = Array.make s Empty }
 
 let clear h =
   if h.size > 0 then begin

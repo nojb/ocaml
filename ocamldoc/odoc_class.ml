@@ -128,14 +128,14 @@ let rec class_elements ?(trans=true) cl =
     | Class_apply capp ->
         (
          match capp.capp_class with
-           Some c when trans -> class_elements ~trans: trans c
+           Some c when trans -> class_elements ~trans c
          | _ -> []
         )
     | Class_constr cco ->
         (
          match cco.cco_class with
-           Some (Cl c) when trans -> class_elements ~trans: trans c
-         | Some (Cltype (ct,_)) when trans -> class_type_elements ~trans: trans ct
+           Some (Cl c) when trans -> class_elements ~trans c
+         | Some (Cltype (ct,_)) when trans -> class_type_elements ~trans ct
          | _ -> []
         )
   in

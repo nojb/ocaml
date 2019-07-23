@@ -384,7 +384,7 @@ let group_by_common_children d list =
   List.fold_right
     (fun (nl, _) a ->
        let span = new_span_id () in
-       List.fold_right (fun n a -> {elem = Elem n; span = span} :: a) nl a)
+       List.fold_right (fun n a -> {elem = Elem n; span} :: a) nl a)
     nlcsl []
 ;;
 
