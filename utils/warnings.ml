@@ -91,6 +91,7 @@ type t =
   | Unsafe_without_parsing                  (* 64 *)
   | Redefining_unit of string               (* 65 *)
   | Unused_open_bang of string              (* 66 *)
+  | Missed_punning                          (* 67 *)
 ;;
 
 (* If you remove a warning, leave a hole in the numbering.  NEVER change
@@ -168,9 +169,10 @@ let number = function
   | Unsafe_without_parsing -> 64
   | Redefining_unit _ -> 65
   | Unused_open_bang _ -> 66
+  | Missed_punning -> 67
 ;;
 
-let last_warning_number = 66
+let last_warning_number = 67
 ;;
 
 (* Must be the max number returned by the [number] function. *)
@@ -624,6 +626,8 @@ let message = function
         "This type declaration is defining a new '()' constructor\n\
          which shadows the existing one.\n\
          Hint: Did you mean 'type %s = unit'?" name
+  | Missed_punning ->
+      "Missed punning opportunity"
 ;;
 
 let nerrors = ref 0;;

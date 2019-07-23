@@ -99,15 +99,6 @@ let reloc_typ ~loc x =
   { x with ptyp_loc = make_loc loc;
            ptyp_loc_stack = push_loc x.ptyp_loc x.ptyp_loc_stack };;
 
-let mkexpvar ~loc (name : string) =
-  mkexp ~loc (Pexp_ident(mkrhs (Lident name) loc))
-
-let mkoperator =
-  mkexpvar
-
-let mkpatvar ~loc name =
-  mkpat ~loc (Ppat_var (mkrhs name loc))
-
 (*
   Ghost expressions and patterns:
   expressions and patterns that do not appear explicitly in the
@@ -131,6 +122,21 @@ let ghtyp ~loc d = Typ.mk ~loc:(ghost_loc loc) d
 let ghloc ~loc d = { txt = d; loc = ghost_loc loc }
 let ghstr ~loc d = Str.mk ~loc:(ghost_loc loc) d
 let ghsig ~loc d = Sig.mk ~loc:(ghost_loc loc) d
+
+let mkexpvar ~loc (name : string) =
+  mkexp ~loc (Pexp_ident(mkrhs (Lident name) loc))
+
+let ghexpvar ~loc (name : string) =
+  ghexp ~loc (Pexp_ident(ghrhs (Lident name) loc))
+
+let mkoperator =
+  mkexpvar
+
+let mkpatvar ~loc name =
+  mkpat ~loc (Ppat_var (mkrhs name loc))
+
+let ghpatvar ~loc name =
+  ghpat ~loc (Ppat_var (ghrhs name loc))
 
 let mkinfix arg1 op arg2 =
   Pexp_apply(op, [Nolabel, arg1; Nolabel, arg2])
@@ -337,7 +343,7 @@ let lapply ~loc p1 p2 =
                   Syntaxerr.Applicative_path (make_loc loc)))
 
 let exp_of_longident ~loc lid =
-  mkexp ~loc (Pexp_ident {lid with txt = Lident(Longident.last lid.txt)})
+  ghexp ~loc (Pexp_ident {lid with txt = Lident(Longident.last lid.txt)})
 
 (* [loc_map] could be [Location.map]. *)
 let loc_map (f : 'a -> 'b) (x : 'a Location.loc) : 'b Location.loc =
@@ -350,10 +356,10 @@ let loc_lident (id : string Location.loc) : Longident.t Location.loc =
   loc_map (fun x -> Lident x) id
 
 let exp_of_label ~loc lbl =
-  mkexp ~loc (Pexp_ident (loc_lident lbl))
+  ghexp ~loc (Pexp_ident (loc_lident lbl))
 
 let pat_of_label ~loc lbl =
-  mkpat ~loc (Ppat_var (loc_last lbl))
+  ghpat ~loc (Ppat_var (loc_last lbl))
 
 let mk_newtypes ~loc newtypes exp =
   let mkexp = mkexp ~loc in
@@ -2035,16 +2041,18 @@ seq_expr:
 labeled_simple_pattern:
     QUESTION LPAREN label_let_pattern opt_default RPAREN
       { (Optional (fst $3), $4, snd $3) }
-  | QUESTION label_var
-      { (Optional (fst $2), None, snd $2) }
+  | QUESTION label = LIDENT
+      { let loc = $loc(label) in
+        (Optional label, None, ghpatvar ~loc label) }
   | OPTLABEL LPAREN let_pattern opt_default RPAREN
       { (Optional $1, $4, $3) }
   | OPTLABEL pattern_var
       { (Optional $1, None, $2) }
   | TILDE LPAREN label_let_pattern RPAREN
       { (Labelled (fst $3), None, snd $3) }
-  | TILDE label_var
-      { (Labelled (fst $2), None, snd $2) }
+  | TILDE label = LIDENT
+      { let loc = $loc(label) in
+        (Labelled label, None, ghpatvar ~loc label) }
   | LABEL simple_pattern
       { (Labelled $1, None, $2) }
   | simple_pattern
@@ -2354,10 +2362,10 @@ labeled_simple_expr:
       { (Labelled $1, $2) }
   | TILDE label = LIDENT
       { let loc = $loc(label) in
-        (Labelled label, mkexpvar ~loc label) }
+        (Labelled label, ghexpvar ~loc label) }
   | QUESTION label = LIDENT
       { let loc = $loc(label) in
-        (Optional label, mkexpvar ~loc label) }
+        (Optional label, ghexpvar ~loc label) }
   | OPTLABEL simple_expr %prec below_HASH
       { (Optional $1, $2) }
 ;

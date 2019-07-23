@@ -1287,6 +1287,13 @@ and type_pat_aux ~exception_allowed ~constrs ~labels ~no_existentials ~mode
           Some (p0, p, true), ty
         with Not_found -> None, newvar ()
       in
+      List.iter
+        (function
+          | lab, {ppat_loc={Location.loc_ghost=false} as loc; ppat_desc=Ppat_var x}
+            when Longident.last lab.txt = x.txt ->
+              Location.prerr_warning loc Warnings.Missed_punning
+          | _ -> ()
+        ) lid_sp_list;
       let type_label_pat (label_lid, label, sarg) k =
         begin_def ();
         let (_, ty_arg, ty_res) = instance_label false label in
@@ -2326,6 +2333,13 @@ and type_expect_
       type_function ?in_function loc sexp.pexp_attributes env
                     ty_expected_explained l [Exp.case pat body]
   | Pexp_fun (l, None, spat, sbody) ->
+      begin match l, spat with
+      | (Optional lab | Labelled lab),
+        {ppat_loc={Location.loc_ghost=false} as loc; ppat_desc=Ppat_var x}
+        when lab = x.txt ->
+          Location.prerr_warning loc Warnings.Missed_punning
+      | _ -> ()
+      end;
       type_function ?in_function loc sexp.pexp_attributes env
                     ty_expected_explained l [Ast_helper.Exp.case spat sbody]
   | Pexp_function caselist ->
@@ -2506,6 +2520,13 @@ and type_expect_
         | [] -> ()
       in
       check_duplicates lbl_exp_list;
+      List.iter (function
+        | lab, {pexp_loc={Location.loc_ghost=false} as loc;
+                pexp_desc=Pexp_ident{txt=Longident.Lident x}}
+          when Longident.last lab.txt = x ->
+            Location.prerr_warning loc Warnings.Missed_punning
+        | _ -> ()
+        ) lid_sexp_list;
       let opt_exp, label_definitions =
         let (_lid, lbl, _lbl_exp) = List.hd lbl_exp_list in
         let matching_label lbl =
@@ -2982,6 +3003,12 @@ and type_expect_
             end
           in
           let modifs = List.map type_override lst in
+          List.iter (function
+              | lab, {pexp_loc={loc_ghost=false} as loc; pexp_desc=Pexp_ident{txt=Longident.Lident x}}
+                when lab.txt = x ->
+                  Location.prerr_warning loc Warnings.Missed_punning
+              | _ -> ()
+            ) lst;
           rue {
             exp_desc = Texp_override(path_self, modifs);
             exp_loc = loc; exp_extra = [];
@@ -3830,6 +3857,13 @@ and type_application env funct sargs =
     let ls, tvar = list_labels env ty_fun in
     tvar || List.mem l ls
   in
+  List.iter (function
+      | (Optional lab | Labelled lab),
+        {pexp_loc={Location.loc_ghost=false} as loc; pexp_desc=Pexp_ident{txt=Longident.Lident x}}
+        when lab = x ->
+          Location.prerr_warning loc Warnings.Missed_punning
+      | _ -> ()
+    ) sargs;
   let ignored = ref [] in
   let explanation = Application funct in
   let rec type_unknown_args
