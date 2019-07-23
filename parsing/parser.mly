@@ -3183,9 +3183,9 @@ function_type:
     { $1 }
 ;
 %inline arg_label:
-  | label = optlabel
+  | label = mkloc(optlabel)
       { Optional label }
-  | label = LIDENT COLON
+  | label = mkloc(LIDENT) COLON
       { Labelled label }
   | /* empty */
       { Nolabel }
