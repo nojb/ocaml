@@ -29,8 +29,8 @@ type line_tracker = {
 };;
 
 let open_tracker file oc = {
-  file = file;
-  oc = oc;
+  file;
+  oc;
   ic = open_in_bin file;
   cur_line = 1;
 };;
