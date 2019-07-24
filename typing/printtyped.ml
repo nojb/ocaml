@@ -143,8 +143,8 @@ let longident i ppf li = line i ppf "%a\n" fmt_longident li;;
 let string i ppf s = line i ppf "\"%s\"\n" s;;
 let arg_label i ppf = function
   | Nolabel -> line i ppf "Nolabel\n"
-  | Optional s -> line i ppf "Optional \"%s\"\n" s
-  | Labelled s -> line i ppf "Labelled \"%s\"\n" s
+  | Optional {txt=s} -> line i ppf "Optional \"%s\"\n" s
+  | Labelled {txt=s} -> line i ppf "Labelled \"%s\"\n" s
 ;;
 
 let record_representation i ppf = let open Types in function

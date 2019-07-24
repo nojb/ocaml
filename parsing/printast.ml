@@ -134,8 +134,8 @@ let string i ppf s = line i ppf "\"%s\"\n" s;;
 let string_loc i ppf s = line i ppf "%a\n" fmt_string_loc s;;
 let arg_label i ppf = function
   | Nolabel -> line i ppf "Nolabel\n"
-  | Optional s -> line i ppf "Optional \"%s\"\n" s
-  | Labelled s -> line i ppf "Labelled \"%s\"\n" s
+  | Optional {txt=s} -> line i ppf "Optional \"%s\"\n" s
+  | Labelled {txt=s} -> line i ppf "Labelled \"%s\"\n" s
 ;;
 
 let rec core_type i ppf x =

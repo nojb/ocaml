@@ -683,7 +683,7 @@ and transl_apply ?(should_be_tailcall=false) ?(inlined = Default_inline)
         lapply lam (List.rev_map fst args)
   in
   (build_apply lam [] (List.map (fun (l, x) ->
-                                   Option.map transl_exp x, Btype.is_optional l)
+                                   Option.map transl_exp x, Typedtree.is_optional l)
                                 sargs)
      : Lambda.lambda)
 

@@ -61,7 +61,7 @@ type error =
       Ctype.Unification_trace.t * type_forcing_context option
       * expression_desc option
   | Apply_non_function of type_expr
-  | Apply_wrong_label of arg_label * type_expr
+  | Apply_wrong_label of Types.arg_label * type_expr
   | Label_multiply_defined of string
   | Label_missing of Ident.t list
   | Label_not_mutable of Longident.t
@@ -84,7 +84,7 @@ type error =
   | Coercion_failure of
       type_expr * type_expr * Ctype.Unification_trace.t * bool
   | Too_many_arguments of bool * type_expr * type_forcing_context option
-  | Abstract_wrong_label of arg_label * type_expr * type_forcing_context option
+  | Abstract_wrong_label of Typedtree.arg_label * type_expr * type_forcing_context option
   | Scoping_let_module of string * type_expr
   | Masked_instance_variable of Longident.t
   | Not_a_variant_type of Longident.t
@@ -1814,8 +1814,8 @@ let check_recursive_class_bindings env ids exprs =
 let rec approx_type env sty =
   match sty.ptyp_desc with
     Ptyp_arrow (p, _, sty) ->
-      let ty1 = if is_optional p then type_option (newvar ()) else newvar () in
-      newty (Tarrow (p, ty1, approx_type env sty, Cok))
+      let ty1 = if Typedtree.is_optional p then type_option (newvar ()) else newvar () in
+      newty (Tarrow (strip_arg_label_loc p, ty1, approx_type env sty, Cok))
   | Ptyp_tuple args ->
       newty (Ttuple (List.map (approx_type env) args))
   | Ptyp_constr (lid, ctl) ->
@@ -1835,6 +1835,7 @@ let rec type_approx env sexp =
   match sexp.pexp_desc with
     Pexp_let (_, _, e) -> type_approx env e
   | Pexp_fun (p, _, _, e) ->
+      let p = strip_arg_label_loc p in
       let ty = if is_optional p then type_option (newvar ()) else newvar () in
       newty (Tarrow(p, ty, type_approx env e, Cok))
   | Pexp_function ({pc_rhs=e}::_) ->
@@ -2290,7 +2291,7 @@ and type_expect_
         exp_attributes = sexp.pexp_attributes;
         exp_env = env }
   | Pexp_fun (l, Some default, spat, sbody) ->
-      assert(is_optional l); (* default allowed only with optional argument *)
+      assert(Typedtree.is_optional l); (* default allowed only with optional argument *)
       let open Ast_helper in
       let default_loc = default.pexp_loc in
       let scases = [
@@ -3360,7 +3361,7 @@ and type_function ?in_function loc attrs env ty_expected_explained l caselist =
   let separate = !Clflags.principal || Env.has_local_constraints env in
   if separate then begin_def ();
   let (ty_arg, ty_res) =
-    try filter_arrow env (instance ty_expected) l
+    try filter_arrow env (instance ty_expected) (strip_arg_label_loc l)
     with Unify _ ->
       match expand_head env ty_expected with
         {desc = Tarrow _} as ty ->
@@ -3372,7 +3373,7 @@ and type_function ?in_function loc attrs env ty_expected_explained l caselist =
                                           explanation)))
   in
   let ty_arg =
-    if is_optional l then
+    if Typedtree.is_optional l then
       let tv = newvar() in
       begin
         try unify env ty_arg (type_option tv)
@@ -3393,14 +3394,14 @@ and type_function ?in_function loc attrs env ty_expected_explained l caselist =
     let ls, tvar = list_labels env ty in
     ls = [] && not tvar
   in
-  if is_optional l && not_function ty_res then
+  if Typedtree.is_optional l && not_function ty_res then
     Location.prerr_warning (List.hd cases).c_lhs.pat_loc
       Warnings.Unerasable_optional_argument;
   let param = name_cases "param" cases in
   re {
     exp_desc = Texp_function { arg_label = l; param; cases; partial; };
     exp_loc = loc; exp_extra = [];
-    exp_type = instance (newgenty (Tarrow(l, ty_arg, ty_res, Cok)));
+    exp_type = instance (newgenty (Tarrow(strip_arg_label_loc l, ty_arg, ty_res, Cok)));
     exp_attributes = attrs;
     exp_env = env }
 
@@ -3726,7 +3727,7 @@ and type_argument ?explanation ?recarg env sarg ty_expected' ty_expected =
   (* ty_expected' may be generic *)
   let no_labels ty =
     let ls, tvar = list_labels env ty in
-    not tvar && List.for_all ((=) Nolabel) ls
+    not tvar && List.for_all ((=) Types.Nolabel) ls
   in
   let rec is_inferred sexp =
     match sexp.pexp_desc with
@@ -3751,8 +3752,8 @@ and type_argument ?explanation ?recarg env sarg ty_expected' ty_expected =
         match (expand_head env ty_fun).desc with
         | Tarrow (l,ty_arg,ty_fun,_) when is_optional l ->
             let ty = option_none (instance ty_arg) sarg.pexp_loc in
-            make_args ((l, Some ty) :: args) ty_fun
-        | Tarrow (l,_,ty_res',_) when l = Nolabel || !Clflags.classic ->
+            make_args ((make_noloc_arg_label l, Some ty) :: args) ty_fun
+        | Tarrow (l,_,ty_res',_) when l = Types.Nolabel || !Clflags.classic ->
             List.rev args, ty_fun, no_labels ty_res'
         | Tvar _ ->  List.rev args, ty_fun, false
         |  _ -> [], texp.exp_type, false
@@ -3801,7 +3802,7 @@ and type_argument ?explanation ?recarg env sarg ty_expected' ty_expected =
       in
       Location.prerr_warning texp.exp_loc
         (Warnings.Eliminated_optional_arguments
-           (List.map (fun (l, _) -> Printtyp.string_of_label l) args));
+           (List.map (fun (l, _) -> Printtyp.string_of_label (strip_arg_label_loc l)) args));
       if warn then Location.prerr_warning texp.exp_loc
           (Warnings.Without_principality "eliminated optional argument");
       (* let-expand to have side effects *)
@@ -3834,7 +3835,7 @@ and type_application env funct sargs =
   let explanation = Application funct in
   let rec type_unknown_args
       (args :
-      (Asttypes.arg_label * (unit -> Typedtree.expression) option) list)
+      (arg_label * (unit -> Typedtree.expression) option) list)
     omitted ty_fun = function
       [] ->
         (List.map
@@ -3859,7 +3860,7 @@ and type_application env funct sargs =
               unify env ty_fun (newty (Tarrow(l1,t1,t2,Clink(ref Cunknown))));
               (t1, t2)
           | Tarrow (l,t1,t2,_) when l = l1
-            || !Clflags.classic && l1 = Nolabel && not (is_optional l) ->
+            || !Clflags.classic && l1 = Types.Nolabel && not (is_optional l) ->
               (t1, t2)
           | td ->
               let ty_fun =

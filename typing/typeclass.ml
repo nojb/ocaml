@@ -69,7 +69,7 @@ type error =
   | Field_type_mismatch of string * string * Ctype.Unification_trace.t
   | Structure_expected of class_type
   | Cannot_apply of class_type
-  | Apply_wrong_label of arg_label
+  | Apply_wrong_label of Typedtree.arg_label
   | Pattern_type_clash of type_expr
   | Repeated_parameter
   | Unbound_class_2 of Longident.t
@@ -569,11 +569,11 @@ and class_type_aux env scty =
       let cty = transl_simple_type env false sty in
       let ty = cty.ctyp_type in
       let ty =
-        if Btype.is_optional l
+        if Typedtree.is_optional l
         then Ctype.newty (Tconstr(Predef.path_option,[ty], ref Mnil))
         else ty in
       let clty = class_type env scty in
-      let typ = Cty_arrow (l, ty, clty.cltyp_type) in
+      let typ = Cty_arrow (Typedtree.strip_arg_label_loc l, ty, clty.cltyp_type) in
       cltyp (Tcty_arrow (l, cty, clty)) typ
 
   | Pcty_open (od, e) ->
@@ -1056,13 +1056,13 @@ and class_expr_aux cl_num val_env met_env scl =
       Ctype.raise_nongen_level ();
       let cl = class_expr cl_num val_env' met_env scl' in
       Ctype.end_def ();
-      if Btype.is_optional l && not_function cl.cl_type then
+      if Typedtree.is_optional l && not_function cl.cl_type then
         Location.prerr_warning pat.pat_loc
           Warnings.Unerasable_optional_argument;
       rc {cl_desc = Tcl_fun (l, pat, pv, cl, partial);
           cl_loc = scl.pcl_loc;
           cl_type = Cty_arrow
-            (l, Ctype.instance pat.pat_type, cl.cl_type);
+            (Typedtree.strip_arg_label_loc l, Ctype.instance pat.pat_type, cl.cl_type);
           cl_env = val_env;
           cl_attributes = scl.pcl_attributes;
          }
@@ -1085,18 +1085,18 @@ and class_expr_aux cl_num val_env met_env scl =
         !Clflags.classic ||
         let labels = nonopt_labels [] cl.cl_type in
         List.length labels = List.length sargs &&
-        List.for_all (fun (l,_) -> l = Nolabel) sargs &&
-        List.exists (fun l -> l <> Nolabel) labels &&
+        List.for_all (fun (l,_) -> l = Typedtree.Nolabel) sargs &&
+        List.exists (fun l -> l <> Types.Nolabel) labels &&
         begin
           Location.prerr_warning
             cl.cl_loc
             (Warnings.Labels_omitted
                (List.map Printtyp.string_of_label
-                         (List.filter ((<>) Nolabel) labels)));
+                         (List.filter ((<>) Types.Nolabel) labels)));
           true
         end
       in
-      let rec type_args args omitted ty_fun ty_fun0 sargs more_sargs =
+      let rec type_args args omitted ty_fun ty_fun0 sargs (more_sargs : (Typedtree.arg_label * _) list) =
         match ty_fun, ty_fun0 with
         | Cty_arrow (l, ty, ty_fun), Cty_arrow (_, ty0, ty_fun0)
           when sargs <> [] || more_sargs <> [] ->
@@ -1108,7 +1108,7 @@ and class_expr_aux cl_num val_env met_env scl =
                   (l', sarg0)::_, _ ->
                     raise(Error(sarg0.pexp_loc, val_env, Apply_wrong_label l'))
                 | _, (l', sarg0)::more_sargs ->
-                    if l <> l' && l' <> Nolabel then
+                    if l <> Typedtree.strip_arg_label_loc l' && l' <> Typedtree.Nolabel then
                       raise(Error(sarg0.pexp_loc, val_env,
                                   Apply_wrong_label l'))
                     else ([], more_sargs,
@@ -1119,11 +1119,11 @@ and class_expr_aux cl_num val_env met_env scl =
                 let (l', sarg0, sargs, more_sargs) =
                   try
                     let (l', sarg0, sargs1, sargs2) =
-                      Btype.extract_label name sargs
+                      Typedtree.extract_label name sargs
                     in (l', sarg0, sargs1 @ sargs2, more_sargs)
                   with Not_found ->
                     let (l', sarg0, sargs1, sargs2) =
-                      Btype.extract_label name more_sargs
+                      Typedtree.extract_label name more_sargs
                     in (l', sarg0, sargs @ sargs1, sargs2)
                 in
                 if not optional && Btype.is_optional l' then
@@ -1140,8 +1140,8 @@ and class_expr_aux cl_num val_env met_env scl =
               with Not_found ->
                 sargs, more_sargs,
                 if Btype.is_optional l
-                   && (List.mem_assoc Nolabel sargs
-                       || List.mem_assoc Nolabel more_sargs)
+                   && (List.mem_assoc Types.Nolabel sargs
+                       || List.mem_assoc Types.Nolabel more_sargs)
                 then
                   Some (option_none ty0 Location.none)
                 else None

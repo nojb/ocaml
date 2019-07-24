@@ -17,6 +17,11 @@
 
 open Asttypes
 
+type arg_label =
+    Nolabel
+  | Labelled of string (*  label:T -> ... *)
+  | Optional of string (* ?label:T -> ... *)
+
 (* Type expressions for the core language *)
 
 type type_expr =

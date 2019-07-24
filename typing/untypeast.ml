@@ -407,7 +407,7 @@ let expression sub exp =
     | Texp_function { arg_label = Nolabel; cases; _; } ->
         Pexp_function (sub.cases sub cases)
     (* Mix of both, we generate `fun ~label:$name$ -> match $name$ with ...` *)
-    | Texp_function { arg_label = Labelled s | Optional s as label; cases;
+    | Texp_function { arg_label = Labelled {txt=s} | Optional {txt=s} as label; cases;
           _ } ->
         let name = fresh_name s exp.exp_env in
         Pexp_fun (label, None, Pat.var ~loc {loc;txt = name },

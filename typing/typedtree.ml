@@ -18,6 +18,11 @@
 open Asttypes
 open Types
 
+type arg_label = Parsetree.arg_label =
+    Nolabel
+  | Labelled of label loc (*  label:T -> ... *)
+  | Optional of label loc (* ?label:T -> ... *)
+
 (* Value expressions for the core language *)
 
 type partial = Partial | Total
@@ -710,3 +715,24 @@ let split_pattern pat =
         Some pat, None
   in
   split_pattern pat
+
+let is_optional = function Optional _ -> true | _ -> false
+let strip_arg_label_loc = function
+  | Nolabel -> Types.Nolabel
+  | Optional {txt} -> Types.Optional txt
+  | Labelled {txt} -> Types.Labelled txt
+let make_noloc_arg_label = function
+  | Types.Nolabel -> Nolabel
+  | Types.Optional s -> Optional (Location.mknoloc s)
+  | Types.Labelled s -> Labelled (Location.mknoloc s)
+let label_name = function
+    Nolabel -> ""
+  | Labelled {txt=s}
+  | Optional {txt=s} -> s
+let rec extract_label_aux hd l = function
+    [] -> raise Not_found
+  | (l',t as p) :: ls ->
+      if label_name l' = l then (l', t, List.rev hd, ls)
+      else extract_label_aux (p::hd) l ls
+
+let extract_label l ls = extract_label_aux [] l ls

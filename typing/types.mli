@@ -24,6 +24,11 @@
 (** Asttypes exposes basic definitions shared both by Parsetree and Types. *)
 open Asttypes
 
+type arg_label =
+    Nolabel
+  | Labelled of string (*  label:T -> ... *)
+  | Optional of string (* ?label:T -> ... *)
+
 (** Type expressions for the core language.
 
     The [type_desc] variant defines all the possible type expressions one can

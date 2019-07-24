@@ -24,6 +24,11 @@
 open Asttypes
 open Types
 
+type arg_label = Parsetree.arg_label =
+    Nolabel
+  | Labelled of label loc (*  label:T -> ... *)
+  | Optional of label loc (* ?label:T -> ... *)
+
 (* Value expressions for the core language *)
 
 type partial = Partial | Total
@@ -734,3 +739,10 @@ val pat_bound_idents_full:
 
 (** Splits an or pattern into its value (left) and exception (right) parts. *)
 val split_pattern : pattern -> pattern option * pattern option
+
+val is_optional : arg_label -> bool
+val strip_arg_label_loc : arg_label -> Types.arg_label
+val make_noloc_arg_label : Types.arg_label -> arg_label
+val extract_label :
+    label -> (arg_label * 'a) list ->
+    arg_label * 'a * (arg_label * 'a) list * (arg_label * 'a) list

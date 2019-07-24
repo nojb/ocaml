@@ -117,7 +117,7 @@ let is_ref : Types.value_description -> bool = function
 
 (* See the note on abstracted arguments in the documentation for
     Typedtree.Texp_apply *)
-let is_abstracted_arg : arg_label * expression option -> bool = function
+let is_abstracted_arg : Typedtree.arg_label * expression option -> bool = function
   | (_, None) -> true
   | (_, Some _) -> false
 
