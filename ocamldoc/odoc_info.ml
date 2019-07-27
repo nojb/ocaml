@@ -310,7 +310,27 @@ module Search =
 
     type search_result = result_element list
 
-    let search_by_name = Odoc_search.Search_by_name.search
+    module P_all =
+    struct
+      type t = unit
+      let p_module _ _ = (true, true)
+      let p_module_type _ _ = (true, true)
+      let p_class _ _ = (true, true)
+      let p_class_type _ _ = (true, true)
+      let p_value _ _ = true
+      let p_recfield _ _ _ = true
+      let p_const _ _ _ = true
+      let p_type _ _ = (true, true)
+      let p_extension _ _ = true
+      let p_exception _ _ = true
+      let p_attribute _ _ = true
+      let p_method _ _ = true
+      let p_section _ _ = true
+    end
+
+    module Search_all = Odoc_search.Search(P_all)
+
+    let all_items module_list = Search_all.search module_list ()
 
     let values = Odoc_search.values
     let extensions = Odoc_search.extensions

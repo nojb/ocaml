@@ -119,49 +119,12 @@ module Search :
 (** A module of predicates to search elements by name (and accepting regexps).*)
 module P_name :
   sig
-    type t = Str.regexp
-    val ( =~ ) : string -> Str.regexp -> bool
-    val p_module : Odoc_module.t_module -> Str.regexp -> bool * bool
-    val p_module_type :
-      Odoc_module.t_module_type -> Str.regexp -> bool * bool
-    val p_class : Odoc_class.t_class -> Str.regexp -> bool * bool
-    val p_class_type : Odoc_class.t_class_type -> Str.regexp -> bool * bool
-    val p_value : Odoc_value.t_value -> Str.regexp -> bool
-    val p_recfield : Odoc_type.t_type -> Odoc_type.record_field -> Str.regexp -> bool
-    val p_const : Odoc_type.t_type -> Odoc_type.variant_constructor -> Str.regexp -> bool
-    val p_type : Odoc_type.t_type -> Str.regexp -> (bool * bool)
-    val p_extension :
-      Odoc_extension.t_extension_constructor -> Str.regexp -> bool
-    val p_exception : Odoc_exception.t_exception -> Str.regexp -> bool
-    val p_attribute : Odoc_value.t_attribute -> Str.regexp -> bool
-    val p_method : Odoc_value.t_method -> Str.regexp -> bool
+    type t = string
   end
 
 (** A module to search elements by name. *)
 module Search_by_name :
   sig
-    val search_section : Odoc_types.text -> string -> P_name.t -> result_element list
-    val search_value : Odoc_value.t_value -> P_name.t -> result_element list
-    val search_recfield : Odoc_type.t_type -> Odoc_type.record_field -> P_name.t -> result_element list
-    val search_const : Odoc_type.t_type -> Odoc_type.variant_constructor -> P_name.t -> result_element list
-    val search_type : Odoc_type.t_type -> P_name.t -> result_element list
-    val search_extension_constructor :
-      Odoc_extension.t_extension_constructor -> P_name.t -> result_element list
-    val search_type_extension :
-      Odoc_extension.t_type_extension -> P_name.t -> result_element list
-    val search_exception :
-      Odoc_exception.t_exception -> P_name.t -> result_element list
-    val search_attribute :
-      Odoc_value.t_attribute -> P_name.t -> result_element list
-    val search_method :
-      Odoc_value.t_method -> P_name.t -> result_element list
-    val search_class : Odoc_class.t_class -> P_name.t -> result_element list
-    val search_class_type :
-      Odoc_class.t_class_type -> P_name.t -> result_element list
-    val search_module_type :
-      Odoc_module.t_module_type -> P_name.t -> result_element list
-    val search_module :
-      Odoc_module.t_module -> P_name.t -> result_element list
     val search : Odoc_module.t_module list -> P_name.t -> result_element list
   end
 
@@ -199,4 +162,4 @@ val module_types : Odoc_module.t_module list -> Odoc_module.t_module_type list
 (** Return the [text] of the section with the given complete name (regexp)
    in the given module list.
    @raise Not_found if the section was not found.*)
-val find_section : Odoc_module.t_module list -> Str.regexp -> Odoc_types.text
+val find_section : Odoc_module.t_module list -> string -> Odoc_types.text

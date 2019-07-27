@@ -1156,7 +1156,7 @@ class man =
         | Res_recfield (_,f) -> f.rf_name
         | Res_const (_,f) -> f.vc_name
       in
-      let all_items_pre = Odoc_info.Search.search_by_name module_list (Str.regexp ".*")  in
+      let all_items_pre = Odoc_info.Search.all_items module_list in
       let all_items = List.filter
           (fun r ->
              match r with

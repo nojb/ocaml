@@ -882,8 +882,8 @@ module Search :
       (** The type representing a research result.*)
       type search_result = result_element list
 
-      (** Research of the elements whose name matches the given regular expression.*)
-      val search_by_name : Module.t_module list -> Str.regexp -> search_result
+      (** A function to return all elements in a list of modules. *)
+      val all_items : Module.t_module list -> search_result
 
       (** A function to search all the values in a list of modules. *)
       val values : Module.t_module list -> Value.t_value list

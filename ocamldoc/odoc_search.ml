@@ -340,8 +340,8 @@ module Search =
 
 module P_name =
   struct
-    type t = Str.regexp
-    let (=~) name regexp = Str.string_match regexp name 0
+    type t = string
+    let (=~) name regexp = name = regexp
     let p_module m r = (true, m.m_name =~ r)
     let p_module_type mt r = (true, mt.mt_name =~ r)
     let p_class c r = (true, c.cl_name =~ r)
