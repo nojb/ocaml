@@ -143,37 +143,37 @@ module Texi =
 struct
   (** Associations of strings to substitute in Texinfo code. *)
   let subst_strings = [
-    (Str.regexp "@", "@@") ;
-    (Str.regexp "{", "@{") ;
-    (Str.regexp "}", "@}") ;
-    (Str.regexp "\\.\\.\\.", "@dots{}") ;
+    ("@", "@@") ;
+    ("{", "@{") ;
+    ("}", "@}") ;
+    ("...", "@dots{}") ;
   ] @
     (if !esc_8bits
     then [
-    (Str.regexp "\xE0", "@`a") ;
-    (Str.regexp "\xE2", "@^a") ;
-    (Str.regexp "\xE9", "@'e") ;
-    (Str.regexp "\xE8", "@`e") ;
-    (Str.regexp "\xEA", "@^e") ;
-    (Str.regexp "\xEB", "@\"e") ;
-    (Str.regexp "\xF7", "@,{c}") ;
-    (Str.regexp "\xF4", "@^o") ;
-    (Str.regexp "\xF6", "@\"o") ;
-    (Str.regexp "\xEE", "@^i") ;
-    (Str.regexp "\xEF", "@\"i") ;
-    (Str.regexp "\xF9", "@`u") ;
-    (Str.regexp "\xFB", "@^u") ;
-    (Str.regexp "\xE6", "@ae{}" ) ;
-    (Str.regexp "\xC6", "@AE{}" ) ;
-    (Str.regexp "\xDF", "@ss{}" ) ;
-    (Str.regexp "\xA9", "@copyright{}" ) ;
+    ("\xE0", "@`a") ;
+    ("\xE2", "@^a") ;
+    ("\xE9", "@'e") ;
+    ("\xE8", "@`e") ;
+    ("\xEA", "@^e") ;
+    ("\xEB", "@\"e") ;
+    ("\xF7", "@,{c}") ;
+    ("\xF4", "@^o") ;
+    ("\xF6", "@\"o") ;
+    ("\xEE", "@^i") ;
+    ("\xEF", "@\"i") ;
+    ("\xF9", "@`u") ;
+    ("\xFB", "@^u") ;
+    ("\xE6", "@ae{}" ) ;
+    ("\xC6", "@AE{}" ) ;
+    ("\xDF", "@ss{}" ) ;
+    ("\xA9", "@copyright{}" ) ;
     ]
     else [])
 
   (** Escape the strings which would clash with Texinfo syntax. *)
   let escape s =
     List.fold_left
-      (fun acc (p, r) -> Str.global_replace p r acc)
+      (fun acc (p, r) -> Str.global_replace (Str.regexp (Str.quote p)) r acc)
       s subst_strings
 
   (** Removes dots (no good for a node name). *)
