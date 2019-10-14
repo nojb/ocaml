@@ -95,4 +95,5 @@ DOMAIN_STATE(int, major_ring_index) /* initialize 0 */
 DOMAIN_STATE(uintnat, percent_free)
 DOMAIN_STATE(uintnat, major_heap_increment)
 DOMAIN_STATE(uintnat, dependent_size)
+DOMAIN_STATE(uintnat, dependent_allocated)
 /* See major_gc.c */

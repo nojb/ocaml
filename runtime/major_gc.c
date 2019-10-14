@@ -45,7 +45,6 @@ static inline double fmin(double a, double b) {
 }
 #endif
 
-uintnat caml_dependent_allocated;
 uintnat caml_fl_wsz_at_phase_change = 0;
 
 extern char *caml_fl_merge;  /* Defined in freelist.c. */
@@ -669,7 +668,7 @@ void caml_major_collection_slice (intnat howmuch)
   p = (double) Caml_state->allocated_words * 3.0 * (100 + Caml_state->percent_free)
       / Caml_state->stat_heap_wsz / Caml_state->percent_free / 2.0;
   if (Caml_state->dependent_size > 0){
-    dp = (double) caml_dependent_allocated * (100 + Caml_state->percent_free)
+    dp = (double) Caml_state->dependent_allocated * (100 + Caml_state->percent_free)
          / Caml_state->dependent_size / Caml_state->percent_free;
   }else{
     dp = 0.0;
@@ -808,7 +807,7 @@ void caml_major_collection_slice (intnat howmuch)
 
   Caml_state->stat_major_words += Caml_state->allocated_words;
   Caml_state->allocated_words = 0;
-  caml_dependent_allocated = 0;
+  Caml_state->dependent_allocated = 0;
   Caml_state->extra_heap_resources = 0.0;
   if (caml_major_slice_end_hook != NULL) (*caml_major_slice_end_hook) ();
 }

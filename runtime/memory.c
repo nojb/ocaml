@@ -590,7 +590,7 @@ CAMLexport value caml_alloc_shr_no_track_noexc (mlsize_t wosize, tag_t tag)
 CAMLexport void caml_alloc_dependent_memory (mlsize_t nbytes)
 {
   Caml_state->dependent_size += nbytes / sizeof (value);
-  caml_dependent_allocated += nbytes / sizeof (value);
+  Caml_state->dependent_allocated += nbytes / sizeof (value);
 }
 
 CAMLexport void caml_free_dependent_memory (mlsize_t nbytes)
