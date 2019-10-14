@@ -95,7 +95,7 @@ void caml_init_domain ()
   Caml_state->markhp = NULL;
   Caml_state->chunk = NULL;
   Caml_state->limit = NULL;
-  Caml_state->major_word_credit = 0.0;
+  Caml_state->major_work_credit = 0.0;
   Caml_state->major_window = 1;
   Caml_state->major_ring_index = 0;
   Caml_state->percent_free = 0;
