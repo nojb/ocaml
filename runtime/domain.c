@@ -82,4 +82,5 @@ void caml_init_domain ()
   Caml_state->requested_minor_gc = 0;
 
   Caml_state->gc_phase = 0;
+  Caml_state->gc_subphase = 0;
 }
