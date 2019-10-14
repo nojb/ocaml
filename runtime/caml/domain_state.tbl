@@ -93,4 +93,5 @@ DOMAIN_STATE(double, major_work_credit) /* initialize 0.0 */
 DOMAIN_STATE(int, major_window) /* initialize 1 */
 DOMAIN_STATE(int, major_ring_index) /* initialize 0 */
 DOMAIN_STATE(uintnat, percent_free)
+DOMAIN_STATE(uintnat, major_heap_increment)
 /* See major_gc.c */

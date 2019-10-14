@@ -41,7 +41,6 @@
 extern uintnat caml_max_stack_size;    /* defined in stacks.c */
 #endif
 
-extern uintnat caml_major_heap_increment; /* percent or words; see major_gc.c */
 extern uintnat caml_percent_max;          /*        see compact.c */
 extern uintnat caml_allocation_policy;    /*        see freelist.c */
 extern uintnat caml_custom_major_ratio;   /* see custom.c */
@@ -355,7 +354,7 @@ CAMLprim value caml_gc_get(value v)
 
   res = caml_alloc_tuple (11);
   Store_field (res, 0, Val_long (Caml_state->minor_heap_wsz));          /* s */
-  Store_field (res, 1, Val_long (caml_major_heap_increment));           /* i */
+  Store_field (res, 1, Val_long (Caml_state->major_heap_increment));           /* i */
   Store_field (res, 2, Val_long (Caml_state->percent_free));                   /* o */
   Store_field (res, 3, Val_long (caml_verb_gc));                        /* v */
   Store_field (res, 4, Val_long (caml_percent_max));                    /* O */
@@ -438,16 +437,16 @@ CAMLprim value caml_gc_set(value v)
   }
 
   newheapincr = Long_val (Field (v, 1));
-  if (newheapincr != caml_major_heap_increment){
-    caml_major_heap_increment = newheapincr;
+  if (newheapincr != Caml_state->major_heap_increment){
+    Caml_state->major_heap_increment = newheapincr;
     if (newheapincr > 1000){
       caml_gc_message (0x20, "New heap increment size: %"
                        ARCH_INTNAT_PRINTF_FORMAT "uk words\n",
-                       caml_major_heap_increment/1024);
+                       Caml_state->major_heap_increment/1024);
     }else{
       caml_gc_message (0x20, "New heap increment size: %"
                        ARCH_INTNAT_PRINTF_FORMAT "u%%\n",
-                       caml_major_heap_increment);
+                       Caml_state->major_heap_increment);
     }
   }
   oldpolicy = caml_allocation_policy;
@@ -633,7 +632,7 @@ void caml_init_gc (uintnat minor_size, uintnat major_size,
     caml_fatal_error ("cannot initialize page table");
   }
   caml_set_minor_heap_size (Bsize_wsize (norm_minsize (minor_size)));
-  caml_major_heap_increment = major_incr;
+  Caml_state->major_heap_increment = major_incr;
   Caml_state->percent_free = norm_pfree (percent_fr);
   caml_percent_max = norm_pmax (percent_m);
   caml_init_major_heap (major_heap_size);
@@ -651,14 +650,14 @@ void caml_init_gc (uintnat minor_size, uintnat major_size,
                    ARCH_INTNAT_PRINTF_FORMAT "u%%\n", Caml_state->percent_free);
   caml_gc_message (0x20, "Initial max overhead: %"
                    ARCH_INTNAT_PRINTF_FORMAT "u%%\n", caml_percent_max);
-  if (caml_major_heap_increment > 1000){
+  if (Caml_state->major_heap_increment > 1000){
     caml_gc_message (0x20, "Initial heap increment: %"
                      ARCH_INTNAT_PRINTF_FORMAT "uk words\n",
-                     caml_major_heap_increment / 1024);
+                     Caml_state->major_heap_increment / 1024);
   }else{
     caml_gc_message (0x20, "Initial heap increment: %"
                      ARCH_INTNAT_PRINTF_FORMAT "u%%\n",
-                     caml_major_heap_increment);
+                     Caml_state->major_heap_increment);
   }
   caml_gc_message (0x20, "Initial allocation policy: %"
                    ARCH_INTNAT_PRINTF_FORMAT "u\n", caml_allocation_policy);
@@ -696,7 +695,7 @@ CAMLprim value caml_runtime_parameters (value unit)
      /* b */ (int) Caml_state->backtrace_active,
      /* h */ /* missing */ /* FIXME add when changed to min_heap_size */
      /* H */ caml_use_huge_pages,
-     /* i */ caml_major_heap_increment,
+     /* i */ Caml_state->major_heap_increment,
 #ifdef NATIVE_CODE
      /* l */ (uintnat) 0,
 #else

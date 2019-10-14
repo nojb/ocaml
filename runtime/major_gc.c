@@ -45,7 +45,6 @@ static inline double fmin(double a, double b) {
 }
 #endif
 
-uintnat caml_major_heap_increment;
 uintnat caml_dependent_size, caml_dependent_allocated;
 uintnat caml_fl_wsz_at_phase_change = 0;
 
@@ -842,10 +841,10 @@ asize_t caml_clip_heap_chunk_wsz (asize_t wsz)
   uintnat incr;
 
   /* Compute the heap increment as a word size. */
-  if (caml_major_heap_increment > 1000){
-    incr = caml_major_heap_increment;
+  if (Caml_state->major_heap_increment > 1000){
+    incr = Caml_state->major_heap_increment;
   }else{
-    incr = Caml_state->stat_heap_wsz / 100 * caml_major_heap_increment;
+    incr = Caml_state->stat_heap_wsz / 100 * Caml_state->major_heap_increment;
   }
 
   if (result < incr){
