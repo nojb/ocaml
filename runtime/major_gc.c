@@ -47,7 +47,7 @@ static inline double fmin(double a, double b) {
 
 uintnat caml_percent_free;
 uintnat caml_major_heap_increment;
-static value *gray_vals_cur, *gray_vals_end;
+static value *gray_vals_end;
 static asize_t gray_vals_size;
 static int heap_is_pure;   /* The heap is pure if the only gray objects
                               below [markhp] are also in [gray_vals]. */
@@ -114,7 +114,7 @@ static void realloc_gray_vals (void)
 {
   value *new;
 
-  CAMLassert (gray_vals_cur == gray_vals_end);
+  CAMLassert (Caml_state->gray_vals_cur == gray_vals_end);
   if (gray_vals_size < Caml_state->stat_heap_wsz / 32){
     caml_gc_message (0x08, "Growing gray_vals to %"
                            ARCH_INTNAT_PRINTF_FORMAT "uk bytes\n",
@@ -124,16 +124,16 @@ static void realloc_gray_vals (void)
                                             sizeof (value));
     if (new == NULL){
       caml_gc_message (0x08, "No room for growing gray_vals\n");
-      gray_vals_cur = Caml_state->gray_vals;
+      Caml_state->gray_vals_cur = Caml_state->gray_vals;
       heap_is_pure = 0;
     }else{
       Caml_state->gray_vals = new;
-      gray_vals_cur = Caml_state->gray_vals + gray_vals_size;
+      Caml_state->gray_vals_cur = Caml_state->gray_vals + gray_vals_size;
       gray_vals_size *= 2;
       gray_vals_end = Caml_state->gray_vals + gray_vals_size;
     }
   }else{
-    gray_vals_cur = Caml_state->gray_vals + gray_vals_size / 2;
+    Caml_state->gray_vals_cur = Caml_state->gray_vals + gray_vals_size / 2;
     heap_is_pure = 0;
   }
 }
@@ -166,8 +166,8 @@ void caml_darken (value v, value *p /* not used */)
       ephe_list_pure = 0;
       if (t < No_scan_tag){
         Hd_val (v) = Grayhd_hd (h);
-        *gray_vals_cur++ = v;
-        if (gray_vals_cur >= gray_vals_end) realloc_gray_vals ();
+        *(Caml_state->gray_vals_cur)++ = v;
+        if (Caml_state->gray_vals_cur >= gray_vals_end) realloc_gray_vals ();
       }else{
         Hd_val (v) = Blackhd_hd (h);
       }
@@ -178,7 +178,7 @@ void caml_darken (value v, value *p /* not used */)
 static void start_cycle (void)
 {
   CAMLassert (Caml_state->gc_phase == Phase_idle);
-  CAMLassert (gray_vals_cur == Caml_state->gray_vals);
+  CAMLassert (Caml_state->gray_vals_cur == Caml_state->gray_vals);
   caml_gc_message (0x01, "Starting new major GC cycle\n");
   caml_darken_all_roots_start ();
   Caml_state->gc_phase = Phase_mark;
@@ -281,9 +281,9 @@ static inline value* mark_slice_darken(value *gray_vals_ptr,
       Hd_val (child) = Grayhd_hd (chd);
       *gray_vals_ptr++ = child;
       if (gray_vals_ptr >= gray_vals_end) {
-        gray_vals_cur = gray_vals_ptr;
+        Caml_state->gray_vals_cur = gray_vals_ptr;
         realloc_gray_vals ();
-        gray_vals_ptr = gray_vals_cur;
+        gray_vals_ptr = Caml_state->gray_vals_cur;
       }
     }
   }
@@ -385,7 +385,7 @@ static void mark_slice (intnat work)
 
   caml_gc_message (0x40, "Marking %"ARCH_INTNAT_PRINTF_FORMAT"d words\n", work);
   caml_gc_message (0x40, "Subphase = %d\n", Caml_state->gc_subphase);
-  gray_vals_ptr = gray_vals_cur;
+  gray_vals_ptr = Caml_state->gray_vals_cur;
   v = current_value;
   start = current_index;
   while (work > 0){
@@ -453,9 +453,9 @@ static void mark_slice (intnat work)
       markhp = chunk;
       limit = chunk + Chunk_size (chunk);
     } else if (Caml_state->gc_subphase == Subphase_mark_roots) {
-      gray_vals_cur = gray_vals_ptr;
+      Caml_state->gray_vals_cur = gray_vals_ptr;
       work = caml_darken_all_roots_slice (work);
-      gray_vals_ptr = gray_vals_cur;
+      gray_vals_ptr = Caml_state->gray_vals_cur;
       if (work > 0){
         Caml_state->gc_subphase = Subphase_mark_main;
       }
@@ -471,9 +471,9 @@ static void mark_slice (intnat work)
       case Subphase_mark_main: {
           /* Subphase_mark_main is done.
              Mark finalised values. */
-          gray_vals_cur = gray_vals_ptr;
+          Caml_state->gray_vals_cur = gray_vals_ptr;
           caml_final_update_mark_phase ();
-          gray_vals_ptr = gray_vals_cur;
+          gray_vals_ptr = Caml_state->gray_vals_cur;
           if (gray_vals_ptr > Caml_state->gray_vals){
             v = *--gray_vals_ptr;
             CAMLassert (start == 0);
@@ -502,7 +502,7 @@ static void mark_slice (intnat work)
       }
     }
   }
-  gray_vals_cur = gray_vals_ptr;
+  Caml_state->gray_vals_cur = gray_vals_ptr;
   current_value = v;
   current_index = start;
   INSTR (CAML_INSTR_INT ("major/mark/slice/fields#", slice_fields);)
@@ -898,7 +898,7 @@ void caml_init_major_heap (asize_t heap_size)
   Caml_state->gray_vals = (value *) caml_stat_alloc_noexc (gray_vals_size * sizeof (value));
   if (Caml_state->gray_vals == NULL)
     caml_fatal_error ("not enough memory for the gray cache");
-  gray_vals_cur = Caml_state->gray_vals;
+  Caml_state->gray_vals_cur = Caml_state->gray_vals;
   gray_vals_end = Caml_state->gray_vals + gray_vals_size;
   heap_is_pure = 1;
   Caml_state->allocated_words = 0;
