@@ -85,4 +85,5 @@ DOMAIN_STATE(value*, gray_vals)
 DOMAIN_STATE(value*, gray_vals_cur)
 DOMAIN_STATE(value*, gray_vals_end)
 DOMAIN_STATE(asize_t, gray_vals_size)
+DOMAIN_STATE(int, heap_is_pure)
 /* See major_gc.c */

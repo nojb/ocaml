@@ -47,8 +47,6 @@ static inline double fmin(double a, double b) {
 
 uintnat caml_percent_free;
 uintnat caml_major_heap_increment;
-static int heap_is_pure;   /* The heap is pure if the only gray objects
-                              below [markhp] are also in [gray_vals]. */
 uintnat caml_dependent_size, caml_dependent_allocated;
 uintnat caml_fl_wsz_at_phase_change = 0;
 
@@ -123,7 +121,7 @@ static void realloc_gray_vals (void)
     if (new == NULL){
       caml_gc_message (0x08, "No room for growing gray_vals\n");
       Caml_state->gray_vals_cur = Caml_state->gray_vals;
-      heap_is_pure = 0;
+      Caml_state->heap_is_pure = 0;
     }else{
       Caml_state->gray_vals = new;
       Caml_state->gray_vals_cur = Caml_state->gray_vals + Caml_state->gray_vals_size;
@@ -132,7 +130,7 @@ static void realloc_gray_vals (void)
     }
   }else{
     Caml_state->gray_vals_cur = Caml_state->gray_vals + Caml_state->gray_vals_size / 2;
-    heap_is_pure = 0;
+    Caml_state->heap_is_pure = 0;
   }
 }
 
@@ -445,8 +443,8 @@ static void mark_slice (intnat work)
         }
         markhp += Bhsize_hp (markhp);
       }
-    }else if (!heap_is_pure){
-      heap_is_pure = 1;
+    }else if (!(Caml_state->heap_is_pure)){
+      Caml_state->heap_is_pure = 1;
       chunk = Caml_state->heap_start;
       markhp = chunk;
       limit = chunk + Chunk_size (chunk);
@@ -898,7 +896,7 @@ void caml_init_major_heap (asize_t heap_size)
     caml_fatal_error ("not enough memory for the gray cache");
   Caml_state->gray_vals_cur = Caml_state->gray_vals;
   Caml_state->gray_vals_end = Caml_state->gray_vals + Caml_state->gray_vals_size;
-  heap_is_pure = 1;
+  Caml_state->heap_is_pure = 1;
   Caml_state->allocated_words = 0;
   Caml_state->extra_heap_resources = 0.0;
   for (i = 0; i < Max_major_window; i++) caml_major_ring[i] = 0.0;
