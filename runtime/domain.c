@@ -101,4 +101,5 @@ void caml_init_domain ()
   Caml_state->percent_free = 0;
   Caml_state->major_heap_increment = 0;
   Caml_state->dependent_size = 0;
+  Caml_state->dependent_allocated = 0;
 }
