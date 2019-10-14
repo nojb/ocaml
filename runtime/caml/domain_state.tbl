@@ -97,5 +97,5 @@ DOMAIN_STATE(uintnat, major_heap_increment)
 DOMAIN_STATE(uintnat, dependent_size)
 DOMAIN_STATE(uintnat, dependent_allocated)
 DOMAIN_STATE(double*, major_ring)
-DOMAIN_STATE(uintnat, fl_wsz_at_phase_change) /* initialize 0 */
+DOMAIN_STATE(uintnat, fl_wsz_at_phase_change)
 /* See major_gc.c */
