@@ -154,10 +154,10 @@ static value heap_stats (int returnstats)
           ++ fragments;
           CAMLassert (prev_hp == NULL
                       || Color_hp (prev_hp) != Caml_blue
-                      || cur_hp == (header_t *) caml_gc_sweep_hp);
+                      || cur_hp == (header_t *) Caml_state->gc_sweep_hp);
         }else{
           if (Caml_state->gc_phase == Phase_sweep
-              && cur_hp >= (header_t *) caml_gc_sweep_hp){
+              && cur_hp >= (header_t *) Caml_state->gc_sweep_hp){
             ++ free_blocks;
             free_words += Whsize_hd (cur_hd);
             if (Whsize_hd (cur_hd) > largest_free){

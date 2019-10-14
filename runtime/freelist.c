@@ -546,7 +546,7 @@ void caml_fl_add_blocks (value bp)
 
   if (Bp_val (bp) > Bp_val (fl_last)){
     Next (fl_last) = bp;
-    if (fl_last == caml_fl_merge && (char *) bp < caml_gc_sweep_hp){
+    if (fl_last == caml_fl_merge && (char *) bp < Caml_state->gc_sweep_hp){
       caml_fl_merge = Field (bp, 1);
     }
     if (policy == Policy_first_fit && flp_size < FLP_MAX){
@@ -570,7 +570,7 @@ void caml_fl_add_blocks (value bp)
     /* When inserting blocks between [caml_fl_merge] and [caml_gc_sweep_hp],
        we must advance [caml_fl_merge] to the new block, so that [caml_fl_merge]
        is always the last free-list block before [caml_gc_sweep_hp]. */
-    if (prev == caml_fl_merge && (char *) bp < caml_gc_sweep_hp){
+    if (prev == caml_fl_merge && (char *) bp < Caml_state->gc_sweep_hp){
       caml_fl_merge = Field (bp, 1);
     }
     if (policy == Policy_first_fit) truncate_flp (bp);
