@@ -86,7 +86,7 @@ void caml_init_domain ()
   Caml_state->extra_heap_resources = 0.0;
   Caml_state->gc_clock = 0.0;
   Caml_state->gc_sweep_hp = NULL;
-  Caml_state->gc_heap_start = NULL;
+  Caml_state->heap_start = NULL;
   Caml_state->gray_vals = NULL;
   Caml_state->gray_vals_cur = NULL;
   Caml_state->gray_vals_end = NULL;
