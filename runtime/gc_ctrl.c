@@ -596,7 +596,7 @@ CAMLprim value caml_get_major_bucket (value v)
     i += Caml_state->major_ring_index;
     if (i >= Caml_state->major_window) i -= Caml_state->major_window;
     CAMLassert (0 <= i && i < Caml_state->major_window);
-    return Val_long ((long) (caml_major_ring[i] * 1e6));
+    return Val_long ((long) (Caml_state->major_ring[i] * 1e6));
   }else{
     return Val_long (0);
   }

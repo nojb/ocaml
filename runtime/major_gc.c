@@ -91,8 +91,6 @@ static int ephe_list_pure;
 static value *ephes_checked_if_pure;
 static value *ephes_to_check;
 
-double caml_major_ring[Max_major_window] = { 0. };
-
 #ifdef DEBUG
 static unsigned long major_gc_counter = 0;
 #endif
@@ -700,7 +698,7 @@ void caml_major_collection_slice (intnat howmuch)
                    (intnat) (p_backlog * 1000000));
 
   for (i = 0; i < Caml_state->major_window; i++){
-    caml_major_ring[i] += p / Caml_state->major_window;
+    Caml_state->major_ring[i] += p / Caml_state->major_window;
   }
 
   if (Caml_state->gc_clock >= 1.0){
@@ -717,10 +715,10 @@ void caml_major_collection_slice (intnat howmuch)
        automatic mode (with [howmuch] = -1) at least once per clock tick.
        This means we never leave a non-empty bucket behind. */
     spend = fmin (Caml_state->major_work_credit,
-                  caml_major_ring[Caml_state->major_ring_index]);
+                  Caml_state->major_ring[Caml_state->major_ring_index]);
     Caml_state->major_work_credit -= spend;
-    filt_p = caml_major_ring[Caml_state->major_ring_index] - spend;
-    caml_major_ring[Caml_state->major_ring_index] = 0.0;
+    filt_p = Caml_state->major_ring[Caml_state->major_ring_index] - spend;
+    Caml_state->major_ring[Caml_state->major_ring_index] = 0.0;
   }else{
     /* forced GC slice: do work and add it to the credit */
     if (howmuch == 0){
@@ -728,7 +726,7 @@ void caml_major_collection_slice (intnat howmuch)
          we do not use the current bucket, as it may be empty */
       int i = Caml_state->major_ring_index + 1;
       if (i >= Caml_state->major_window) i = 0;
-      filt_p = caml_major_ring[i];
+      filt_p = Caml_state->major_ring[i];
     }else{
       /* manual setting */
       filt_p = (double) howmuch * 3.0 * (100 + Caml_state->percent_free)
@@ -802,7 +800,7 @@ void caml_major_collection_slice (intnat howmuch)
   if (p > spend){
     p -= spend;
     p /= Caml_state->major_window;
-    for (i = 0; i < Caml_state->major_window; i++) caml_major_ring[i] += p;
+    for (i = 0; i < Caml_state->major_window; i++) Caml_state->major_ring[i] += p;
   }
 
   Caml_state->stat_major_words += Caml_state->allocated_words;
@@ -892,7 +890,7 @@ void caml_init_major_heap (asize_t heap_size)
   Caml_state->heap_is_pure = 1;
   Caml_state->allocated_words = 0;
   Caml_state->extra_heap_resources = 0.0;
-  for (i = 0; i < Max_major_window; i++) caml_major_ring[i] = 0.0;
+  for (i = 0; i < Max_major_window; i++) Caml_state->major_ring[i] = 0.0;
 }
 
 void caml_set_major_window (int w){
@@ -902,11 +900,11 @@ void caml_set_major_window (int w){
   CAMLassert (w <= Max_major_window);
   /* Collect the current work-to-do from the buckets. */
   for (i = 0; i < Caml_state->major_window; i++){
-    total += caml_major_ring[i];
+    total += Caml_state->major_ring[i];
   }
   /* Redistribute to the new buckets. */
   for (i = 0; i < w; i++){
-    caml_major_ring[i] = total / w;
+    Caml_state->major_ring[i] = total / w;
   }
   Caml_state->major_window = w;
 }
