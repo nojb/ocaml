@@ -92,4 +92,5 @@ void caml_init_domain ()
   Caml_state->gray_vals_end = NULL;
   Caml_state->gray_vals_size = 0;
   Caml_state->heap_is_pure = 0;
+  Caml_state->markhp = NULL;
 }
