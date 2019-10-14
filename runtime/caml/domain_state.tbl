@@ -78,4 +78,5 @@ DOMAIN_STATE(int, gc_phase)
 DOMAIN_STATE(int, gc_subphase)
 DOMAIN_STATE(uintnat, allocated_words)
 DOMAIN_STATE(double, extra_heap_resources)
+DOMAIN_STATE(double, gc_clock) /* initialize 0.0 */
 /* See major_gc.c */

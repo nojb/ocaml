@@ -398,7 +398,7 @@ void caml_empty_minor_heap (void)
     CAML_INSTR_TIME (tmr, "minor/update_weak");
     Caml_state->stat_minor_words +=
       Caml_state->young_alloc_end - Caml_state->young_ptr;
-    caml_gc_clock +=
+    Caml_state->gc_clock +=
       (double) (Caml_state->young_alloc_end - Caml_state->young_ptr)
       / Caml_state->minor_heap_wsz;
     Caml_state->young_ptr = Caml_state->young_alloc_end;

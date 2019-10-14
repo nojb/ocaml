@@ -106,7 +106,6 @@ int caml_major_window = 1;
 double caml_major_ring[Max_major_window] = { 0. };
 int caml_major_ring_index = 0;
 double caml_major_work_credit = 0.0;
-double caml_gc_clock = 0.0;
 
 #ifdef DEBUG
 static unsigned long major_gc_counter = 0;
@@ -718,8 +717,8 @@ void caml_major_collection_slice (intnat howmuch)
     caml_major_ring[i] += p / caml_major_window;
   }
 
-  if (caml_gc_clock >= 1.0){
-    caml_gc_clock -= 1.0;
+  if (Caml_state->gc_clock >= 1.0){
+    Caml_state->gc_clock -= 1.0;
     ++caml_major_ring_index;
     if (caml_major_ring_index >= caml_major_window){
       caml_major_ring_index = 0;
