@@ -23,6 +23,8 @@ CAMLexport caml_domain_state* Caml_state;
 
 void caml_init_domain ()
 {
+  int i;
+
   if (Caml_state != NULL)
     return;
 
@@ -102,4 +104,8 @@ void caml_init_domain ()
   Caml_state->major_heap_increment = 0;
   Caml_state->dependent_size = 0;
   Caml_state->dependent_allocated = 0;
+  Caml_state->major_ring = malloc(Max_major_window * sizeof(double));
+  for(i = 0; i < Max_major_window; i ++) {
+    Caml_state->major_ring[i] = 0.0;
+  }
 }
