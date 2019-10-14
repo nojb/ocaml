@@ -76,4 +76,5 @@ DOMAIN_STATE(intnat, stat_heap_chunks)
 
 DOMAIN_STATE(int, gc_phase)
 DOMAIN_STATE(int, gc_subphase)
+DOMAIN_STATE(uintnat, allocated_words)
 /* See major_gc.c */

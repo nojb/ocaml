@@ -675,7 +675,7 @@ static header_t* intern_add_to_heap(mlsize_t whsize)
       caml_make_free_blocks ((value *) intern_dest,
                              end_extra_block - intern_dest, 0, Caml_white);
     }
-    caml_allocated_words +=
+    Caml_state->allocated_words +=
       Wsize_bsize ((char *) intern_dest - intern_extra_block);
     if(caml_add_to_heap(intern_extra_block) != 0) {
       intern_cleanup();

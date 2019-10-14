@@ -351,7 +351,7 @@ void caml_empty_minor_heap (void)
   if (Caml_state->young_ptr != Caml_state->young_alloc_end){
     if (caml_minor_gc_begin_hook != NULL) (*caml_minor_gc_begin_hook) ();
     CAML_INSTR_SETUP (tmr, "minor");
-    prev_alloc_words = caml_allocated_words;
+    prev_alloc_words = Caml_state->allocated_words;
     Caml_state->in_minor_collection = 1;
     caml_gc_message (0x02, "<");
     caml_oldify_local_roots();
@@ -410,8 +410,8 @@ void caml_empty_minor_heap (void)
     Caml_state->in_minor_collection = 0;
     caml_final_empty_young ();
     CAML_INSTR_TIME (tmr, "minor/finalized");
-    Caml_state->stat_promoted_words += caml_allocated_words - prev_alloc_words;
-    CAML_INSTR_INT ("minor/promoted#", caml_allocated_words - prev_alloc_words);
+    Caml_state->stat_promoted_words += Caml_state->allocated_words - prev_alloc_words;
+    CAML_INSTR_INT ("minor/promoted#", Caml_state->allocated_words - prev_alloc_words);
     ++ Caml_state->stat_minor_collections;
     caml_memprof_renew_minor_sample();
     if (caml_minor_gc_end_hook != NULL) (*caml_minor_gc_end_hook) ();

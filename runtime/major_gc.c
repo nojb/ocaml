@@ -54,7 +54,6 @@ static value *gray_vals_cur, *gray_vals_end;
 static asize_t gray_vals_size;
 static int heap_is_pure;   /* The heap is pure if the only gray objects
                               below [markhp] are also in [gray_vals]. */
-uintnat caml_allocated_words;
 uintnat caml_dependent_size, caml_dependent_allocated;
 double caml_extra_heap_resources;
 uintnat caml_fl_wsz_at_phase_change = 0;
@@ -682,7 +681,7 @@ void caml_major_collection_slice (intnat howmuch)
   if (caml_major_slice_begin_hook != NULL) (*caml_major_slice_begin_hook) ();
   CAML_INSTR_SETUP (tmr, "major");
 
-  p = (double) caml_allocated_words * 3.0 * (100 + caml_percent_free)
+  p = (double) Caml_state->allocated_words * 3.0 * (100 + caml_percent_free)
       / Caml_state->stat_heap_wsz / caml_percent_free / 2.0;
   if (caml_dependent_size > 0){
     dp = (double) caml_dependent_allocated * (100 + caml_percent_free)
@@ -705,7 +704,7 @@ void caml_major_collection_slice (intnat howmuch)
                    ARCH_INTNAT_PRINTF_FORMAT "d words\n", howmuch);
   caml_gc_message (0x40, "allocated_words = %"
                          ARCH_INTNAT_PRINTF_FORMAT "u\n",
-                   caml_allocated_words);
+                   Caml_state->allocated_words);
   caml_gc_message (0x40, "extra_heap_resources = %"
                          ARCH_INTNAT_PRINTF_FORMAT "uu\n",
                    (uintnat) (caml_extra_heap_resources * 1000000));
@@ -822,8 +821,8 @@ void caml_major_collection_slice (intnat howmuch)
     for (i = 0; i < caml_major_window; i++) caml_major_ring[i] += p;
   }
 
-  Caml_state->stat_major_words += caml_allocated_words;
-  caml_allocated_words = 0;
+  Caml_state->stat_major_words += Caml_state->allocated_words;
+  Caml_state->allocated_words = 0;
   caml_dependent_allocated = 0;
   caml_extra_heap_resources = 0.0;
   if (caml_major_slice_end_hook != NULL) (*caml_major_slice_end_hook) ();
@@ -844,8 +843,8 @@ void caml_finish_major_cycle (void)
   CAMLassert (Caml_state->gc_phase == Phase_sweep);
   while (Caml_state->gc_phase == Phase_sweep) sweep_slice (LONG_MAX);
   CAMLassert (Caml_state->gc_phase == Phase_idle);
-  Caml_state->stat_major_words += caml_allocated_words;
-  caml_allocated_words = 0;
+  Caml_state->stat_major_words += Caml_state->allocated_words;
+  Caml_state->allocated_words = 0;
 }
 
 /* Call this function to make sure [bsz] is greater than or equal
@@ -907,7 +906,7 @@ void caml_init_major_heap (asize_t heap_size)
   gray_vals_cur = gray_vals;
   gray_vals_end = gray_vals + gray_vals_size;
   heap_is_pure = 1;
-  caml_allocated_words = 0;
+  Caml_state->allocated_words = 0;
   caml_extra_heap_resources = 0.0;
   for (i = 0; i < Max_major_window; i++) caml_major_ring[i] = 0.0;
 }

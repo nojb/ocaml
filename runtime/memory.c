@@ -509,8 +509,8 @@ static inline value caml_alloc_shr_aux (mlsize_t wosize, tag_t tag, int track,
   CAMLassert (Hd_hp (hp)
     == Make_header_with_profinfo (wosize, tag, caml_allocation_color (hp),
                                   profinfo));
-  caml_allocated_words += Whsize_wosize (wosize);
-  if (caml_allocated_words > Caml_state->minor_heap_wsz){
+  Caml_state->allocated_words += Whsize_wosize (wosize);
+  if (Caml_state->allocated_words > Caml_state->minor_heap_wsz){
     CAML_INSTR_INT ("request_major/alloc_shr@", 1);
     caml_request_major_slice ();
   }

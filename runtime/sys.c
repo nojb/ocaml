@@ -122,7 +122,7 @@ CAMLprim value caml_sys_exit(value retcode_v)
       + (double) (Caml_state->young_end - Caml_state->young_ptr);
     double prowords = Caml_state->stat_promoted_words;
     double majwords =
-      Caml_state->stat_major_words + (double) caml_allocated_words;
+      Caml_state->stat_major_words + (double) Caml_state->allocated_words;
     double allocated_words = minwords + majwords - prowords;
     intnat mincoll = Caml_state->stat_minor_collections;
     intnat majcoll = Caml_state->stat_major_collections;
