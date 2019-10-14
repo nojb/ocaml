@@ -83,4 +83,5 @@ void caml_init_domain ()
 
   Caml_state->gc_phase = 0;
   Caml_state->gc_subphase = 0;
+  Caml_state->extra_heap_resources = 0.0;
 }
