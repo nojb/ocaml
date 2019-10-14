@@ -64,8 +64,6 @@ extern char *caml_fl_merge;  /* Defined in freelist.c. */
 static char *markhp, *chunk, *limit;
 static double p_backlog = 0.0; /* backlog for the gc speedup parameter */
 
-int caml_gc_subphase;     /* Subphase_{mark_roots,mark_main,mark_final} */
-
 /**
    Ephemerons:
    During mark phase the list caml_ephe_list_head of ephemerons
@@ -190,7 +188,7 @@ static void start_cycle (void)
   caml_gc_message (0x01, "Starting new major GC cycle\n");
   caml_darken_all_roots_start ();
   Caml_state->gc_phase = Phase_mark;
-  caml_gc_subphase = Subphase_mark_roots;
+  Caml_state->gc_subphase = Subphase_mark_roots;
   markhp = NULL;
   ephe_list_pure = 1;
   ephes_checked_if_pure = &caml_ephe_list_head;
@@ -392,7 +390,7 @@ static void mark_slice (intnat work)
   int slice_pointers = 0; /** gcc removes it when not in CAML_INSTR */
 
   caml_gc_message (0x40, "Marking %"ARCH_INTNAT_PRINTF_FORMAT"d words\n", work);
-  caml_gc_message (0x40, "Subphase = %d\n", caml_gc_subphase);
+  caml_gc_message (0x40, "Subphase = %d\n", Caml_state->gc_subphase);
   gray_vals_ptr = gray_vals_cur;
   v = current_value;
   start = current_index;
@@ -460,12 +458,12 @@ static void mark_slice (intnat work)
       chunk = caml_heap_start;
       markhp = chunk;
       limit = chunk + Chunk_size (chunk);
-    } else if (caml_gc_subphase == Subphase_mark_roots) {
+    } else if (Caml_state->gc_subphase == Subphase_mark_roots) {
       gray_vals_cur = gray_vals_ptr;
       work = caml_darken_all_roots_slice (work);
       gray_vals_ptr = gray_vals_cur;
       if (work > 0){
-        caml_gc_subphase = Subphase_mark_main;
+        Caml_state->gc_subphase = Subphase_mark_main;
       }
     } else if (*ephes_to_check != (value) NULL) {
       /* Continue to scan the list of ephe */
@@ -475,7 +473,7 @@ static void mark_slice (intnat work)
       ephe_list_pure = 1;
       ephes_to_check = ephes_checked_if_pure;
     }else{
-      switch (caml_gc_subphase){
+      switch (Caml_state->gc_subphase){
       case Subphase_mark_main: {
           /* Subphase_mark_main is done.
              Mark finalised values. */
@@ -488,7 +486,7 @@ static void mark_slice (intnat work)
           }
           /* Complete the marking */
           ephes_to_check = ephes_checked_if_pure;
-          caml_gc_subphase = Subphase_mark_final;
+          Caml_state->gc_subphase = Subphase_mark_final;
       }
         break;
       case Subphase_mark_final: {
@@ -790,7 +788,7 @@ void caml_major_collection_slice (intnat howmuch)
   if (Caml_state->gc_phase == Phase_mark){
     CAML_INSTR_INT ("major/work/mark#", computed_work);
     mark_slice (computed_work);
-    CAML_INSTR_TIME (tmr, mark_slice_name[caml_gc_subphase]);
+    CAML_INSTR_TIME (tmr, mark_slice_name[Caml_state->gc_subphase]);
     caml_gc_message (0x02, "!");
   }else if (Caml_state->gc_phase == Phase_clean){
     clean_slice (computed_work);

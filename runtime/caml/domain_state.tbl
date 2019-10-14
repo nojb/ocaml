@@ -75,4 +75,5 @@ DOMAIN_STATE(intnat, stat_heap_chunks)
 /* See gc_ctrl.c */
 
 DOMAIN_STATE(int, gc_phase)
+DOMAIN_STATE(int, gc_subphase)
 /* See major_gc.c */
