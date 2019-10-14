@@ -83,4 +83,5 @@ DOMAIN_STATE(char*, gc_sweep_hp)
 DOMAIN_STATE(char*, heap_start)
 DOMAIN_STATE(value*, gray_vals)
 DOMAIN_STATE(value*, gray_vals_cur)
+DOMAIN_STATE(value*, gray_vals_end)
 /* See major_gc.c */
