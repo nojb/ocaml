@@ -90,4 +90,5 @@ void caml_init_domain ()
   Caml_state->gray_vals = NULL;
   Caml_state->gray_vals_cur = NULL;
   Caml_state->gray_vals_end = NULL;
+  Caml_state->gray_vals_size = 0;
 }
