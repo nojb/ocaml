@@ -57,7 +57,6 @@ extern uintnat caml_fl_wsz_at_phase_change;
 
 extern uintnat total_heap_size;
 
-extern int caml_major_window;
 extern double caml_major_ring[Max_major_window];
 extern int caml_major_ring_index;
 

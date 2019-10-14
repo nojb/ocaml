@@ -366,7 +366,7 @@ CAMLprim value caml_gc_get(value v)
   Store_field (res, 5, Val_long (0));
 #endif
   Store_field (res, 6, Val_long (caml_allocation_policy));              /* a */
-  Store_field (res, 7, Val_long (caml_major_window));                   /* w */
+  Store_field (res, 7, Val_long (Caml_state->major_window));                   /* w */
   Store_field (res, 8, Val_long (caml_custom_major_ratio));             /* M */
   Store_field (res, 9, Val_long (caml_custom_minor_ratio));             /* m */
   Store_field (res, 10, Val_long (caml_custom_minor_max_bsz));          /* n */
@@ -460,11 +460,11 @@ CAMLprim value caml_gc_set(value v)
 
   /* This field was added in 4.03.0. */
   if (Wosize_val (v) >= 8){
-    int old_window = caml_major_window;
+    int old_window = Caml_state->major_window;
     caml_set_major_window (norm_window (Long_val (Field (v, 7))));
-    if (old_window != caml_major_window){
+    if (old_window != Caml_state->major_window){
       caml_gc_message (0x20, "New smoothing window size: %d\n",
-                       caml_major_window);
+                       Caml_state->major_window);
     }
   }
 
@@ -594,10 +594,10 @@ CAMLprim value caml_get_major_bucket (value v)
 {
   long i = Long_val (v);
   if (i < 0) caml_invalid_argument ("Gc.get_bucket");
-  if (i < caml_major_window){
+  if (i < Caml_state->major_window){
     i += caml_major_ring_index;
-    if (i >= caml_major_window) i -= caml_major_window;
-    CAMLassert (0 <= i && i < caml_major_window);
+    if (i >= Caml_state->major_window) i -= Caml_state->major_window;
+    CAMLassert (0 <= i && i < Caml_state->major_window);
     return Val_long ((long) (caml_major_ring[i] * 1e6));
   }else{
     return Val_long (0);
@@ -638,7 +638,7 @@ void caml_init_gc (uintnat minor_size, uintnat major_size,
   caml_percent_free = norm_pfree (percent_fr);
   caml_percent_max = norm_pmax (percent_m);
   caml_init_major_heap (major_heap_size);
-  caml_major_window = norm_window (window);
+  Caml_state->major_window = norm_window (window);
   caml_custom_major_ratio = norm_custom_maj (custom_maj);
   caml_custom_minor_ratio = norm_custom_min (custom_min);
   caml_custom_minor_max_bsz = custom_bsz;
@@ -664,7 +664,7 @@ void caml_init_gc (uintnat minor_size, uintnat major_size,
   caml_gc_message (0x20, "Initial allocation policy: %"
                    ARCH_INTNAT_PRINTF_FORMAT "u\n", caml_allocation_policy);
   caml_gc_message (0x20, "Initial smoothing window: %d\n",
-                   caml_major_window);
+                   Caml_state->major_window);
 }
 
 
@@ -710,7 +710,7 @@ CAMLprim value caml_runtime_parameters (value unit)
      /* s */ Caml_state->minor_heap_wsz,
      /* t */ caml_trace_level,
      /* v */ caml_verb_gc,
-     /* w */ caml_major_window,
+     /* w */ Caml_state->major_window,
      /* W */ caml_runtime_warnings
      );
 #undef F_Z

@@ -94,7 +94,6 @@ static int ephe_list_pure;
 static value *ephes_checked_if_pure;
 static value *ephes_to_check;
 
-int caml_major_window = 1;
 double caml_major_ring[Max_major_window] = { 0. };
 int caml_major_ring_index = 0;
 
@@ -704,14 +703,14 @@ void caml_major_collection_slice (intnat howmuch)
                          ARCH_INTNAT_PRINTF_FORMAT "du\n",
                    (intnat) (p_backlog * 1000000));
 
-  for (i = 0; i < caml_major_window; i++){
-    caml_major_ring[i] += p / caml_major_window;
+  for (i = 0; i < Caml_state->major_window; i++){
+    caml_major_ring[i] += p / Caml_state->major_window;
   }
 
   if (Caml_state->gc_clock >= 1.0){
     Caml_state->gc_clock -= 1.0;
     ++caml_major_ring_index;
-    if (caml_major_ring_index >= caml_major_window){
+    if (caml_major_ring_index >= Caml_state->major_window){
       caml_major_ring_index = 0;
     }
   }
@@ -732,7 +731,7 @@ void caml_major_collection_slice (intnat howmuch)
       /* automatic setting: size of next bucket
          we do not use the current bucket, as it may be empty */
       int i = caml_major_ring_index + 1;
-      if (i >= caml_major_window) i = 0;
+      if (i >= Caml_state->major_window) i = 0;
       filt_p = caml_major_ring[i];
     }else{
       /* manual setting */
@@ -806,8 +805,8 @@ void caml_major_collection_slice (intnat howmuch)
   Caml_state->major_work_credit -= spend;
   if (p > spend){
     p -= spend;
-    p /= caml_major_window;
-    for (i = 0; i < caml_major_window; i++) caml_major_ring[i] += p;
+    p /= Caml_state->major_window;
+    for (i = 0; i < Caml_state->major_window; i++) caml_major_ring[i] += p;
   }
 
   Caml_state->stat_major_words += Caml_state->allocated_words;
@@ -903,17 +902,17 @@ void caml_init_major_heap (asize_t heap_size)
 void caml_set_major_window (int w){
   uintnat total = 0;
   int i;
-  if (w == caml_major_window) return;
+  if (w == Caml_state->major_window) return;
   CAMLassert (w <= Max_major_window);
   /* Collect the current work-to-do from the buckets. */
-  for (i = 0; i < caml_major_window; i++){
+  for (i = 0; i < Caml_state->major_window; i++){
     total += caml_major_ring[i];
   }
   /* Redistribute to the new buckets. */
   for (i = 0; i < w; i++){
     caml_major_ring[i] = total / w;
   }
-  caml_major_window = w;
+  Caml_state->major_window = w;
 }
 
 void caml_finalise_heap (void)
