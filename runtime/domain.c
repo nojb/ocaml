@@ -99,4 +99,5 @@ void caml_init_domain ()
   Caml_state->major_window = 1;
   Caml_state->major_ring_index = 0;
   Caml_state->percent_free = 0;
+  Caml_state->major_heap_increment = 0;
 }
