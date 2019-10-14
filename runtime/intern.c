@@ -36,9 +36,6 @@
 #include "caml/reverse.h"
 #include "caml/memprof.h"
 
-static unsigned char * intern_src;
-/* Reading pointer in block holding input data. */
-
 static unsigned char * intern_input = NULL;
 /* Pointer to beginning of block holding input data,
    if non-NULL this pointer will be freed by the cleanup function. */
@@ -76,40 +73,40 @@ CAMLnoreturn_end;
 static void intern_free_stack(void);
 
 static inline unsigned char read8u(void)
-{ return *intern_src++; }
+{ return *Caml_state->intern_src++; }
 
 static inline signed char read8s(void)
-{ return *intern_src++; }
+{ return *Caml_state->intern_src++; }
 
 static inline uint16_t read16u(void)
 {
-  uint16_t res = (intern_src[0] << 8) + intern_src[1];
-  intern_src += 2;
+  uint16_t res = (Caml_state->intern_src[0] << 8) + Caml_state->intern_src[1];
+  Caml_state->intern_src += 2;
   return res;
 }
 
 static inline int16_t read16s(void)
 {
-  int16_t res = (intern_src[0] << 8) + intern_src[1];
-  intern_src += 2;
+  int16_t res = (Caml_state->intern_src[0] << 8) + Caml_state->intern_src[1];
+  Caml_state->intern_src += 2;
   return res;
 }
 
 static inline uint32_t read32u(void)
 {
   uint32_t res =
-    ((uint32_t)(intern_src[0]) << 24) + (intern_src[1] << 16)
-    + (intern_src[2] << 8) + intern_src[3];
-  intern_src += 4;
+    ((uint32_t)(Caml_state->intern_src[0]) << 24) + (Caml_state->intern_src[1] << 16)
+    + (Caml_state->intern_src[2] << 8) + Caml_state->intern_src[3];
+  Caml_state->intern_src += 4;
   return res;
 }
 
 static inline int32_t read32s(void)
 {
   int32_t res =
-    ((uint32_t)(intern_src[0]) << 24) + (intern_src[1] << 16)
-    + (intern_src[2] << 8) + intern_src[3];
-  intern_src += 4;
+    ((uint32_t)(Caml_state->intern_src[0]) << 24) + (Caml_state->intern_src[1] << 16)
+    + (Caml_state->intern_src[2] << 8) + Caml_state->intern_src[3];
+  Caml_state->intern_src += 4;
   return res;
 }
 
@@ -117,23 +114,23 @@ static inline int32_t read32s(void)
 static uintnat read64u(void)
 {
   uintnat res =
-    ((uintnat) (intern_src[0]) << 56)
-    + ((uintnat) (intern_src[1]) << 48)
-    + ((uintnat) (intern_src[2]) << 40)
-    + ((uintnat) (intern_src[3]) << 32)
-    + ((uintnat) (intern_src[4]) << 24)
-    + ((uintnat) (intern_src[5]) << 16)
-    + ((uintnat) (intern_src[6]) << 8)
-    + (uintnat) (intern_src[7]);
-  intern_src += 8;
+    ((uintnat) (Caml_state->intern_src[0]) << 56)
+    + ((uintnat) (Caml_state->intern_src[1]) << 48)
+    + ((uintnat) (Caml_state->intern_src[2]) << 40)
+    + ((uintnat) (Caml_state->intern_src[3]) << 32)
+    + ((uintnat) (Caml_state->intern_src[4]) << 24)
+    + ((uintnat) (Caml_state->intern_src[5]) << 16)
+    + ((uintnat) (Caml_state->intern_src[6]) << 8)
+    + (uintnat) (Caml_state->intern_src[7]);
+  Caml_state->intern_src += 8;
   return res;
 }
 #endif
 
 static inline void readblock(void * dest, intnat len)
 {
-  memcpy(dest, intern_src, len);
-  intern_src += len;
+  memcpy(dest, Caml_state->intern_src, len);
+  Caml_state->intern_src += len;
 }
 
 static void intern_init(void * src, void * input)
@@ -143,7 +140,7 @@ static void intern_init(void * src, void * input)
      without calling intern_cleanup() during the previous demarshaling. */
   CAMLassert (intern_input == NULL && intern_obj_table == NULL \
      && intern_extra_block == NULL && intern_block == 0);
-  intern_src = src;
+  Caml_state->intern_src = src;
   intern_input = input;
 }
 
@@ -528,7 +525,7 @@ static void intern_rec(value *dest)
       case CODE_CUSTOM:
       case CODE_CUSTOM_LEN:
       case CODE_CUSTOM_FIXED: {
-        ops = caml_find_custom_operations((char *) intern_src);
+        ops = caml_find_custom_operations((char *) Caml_state->intern_src);
         if (ops == NULL) {
           intern_cleanup();
           caml_failwith("input_value: unknown custom block identifier");
@@ -537,7 +534,7 @@ static void intern_rec(value *dest)
           intern_cleanup();
           caml_failwith("input_value: expected a fixed-size custom block");
         }
-        while (*intern_src++ != 0) /*nothing*/;  /*skip identifier*/
+        while (*Caml_state->intern_src++ != 0) /*nothing*/;  /*skip identifier*/
         if (code == CODE_CUSTOM) {
           /* deprecated */
           size = ops->deserialize((void *) (intern_dest + 2));
@@ -547,7 +544,7 @@ static void intern_rec(value *dest)
           if (code == CODE_CUSTOM_FIXED) {
             expected_size = ops->fixed_length->bsize_64;
           } else {
-            intern_src += 4;
+            Caml_state->intern_src += 4;
             expected_size = read64u();
           }
 #else
@@ -776,13 +773,13 @@ static value caml_input_val_core(struct channel *chan, int outside_heap)
     caml_raise_end_of_file();
   else if (r < 20)
     caml_failwith("input_value: truncated object");
-  intern_src = (unsigned char *) header;
+  Caml_state->intern_src = (unsigned char *) header;
   if (read32u() == Intext_magic_number_big) {
     /* Finish reading the header */
     if (caml_really_getblock(chan, header + 20, 32 - 20) < 32 - 20)
       caml_failwith("input_value: truncated object");
   }
-  intern_src = (unsigned char *) header;
+  Caml_state->intern_src = (unsigned char *) header;
   caml_parse_header("input_value", &h);
   /* Read block from channel */
   block = caml_stat_alloc(h.data_len);
@@ -855,7 +852,7 @@ CAMLexport value caml_input_val_from_bytes(value str, intnat ofs)
     caml_failwith("input_val_from_string: bad length");
   /* Allocate result */
   intern_alloc(h.whsize, h.num_objects, 0);
-  intern_src = &Byte_u(str, ofs + h.header_len); /* If a GC occurred */
+  Caml_state->intern_src = &Byte_u(str, ofs + h.header_len); /* If a GC occurred */
   /* Fill it in */
   intern_rec(&obj);
   CAMLreturn (intern_end(obj, h.whsize));
@@ -918,7 +915,7 @@ CAMLprim value caml_marshal_data_size(value buff, value ofs)
   int header_len;
   uintnat data_len;
 
-  intern_src = &Byte_u(buff, Long_val(ofs));
+  Caml_state->intern_src = &Byte_u(buff, Long_val(ofs));
   magic = read32u();
   switch(magic) {
   case Intext_magic_number_small:
@@ -1039,17 +1036,17 @@ CAMLexport double caml_deserialize_float_8(void)
 
 CAMLexport void caml_deserialize_block_1(void * data, intnat len)
 {
-  memcpy(data, intern_src, len);
-  intern_src += len;
+  memcpy(data, Caml_state->intern_src, len);
+  Caml_state->intern_src += len;
 }
 
 CAMLexport void caml_deserialize_block_2(void * data, intnat len)
 {
 #ifndef ARCH_BIG_ENDIAN
   unsigned char * p, * q;
-  for (p = intern_src, q = data; len > 0; len--, p += 2, q += 2)
+  for (p = Caml_state->intern_src, q = data; len > 0; len--, p += 2, q += 2)
     Reverse_16(q, p);
-  intern_src = p;
+  Caml_state->intern_src = p;
 #else
   memcpy(data, intern_src, len * 2);
   intern_src += len * 2;
@@ -1060,12 +1057,12 @@ CAMLexport void caml_deserialize_block_4(void * data, intnat len)
 {
 #ifndef ARCH_BIG_ENDIAN
   unsigned char * p, * q;
-  for (p = intern_src, q = data; len > 0; len--, p += 4, q += 4)
+  for (p = Caml_state->intern_src, q = data; len > 0; len--, p += 4, q += 4)
     Reverse_32(q, p);
-  intern_src = p;
+  Caml_state->intern_src = p;
 #else
   memcpy(data, intern_src, len * 4);
-  intern_src += len * 4;
+  Caml_state->intern_src += len * 4;
 #endif
 }
 
@@ -1073,30 +1070,30 @@ CAMLexport void caml_deserialize_block_8(void * data, intnat len)
 {
 #ifndef ARCH_BIG_ENDIAN
   unsigned char * p, * q;
-  for (p = intern_src, q = data; len > 0; len--, p += 8, q += 8)
+  for (p = Caml_state->intern_src, q = data; len > 0; len--, p += 8, q += 8)
     Reverse_64(q, p);
-  intern_src = p;
+  Caml_state->intern_src = p;
 #else
-  memcpy(data, intern_src, len * 8);
-  intern_src += len * 8;
+  memcpy(data, Caml_state->intern_src, len * 8);
+  Caml_state->intern_src += len * 8;
 #endif
 }
 
 CAMLexport void caml_deserialize_block_float_8(void * data, intnat len)
 {
 #if ARCH_FLOAT_ENDIANNESS == 0x01234567
-  memcpy(data, intern_src, len * 8);
-  intern_src += len * 8;
+  memcpy(data, Caml_state->intern_src, len * 8);
+  Caml_state->intern_src += len * 8;
 #elif ARCH_FLOAT_ENDIANNESS == 0x76543210
   unsigned char * p, * q;
   for (p = intern_src, q = data; len > 0; len--, p += 8, q += 8)
     Reverse_64(q, p);
-  intern_src = p;
+  Caml_state->intern_src = p;
 #else
   unsigned char * p, * q;
-  for (p = intern_src, q = data; len > 0; len--, p += 8, q += 8)
+  for (p = Caml_state->intern_src, q = data; len > 0; len--, p += 8, q += 8)
     Permute_64(q, ARCH_FLOAT_ENDIANNESS, p, 0x01234567);
-  intern_src = p;
+  Caml_state->intern_src = p;
 #endif
 }
 

@@ -109,4 +109,6 @@ void caml_init_domain ()
     Caml_state->major_ring[i] = 0.0;
   }
   Caml_state->fl_wsz_at_phase_change = 0;
+
+  Caml_state->intern_src = NULL;
 }
