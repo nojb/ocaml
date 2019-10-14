@@ -89,4 +89,6 @@ DOMAIN_STATE(int, heap_is_pure)
 DOMAIN_STATE(char*, markhp)
 DOMAIN_STATE(char*, chunk)
 DOMAIN_STATE(char*, limit)
+DOMAIN_STATE(double, major_work_credit) /* initialize 0.0 */
+
 /* See major_gc.c */

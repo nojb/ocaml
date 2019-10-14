@@ -607,7 +607,7 @@ CAMLprim value caml_get_major_bucket (value v)
 CAMLprim value caml_get_major_credit (value v)
 {
   CAMLassert (v == Val_unit);
-  return Val_long ((long) (caml_major_work_credit * 1e6));
+  return Val_long ((long) (Caml_state->major_work_credit * 1e6));
 }
 
 uintnat caml_normalize_heap_increment (uintnat i)

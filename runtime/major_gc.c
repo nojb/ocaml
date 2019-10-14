@@ -97,7 +97,6 @@ static value *ephes_to_check;
 int caml_major_window = 1;
 double caml_major_ring[Max_major_window] = { 0. };
 int caml_major_ring_index = 0;
-double caml_major_work_credit = 0.0;
 
 #ifdef DEBUG
 static unsigned long major_gc_counter = 0;
@@ -722,9 +721,9 @@ void caml_major_collection_slice (intnat howmuch)
     /* Note that the minor GC guarantees that the major slice is called in
        automatic mode (with [howmuch] = -1) at least once per clock tick.
        This means we never leave a non-empty bucket behind. */
-    spend = fmin (caml_major_work_credit,
+    spend = fmin (Caml_state->major_work_credit,
                   caml_major_ring[caml_major_ring_index]);
-    caml_major_work_credit -= spend;
+    Caml_state->major_work_credit -= spend;
     filt_p = caml_major_ring[caml_major_ring_index] - spend;
     caml_major_ring[caml_major_ring_index] = 0.0;
   }else{
@@ -740,7 +739,7 @@ void caml_major_collection_slice (intnat howmuch)
       filt_p = (double) howmuch * 3.0 * (100 + caml_percent_free)
                / Caml_state->stat_heap_wsz / caml_percent_free / 2.0;
     }
-    caml_major_work_credit += filt_p;
+    Caml_state->major_work_credit += filt_p;
   }
 
   p = filt_p;
@@ -803,8 +802,8 @@ void caml_major_collection_slice (intnat howmuch)
   /* if some of the work was not done, take it back from the credit
      or spread it over the buckets. */
   p = filt_p - p;
-  spend = fmin (p, caml_major_work_credit);
-  caml_major_work_credit -= spend;
+  spend = fmin (p, Caml_state->major_work_credit);
+  Caml_state->major_work_credit -= spend;
   if (p > spend){
     p -= spend;
     p /= caml_major_window;
