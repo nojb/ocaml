@@ -101,4 +101,5 @@ DOMAIN_STATE(uintnat, fl_wsz_at_phase_change)
 /* See major_gc.c */
 
 DOMAIN_STATE(unsigned char*, intern_src)
+DOMAIN_STATE(unsigned char*, intern_input)
 /* See intern.c */

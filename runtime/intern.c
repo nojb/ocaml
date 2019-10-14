@@ -36,10 +36,6 @@
 #include "caml/reverse.h"
 #include "caml/memprof.h"
 
-static unsigned char * intern_input = NULL;
-/* Pointer to beginning of block holding input data,
-   if non-NULL this pointer will be freed by the cleanup function. */
-
 static header_t * intern_dest;
 /* Writing pointer in destination block */
 
@@ -138,17 +134,17 @@ static void intern_init(void * src, void * input)
   /* This is asserted at the beginning of demarshaling primitives.
      If it fails, it probably means that an exception was raised
      without calling intern_cleanup() during the previous demarshaling. */
-  CAMLassert (intern_input == NULL && intern_obj_table == NULL \
+  CAMLassert (Caml_state->intern_input == NULL && intern_obj_table == NULL \
      && intern_extra_block == NULL && intern_block == 0);
   Caml_state->intern_src = src;
-  intern_input = input;
+  Caml_state->intern_input = input;
 }
 
 static void intern_cleanup(void)
 {
-  if (intern_input != NULL) {
-     caml_stat_free(intern_input);
-     intern_input = NULL;
+  if (Caml_state->intern_input != NULL) {
+     caml_stat_free(Caml_state->intern_input);
+     Caml_state->intern_input = NULL;
   }
   if (intern_obj_table != NULL) {
     caml_stat_free(intern_obj_table);
