@@ -52,7 +52,7 @@ uintnat caml_fl_wsz_at_phase_change = 0;
 
 extern char *caml_fl_merge;  /* Defined in freelist.c. */
 
-static char *chunk, *limit;
+static char *limit;
 static double p_backlog = 0.0; /* backlog for the gc speedup parameter */
 
 /**
@@ -210,9 +210,9 @@ static void init_sweep_phase(void)
   Caml_state->gc_sweep_hp = Caml_state->heap_start;
   caml_fl_init_merge ();
   Caml_state->gc_phase = Phase_sweep;
-  chunk = Caml_state->heap_start;
-  Caml_state->gc_sweep_hp = chunk;
-  limit = chunk + Chunk_size (chunk);
+  Caml_state->chunk = Caml_state->heap_start;
+  Caml_state->gc_sweep_hp = Caml_state->chunk;
+  limit = Caml_state->chunk + Chunk_size (Caml_state->chunk);
   caml_fl_wsz_at_phase_change = caml_fl_cur_wsz;
   if (caml_major_gc_hook) (*caml_major_gc_hook)();
 }
@@ -428,12 +428,12 @@ static void mark_slice (intnat work)
       }
     }else if (Caml_state->markhp != NULL){
       if (Caml_state->markhp == limit){
-        chunk = Chunk_next (chunk);
-        if (chunk == NULL){
+        Caml_state->chunk = Chunk_next (Caml_state->chunk);
+        if (Caml_state->chunk == NULL){
           Caml_state->markhp = NULL;
         }else{
-          Caml_state->markhp = chunk;
-          limit = chunk + Chunk_size (chunk);
+          Caml_state->markhp = Caml_state->chunk;
+          limit = Caml_state->chunk + Chunk_size (Caml_state->chunk);
         }
       }else{
         if (Is_gray_val (Val_hp (Caml_state->markhp))){
@@ -445,9 +445,9 @@ static void mark_slice (intnat work)
       }
     }else if (!(Caml_state->heap_is_pure)){
       Caml_state->heap_is_pure = 1;
-      chunk = Caml_state->heap_start;
-      Caml_state->markhp = chunk;
-      limit = chunk + Chunk_size (chunk);
+      Caml_state->chunk = Caml_state->heap_start;
+      Caml_state->markhp = Caml_state->chunk;
+      limit = Caml_state->chunk + Chunk_size (Caml_state->chunk);
     } else if (Caml_state->gc_subphase == Subphase_mark_roots) {
       Caml_state->gray_vals_cur = gray_vals_ptr;
       work = caml_darken_all_roots_slice (work);
@@ -565,16 +565,16 @@ static void sweep_slice (intnat work)
       }
       CAMLassert (Caml_state->gc_sweep_hp <= limit);
     }else{
-      chunk = Chunk_next (chunk);
-      if (chunk == NULL){
+      Caml_state->chunk = Chunk_next (Caml_state->chunk);
+      if (Caml_state->chunk == NULL){
         /* Sweeping is done. */
         ++ Caml_state->stat_major_collections;
         work = 0;
         Caml_state->gc_phase = Phase_idle;
         caml_request_minor_gc ();
       }else{
-        Caml_state->gc_sweep_hp = chunk;
-        limit = chunk + Chunk_size (chunk);
+        Caml_state->gc_sweep_hp = Caml_state->chunk;
+        limit = Caml_state->chunk + Chunk_size (Caml_state->chunk);
       }
     }
   }
@@ -928,9 +928,9 @@ void caml_finalise_heap (void)
   /* Finalising all values (by means of forced sweeping) */
   caml_fl_init_merge ();
   Caml_state->gc_phase = Phase_sweep;
-  chunk = Caml_state->heap_start;
-  Caml_state->gc_sweep_hp = chunk;
-  limit = chunk + Chunk_size (chunk);
+  Caml_state->chunk = Caml_state->heap_start;
+  Caml_state->gc_sweep_hp = Caml_state->chunk;
+  limit = Caml_state->chunk + Chunk_size (Caml_state->chunk);
   while (Caml_state->gc_phase == Phase_sweep)
     sweep_slice (LONG_MAX);
 }
