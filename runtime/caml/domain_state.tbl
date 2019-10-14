@@ -88,4 +88,5 @@ DOMAIN_STATE(asize_t, gray_vals_size)
 DOMAIN_STATE(int, heap_is_pure)
 DOMAIN_STATE(char*, markhp)
 DOMAIN_STATE(char*, chunk)
+DOMAIN_STATE(char*, limit)
 /* See major_gc.c */
