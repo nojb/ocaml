@@ -47,7 +47,6 @@ static inline double fmin(double a, double b) {
 
 uintnat caml_percent_free;
 uintnat caml_major_heap_increment;
-static asize_t gray_vals_size;
 static int heap_is_pure;   /* The heap is pure if the only gray objects
                               below [markhp] are also in [gray_vals]. */
 uintnat caml_dependent_size, caml_dependent_allocated;
@@ -114,12 +113,12 @@ static void realloc_gray_vals (void)
   value *new;
 
   CAMLassert (Caml_state->gray_vals_cur == Caml_state->gray_vals_end);
-  if (gray_vals_size < Caml_state->stat_heap_wsz / 32){
+  if (Caml_state->gray_vals_size < Caml_state->stat_heap_wsz / 32){
     caml_gc_message (0x08, "Growing gray_vals to %"
                            ARCH_INTNAT_PRINTF_FORMAT "uk bytes\n",
-                     (intnat) gray_vals_size * sizeof (value) / 512);
+                     (intnat) Caml_state->gray_vals_size * sizeof (value) / 512);
     new = (value *) caml_stat_resize_noexc ((char *) Caml_state->gray_vals,
-                                            2 * gray_vals_size *
+                                            2 * Caml_state->gray_vals_size *
                                             sizeof (value));
     if (new == NULL){
       caml_gc_message (0x08, "No room for growing gray_vals\n");
@@ -127,12 +126,12 @@ static void realloc_gray_vals (void)
       heap_is_pure = 0;
     }else{
       Caml_state->gray_vals = new;
-      Caml_state->gray_vals_cur = Caml_state->gray_vals + gray_vals_size;
-      gray_vals_size *= 2;
-      Caml_state->gray_vals_end = Caml_state->gray_vals + gray_vals_size;
+      Caml_state->gray_vals_cur = Caml_state->gray_vals + Caml_state->gray_vals_size;
+      Caml_state->gray_vals_size *= 2;
+      Caml_state->gray_vals_end = Caml_state->gray_vals + Caml_state->gray_vals_size;
     }
   }else{
-    Caml_state->gray_vals_cur = Caml_state->gray_vals + gray_vals_size / 2;
+    Caml_state->gray_vals_cur = Caml_state->gray_vals + Caml_state->gray_vals_size / 2;
     heap_is_pure = 0;
   }
 }
@@ -893,12 +892,12 @@ void caml_init_major_heap (asize_t heap_size)
   caml_make_free_blocks ((value *) Caml_state->heap_start,
                          Caml_state->stat_heap_wsz, 1, Caml_white);
   Caml_state->gc_phase = Phase_idle;
-  gray_vals_size = 2048;
-  Caml_state->gray_vals = (value *) caml_stat_alloc_noexc (gray_vals_size * sizeof (value));
+  Caml_state->gray_vals_size = 2048;
+  Caml_state->gray_vals = (value *) caml_stat_alloc_noexc (Caml_state->gray_vals_size * sizeof (value));
   if (Caml_state->gray_vals == NULL)
     caml_fatal_error ("not enough memory for the gray cache");
   Caml_state->gray_vals_cur = Caml_state->gray_vals;
-  Caml_state->gray_vals_end = Caml_state->gray_vals + gray_vals_size;
+  Caml_state->gray_vals_end = Caml_state->gray_vals + Caml_state->gray_vals_size;
   heap_is_pure = 1;
   Caml_state->allocated_words = 0;
   Caml_state->extra_heap_resources = 0.0;
