@@ -46,8 +46,6 @@ uintnat caml_use_huge_pages = 0;
    after that.
 */
 
-extern uintnat caml_percent_free;                   /* major_gc.c */
-
 /* Page table management */
 
 #define Page(p) ((uintnat) (p) >> Page_log)
@@ -369,7 +367,7 @@ static value *expand_heap (mlsize_t request)
   asize_t over_request, malloc_request, remain;
 
   CAMLassert (request <= Max_wosize);
-  over_request = request + request / 100 * caml_percent_free;
+  over_request = request + request / 100 * Caml_state->percent_free;
   malloc_request = caml_clip_heap_chunk_wsz (over_request);
   mem = (value *) caml_alloc_for_heap (Bsize_wsize (malloc_request));
   if (mem == NULL){

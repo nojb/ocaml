@@ -42,7 +42,6 @@ extern uintnat caml_max_stack_size;    /* defined in stacks.c */
 #endif
 
 extern uintnat caml_major_heap_increment; /* percent or words; see major_gc.c */
-extern uintnat caml_percent_free;         /*        see major_gc.c */
 extern uintnat caml_percent_max;          /*        see compact.c */
 extern uintnat caml_allocation_policy;    /*        see freelist.c */
 extern uintnat caml_custom_major_ratio;   /* see custom.c */
@@ -357,7 +356,7 @@ CAMLprim value caml_gc_get(value v)
   res = caml_alloc_tuple (11);
   Store_field (res, 0, Val_long (Caml_state->minor_heap_wsz));          /* s */
   Store_field (res, 1, Val_long (caml_major_heap_increment));           /* i */
-  Store_field (res, 2, Val_long (caml_percent_free));                   /* o */
+  Store_field (res, 2, Val_long (Caml_state->percent_free));                   /* o */
   Store_field (res, 3, Val_long (caml_verb_gc));                        /* v */
   Store_field (res, 4, Val_long (caml_percent_max));                    /* O */
 #ifndef NATIVE_CODE
@@ -425,10 +424,10 @@ CAMLprim value caml_gc_set(value v)
 #endif
 
   newpf = norm_pfree (Long_val (Field (v, 2)));
-  if (newpf != caml_percent_free){
-    caml_percent_free = newpf;
+  if (newpf != Caml_state->percent_free){
+    Caml_state->percent_free = newpf;
     caml_gc_message (0x20, "New space overhead: %"
-                     ARCH_INTNAT_PRINTF_FORMAT "u%%\n", caml_percent_free);
+                     ARCH_INTNAT_PRINTF_FORMAT "u%%\n", Caml_state->percent_free);
   }
 
   newpm = norm_pmax (Long_val (Field (v, 4)));
@@ -635,7 +634,7 @@ void caml_init_gc (uintnat minor_size, uintnat major_size,
   }
   caml_set_minor_heap_size (Bsize_wsize (norm_minsize (minor_size)));
   caml_major_heap_increment = major_incr;
-  caml_percent_free = norm_pfree (percent_fr);
+  Caml_state->percent_free = norm_pfree (percent_fr);
   caml_percent_max = norm_pmax (percent_m);
   caml_init_major_heap (major_heap_size);
   Caml_state->major_window = norm_window (window);
@@ -649,7 +648,7 @@ void caml_init_gc (uintnat minor_size, uintnat major_size,
                    ARCH_INTNAT_PRINTF_FORMAT "uk bytes\n",
                    major_heap_size / 1024);
   caml_gc_message (0x20, "Initial space overhead: %"
-                   ARCH_INTNAT_PRINTF_FORMAT "u%%\n", caml_percent_free);
+                   ARCH_INTNAT_PRINTF_FORMAT "u%%\n", Caml_state->percent_free);
   caml_gc_message (0x20, "Initial max overhead: %"
                    ARCH_INTNAT_PRINTF_FORMAT "u%%\n", caml_percent_max);
   if (caml_major_heap_increment > 1000){
@@ -703,7 +702,7 @@ CAMLprim value caml_runtime_parameters (value unit)
 #else
      /* l */ caml_max_stack_size,
 #endif
-     /* o */ caml_percent_free,
+     /* o */ Caml_state->percent_free,
      /* O */ caml_percent_max,
      /* p */ caml_parser_trace,
      /* R */ /* missing */

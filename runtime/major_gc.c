@@ -45,7 +45,6 @@ static inline double fmin(double a, double b) {
 }
 #endif
 
-uintnat caml_percent_free;
 uintnat caml_major_heap_increment;
 uintnat caml_dependent_size, caml_dependent_allocated;
 uintnat caml_fl_wsz_at_phase_change = 0;
@@ -609,8 +608,8 @@ void caml_major_collection_slice (intnat howmuch)
   int i;
   /*
      Free memory at the start of the GC cycle (garbage + free list) (assumed):
-                 FM = Caml_state->stat_heap_wsz * caml_percent_free
-                      / (100 + caml_percent_free)
+                 FM = Caml_state->stat_heap_wsz * Caml_state->percent_free
+                      / (100 + Caml_state->percent_free)
 
      Assuming steady state and enforcing a constant allocation rate, then
      FM is divided in 2/3 for garbage and 1/3 for free list.
@@ -620,8 +619,8 @@ void caml_major_collection_slice (intnat howmuch)
 
      Proportion of G consumed since the previous slice:
                  PH = caml_allocated_words / G
-                    = caml_allocated_words * 3 * (100 + caml_percent_free)
-                      / (2 * Caml_state->stat_heap_wsz * caml_percent_free)
+                    = caml_allocated_words * 3 * (100 + Caml_state->percent_free)
+                      / (2 * Caml_state->stat_heap_wsz * Caml_state->percent_free)
      Proportion of extra-heap resources consumed since the previous slice:
                  PE = caml_extra_heap_resources
      Proportion of total work to do in this slice:
@@ -632,7 +631,7 @@ void caml_major_collection_slice (intnat howmuch)
      the P above.
 
      Amount of marking work for the GC cycle:
-             MW = Caml_state->stat_heap_wsz * 100 / (100 + caml_percent_free)
+             MW = Caml_state->stat_heap_wsz * 100 / (100 + Caml_state->percent_free)
                   + caml_incremental_roots_count
      Amount of sweeping work for the GC cycle:
              SW = Caml_state->stat_heap_wsz
@@ -656,7 +655,7 @@ void caml_major_collection_slice (intnat howmuch)
      Amount of marking work for a marking slice:
                  MS = P * MW / (40/100)
                  MS = P * (Caml_state->stat_heap_wsz * 250
-                           / (100 + caml_percent_free)
+                           / (100 + Caml_state->percent_free)
                            + 2.5 * caml_incremental_roots_count)
      Amount of sweeping work for a sweeping slice:
                  SS = P * SW / (60/100)
@@ -668,11 +667,11 @@ void caml_major_collection_slice (intnat howmuch)
   if (caml_major_slice_begin_hook != NULL) (*caml_major_slice_begin_hook) ();
   CAML_INSTR_SETUP (tmr, "major");
 
-  p = (double) Caml_state->allocated_words * 3.0 * (100 + caml_percent_free)
-      / Caml_state->stat_heap_wsz / caml_percent_free / 2.0;
+  p = (double) Caml_state->allocated_words * 3.0 * (100 + Caml_state->percent_free)
+      / Caml_state->stat_heap_wsz / Caml_state->percent_free / 2.0;
   if (caml_dependent_size > 0){
-    dp = (double) caml_dependent_allocated * (100 + caml_percent_free)
-         / caml_dependent_size / caml_percent_free;
+    dp = (double) caml_dependent_allocated * (100 + Caml_state->percent_free)
+         / caml_dependent_size / Caml_state->percent_free;
   }else{
     dp = 0.0;
   }
@@ -734,8 +733,8 @@ void caml_major_collection_slice (intnat howmuch)
       filt_p = caml_major_ring[i];
     }else{
       /* manual setting */
-      filt_p = (double) howmuch * 3.0 * (100 + caml_percent_free)
-               / Caml_state->stat_heap_wsz / caml_percent_free / 2.0;
+      filt_p = (double) howmuch * 3.0 * (100 + Caml_state->percent_free)
+               / Caml_state->stat_heap_wsz / Caml_state->percent_free / 2.0;
     }
     Caml_state->major_work_credit += filt_p;
   }
@@ -764,7 +763,7 @@ void caml_major_collection_slice (intnat howmuch)
 
   if (Caml_state->gc_phase == Phase_mark || Caml_state->gc_phase == Phase_clean){
     computed_work = (intnat) (p * ((double) Caml_state->stat_heap_wsz * 250
-                                   / (100 + caml_percent_free)
+                                   / (100 + Caml_state->percent_free)
                                    + caml_incremental_roots_count));
   }else{
     computed_work = (intnat) (p * Caml_state->stat_heap_wsz * 5 / 3);

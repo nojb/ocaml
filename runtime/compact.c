@@ -30,7 +30,6 @@
 #include "caml/weak.h"
 #include "caml/compact.h"
 
-extern uintnat caml_percent_free;                   /* major_gc.c */
 extern void caml_shrink_heap (char *);              /* memory.c */
 
 /* Encoded headers: the color is stored in the 2 least significant bits.
@@ -389,7 +388,7 @@ static void do_compaction (void)
 
     /* Add up the empty chunks until there are enough, then remove the
        other empty chunks. */
-    wanted = caml_percent_free * (live / 100 + 1);
+    wanted = Caml_state->percent_free * (live / 100 + 1);
     ch = Caml_state->heap_start;
     while (ch != NULL){
       char *next_chunk = Chunk_next (ch);  /* Chunk_next (ch) will be erased */
@@ -456,7 +455,7 @@ void caml_compact_heap (void)
      freewords = caml_fl_cur_wsz                   (exact)
      heapwords = Wsize_bsize (caml_heap_size)      (exact)
      live = heapwords - freewords
-     wanted = caml_percent_free * (live / 100 + 1) (same as in do_compaction)
+     wanted = Caml_state->percent_free * (live / 100 + 1) (same as in do_compaction)
      target_wsz = live + wanted
      We add one page to make sure a small difference in counting sizes
      won't make [do_compaction] keep the second block (and break all sorts
@@ -465,7 +464,7 @@ void caml_compact_heap (void)
      We recompact if target_wsz < heap_size / 2
   */
   live = Caml_state->stat_heap_wsz - caml_fl_cur_wsz;
-  target_wsz = live + caml_percent_free * (live / 100 + 1)
+  target_wsz = live + Caml_state->percent_free * (live / 100 + 1)
                  + Wsize_bsize (Page_size);
   target_wsz = caml_clip_heap_chunk_wsz (target_wsz);
 
