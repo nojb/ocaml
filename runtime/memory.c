@@ -616,10 +616,10 @@ CAMLexport void caml_adjust_gc_speed (mlsize_t res, mlsize_t max)
 {
   if (max == 0) max = 1;
   if (res > max) res = max;
-  caml_extra_heap_resources += (double) res / (double) max;
-  if (caml_extra_heap_resources > 1.0){
+  Caml_state->extra_heap_resources += (double) res / (double) max;
+  if (Caml_state->extra_heap_resources > 1.0){
     CAML_INSTR_INT ("request_major/adjust_gc_speed_1@", 1);
-    caml_extra_heap_resources = 1.0;
+    Caml_state->extra_heap_resources = 1.0;
     caml_request_major_slice ();
   }
 }

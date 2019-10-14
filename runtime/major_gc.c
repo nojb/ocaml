@@ -55,7 +55,6 @@ static asize_t gray_vals_size;
 static int heap_is_pure;   /* The heap is pure if the only gray objects
                               below [markhp] are also in [gray_vals]. */
 uintnat caml_dependent_size, caml_dependent_allocated;
-double caml_extra_heap_resources;
 uintnat caml_fl_wsz_at_phase_change = 0;
 
 extern char *caml_fl_merge;  /* Defined in freelist.c. */
@@ -690,7 +689,7 @@ void caml_major_collection_slice (intnat howmuch)
     dp = 0.0;
   }
   if (p < dp) p = dp;
-  if (p < caml_extra_heap_resources) p = caml_extra_heap_resources;
+  if (p < Caml_state->extra_heap_resources) p = Caml_state->extra_heap_resources;
   p += p_backlog;
   p_backlog = 0.0;
   if (p > 0.3){
@@ -698,7 +697,7 @@ void caml_major_collection_slice (intnat howmuch)
     p = 0.3;
   }
   CAML_INSTR_INT ("major/work/extra#",
-                  (uintnat) (caml_extra_heap_resources * 1000000));
+                  (uintnat) (Caml_state->extra_heap_resources * 1000000));
 
   caml_gc_message (0x40, "ordered work = %"
                    ARCH_INTNAT_PRINTF_FORMAT "d words\n", howmuch);
@@ -707,7 +706,7 @@ void caml_major_collection_slice (intnat howmuch)
                    Caml_state->allocated_words);
   caml_gc_message (0x40, "extra_heap_resources = %"
                          ARCH_INTNAT_PRINTF_FORMAT "uu\n",
-                   (uintnat) (caml_extra_heap_resources * 1000000));
+                   (uintnat) (Caml_state->extra_heap_resources * 1000000));
   caml_gc_message (0x40, "raw work-to-do = %"
                          ARCH_INTNAT_PRINTF_FORMAT "du\n",
                    (intnat) (p * 1000000));
@@ -824,7 +823,7 @@ void caml_major_collection_slice (intnat howmuch)
   Caml_state->stat_major_words += Caml_state->allocated_words;
   Caml_state->allocated_words = 0;
   caml_dependent_allocated = 0;
-  caml_extra_heap_resources = 0.0;
+  Caml_state->extra_heap_resources = 0.0;
   if (caml_major_slice_end_hook != NULL) (*caml_major_slice_end_hook) ();
 }
 
@@ -907,7 +906,7 @@ void caml_init_major_heap (asize_t heap_size)
   gray_vals_end = gray_vals + gray_vals_size;
   heap_is_pure = 1;
   Caml_state->allocated_words = 0;
-  caml_extra_heap_resources = 0.0;
+  Caml_state->extra_heap_resources = 0.0;
   for (i = 0; i < Max_major_window; i++) caml_major_ring[i] = 0.0;
 }
 
