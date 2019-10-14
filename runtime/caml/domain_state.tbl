@@ -91,7 +91,7 @@ DOMAIN_STATE(char*, chunk)
 DOMAIN_STATE(char*, limit)
 DOMAIN_STATE(double, major_work_credit)
 DOMAIN_STATE(int, major_window)
-DOMAIN_STATE(int, major_ring_index) /* initialize 0 */
+DOMAIN_STATE(int, major_ring_index)
 DOMAIN_STATE(uintnat, percent_free)
 DOMAIN_STATE(uintnat, major_heap_increment)
 DOMAIN_STATE(uintnat, dependent_size)
