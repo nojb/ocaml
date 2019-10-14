@@ -45,8 +45,6 @@ static inline double fmin(double a, double b) {
 }
 #endif
 
-uintnat caml_fl_wsz_at_phase_change = 0;
-
 extern char *caml_fl_merge;  /* Defined in freelist.c. */
 
 static double p_backlog = 0.0; /* backlog for the gc speedup parameter */
@@ -204,7 +202,7 @@ static void init_sweep_phase(void)
   Caml_state->chunk = Caml_state->heap_start;
   Caml_state->gc_sweep_hp = Caml_state->chunk;
   Caml_state->limit = Caml_state->chunk + Chunk_size (Caml_state->chunk);
-  caml_fl_wsz_at_phase_change = caml_fl_cur_wsz;
+  Caml_state->fl_wsz_at_phase_change = caml_fl_cur_wsz;
   if (caml_major_gc_hook) (*caml_major_gc_hook)();
 }
 

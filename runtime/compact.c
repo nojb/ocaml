@@ -511,8 +511,8 @@ void caml_compact_heap_maybe (void)
 {
   /* Estimated free+garbage words in the heap:
          FW = fl_size_at_phase_change + 3 * (caml_fl_cur_wsz
-                                             - caml_fl_wsz_at_phase_change)
-         FW = 3 * caml_fl_cur_wsz - 2 * caml_fl_wsz_at_phase_change
+                                             - Caml_state->fl_wsz_at_phase_change)
+         FW = 3 * caml_fl_cur_wsz - 2 * Caml_state->fl_wsz_at_phase_change
      Estimated live words:      LW = Caml_state->stat_heap_wsz - FW
      Estimated free percentage: FP = 100 * FW / LW
      We compact the heap if FP > caml_percent_max
@@ -529,7 +529,7 @@ void caml_compact_heap_maybe (void)
     return;
 #endif
 
-  fw = 3.0 * caml_fl_cur_wsz - 2.0 * caml_fl_wsz_at_phase_change;
+  fw = 3.0 * caml_fl_cur_wsz - 2.0 * Caml_state->fl_wsz_at_phase_change;
   if (fw < 0) fw = caml_fl_cur_wsz;
 
   if (fw >= Caml_state->stat_heap_wsz){
@@ -540,7 +540,7 @@ void caml_compact_heap_maybe (void)
   }
   caml_gc_message (0x200, "FL size at phase change = %"
                           ARCH_INTNAT_PRINTF_FORMAT "u words\n",
-                   (uintnat) caml_fl_wsz_at_phase_change);
+                   (uintnat) Caml_state->fl_wsz_at_phase_change);
   caml_gc_message (0x200, "FL current size = %"
                           ARCH_INTNAT_PRINTF_FORMAT "u words\n",
                    (uintnat) caml_fl_cur_wsz);

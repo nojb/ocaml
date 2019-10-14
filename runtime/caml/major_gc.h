@@ -33,8 +33,6 @@ typedef struct {
 #define Chunk_next(c) (((heap_chunk_head *) (c)) [-1]).next
 #define Chunk_block(c) (((heap_chunk_head *) (c)) [-1]).block
 
-extern uintnat caml_fl_wsz_at_phase_change;
-
 #define Phase_mark 0
 #define Phase_clean 1
 #define Phase_sweep 2
