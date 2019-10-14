@@ -595,7 +595,7 @@ CAMLprim value caml_get_major_bucket (value v)
   long i = Long_val (v);
   if (i < 0) caml_invalid_argument ("Gc.get_bucket");
   if (i < Caml_state->major_window){
-    i += caml_major_ring_index;
+    i += Caml_state->major_ring_index;
     if (i >= Caml_state->major_window) i -= Caml_state->major_window;
     CAMLassert (0 <= i && i < Caml_state->major_window);
     return Val_long ((long) (caml_major_ring[i] * 1e6));

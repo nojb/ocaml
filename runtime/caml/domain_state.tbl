@@ -91,4 +91,5 @@ DOMAIN_STATE(char*, chunk)
 DOMAIN_STATE(char*, limit)
 DOMAIN_STATE(double, major_work_credit) /* initialize 0.0 */
 DOMAIN_STATE(int, major_window) /* initialize 1 */
+DOMAIN_STATE(int, major_ring_index) /* initialize 0 */
 /* See major_gc.c */

@@ -58,7 +58,6 @@ extern uintnat caml_fl_wsz_at_phase_change;
 extern uintnat total_heap_size;
 
 extern double caml_major_ring[Max_major_window];
-extern int caml_major_ring_index;
 
 /* [caml_major_gc_hook] is called just between the end of the mark
    phase and the beginning of the sweep phase of the major GC.

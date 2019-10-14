@@ -95,7 +95,6 @@ static value *ephes_checked_if_pure;
 static value *ephes_to_check;
 
 double caml_major_ring[Max_major_window] = { 0. };
-int caml_major_ring_index = 0;
 
 #ifdef DEBUG
 static unsigned long major_gc_counter = 0;
@@ -709,9 +708,9 @@ void caml_major_collection_slice (intnat howmuch)
 
   if (Caml_state->gc_clock >= 1.0){
     Caml_state->gc_clock -= 1.0;
-    ++caml_major_ring_index;
-    if (caml_major_ring_index >= Caml_state->major_window){
-      caml_major_ring_index = 0;
+    ++(Caml_state->major_ring_index);
+    if (Caml_state->major_ring_index >= Caml_state->major_window){
+      Caml_state->major_ring_index = 0;
     }
   }
   if (howmuch == -1){
@@ -721,16 +720,16 @@ void caml_major_collection_slice (intnat howmuch)
        automatic mode (with [howmuch] = -1) at least once per clock tick.
        This means we never leave a non-empty bucket behind. */
     spend = fmin (Caml_state->major_work_credit,
-                  caml_major_ring[caml_major_ring_index]);
+                  caml_major_ring[Caml_state->major_ring_index]);
     Caml_state->major_work_credit -= spend;
-    filt_p = caml_major_ring[caml_major_ring_index] - spend;
-    caml_major_ring[caml_major_ring_index] = 0.0;
+    filt_p = caml_major_ring[Caml_state->major_ring_index] - spend;
+    caml_major_ring[Caml_state->major_ring_index] = 0.0;
   }else{
     /* forced GC slice: do work and add it to the credit */
     if (howmuch == 0){
       /* automatic setting: size of next bucket
          we do not use the current bucket, as it may be empty */
-      int i = caml_major_ring_index + 1;
+      int i = Caml_state->major_ring_index + 1;
       if (i >= Caml_state->major_window) i = 0;
       filt_p = caml_major_ring[i];
     }else{
