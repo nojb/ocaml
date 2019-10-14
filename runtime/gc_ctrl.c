@@ -127,7 +127,7 @@ static value heap_stats (int returnstats)
   intnat live_words = 0, live_blocks = 0,
          free_words = 0, free_blocks = 0, largest_free = 0,
          fragments = 0, heap_chunks = 0;
-  char *chunk = caml_heap_start, *chunk_end;
+  char *chunk = Caml_state->heap_start, *chunk_end;
   header_t *cur_hp;
 #ifdef DEBUG
   header_t *prev_hp;

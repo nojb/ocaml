@@ -55,7 +55,6 @@ extern uintnat caml_fl_wsz_at_phase_change;
    since they must be available for their finalizer.
   */
 
-CAMLextern char *caml_heap_start;
 extern uintnat total_heap_size;
 
 extern int caml_major_window;

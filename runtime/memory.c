@@ -332,7 +332,7 @@ int caml_add_to_heap (char *m)
 
   /* Chain this heap chunk. */
   {
-    char **last = &caml_heap_start;
+    char **last = &(Caml_state->heap_start);
     char *cur = *last;
 
     while (cur != NULL && cur < m){
@@ -424,7 +424,7 @@ void caml_shrink_heap (char *chunk)
      (see compact.c)
      XXX FIXME this has become false with the fix to PR#5389 (see compact.c)
   */
-  if (chunk == caml_heap_start) return;
+  if (chunk == Caml_state->heap_start) return;
 
   Caml_state->stat_heap_wsz -= Wsize_bsize (Chunk_size (chunk));
   caml_gc_message (0x04, "Shrinking heap to %"
@@ -443,7 +443,7 @@ void caml_shrink_heap (char *chunk)
   -- Caml_state->stat_heap_chunks;
 
   /* Remove [chunk] from the list of chunks. */
-  cp = &caml_heap_start;
+  cp = &(Caml_state->heap_start);
   while (*cp != chunk) cp = &(Chunk_next (*cp));
   *cp = Chunk_next (chunk);
 

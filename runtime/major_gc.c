@@ -47,7 +47,6 @@ static inline double fmin(double a, double b) {
 
 uintnat caml_percent_free;
 uintnat caml_major_heap_increment;
-CAMLexport char *caml_heap_start;
 static value *gray_vals;
 static value *gray_vals_cur, *gray_vals_end;
 static asize_t gray_vals_size;
@@ -213,10 +212,10 @@ static void init_sweep_phase(void)
 {
   /* Phase_clean is done. */
   /* Initialise the sweep phase. */
-  Caml_state->gc_sweep_hp = caml_heap_start;
+  Caml_state->gc_sweep_hp = Caml_state->heap_start;
   caml_fl_init_merge ();
   Caml_state->gc_phase = Phase_sweep;
-  chunk = caml_heap_start;
+  chunk = Caml_state->heap_start;
   Caml_state->gc_sweep_hp = chunk;
   limit = chunk + Chunk_size (chunk);
   caml_fl_wsz_at_phase_change = caml_fl_cur_wsz;
@@ -451,7 +450,7 @@ static void mark_slice (intnat work)
       }
     }else if (!heap_is_pure){
       heap_is_pure = 1;
-      chunk = caml_heap_start;
+      chunk = Caml_state->heap_start;
       markhp = chunk;
       limit = chunk + Chunk_size (chunk);
     } else if (Caml_state->gc_subphase == Subphase_mark_roots) {
@@ -877,23 +876,23 @@ void caml_init_major_heap (asize_t heap_size)
     caml_clip_heap_chunk_wsz (Wsize_bsize (heap_size));
   Caml_state->stat_top_heap_wsz = Caml_state->stat_heap_wsz;
   CAMLassert (Bsize_wsize (Caml_state->stat_heap_wsz) % Page_size == 0);
-  caml_heap_start =
+  Caml_state->heap_start =
     (char *) caml_alloc_for_heap (Bsize_wsize (Caml_state->stat_heap_wsz));
-  if (caml_heap_start == NULL)
+  if (Caml_state->heap_start == NULL)
     caml_fatal_error ("cannot allocate initial major heap");
-  Chunk_next (caml_heap_start) = NULL;
-  Caml_state->stat_heap_wsz = Wsize_bsize (Chunk_size (caml_heap_start));
+  Chunk_next (Caml_state->heap_start) = NULL;
+  Caml_state->stat_heap_wsz = Wsize_bsize (Chunk_size (Caml_state->heap_start));
   Caml_state->stat_heap_chunks = 1;
   Caml_state->stat_top_heap_wsz = Caml_state->stat_heap_wsz;
 
-  if (caml_page_table_add(In_heap, caml_heap_start,
-        caml_heap_start + Bsize_wsize (Caml_state->stat_heap_wsz))
+  if (caml_page_table_add(In_heap, Caml_state->heap_start,
+        Caml_state->heap_start + Bsize_wsize (Caml_state->stat_heap_wsz))
       != 0) {
     caml_fatal_error ("cannot allocate initial page table");
   }
 
   caml_fl_init_merge ();
-  caml_make_free_blocks ((value *) caml_heap_start,
+  caml_make_free_blocks ((value *) Caml_state->heap_start,
                          Caml_state->stat_heap_wsz, 1, Caml_white);
   Caml_state->gc_phase = Phase_idle;
   gray_vals_size = 2048;
@@ -934,7 +933,7 @@ void caml_finalise_heap (void)
   /* Finalising all values (by means of forced sweeping) */
   caml_fl_init_merge ();
   Caml_state->gc_phase = Phase_sweep;
-  chunk = caml_heap_start;
+  chunk = Caml_state->heap_start;
   Caml_state->gc_sweep_hp = chunk;
   limit = chunk + Chunk_size (chunk);
   while (Caml_state->gc_phase == Phase_sweep)

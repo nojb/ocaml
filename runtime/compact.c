@@ -129,12 +129,12 @@ static char *compact_fl;
 
 static void init_compact_allocate (void)
 {
-  char *ch = caml_heap_start;
+  char *ch = Caml_state->heap_start;
   while (ch != NULL){
     Chunk_alloc (ch) = 0;
     ch = Chunk_next (ch);
   }
-  compact_fl = caml_heap_start;
+  compact_fl = Caml_state->heap_start;
 }
 
 /* [size] is a number of bytes and includes the header size */
@@ -170,7 +170,7 @@ static void do_compaction (void)
 
   /* First pass: encode all noninfix headers. */
   {
-    ch = caml_heap_start;
+    ch = Caml_state->heap_start;
     while (ch != NULL){
       header_t *p = (header_t *) ch;
 
@@ -205,7 +205,7 @@ static void do_compaction (void)
     /* The values to be finalised are not roots but should still be inverted */
     caml_final_invert_finalisable_values ();
 
-    ch = caml_heap_start;
+    ch = Caml_state->heap_start;
     while (ch != NULL){
       word *p = (word *) ch;
       chend = ch + Chunk_size (ch);
@@ -265,7 +265,7 @@ static void do_compaction (void)
      Rebuild infix headers. */
   {
     init_compact_allocate ();
-    ch = caml_heap_start;
+    ch = Caml_state->heap_start;
     while (ch != NULL){
       word *p = (word *) ch;
 
@@ -350,7 +350,7 @@ static void do_compaction (void)
      Use the exact same allocation algorithm as pass 3. */
   {
     init_compact_allocate ();
-    ch = caml_heap_start;
+    ch = Caml_state->heap_start;
     while (ch != NULL){
       word *p = (word *) ch;
 
@@ -378,7 +378,7 @@ static void do_compaction (void)
     asize_t free = 0;
     asize_t wanted;
 
-    ch = caml_heap_start;
+    ch = Caml_state->heap_start;
     while (ch != NULL){
       if (Chunk_alloc (ch) != 0){
         live += Wsize_bsize (Chunk_alloc (ch));
@@ -390,7 +390,7 @@ static void do_compaction (void)
     /* Add up the empty chunks until there are enough, then remove the
        other empty chunks. */
     wanted = caml_percent_free * (live / 100 + 1);
-    ch = caml_heap_start;
+    ch = Caml_state->heap_start;
     while (ch != NULL){
       char *next_chunk = Chunk_next (ch);  /* Chunk_next (ch) will be erased */
 
@@ -407,7 +407,7 @@ static void do_compaction (void)
 
   /* Rebuild the free list. */
   {
-    ch = caml_heap_start;
+    ch = Caml_state->heap_start;
     caml_fl_reset ();
     while (ch != NULL){
       if (Chunk_size (ch) > Chunk_alloc (ch)){
@@ -493,8 +493,8 @@ void caml_compact_heap (void)
       caml_free_for_heap (chunk);
       return;
     }
-    Chunk_next (chunk) = caml_heap_start;
-    caml_heap_start = chunk;
+    Chunk_next (chunk) = Caml_state->heap_start;
+    Caml_state->heap_start = chunk;
     ++ Caml_state->stat_heap_chunks;
     Caml_state->stat_heap_wsz += Wsize_bsize (Chunk_size (chunk));
     if (Caml_state->stat_heap_wsz > Caml_state->stat_top_heap_wsz){
@@ -502,7 +502,7 @@ void caml_compact_heap (void)
     }
     do_compaction ();
     CAMLassert (Caml_state->stat_heap_chunks == 1);
-    CAMLassert (Chunk_next (caml_heap_start) == NULL);
+    CAMLassert (Chunk_next (Caml_state->heap_start) == NULL);
     CAMLassert (Caml_state->stat_heap_wsz == Wsize_bsize (Chunk_size (chunk)));
     CAML_INSTR_TIME (tmr, "compact/recompact");
   }
