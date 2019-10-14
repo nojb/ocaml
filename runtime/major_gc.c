@@ -52,7 +52,7 @@ uintnat caml_fl_wsz_at_phase_change = 0;
 
 extern char *caml_fl_merge;  /* Defined in freelist.c. */
 
-static char *markhp, *chunk, *limit;
+static char *chunk, *limit;
 static double p_backlog = 0.0; /* backlog for the gc speedup parameter */
 
 /**
@@ -179,7 +179,7 @@ static void start_cycle (void)
   caml_darken_all_roots_start ();
   Caml_state->gc_phase = Phase_mark;
   Caml_state->gc_subphase = Subphase_mark_roots;
-  markhp = NULL;
+  Caml_state->markhp = NULL;
   ephe_list_pure = 1;
   ephes_checked_if_pure = &caml_ephe_list_head;
   ephes_to_check = &caml_ephe_list_head;
@@ -426,27 +426,27 @@ static void mark_slice (intnat work)
         work -= Whsize_wosize(size);
         v = 0;
       }
-    }else if (markhp != NULL){
-      if (markhp == limit){
+    }else if (Caml_state->markhp != NULL){
+      if (Caml_state->markhp == limit){
         chunk = Chunk_next (chunk);
         if (chunk == NULL){
-          markhp = NULL;
+          Caml_state->markhp = NULL;
         }else{
-          markhp = chunk;
+          Caml_state->markhp = chunk;
           limit = chunk + Chunk_size (chunk);
         }
       }else{
-        if (Is_gray_val (Val_hp (markhp))){
+        if (Is_gray_val (Val_hp (Caml_state->markhp))){
           CAMLassert (gray_vals_ptr == Caml_state->gray_vals);
           CAMLassert (v == 0 && start == 0);
-          v = Val_hp (markhp);
+          v = Val_hp (Caml_state->markhp);
         }
-        markhp += Bhsize_hp (markhp);
+        Caml_state->markhp += Bhsize_hp (Caml_state->markhp);
       }
     }else if (!(Caml_state->heap_is_pure)){
       Caml_state->heap_is_pure = 1;
       chunk = Caml_state->heap_start;
-      markhp = chunk;
+      Caml_state->markhp = chunk;
       limit = chunk + Chunk_size (chunk);
     } else if (Caml_state->gc_subphase == Subphase_mark_roots) {
       Caml_state->gray_vals_cur = gray_vals_ptr;
