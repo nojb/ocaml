@@ -456,12 +456,12 @@ void caml_shrink_heap (char *chunk)
 
 color_t caml_allocation_color (void *hp)
 {
-  if (caml_gc_phase == Phase_mark || caml_gc_phase == Phase_clean ||
-      (caml_gc_phase == Phase_sweep && (char *)hp >= (char *)caml_gc_sweep_hp)){
+  if (Caml_state->gc_phase == Phase_mark || Caml_state->gc_phase == Phase_clean ||
+      (Caml_state->gc_phase == Phase_sweep && (char *)hp >= (char *)caml_gc_sweep_hp)){
     return Caml_black;
   }else{
-    CAMLassert (caml_gc_phase == Phase_idle
-            || (caml_gc_phase == Phase_sweep
+    CAMLassert (Caml_state->gc_phase == Phase_idle
+            || (Caml_state->gc_phase == Phase_sweep
                 && (char *)hp < (char *)caml_gc_sweep_hp));
     return Caml_white;
   }
@@ -497,12 +497,12 @@ static inline value caml_alloc_shr_aux (mlsize_t wosize, tag_t tag, int track,
   CAMLassert (Is_in_heap (Val_hp (hp)));
 
   /* Inline expansion of caml_allocation_color. */
-  if (caml_gc_phase == Phase_mark || caml_gc_phase == Phase_clean ||
-      (caml_gc_phase == Phase_sweep && (char *)hp >= (char *)caml_gc_sweep_hp)){
+  if (Caml_state->gc_phase == Phase_mark || Caml_state->gc_phase == Phase_clean ||
+      (Caml_state->gc_phase == Phase_sweep && (char *)hp >= (char *)caml_gc_sweep_hp)){
     Hd_hp (hp) = Make_header_with_profinfo (wosize, tag, Caml_black, profinfo);
   }else{
-    CAMLassert (caml_gc_phase == Phase_idle
-            || (caml_gc_phase == Phase_sweep
+    CAMLassert (Caml_state->gc_phase == Phase_idle
+            || (Caml_state->gc_phase == Phase_sweep
                 && (char *)hp < (char *)caml_gc_sweep_hp));
     Hd_hp (hp) = Make_header_with_profinfo (wosize, tag, Caml_white, profinfo);
   }
@@ -686,7 +686,7 @@ CAMLexport CAMLweakdef void caml_modify (value *fp, value val)
       if (Is_young(old)) return;
       /* Here, [old] can be a pointer within the major heap.
          Check for condition 2. */
-      if (caml_gc_phase == Phase_mark) caml_darken(old, NULL);
+      if (Caml_state->gc_phase == Phase_mark) caml_darken(old, NULL);
     }
     /* Check for condition 1. */
     if (Is_block(val) && Is_young(val)) {

@@ -161,7 +161,7 @@ static char *compact_allocate (mlsize_t size)
 static void do_compaction (void)
 {
   char *ch, *chend;
-  CAMLassert (caml_gc_phase == Phase_idle);
+  CAMLassert (Caml_state->gc_phase == Phase_idle);
   caml_gc_message (0x10, "Compacting heap...\n");
 
 #ifdef DEBUG
@@ -519,7 +519,7 @@ void caml_compact_heap_maybe (void)
      We compact the heap if FP > caml_percent_max
   */
   double fw, fp;
-  CAMLassert (caml_gc_phase == Phase_idle);
+  CAMLassert (Caml_state->gc_phase == Phase_idle);
   if (caml_percent_max >= 1000000) return;
   if (Caml_state->stat_major_collections < 3) return;
   if (Caml_state->stat_heap_wsz <= 2 * caml_clip_heap_chunk_wsz (0)) return;

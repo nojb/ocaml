@@ -623,7 +623,7 @@ CAMLprim value caml_array_fill(value array,
       *fp = val;
       if (Is_block(old)) {
         if (Is_young(old)) continue;
-        if (caml_gc_phase == Phase_mark) caml_darken(old, NULL);
+        if (Caml_state->gc_phase == Phase_mark) caml_darken(old, NULL);
       }
       if (is_val_young_block)
         add_to_ref_table (Caml_state->ref_table, fp);

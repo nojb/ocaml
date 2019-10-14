@@ -156,7 +156,7 @@ static value heap_stats (int returnstats)
                       || Color_hp (prev_hp) != Caml_blue
                       || cur_hp == (header_t *) caml_gc_sweep_hp);
         }else{
-          if (caml_gc_phase == Phase_sweep
+          if (Caml_state->gc_phase == Phase_sweep
               && cur_hp >= (header_t *) caml_gc_sweep_hp){
             ++ free_blocks;
             free_words += Whsize_hd (cur_hd);

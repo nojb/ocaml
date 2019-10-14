@@ -49,8 +49,6 @@ uintnat caml_percent_free;
 uintnat caml_major_heap_increment;
 CAMLexport char *caml_heap_start;
 char *caml_gc_sweep_hp;
-int caml_gc_phase;        /* always Phase_mark, Pase_clean,
-                             Phase_sweep, or Phase_idle */
 static value *gray_vals;
 static value *gray_vals_cur, *gray_vals_end;
 static asize_t gray_vals_size;
@@ -187,11 +185,11 @@ void caml_darken (value v, value *p /* not used */)
 
 static void start_cycle (void)
 {
-  CAMLassert (caml_gc_phase == Phase_idle);
+  CAMLassert (Caml_state->gc_phase == Phase_idle);
   CAMLassert (gray_vals_cur == gray_vals);
   caml_gc_message (0x01, "Starting new major GC cycle\n");
   caml_darken_all_roots_start ();
-  caml_gc_phase = Phase_mark;
+  Caml_state->gc_phase = Phase_mark;
   caml_gc_subphase = Subphase_mark_roots;
   markhp = NULL;
   ephe_list_pure = 1;
@@ -223,7 +221,7 @@ static void init_sweep_phase(void)
   /* Initialise the sweep phase. */
   caml_gc_sweep_hp = caml_heap_start;
   caml_fl_init_merge ();
-  caml_gc_phase = Phase_sweep;
+  Caml_state->gc_phase = Phase_sweep;
   chunk = caml_heap_start;
   caml_gc_sweep_hp = chunk;
   limit = chunk + Chunk_size (chunk);
@@ -496,7 +494,7 @@ static void mark_slice (intnat work)
       case Subphase_mark_final: {
         /** The set of unreachable value will not change anymore for
             this cycle. Start clean phase. */
-        caml_gc_phase = Phase_clean;
+        Caml_state->gc_phase = Phase_clean;
         caml_final_update_clean_phase ();
         if (caml_ephe_list_head != (value) NULL){
           /* Initialise the clean phase. */
@@ -584,7 +582,7 @@ static void sweep_slice (intnat work)
         /* Sweeping is done. */
         ++ Caml_state->stat_major_collections;
         work = 0;
-        caml_gc_phase = Phase_idle;
+        Caml_state->gc_phase = Phase_idle;
         caml_request_minor_gc ();
       }else{
         caml_gc_sweep_hp = chunk;
@@ -764,7 +762,7 @@ void caml_major_collection_slice (intnat howmuch)
                          ARCH_INTNAT_PRINTF_FORMAT "du\n",
                    (intnat) (p * 1000000));
 
-  if (caml_gc_phase == Phase_idle){
+  if (Caml_state->gc_phase == Phase_idle){
     if (Caml_state->young_ptr == Caml_state->young_alloc_end){
       /* We can only start a major GC cycle if the minor allocation arena
          is empty, otherwise we'd have to treat it as a set of roots. */
@@ -780,7 +778,7 @@ void caml_major_collection_slice (intnat howmuch)
     goto finished;
   }
 
-  if (caml_gc_phase == Phase_mark || caml_gc_phase == Phase_clean){
+  if (Caml_state->gc_phase == Phase_mark || Caml_state->gc_phase == Phase_clean){
     computed_work = (intnat) (p * ((double) Caml_state->stat_heap_wsz * 250
                                    / (100 + caml_percent_free)
                                    + caml_incremental_roots_count));
@@ -789,23 +787,23 @@ void caml_major_collection_slice (intnat howmuch)
   }
   caml_gc_message (0x40, "computed work = %"
                    ARCH_INTNAT_PRINTF_FORMAT "d words\n", computed_work);
-  if (caml_gc_phase == Phase_mark){
+  if (Caml_state->gc_phase == Phase_mark){
     CAML_INSTR_INT ("major/work/mark#", computed_work);
     mark_slice (computed_work);
     CAML_INSTR_TIME (tmr, mark_slice_name[caml_gc_subphase]);
     caml_gc_message (0x02, "!");
-  }else if (caml_gc_phase == Phase_clean){
+  }else if (Caml_state->gc_phase == Phase_clean){
     clean_slice (computed_work);
     caml_gc_message (0x02, "%%");
   }else{
-    CAMLassert (caml_gc_phase == Phase_sweep);
+    CAMLassert (Caml_state->gc_phase == Phase_sweep);
     CAML_INSTR_INT ("major/work/sweep#", computed_work);
     sweep_slice (computed_work);
     CAML_INSTR_TIME (tmr, "major/sweep");
     caml_gc_message (0x02, "$");
   }
 
-  if (caml_gc_phase == Phase_idle){
+  if (Caml_state->gc_phase == Phase_idle){
     caml_compact_heap_maybe ();
     CAML_INSTR_TIME (tmr, "major/check_and_compact");
   }
@@ -839,15 +837,15 @@ void caml_major_collection_slice (intnat howmuch)
 */
 void caml_finish_major_cycle (void)
 {
-  if (caml_gc_phase == Phase_idle){
+  if (Caml_state->gc_phase == Phase_idle){
     p_backlog = 0.0; /* full major GC cycle, the backlog becomes irrelevant */
     start_cycle ();
   }
-  while (caml_gc_phase == Phase_mark) mark_slice (LONG_MAX);
-  while (caml_gc_phase == Phase_clean) clean_slice (LONG_MAX);
-  CAMLassert (caml_gc_phase == Phase_sweep);
-  while (caml_gc_phase == Phase_sweep) sweep_slice (LONG_MAX);
-  CAMLassert (caml_gc_phase == Phase_idle);
+  while (Caml_state->gc_phase == Phase_mark) mark_slice (LONG_MAX);
+  while (Caml_state->gc_phase == Phase_clean) clean_slice (LONG_MAX);
+  CAMLassert (Caml_state->gc_phase == Phase_sweep);
+  while (Caml_state->gc_phase == Phase_sweep) sweep_slice (LONG_MAX);
+  CAMLassert (Caml_state->gc_phase == Phase_idle);
   Caml_state->stat_major_words += caml_allocated_words;
   caml_allocated_words = 0;
 }
@@ -903,7 +901,7 @@ void caml_init_major_heap (asize_t heap_size)
   caml_fl_init_merge ();
   caml_make_free_blocks ((value *) caml_heap_start,
                          Caml_state->stat_heap_wsz, 1, Caml_white);
-  caml_gc_phase = Phase_idle;
+  Caml_state->gc_phase = Phase_idle;
   gray_vals_size = 2048;
   gray_vals = (value *) caml_stat_alloc_noexc (gray_vals_size * sizeof (value));
   if (gray_vals == NULL)
@@ -937,14 +935,14 @@ void caml_finalise_heap (void)
   /* Finishing major cycle (all values become white) */
   caml_empty_minor_heap ();
   caml_finish_major_cycle ();
-  CAMLassert (caml_gc_phase == Phase_idle);
+  CAMLassert (Caml_state->gc_phase == Phase_idle);
 
   /* Finalising all values (by means of forced sweeping) */
   caml_fl_init_merge ();
-  caml_gc_phase = Phase_sweep;
+  Caml_state->gc_phase = Phase_sweep;
   chunk = caml_heap_start;
   caml_gc_sweep_hp = chunk;
   limit = chunk + Chunk_size (chunk);
-  while (caml_gc_phase == Phase_sweep)
+  while (Caml_state->gc_phase == Phase_sweep)
     sweep_slice (LONG_MAX);
 }

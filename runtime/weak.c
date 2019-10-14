@@ -46,7 +46,7 @@ value caml_ephe_none = (value) &ephe_dummy;
 }while(0)
 
 #define CAMLassert_not_dead_value(v) do{        \
-    CAMLassert ( caml_gc_phase != Phase_clean   \
+    CAMLassert ( Caml_state->gc_phase != Phase_clean   \
                  || !Is_block(v)                \
                  || !Is_in_heap (v)             \
                  || !Is_white_val(v) );         \
@@ -80,13 +80,13 @@ static inline int Must_be_Marked_during_mark(value x)
 static inline int Is_Dead_during_clean(value x)
 {
   CAMLassert (x != caml_ephe_none);
-  CAMLassert (caml_gc_phase == Phase_clean);
+  CAMLassert (Caml_state->gc_phase == Phase_clean);
   return Is_block (x) && Is_in_heap (x) && Is_white_val(x);
 }
 static inline int Must_be_Marked_during_mark(value x)
 {
   CAMLassert (x != caml_ephe_none);
-  CAMLassert (caml_gc_phase == Phase_mark);
+  CAMLassert (Caml_state->gc_phase == Phase_mark);
   return Is_block (x) && Is_in_heap (x);
 }
 #endif
@@ -157,7 +157,7 @@ CAMLprim value caml_weak_create (value len)
 static void do_check_key_clean(value ar, mlsize_t offset)
 {
   CAMLassert (offset >= CAML_EPHE_FIRST_KEY);
-  if (caml_gc_phase == Phase_clean){
+  if (Caml_state->gc_phase == Phase_clean){
     value elt = Field (ar, offset);
     if (elt != caml_ephe_none && Is_Dead_during_clean(elt)){
       Field(ar, offset) = caml_ephe_none;
@@ -173,7 +173,7 @@ static inline int is_ephe_key_none(value ar, mlsize_t offset)
   value elt = Field (ar, offset);
   if (elt == caml_ephe_none){
     return 1;
-  }else if (caml_gc_phase == Phase_clean && Is_Dead_during_clean(elt)){
+  }else if (Caml_state->gc_phase == Phase_clean && Is_Dead_during_clean(elt)){
     Field(ar, offset) = caml_ephe_none;
     Field(ar, CAML_EPHE_DATA_OFFSET) = caml_ephe_none;
     return 1;
@@ -252,7 +252,7 @@ CAMLexport void caml_ephemeron_set_data (value ar, value el)
 {
   CAMLassert_valid_ephemeron(ar);
 
-  if (caml_gc_phase == Phase_clean){
+  if (Caml_state->gc_phase == Phase_clean){
     /* During this phase since we don't know which ephemerons have been
        cleaned we always need to check it. */
     caml_ephe_clean(ar);
@@ -304,7 +304,7 @@ CAMLexport int caml_ephemeron_get_key (value ar, mlsize_t offset, value *key)
     return 0;
   }else{
     elt = Field (ar, offset);
-    if (caml_gc_phase == Phase_mark && Must_be_Marked_during_mark(elt)){
+    if (Caml_state->gc_phase == Phase_mark && Must_be_Marked_during_mark(elt)){
       caml_darken (elt, NULL);
     }
     *key = elt;
@@ -329,12 +329,12 @@ CAMLexport int caml_ephemeron_get_data (value ar, value *data)
   value elt;
   CAMLassert_valid_ephemeron(ar);
 
-  if(caml_gc_phase == Phase_clean) caml_ephe_clean(ar);
+  if(Caml_state->gc_phase == Phase_clean) caml_ephe_clean(ar);
   elt = Field (ar, CAML_EPHE_DATA_OFFSET);
   if (elt == caml_ephe_none){
     return 0;
   }else{
-    if (caml_gc_phase == Phase_mark && Must_be_Marked_during_mark(elt)){
+    if (Caml_state->gc_phase == Phase_mark && Must_be_Marked_during_mark(elt)){
       caml_darken (elt, NULL);
     }
     *data = elt;
@@ -356,7 +356,7 @@ static inline void copy_value(value src, value dst)
     mlsize_t i;
     for (i = 0; i < Wosize_val (src); i++){
       value f = Field (src, i);
-      if (caml_gc_phase == Phase_mark && Must_be_Marked_during_mark(f)){
+      if (Caml_state->gc_phase == Phase_mark && Must_be_Marked_during_mark(f)){
         caml_darken (f, NULL);
       }
       caml_modify (&Field (dst, i), f);
@@ -381,7 +381,7 @@ CAMLexport int caml_ephemeron_get_key_copy(value ar, mlsize_t offset,
     v = Field (ar, offset);
     /** Don't copy custom_block #7279 */
     if(!(Is_block (v) && Is_in_heap_or_young(v)  && Tag_val(v) != Custom_tag)) {
-      if ( caml_gc_phase == Phase_mark && Must_be_Marked_during_mark(v) ){
+      if ( Caml_state->gc_phase == Phase_mark && Must_be_Marked_during_mark(v) ){
         caml_darken (v, NULL);
       };
       *key = v;
@@ -436,12 +436,12 @@ CAMLexport int caml_ephemeron_get_data_copy (value ar, value *data)
   CAMLassert_valid_ephemeron(ar);
 
   while(1) {
-    if (caml_gc_phase == Phase_clean) caml_ephe_clean(ar);
+    if (Caml_state->gc_phase == Phase_clean) caml_ephe_clean(ar);
     v = Field (ar, CAML_EPHE_DATA_OFFSET);
     if (v == caml_ephe_none) CAMLreturn(0);
     /** Don't copy custom_block #7279 */
     if (!(Is_block (v) && Is_in_heap_or_young(v) && Tag_val(v) != Custom_tag)) {
-      if ( caml_gc_phase == Phase_mark && Must_be_Marked_during_mark(v) ){
+      if ( Caml_state->gc_phase == Phase_mark && Must_be_Marked_during_mark(v) ){
         caml_darken (v, NULL);
       };
       *data = v;
@@ -500,7 +500,7 @@ CAMLexport int caml_ephemeron_data_is_set (value ar)
 {
   CAMLassert_valid_ephemeron(ar);
 
-  if(caml_gc_phase == Phase_clean) caml_ephe_clean(ar);
+  if(Caml_state->gc_phase == Phase_clean) caml_ephe_clean(ar);
   return Field (ar, CAML_EPHE_DATA_OFFSET) != caml_ephe_none;
 }
 
@@ -525,7 +525,7 @@ CAMLexport void caml_ephemeron_blit_key(value ars, mlsize_t offset_s,
   offset_s += CAML_EPHE_FIRST_KEY;
   offset_d += CAML_EPHE_FIRST_KEY;
 
-  if (caml_gc_phase == Phase_clean){
+  if (Caml_state->gc_phase == Phase_clean){
     caml_ephe_clean(ars);
     caml_ephe_clean(ard);
   }
@@ -560,7 +560,7 @@ CAMLexport void caml_ephemeron_blit_data (value ars, value ard)
   CAMLassert_valid_ephemeron(ars);
   CAMLassert_valid_ephemeron(ard);
 
-  if(caml_gc_phase == Phase_clean) {
+  if(Caml_state->gc_phase == Phase_clean) {
     caml_ephe_clean(ars);
     caml_ephe_clean(ard);
   };
