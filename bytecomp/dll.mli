@@ -35,8 +35,10 @@ val close_all_dlls: unit -> unit
 type dll_address
 
 (* Find a primitive in the currently opened DLLs and return its address.
+   Return [None] if the primitive is found in a DLL opened "for checking"
+   (see above).
    Raise [Not_found] if not found. *)
-val find_primitive: string -> dll_address
+val find_primitive: string -> dll_address option
 
 (* If linking in core (dynlink or toplevel), synchronize the VM
    table of primitive with the linker's table of primitive

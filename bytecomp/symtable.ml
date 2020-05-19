@@ -102,7 +102,7 @@ let of_prim name =
         try Dll.find_primitive name
         with Not_found -> raise(Error(Unavailable_primitive name)) in
       let num = PrimMap.enter c_prim_table name in
-      Dll.synchronize_primitive num symb;
+      Option.iter (Dll.synchronize_primitive num) symb;
       num
     end
 
