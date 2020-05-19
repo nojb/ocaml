@@ -212,10 +212,11 @@ module ELF = struct
         | Some dynstr ->
             let strtbl = load_section_body d dynstr in
             let buf = load_section_body d dynsym in
+            let word_size = word_size d in
             let mk i =
               let base = i * dynsym.sh_entsize in
               let st_name = name_at strtbl (get_uint d buf base) in
-              let st_value = get_word d buf (base + word_size d) in
+              let st_value = get_word d buf (base + word_size) in
               let st_shndx =
                 let off = match d.bitness with B64 -> 6 | B32 -> 14 in
                 get_uint16 d buf (base + off)
@@ -547,13 +548,12 @@ let with_open_in fn f =
   Fun.protect ~finally:(fun () -> close_in_noerr ic) (fun () -> f ic)
 
 let read filename =
-  try
-    with_open_in filename
-      (fun ic ->
-         try Ok (read ic) with End_of_file -> raise (Error Truncated_file)
-      )
-  with Error exn ->
-    Result.Error exn
+  match with_open_in filename read with
+  | t -> Ok t
+  | exception End_of_file ->
+      Result.Error Truncated_file
+  | exception Error err ->
+      Result.Error err
 
 let defines_symbol {defines_symbol; _} symname =
   defines_symbol symname
