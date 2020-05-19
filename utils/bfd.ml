@@ -13,6 +13,13 @@
 (*                                                                        *)
 (**************************************************************************)
 
+type error =
+  | Truncated_file
+  | Unrecognized of string
+  | Unsupported of string * int
+
+exception Error of error
+
 let name_at ?max buf start =
   assert (start >= 0 && start <= Bytes.length buf);
   let rec loop pos =
@@ -26,14 +33,6 @@ let name_at ?max buf start =
   in
   loop start
 
-let array_find f a =
-  let rec loop i =
-    if i >= Array.length a then None
-    else if f a.(i) then Some a.(i)
-    else loop (succ i)
-  in
-  loop 0
-
 let array_find_map f a =
   let rec loop i =
     if i >= Array.length a then None
@@ -44,6 +43,9 @@ let array_find_map f a =
     end
   in
   loop 0
+
+let array_find f a =
+  array_find_map (fun x -> if f x then Some x else None) a
 
 let unsigned_of_int32 n =
   assert (n >= 0l);
@@ -120,13 +122,13 @@ module ELF (R : READ) : S = struct
       match Bytes.get identification 4 with
       | '\x01' -> X86
       | '\x02' -> X64
-      | _ as n -> Printf.ksprintf failwith "Unexpected ELF CLASS (0x%x)" (Char.code n)
+      | _ as c -> raise (Error (Unsupported ("ELFCLASS", Char.code c)))
 
     let endianness =
       match Bytes.get identification 5 with
       | '\x01' -> LittleEndian
       | '\x02' -> BigEndian
-      | _ as n -> Printf.ksprintf failwith "Unexpected ELF DATA (0x%x)" (Char.code n)
+      | _ as c -> raise (Error (Unsupported ("ELFDATA", Char.code c)))
   end
 
   include Decode (M)
@@ -239,12 +241,14 @@ module Mach_O (R : READ) : S = struct
 
   let magic =
     seek 0L;
-    match Bytes.get_int32_ne (read_bytes 4) 0 with
+    let magic = read_bytes 4 in
+    match Bytes.get_int32_ne magic 0 with
     | 0xFEEDFACEl -> MH_MAGIC
     | 0xCEFAEDFEl -> MH_CIGAM
     | 0xFEEDFACFl -> MH_MAGIC_64
     | 0xCFFAEDFEl -> MH_CIGAM_64
-    | n           -> Printf.ksprintf failwith "Unexpected Mach-O magic (0x%lx)" n
+    | _ -> (* should not happen *)
+        raise (Error (Unrecognized (Bytes.to_string magic)))
 
   module M = struct
     let bitness =
@@ -380,7 +384,7 @@ module FlexDLL (R : READ) : S = struct
     match Bytes.get_uint16_le headerbuf 4 with
     | 0x8664 -> IMAGE_FILE_MACHINE_AMD64
     | 0x14c  -> IMAGE_FILE_MACHINE_I386
-    | n      -> Printf.ksprintf failwith "unsupported machine type (0x%x)" n
+    | n      -> raise (Error (Unsupported ("MACHINETYPE", n)))
 
   module M = struct
     let endianness =
@@ -491,20 +495,16 @@ let guess ic =
   let magic = really_input_string ic 4 in
   match magic.[0], magic.[1], magic.[2], magic.[3] with
   | '\x7F', 'E', 'L', 'F' ->
-      Ok (module ELF : T)
+      (module ELF : T)
   | '\xFE', '\xED', '\xFA', '\xCE'
   | '\xCE', '\xFA', '\xED', '\xFE'
   | '\xFE', '\xED', '\xFA', '\xCF'
   | '\xCF', '\xFA', '\xED', '\xFE' ->
-      Ok (module Mach_O : T)
+      (module Mach_O : T)
   | 'M', 'Z', _, _ ->
-      Ok (module FlexDLL : T)
-  | a, b, c, d ->
-      let magic =
-        Printf.sprintf "0x%02x 0x%02x 0x%02x 0x%02x"
-          (Char.code a) (Char.code b) (Char.code c) (Char.code d)
-      in
-      Error magic
+      (module FlexDLL : T)
+  | _ ->
+      raise (Error (Unrecognized magic))
 
 type t =
   (module S)
@@ -524,18 +524,14 @@ let read ic =
     let advance n =
       LargeFile.seek_in ic (Int64.add (LargeFile.pos_in ic) (Int64.of_int n))
   end in
-  match guess ic with
-  | Ok (module O : T) ->
-      (module O (R) : S)
-  | Error magic ->
-      Printf.ksprintf failwith "Unsupported file format (%s)" magic
+  let (module O : T) = guess ic in
+  (module O (R) : S)
 
 let read filename =
   with_open_in filename
     (fun ic ->
-       try read ic with End_of_file ->
-         Printf.ksprintf failwith "Truncated file (%s)" filename
-    )
+       try read ic with End_of_file -> raise (Error Truncated_file)
+     )
 
 let defines_symbol (module O : S) symname =
   O.defines_symbol symname

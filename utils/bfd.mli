@@ -13,6 +13,13 @@
 (*                                                                        *)
 (**************************************************************************)
 
+type error =
+  | Truncated_file
+  | Unrecognized of string
+  | Unsupported of string * int
+
+exception Error of error
+
 type t
 
 val read: string -> t
