@@ -17,13 +17,13 @@ type error =
   | Truncated_file
   | Unrecognized of string
   | Unsupported of string * int
-  | Out_of_range
+  | Out_of_range of string
 
-exception Error of error
+val string_of_error: error -> string
 
 type t
 
-val read: string -> t
+val read: string -> (t, error) Result.t
 
 val defines_symbol: t -> string -> bool
 

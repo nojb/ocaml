@@ -78,7 +78,11 @@ let open_dll mode name =
     let dll =
       match mode with
       | For_checking ->
-          Checking (Bfd.read fullname)
+          begin match Bfd.read fullname with
+          | Ok t -> Checking t
+          | Error err ->
+              failwith (fullname ^ ": " ^ Bfd.string_of_error err)
+          end
       | For_execution ->
           begin match dll_open mode fullname with
           | dll ->
@@ -114,8 +118,8 @@ let find_primitive prim_name =
         if seen <> [] then opened_dlls := curr :: List.rev_append seen rem;
         Some addr
       end
-  | Checking bfd as curr :: rem ->
-      if Bfd.defines_symbol bfd prim_name then
+  | Checking t as curr :: rem ->
+      if Bfd.defines_symbol t prim_name then
         None
       else
         find (curr :: seen) rem

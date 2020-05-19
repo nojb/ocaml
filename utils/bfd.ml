@@ -13,16 +13,39 @@
 (*                                                                        *)
 (**************************************************************************)
 
+let char_to_hex c =
+  Printf.sprintf "0x%02x" (Char.code c)
+
+let int32_to_hex n =
+  Printf.sprintf "0x%lx" n
+
+let int_to_hex n =
+  Printf.sprintf "0x%x" n
+
 type error =
   | Truncated_file
   | Unrecognized of string
   | Unsupported of string * int
-  | Out_of_range
+  | Out_of_range of string
+
+let string_of_error = function
+  | Truncated_file ->
+      "Truncated file"
+  | Unrecognized magic ->
+      Printf.sprintf "Unrecognized magic: %s"
+        (String.concat " "
+           (List.init (String.length magic)
+              (fun i -> char_to_hex magic.[i])))
+  | Unsupported (s, n) ->
+      Printf.sprintf "Unsupported %s: 0x%x" s n
+  | Out_of_range s ->
+      Printf.sprintf "Out of range constant: %s" s
 
 exception Error of error
 
 let name_at ?max_len buf start =
-  if start < 0 || start > Bytes.length buf then raise (Error Out_of_range);
+  if start < 0 || start > Bytes.length buf then
+    raise (Error (Out_of_range (int_to_hex start)));
   let max_pos =
     match max_len with
     | None -> Bytes.length buf
@@ -52,7 +75,8 @@ let array_find f a =
   array_find_map (fun x -> if f x then Some x else None) a
 
 let unsigned_of_int32 n =
-  if n < 0l then raise (Error Out_of_range);
+  if n < 0l then
+    raise (Error (Out_of_range (int32_to_hex n)));
   Int64.of_int32 n
 
 type endianness =
@@ -87,8 +111,9 @@ module Decode (M : MAGIC) = struct
     | BigEndian    -> Bytes.get_int32_be buf idx
 
   let get_uint buf idx =
-    match Int32.unsigned_to_int (get_uint32 buf idx) with
-    | None -> raise (Error Out_of_range)
+    let n = get_uint32 buf idx in
+    match Int32.unsigned_to_int n with
+    | None -> raise (Error (Out_of_range (int32_to_hex n)))
     | Some n -> n
 
   let get_uint64 buf idx =
@@ -534,10 +559,13 @@ let read ic =
   (module O (R) : S)
 
 let read filename =
-  with_open_in filename
-    (fun ic ->
-       try read ic with End_of_file -> raise (Error Truncated_file)
-     )
+  try
+    with_open_in filename
+      (fun ic ->
+         try Ok (read ic) with End_of_file -> raise (Error Truncated_file)
+      )
+  with Error exn ->
+    Result.Error exn
 
 let defines_symbol (module O : S) symname =
   O.defines_symbol symname

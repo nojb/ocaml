@@ -244,7 +244,11 @@ let dump_byte ic =
     toc
 
 let find_dyn_offset filename =
-  Bfd.symbol_offset (Bfd.read filename) "caml_plugin_header"
+  match Bfd.read filename with
+  | Ok t ->
+      Bfd.symbol_offset t "caml_plugin_header"
+  | Error _ ->
+      None
 
 let exit_err msg = print_endline msg; exit 2
 let exit_errf fmt = Printf.ksprintf exit_err fmt
