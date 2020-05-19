@@ -3,6 +3,11 @@ utils/arg_helper.cmo : \
 utils/arg_helper.cmx : \
     utils/arg_helper.cmi
 utils/arg_helper.cmi :
+utils/bfd.cmo : \
+    utils/bfd.cmi
+utils/bfd.cmx : \
+    utils/bfd.cmi
+utils/bfd.cmi :
 utils/build_path_prefix_map.cmo : \
     utils/build_path_prefix_map.cmi
 utils/build_path_prefix_map.cmx : \
@@ -1829,10 +1834,14 @@ bytecomp/bytesections.cmi :
 bytecomp/dll.cmo : \
     utils/misc.cmi \
     utils/config.cmi \
+    utils/clflags.cmi \
+    utils/bfd.cmi \
     bytecomp/dll.cmi
 bytecomp/dll.cmx : \
     utils/misc.cmx \
     utils/config.cmx \
+    utils/clflags.cmx \
+    utils/bfd.cmx \
     bytecomp/dll.cmi
 bytecomp/dll.cmi :
 bytecomp/emitcode.cmo : \
