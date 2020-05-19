@@ -95,7 +95,6 @@ type bitness =
 type decoder =
   {
     ic: in_channel;
-    mutable buf: bytes; (* [buf] is never mutated. *)
     endianness: endianness;
     bitness: bitness;
   }
@@ -104,35 +103,35 @@ let word_size = function
   | {bitness = B64; _} -> 8
   | {bitness = B32; _} -> 4
 
-let get_uint16 {endianness; buf; _} idx =
+let get_uint16 {endianness; _} buf idx =
   match endianness with
   | LittleEndian -> Bytes.get_uint16_le buf idx
   | BigEndian    -> Bytes.get_uint16_be buf idx
 
-let get_uint32 {endianness; buf; _} idx =
+let get_uint32 {endianness; _} buf idx =
   match endianness with
   | LittleEndian -> Bytes.get_int32_le buf idx
   | BigEndian    -> Bytes.get_int32_be buf idx
 
-let get_uint d idx =
-  let n = get_uint32 d idx in
+let get_uint d buf idx =
+  let n = get_uint32 d buf idx in
   match Int32.unsigned_to_int n with
   | None -> raise (Error (Out_of_range (int32_to_hex n)))
   | Some n -> n
 
-let get_uint64 {endianness; buf; _} idx =
+let get_uint64 {endianness; _} buf idx =
   match endianness with
   | LittleEndian -> Bytes.get_int64_le buf idx
   | BigEndian    -> Bytes.get_int64_be buf idx
 
-let get_word ({bitness; _} as d) idx =
-  match bitness with
-  | B64 -> get_uint64 d idx
-  | B32 -> unsigned_of_int32 (get_uint32 d idx)
+let get_word d buf idx =
+  match d.bitness with
+  | B64 -> get_uint64 d buf idx
+  | B32 -> unsigned_of_int32 (get_uint32 d buf idx)
 
 let load_bytes d off len =
   LargeFile.seek_in d.ic off;
-  d.buf <- really_input_bytes d.ic len
+  really_input_bytes d.ic len
 
 type t =
   {
@@ -154,12 +153,12 @@ module ELF = struct
     }
 
   let read_header d =
-    load_bytes d 0L (header_size d);
+    let buf = load_bytes d 0L (header_size d) in
     let word_size = word_size d in
-    let e_shnum = get_uint16 d (36 + 3 * word_size) in
-    let e_shentsize = get_uint16 d (34 + 3 * word_size) in
-    let e_shoff = get_word d (24 + 2 * word_size) in
-    let e_shstrndx = get_uint16 d (38 + 3 * word_size) in
+    let e_shnum = get_uint16 d buf (36 + 3 * word_size) in
+    let e_shentsize = get_uint16 d buf (34 + 3 * word_size) in
+    let e_shoff = get_word d buf (24 + 2 * word_size) in
+    let e_shstrndx = get_uint16 d buf (38 + 3 * word_size) in
     {e_shnum; e_shentsize; e_shoff; e_shstrndx}
 
   type section =
@@ -176,19 +175,19 @@ module ELF = struct
     load_bytes d sh_offset sh_size
 
   let read_sections d {e_shoff; e_shnum; e_shentsize; e_shstrndx; _} =
-    load_bytes d e_shoff (e_shnum * e_shentsize);
+    let buf = load_bytes d e_shoff (e_shnum * e_shentsize) in
     let word_size = word_size d in
     let mk i =
       let base = i * e_shentsize in
-      let sh_name = get_uint d (base + 0) in
-      let sh_addr = get_word d (base + 8 + word_size) in
-      let sh_offset = get_word d (base + 8 + 2 * word_size) in
-      let sh_size = Int64.to_int (get_word d (base + 8 + 3 * word_size)) in
-      let sh_entsize = Int64.to_int (get_word d (base + 16 + 5 * word_size)) in
+      let sh_name = get_uint d buf (base + 0) in
+      let sh_addr = get_word d buf (base + 8 + word_size) in
+      let sh_offset = get_word d buf (base + 8 + 2 * word_size) in
+      let sh_size = Int64.to_int (get_word d buf (base + 8 + 3 * word_size)) in
+      let sh_entsize = Int64.to_int (get_word d buf (base + 16 + 5 * word_size)) in
       {sh_name; sh_addr; sh_offset; sh_size; sh_entsize; sh_name_str = ""}
     in
     let sections = Array.init e_shnum mk in
-    let shstrtbl = (load_section_body d sections.(e_shstrndx); d.buf) in
+    let shstrtbl = load_section_body d sections.(e_shstrndx) in
     Array.map (fun sec ->
         let sh_name_str = name_at shstrtbl sec.sh_name in
         {sec with sh_name_str}
@@ -211,15 +210,15 @@ module ELF = struct
         begin match find_section sections ".dynstr" with
         | None -> [| |]
         | Some dynstr ->
-            let symstrbuf = (load_section_body d dynstr; d.buf) in
-            load_section_body d dynsym;
+            let strtbl = load_section_body d dynstr in
+            let buf = load_section_body d dynsym in
             let mk i =
               let base = i * dynsym.sh_entsize in
-              let st_name = name_at symstrbuf (get_uint d base) in
-              let st_value = get_word d (base + word_size d) in
+              let st_name = name_at strtbl (get_uint d buf base) in
+              let st_value = get_word d buf (base + word_size d) in
               let st_shndx =
                 let off = match d.bitness with B64 -> 6 | B32 -> 14 in
-                get_uint16 d (base + off)
+                get_uint16 d buf (base + off)
               in
               {st_name; st_value; st_shndx}
             in
@@ -251,7 +250,7 @@ module ELF = struct
       | '\x02' -> BigEndian
       | _ as c -> raise (Error (Unsupported ("ELFDATA", Char.code c)))
     in
-    let d = {ic; buf = Bytes.create 0; bitness; endianness} in
+    let d = {ic; bitness; endianness} in
     let header = read_header d in
     let sections = read_sections d header in
     let symbols = read_symbols d sections in
@@ -274,9 +273,9 @@ module Mach_O = struct
     }
 
   let read_header d =
-    load_bytes d 0L (header_size d);
-    let ncmds = get_uint d (8 + 2 * size_int) in
-    let sizeofcmds = get_uint d (12 + 2 * size_int) in
+    let buf = load_bytes d 0L (header_size d) in
+    let ncmds = get_uint d buf (8 + 2 * size_int) in
+    let sizeofcmds = get_uint d buf (12 + 2 * size_int) in
     {ncmds; sizeofcmds}
 
   type lc_symtab =
@@ -292,18 +291,18 @@ module Mach_O = struct
     | OTHER
 
   let read_load_commands d {ncmds; sizeofcmds} =
-    load_bytes d (Int64.of_int (header_size d)) sizeofcmds;
+    let buf = load_bytes d (Int64.of_int (header_size d)) sizeofcmds in
     let base = ref 0 in
     let mk _ =
-      let cmd = get_uint32 d (!base + 0) in
-      let cmdsize = get_uint d (!base + 4) in
+      let cmd = get_uint32 d buf (!base + 0) in
+      let cmdsize = get_uint d buf (!base + 4) in
       let lc =
         match cmd with
         | 0x2l ->
-            let symoff = get_uint32 d (!base + 8) in
-            let nsyms = get_uint d (!base + 12) in
-            let stroff = get_uint32 d (!base + 16) in
-            let strsize = get_uint d (!base + 20) in
+            let symoff = get_uint32 d buf (!base + 8) in
+            let nsyms = get_uint d buf (!base + 12) in
+            let stroff = get_uint32 d buf (!base + 16) in
+            let strsize = get_uint d buf (!base + 20) in
             LC_SYMTAB {symoff; nsyms; stroff; strsize}
         | _ ->
             OTHER
@@ -331,13 +330,13 @@ module Mach_O = struct
     with
     | None -> [| |]
     | Some {symoff; nsyms; stroff; strsize} ->
-        let strtbl = (load_bytes d (unsigned_of_int32 stroff) strsize; d.buf) in
-        load_bytes d (unsigned_of_int32 symoff) (nsyms * size_nlist d);
+        let strtbl = load_bytes d (unsigned_of_int32 stroff) strsize in
+        let buf = load_bytes d (unsigned_of_int32 symoff) (nsyms * size_nlist d) in
         let size_nlist = size_nlist d in
         let mk i =
           let base = i * size_nlist in
-          let n_name = name_at strtbl (get_uint d (base + 0)) in
-          let n_value = get_word d (base + 8) in
+          let n_name = name_at strtbl (get_uint d buf (base + 0)) in
+          let n_value = get_word d buf (base + 8) in
           {n_name; n_value}
         in
         Array.init nsyms mk
@@ -385,7 +384,7 @@ module Mach_O = struct
       | (MH_MAGIC | MH_MAGIC_64), true
       | (MH_CIGAM | MH_CIGAM_64), false -> BigEndian
     in
-    let d = {ic; buf = Bytes.create 0; endianness; bitness} in
+    let d = {ic; endianness; bitness} in
     let header = read_header d in
     let load_commands = read_load_commands d header in
     let symbols = read_symbols d load_commands in
@@ -406,11 +405,10 @@ module FlexDLL = struct
       characteristics: int;
     }
 
-  (* header already loaded in [d]. *)
-  let read_header e_lfanew d =
-    let number_of_sections = get_uint16 d 6 in
-    let size_of_optional_header = get_uint16 d 20 in
-    let characteristics = get_uint16 d 22 in
+  let read_header e_lfanew d buf =
+    let number_of_sections = get_uint16 d buf 6 in
+    let size_of_optional_header = get_uint16 d buf 20 in
+    let characteristics = get_uint16 d buf 22 in
     {e_lfanew; number_of_sections; size_of_optional_header; characteristics}
 
   type optional_header =
@@ -419,8 +417,8 @@ module FlexDLL = struct
     }
 
   let read_optional_header d {e_lfanew; size_of_optional_header; _} =
-    load_bytes d Int64.(add e_lfanew (of_int header_size)) size_of_optional_header;
-    let image_base = get_word d (match d.bitness with B64 -> 24 | B32 -> 28) in
+    let buf = load_bytes d Int64.(add e_lfanew (of_int header_size)) size_of_optional_header in
+    let image_base = get_word d buf (match d.bitness with B64 -> 24 | B32 -> 28) in
     {image_base}
 
   type section =
@@ -435,16 +433,18 @@ module FlexDLL = struct
   let section_header_size = 40
 
   let read_sections d {e_lfanew; number_of_sections; size_of_optional_header; _} =
-    load_bytes d
-      Int64.(add e_lfanew (of_int (header_size + size_of_optional_header)))
-      (number_of_sections * section_header_size);
+    let buf =
+      load_bytes d
+        Int64.(add e_lfanew (of_int (header_size + size_of_optional_header)))
+        (number_of_sections * section_header_size)
+    in
     let mk i =
       let base = i * section_header_size in
-      let name = name_at ~max_len:8 d.buf (base + 0) in
-      let virtual_size = get_uint d (base + 8) in
-      let virtual_address = unsigned_of_int32 (get_uint32 d (base + 12)) in
-      let size_of_raw_data = get_uint d (base + 16) in
-      let pointer_to_raw_data = unsigned_of_int32 (get_uint32 d (base + 20)) in
+      let name = name_at ~max_len:8 buf (base + 0) in
+      let virtual_size = get_uint d buf (base + 8) in
+      let virtual_address = unsigned_of_int32 (get_uint32 d buf (base + 12)) in
+      let size_of_raw_data = get_uint d buf (base + 16) in
+      let pointer_to_raw_data = unsigned_of_int32 (get_uint32 d buf (base + 20)) in
       {name; virtual_size; virtual_address; size_of_raw_data; pointer_to_raw_data}
     in
     Array.init number_of_sections mk
@@ -465,15 +465,15 @@ module FlexDLL = struct
     match find_section sections ".exptbl" with
     | None -> [| |]
     | Some ({virtual_address; _} as exptbl) ->
-        load_section_body d exptbl;
-        let numexports = Int64.to_int (get_word d 0) in
+        let buf = load_section_body d exptbl in
+        let numexports = Int64.to_int (get_word d buf 0) in
         let word_size = word_size d in
         let mk i =
-          let address = get_word d (word_size + word_size * 2 * i) in
-          let nameoff = get_word d (word_size + word_size * 2 * i + word_size) in
+          let address = get_word d buf (word_size * (2 * i + 1)) in
+          let nameoff = get_word d buf (word_size * (2 * i + 2)) in
           let name =
             let off = Int64.(sub nameoff (add virtual_address image_base)) in
-            name_at d.buf (Int64.to_int off)
+            name_at buf (Int64.to_int off)
           in
           {name; address}
         in
@@ -517,8 +517,8 @@ module FlexDLL = struct
       | IMAGE_FILE_MACHINE_AMD64 -> B64
       | IMAGE_FILE_MACHINE_I386  -> B32
     in
-    let d = {ic; buf; endianness; bitness} in
-    let header = read_header e_lfanew d in
+    let d = {ic; endianness; bitness} in
+    let header = read_header e_lfanew d buf in
     let opt_header = read_optional_header d header in
     let sections = read_sections d header in
     let symbols = read_symbols d opt_header sections in
