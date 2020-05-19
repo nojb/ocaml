@@ -17,6 +17,7 @@ type error =
   | Truncated_file
   | Unrecognized of string
   | Unsupported of string * int
+  | Out_of_range
 
 exception Error of error
 

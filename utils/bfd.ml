@@ -17,11 +17,12 @@ type error =
   | Truncated_file
   | Unrecognized of string
   | Unsupported of string * int
+  | Out_of_range
 
 exception Error of error
 
 let name_at ?max buf start =
-  assert (start >= 0 && start <= Bytes.length buf);
+  if start < 0 || start > Bytes.length buf then raise (Error Out_of_range);
   let rec loop pos =
     if pos >= Bytes.length buf ||
        Bytes.get buf pos = '\000' ||
@@ -48,7 +49,7 @@ let array_find f a =
   array_find_map (fun x -> if f x then Some x else None) a
 
 let unsigned_of_int32 n =
-  assert (n >= 0l);
+  if n < 0l then raise (Error Out_of_range);
   Int64.of_int32 n
 
 type endianness =
@@ -56,8 +57,8 @@ type endianness =
   | BigEndian
 
 type bitness =
-  | X86
-  | X64
+  | B32
+  | B64
 
 module type MAGIC = sig
   val endianness: endianness
@@ -69,31 +70,33 @@ module Decode (M : MAGIC) = struct
 
   let word_size =
     match bitness with
-    | X64 -> 8
-    | X86 -> 4
+    | B64 -> 8
+    | B32 -> 4
 
-  let get_int16 buf idx =
+  let get_uint16 buf idx =
     match endianness with
     | LittleEndian -> Bytes.get_uint16_le buf idx
     | BigEndian    -> Bytes.get_uint16_be buf idx
 
-  let get_int32 buf idx =
+  let get_uint32 buf idx =
     match endianness with
     | LittleEndian -> Bytes.get_int32_le buf idx
     | BigEndian    -> Bytes.get_int32_be buf idx
 
-  let get_int buf idx =
-    Int32.to_int (get_int32 buf idx)
+  let get_uint buf idx =
+    match Int32.unsigned_to_int (get_uint32 buf idx) with
+    | None -> raise (Error Out_of_range)
+    | Some n -> n
 
-  let get_int64 buf idx =
+  let get_uint64 buf idx =
     match endianness with
     | LittleEndian -> Bytes.get_int64_le buf idx
     | BigEndian    -> Bytes.get_int64_be buf idx
 
   let get_word buf idx =
     match bitness with
-    | X64 -> get_int64 buf idx
-    | X86 -> unsigned_of_int32 (get_int32 buf idx)
+    | B64 -> get_uint64 buf idx
+    | B32 -> unsigned_of_int32 (get_uint32 buf idx)
 end
 
 module type READ = sig
@@ -120,8 +123,8 @@ module ELF (R : READ) : S = struct
   module M = struct
     let bitness =
       match Bytes.get identification 4 with
-      | '\x01' -> X86
-      | '\x02' -> X64
+      | '\x01' -> B32
+      | '\x02' -> B64
       | _ as c -> raise (Error (Unsupported ("ELFCLASS", Char.code c)))
 
     let endianness =
@@ -147,10 +150,10 @@ module ELF (R : READ) : S = struct
   let {e_shnum; e_shentsize; e_shoff; e_shstrndx} =
     seek 0L;
     let buf         = read_bytes header_size in
-    let e_shnum     = get_int16 buf (36 + 3 * word_size) in
-    let e_shentsize = get_int16 buf (34 + 3 * word_size) in
+    let e_shnum     = get_uint16 buf (36 + 3 * word_size) in
+    let e_shentsize = get_uint16 buf (34 + 3 * word_size) in
     let e_shoff     = get_word  buf (24 + 2 * word_size) in
-    let e_shstrndx  = get_int16 buf (38 + 3 * word_size) in
+    let e_shstrndx  = get_uint16 buf (38 + 3 * word_size) in
     {e_shnum; e_shentsize; e_shoff; e_shstrndx}
 
   type section =
@@ -170,7 +173,7 @@ module ELF (R : READ) : S = struct
   let sections =
     seek e_shoff;
     let mk buf =
-      let sh_name    = get_int buf 0 in
+      let sh_name    = get_uint buf 0 in
       let sh_addr    = get_word buf (8 + word_size) in
       let sh_offset  = get_word buf (8 + 2 * word_size) in
       let sh_size    = Int64.to_int (get_word buf (8 + 3 * word_size)) in
@@ -207,11 +210,11 @@ module ELF (R : READ) : S = struct
             let dynsymbuf = read_section_body dynsym in
             let mk i =
               let base     = i * dynsym.sh_entsize in
-              let st_name  = name_at symstrbuf (get_int dynsymbuf base) in
+              let st_name  = name_at symstrbuf (get_uint dynsymbuf base) in
               let st_value = get_word dynsymbuf (base + word_size) in
               let st_shndx =
-                let off = match bitness with X64 -> 6 | X86 -> 14 in
-                get_int16 dynsymbuf (base + off)
+                let off = match bitness with B64 -> 6 | B32 -> 14 in
+                get_uint16 dynsymbuf (base + off)
               in
               {st_name; st_value; st_shndx}
             in
@@ -253,8 +256,8 @@ module Mach_O (R : READ) : S = struct
   module M = struct
     let bitness =
       match magic with
-      | MH_MAGIC    | MH_CIGAM    -> X86
-      | MH_MAGIC_64 | MH_CIGAM_64 -> X64
+      | MH_MAGIC    | MH_CIGAM    -> B32
+      | MH_MAGIC_64 | MH_CIGAM_64 -> B64
 
     let endianness =
       match magic, Sys.big_endian with
@@ -269,7 +272,7 @@ module Mach_O (R : READ) : S = struct
   let size_int = 4
 
   let header_size =
-    (match bitness with X64 -> 6 | X86 -> 5) * 4 + 2 * size_int
+    (match bitness with B64 -> 6 | B32 -> 5) * 4 + 2 * size_int
 
   type header =
     {
@@ -280,8 +283,8 @@ module Mach_O (R : READ) : S = struct
   let {ncmds; sizeofcmds = _} =
     seek 0L;
     let buf        = read_bytes header_size in
-    let ncmds      = get_int buf (8 + 2 * size_int) in
-    let sizeofcmds = get_int buf (12 + 2 * size_int) in
+    let ncmds      = get_uint buf (8 + 2 * size_int) in
+    let sizeofcmds = get_uint buf (12 + 2 * size_int) in
     {ncmds; sizeofcmds}
 
   type lc_symtab =
@@ -300,15 +303,15 @@ module Mach_O (R : READ) : S = struct
     seek (Int64.of_int header_size);
     Array.init ncmds (fun _ ->
         let buf     = read_bytes 8 in
-        let cmd     = get_int32 buf 0 in
-        let cmdsize = get_int   buf 4 in
+        let cmd     = get_uint32 buf 0 in
+        let cmdsize = get_uint   buf 4 in
         match cmd with
         | 0x2l ->
             let buf     = read_bytes 16 in
-            let symoff  = get_int32 buf 0 in
-            let nsyms   = get_int   buf 4 in
-            let stroff  = get_int32 buf 8 in
-            let strsize = get_int   buf 12 in
+            let symoff  = get_uint32 buf 0 in
+            let nsyms   = get_uint   buf 4 in
+            let stroff  = get_uint32 buf 8 in
+            let strsize = get_uint   buf 12 in
             LC_SYMTAB {symoff; nsyms; stroff; strsize}
         | _ ->
             advance (cmdsize - 8);
@@ -340,7 +343,7 @@ module Mach_O (R : READ) : S = struct
         let strtbl = read_string_table stroff strsize in
         seek (unsigned_of_int32 symoff);
         let mk buf =
-          let n_name  = name_at strtbl (get_int buf 0) in
+          let n_name  = name_at strtbl (get_uint buf 0) in
           let n_value = get_word buf 8 in
           {n_name; n_value}
         in
@@ -392,8 +395,8 @@ module FlexDLL (R : READ) : S = struct
 
     let bitness =
       match machine with
-      | IMAGE_FILE_MACHINE_AMD64 -> X64
-      | IMAGE_FILE_MACHINE_I386  -> X86
+      | IMAGE_FILE_MACHINE_AMD64 -> B64
+      | IMAGE_FILE_MACHINE_I386  -> B32
   end
 
   include Decode (M)
@@ -406,9 +409,9 @@ module FlexDLL (R : READ) : S = struct
     }
 
   let {number_of_sections; size_of_optional_header; characteristics = _} =
-    let number_of_sections      = get_int16 headerbuf 6 in
-    let size_of_optional_header = get_int16 headerbuf 20 in
-    let characteristics         = get_int16 headerbuf 22 in
+    let number_of_sections      = get_uint16 headerbuf 6 in
+    let size_of_optional_header = get_uint16 headerbuf 20 in
+    let characteristics         = get_uint16 headerbuf 22 in
     {number_of_sections; size_of_optional_header; characteristics}
 
   type optional_header =
@@ -419,7 +422,7 @@ module FlexDLL (R : READ) : S = struct
   let {image_base} =
     seek (Int64.add e_lfanew (Int64.of_int header_size));
     let buf          = read_bytes size_of_optional_header in
-    let image_base   = get_word buf (match bitness with X64 -> 24 | X86 -> 28) in
+    let image_base   = get_word buf (match bitness with B64 -> 24 | B32 -> 28) in
     {image_base}
 
   type section =
@@ -437,10 +440,10 @@ module FlexDLL (R : READ) : S = struct
     seek Int64.(add e_lfanew (of_int (header_size + size_of_optional_header)));
     let mk buf =
       let name                = name_at ~max:8 buf 0 in
-      let virtual_size        = get_int   buf 8 in
-      let virtual_address     = unsigned_of_int32 (get_int32 buf 12) in
-      let size_of_raw_data    = get_int   buf 16 in
-      let pointer_to_raw_data = unsigned_of_int32 (get_int32 buf 20) in
+      let virtual_size        = get_uint   buf 8 in
+      let virtual_address     = unsigned_of_int32 (get_uint32 buf 12) in
+      let size_of_raw_data    = get_uint   buf 16 in
+      let pointer_to_raw_data = unsigned_of_int32 (get_uint32 buf 20) in
       {name; virtual_size; virtual_address; size_of_raw_data; pointer_to_raw_data}
     in
     Array.init number_of_sections (fun _ -> mk (read_bytes section_header_size))
