@@ -244,25 +244,7 @@ let dump_byte ic =
     toc
 
 let find_dyn_offset filename =
-  let helper = Filename.concat Config.standard_library "objinfo_helper" in
-  let tempfile = Filename.temp_file "objinfo" ".out" in
-  match
-    Fun.protect
-      ~finally:(fun () -> remove_file tempfile)
-      (fun () ->
-         let rc =
-           Sys.command
-             (Filename.quote_command helper ~stdout:tempfile [filename])
-         in
-         if rc <> 0 then failwith "cannot read";
-         let tc = Scanf.Scanning.from_file tempfile in
-         Fun.protect
-           ~finally:(fun () -> Scanf.Scanning.close_in tc)
-           (fun () ->
-              Scanf.bscanf tc "%Ld" (fun x -> x)))
-  with
-    | offset -> Some offset
-    | exception (Failure _ | Sys_error _) -> None
+  Bfd.symbol_offset (Bfd.read filename) "caml_plugin_header"
 
 let exit_err msg = print_endline msg; exit 2
 let exit_errf fmt = Printf.ksprintf exit_err fmt
