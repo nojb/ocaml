@@ -21,12 +21,15 @@ type error =
 
 exception Error of error
 
-let name_at ?max buf start =
+let name_at ?max_len buf start =
   if start < 0 || start > Bytes.length buf then raise (Error Out_of_range);
+  let max_pos =
+    match max_len with
+    | None -> Bytes.length buf
+    | Some n -> min (Bytes.length buf) (start + n)
+  in
   let rec loop pos =
-    if pos >= Bytes.length buf ||
-       Bytes.get buf pos = '\000' ||
-       (match max with None -> false | Some n -> pos - start >= n)
+    if pos >= max_pos || Bytes.get buf pos = '\000'
     then
       Bytes.sub_string buf start (pos - start)
     else
@@ -439,7 +442,7 @@ module FlexDLL (R : READ) : S = struct
   let sections =
     seek Int64.(add e_lfanew (of_int (header_size + size_of_optional_header)));
     let mk buf =
-      let name                = name_at ~max:8 buf 0 in
+      let name                = name_at ~max_len:8 buf 0 in
       let virtual_size        = get_uint   buf 8 in
       let virtual_address     = unsigned_of_int32 (get_uint32 buf 12) in
       let size_of_raw_data    = get_uint   buf 16 in
