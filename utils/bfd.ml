@@ -85,8 +85,8 @@ let unsigned_of_int32 n =
   Int64.of_int32 n
 
 type endianness =
-  | LittleEndian
-  | BigEndian
+  | LE
+  | BE
 
 type bitness =
   | B32
@@ -105,13 +105,13 @@ let word_size = function
 
 let get_uint16 {endianness; _} buf idx =
   match endianness with
-  | LittleEndian -> Bytes.get_uint16_le buf idx
-  | BigEndian    -> Bytes.get_uint16_be buf idx
+  | LE -> Bytes.get_uint16_le buf idx
+  | BE -> Bytes.get_uint16_be buf idx
 
 let get_uint32 {endianness; _} buf idx =
   match endianness with
-  | LittleEndian -> Bytes.get_int32_le buf idx
-  | BigEndian    -> Bytes.get_int32_be buf idx
+  | LE -> Bytes.get_int32_le buf idx
+  | BE -> Bytes.get_int32_be buf idx
 
 let get_uint d buf idx =
   let n = get_uint32 d buf idx in
@@ -121,8 +121,8 @@ let get_uint d buf idx =
 
 let get_uint64 {endianness; _} buf idx =
   match endianness with
-  | LittleEndian -> Bytes.get_int64_le buf idx
-  | BigEndian    -> Bytes.get_int64_be buf idx
+  | LE -> Bytes.get_int64_le buf idx
+  | BE -> Bytes.get_int64_be buf idx
 
 let get_word d buf idx =
   match d.bitness with
@@ -246,8 +246,8 @@ module ELF = struct
     in
     let endianness =
       match Bytes.get identification 5 with
-      | '\x01' -> LittleEndian
-      | '\x02' -> BigEndian
+      | '\x01' -> LE
+      | '\x02' -> BE
       | _ as c -> raise (Error (Unsupported ("ELFDATA", Char.code c)))
     in
     let d = {ic; bitness; endianness} in
@@ -380,9 +380,9 @@ module Mach_O = struct
     let endianness =
       match magic, Sys.big_endian with
       | (MH_MAGIC | MH_MAGIC_64), false
-      | (MH_CIGAM | MH_CIGAM_64), true -> LittleEndian
+      | (MH_CIGAM | MH_CIGAM_64), true -> LE
       | (MH_MAGIC | MH_MAGIC_64), true
-      | (MH_CIGAM | MH_CIGAM_64), false -> BigEndian
+      | (MH_CIGAM | MH_CIGAM_64), false -> BE
     in
     let d = {ic; endianness; bitness} in
     let header = read_header d in
@@ -511,13 +511,12 @@ module FlexDLL = struct
       | 0x14c -> IMAGE_FILE_MACHINE_I386
       | n -> raise (Error (Unsupported ("MACHINETYPE", n)))
     in
-    let endianness = LittleEndian in
     let bitness =
       match machine with
       | IMAGE_FILE_MACHINE_AMD64 -> B64
-      | IMAGE_FILE_MACHINE_I386  -> B32
+      | IMAGE_FILE_MACHINE_I386 -> B32
     in
-    let d = {ic; endianness; bitness} in
+    let d = {ic; endianness = LE; bitness} in
     let header = read_header e_lfanew d buf in
     let opt_header = read_optional_header d header in
     let sections = read_sections d header in
