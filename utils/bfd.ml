@@ -413,24 +413,22 @@ module FlexDLL (R : READ) : S = struct
 
   type optional_header =
     {
-      base_of_code: int32;
       image_base: int64;
     }
 
-  let {base_of_code; image_base} =
+  let {image_base} =
     seek (Int64.add e_lfanew (Int64.of_int header_size));
     let buf          = read_bytes size_of_optional_header in
-    let base_of_code = get_int32 buf 20 in
-    let image_base   = get_word  buf (match bitness with X64 -> 24 | X86 -> 28) in
-    {base_of_code; image_base}
+    let image_base   = get_word buf (match bitness with X64 -> 24 | X86 -> 28) in
+    {image_base}
 
   type section =
     {
       name: string;
       virtual_size: int;
-      virtual_address: int32;
+      virtual_address: int64;
       size_of_raw_data: int;
-      pointer_to_raw_data: int;
+      pointer_to_raw_data: int64;
     }
 
   let section_header_size = 40
@@ -440,9 +438,9 @@ module FlexDLL (R : READ) : S = struct
     let mk buf =
       let name                = name_at ~max:8 buf 0 in
       let virtual_size        = get_int   buf 8 in
-      let virtual_address     = get_int32 buf 12 in
+      let virtual_address     = unsigned_of_int32 (get_int32 buf 12) in
       let size_of_raw_data    = get_int   buf 16 in
-      let pointer_to_raw_data = get_int   buf 20 in
+      let pointer_to_raw_data = unsigned_of_int32 (get_int32 buf 20) in
       {name; virtual_size; virtual_address; size_of_raw_data; pointer_to_raw_data}
     in
     Array.init number_of_sections (fun _ -> mk (read_bytes section_header_size))
@@ -454,7 +452,7 @@ module FlexDLL (R : READ) : S = struct
     }
 
   let read_section_body {size_of_raw_data; pointer_to_raw_data; _} =
-    seek (Int64.of_int pointer_to_raw_data);
+    seek pointer_to_raw_data;
     read_bytes size_of_raw_data
 
   let find_section sectname =
@@ -470,9 +468,7 @@ module FlexDLL (R : READ) : S = struct
             let address = get_word data (word_size + word_size * 2 * i) in
             let nameoff = get_word data (word_size + word_size * 2 * i + word_size) in
             let name    =
-              let off =
-                Int64.(sub nameoff (add (unsigned_of_int32 virtual_address) image_base))
-              in
+              let off = Int64.(sub nameoff (add virtual_address image_base)) in
               name_at data (Int64.to_int off)
             in
             {name; address}
@@ -482,7 +478,11 @@ module FlexDLL (R : READ) : S = struct
     match array_find (function {name; _} -> name = symname) symbols with
     | None -> None
     | Some {address; _} ->
-        Some Int64.(sub address (add (unsigned_of_int32 base_of_code) image_base))
+        begin match find_section ".data" with
+        | None -> None
+        | Some {virtual_address; pointer_to_raw_data; _} ->
+            Some Int64.(add pointer_to_raw_data (sub address (add virtual_address image_base)))
+        end
 
   let defines_symbol symname =
     Array.exists (fun {name; _} -> name = symname) symbols
