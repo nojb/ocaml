@@ -635,7 +635,7 @@ method emit_expr (env:environment) exp =
   match exp with
     Cconst_int (n, _dbg) ->
       let r = self#regs_for typ_int in
-      Some(self#insert_op env (Iconst_int(Nativeint.of_int n)) [||] r)
+      Some(self#insert_op env (Iconst_int(Targetint.of_int n)) [||] r)
   | Cconst_natint (n, _dbg) ->
       let r = self#regs_for typ_int in
       Some(self#insert_op env (Iconst_int n) [||] r)

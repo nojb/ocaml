@@ -23,7 +23,7 @@
 type 'a boxed_int =
   | Int32 : int32 boxed_int
   | Int64 : int64 boxed_int
-  | Nativeint : nativeint boxed_int
+  | Nativeint : Targetint.t boxed_int
 
 type value_string = {
   contents : string option;  (* [None] if unknown or mutable *)

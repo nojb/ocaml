@@ -225,7 +225,7 @@ let constant : Parsetree.constant -> (Asttypes.constant, error) result =
      end
   | Pconst_integer (i,Some 'n') ->
      begin
-       try Ok (Const_nativeint (Misc.Int_literal_converter.nativeint i))
+       try Ok (Const_nativeint (Misc.Int_literal_converter.targetint i))
        with Failure _ -> Error (Literal_overflow "nativeint")
      end
   | Pconst_integer (i,Some c) -> Error (Unknown_literal (i, c))
@@ -5103,7 +5103,7 @@ let report_literal_type_constraint expected_type const =
     | Const_int n -> Some (Int.to_string n)
     | Const_int32 n -> Some (Int32.to_string n)
     | Const_int64 n -> Some (Int64.to_string n)
-    | Const_nativeint n -> Some (Nativeint.to_string n)
+    | Const_nativeint n -> Some (Targetint.to_string n)
     | _ -> None
   in
   let suffix =

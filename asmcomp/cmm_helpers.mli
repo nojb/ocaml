@@ -31,38 +31,38 @@ val bind_nonvar :
 (** Headers *)
 
 (** A null header with GC bits set to black *)
-val caml_black : nativeint
+val caml_black : Targetint.t
 
 (** A constant equal to the tag for float arrays *)
 val floatarray_tag : Debuginfo.t -> expression
 
 (** [block_header tag size] creates a header with tag [tag] for a
     block of size [size] *)
-val block_header : int -> int -> nativeint
+val block_header : int -> int -> Targetint.t
 
 (** Same as block_header, but with GC bits set to black *)
-val black_block_header : int -> int -> nativeint
+val black_block_header : int -> int -> Targetint.t
 
 (** Closure headers of the given size *)
-val white_closure_header : int -> nativeint
-val black_closure_header : int -> nativeint
+val white_closure_header : int -> Targetint.t
+val black_closure_header : int -> Targetint.t
 
 (** Infix header at the given offset *)
-val infix_header : int -> nativeint
+val infix_header : int -> Targetint.t
 
 (** Header for a boxed float value *)
-val float_header : nativeint
+val float_header : Targetint.t
 
 (** Header for an unboxed float array of the given size *)
-val floatarray_header : int -> nativeint
+val floatarray_header : int -> Targetint.t
 
 (** Header for a string (or bytes) of the given length *)
-val string_header : int -> nativeint
+val string_header : int -> Targetint.t
 
 (** Boxed integer headers *)
-val boxedint32_header : nativeint
-val boxedint64_header : nativeint
-val boxedintnat_header : nativeint
+val boxedint32_header : Targetint.t
+val boxedint64_header : Targetint.t
+val boxedintnat_header : Targetint.t
 
 (** Wrappers *)
 val alloc_float_header : Debuginfo.t -> expression
@@ -88,7 +88,7 @@ val targetint_const : int -> Targetint.t
 (** Make a Cmm constant holding the given nativeint value.
     Uses [Cconst_int] instead of [Cconst_nativeint] when possible
     to preserve peephole optimisations. *)
-val natint_const_untagged : Debuginfo.t -> Nativeint.t -> expression
+val natint_const_untagged : Debuginfo.t -> Targetint.t -> expression
 
 (** Add an integer to the given expression *)
 val add_const : expression -> int -> Debuginfo.t -> expression
@@ -618,7 +618,7 @@ val cdefine_symbol : (string * Cmmgen_state.is_global) -> data_item list
     [cont] must already contain the fields of the block (and may contain
     additional data items afterwards). *)
 val emit_block :
-  (string * Cmmgen_state.is_global) -> nativeint -> data_item list ->
+  (string * Cmmgen_state.is_global) -> Targetint.t -> data_item list ->
   data_item list
 
 (** Emit specific kinds of constant blocks as data items *)
@@ -635,7 +635,7 @@ val emit_int64_constant :
   (string * Cmmgen_state.is_global) -> int64 -> data_item list ->
   data_item list
 val emit_nativeint_constant :
-  (string * Cmmgen_state.is_global) -> nativeint -> data_item list ->
+  (string * Cmmgen_state.is_global) -> Targetint.t -> data_item list ->
   data_item list
 val emit_float_array_constant :
   (string * Cmmgen_state.is_global) -> float list -> data_item list ->

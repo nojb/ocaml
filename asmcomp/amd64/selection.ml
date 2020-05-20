@@ -131,7 +131,8 @@ method is_immediate n = n <= 0x7FFF_FFFF && n >= (-1-0x7FFF_FFFF)
   (* -1-.... : hack so that this can be compiled on 32-bit
      (cf 'make check_all_arches') *)
 
-method is_immediate_natint n = n <= 0x7FFFFFFFn && n >= -0x80000000n
+method is_immediate_natint n =
+  n <= Targetint.of_int64 0x7FFFFFFFL && n >= Targetint.of_int64 (-0x80000000L)
 
 method! is_simple_expr e =
   match e with
@@ -170,7 +171,7 @@ method select_addressing _chunk exp =
 method! select_store is_assign addr exp =
   match exp with
     Cconst_int (n, _dbg) when self#is_immediate n ->
-      (Ispecific(Istore_int(Nativeint.of_int n, addr, is_assign)), Ctuple [])
+      (Ispecific(Istore_int(Targetint.of_int n, addr, is_assign)), Ctuple [])
   | (Cconst_natint (n, _dbg)) when self#is_immediate_natint n ->
       (Ispecific(Istore_int(n, addr, is_assign)), Ctuple [])
   | (Cblockheader(n, _dbg))
@@ -238,9 +239,11 @@ method! select_operation op args dbg =
   | Cand ->
     begin match args with
     | [arg; Cconst_int (0xffff_ffff, _)]
-    | [arg; Cconst_natint (0xffff_ffffn, _)]
-    | [Cconst_int (0xffff_ffff, _); arg]
-    | [Cconst_natint (0xffff_ffffn, _); arg] ->
+    | [Cconst_int (0xffff_ffff, _); arg] ->
+      Ispecific Izextend32, [arg]
+    | [arg; Cconst_natint (n, _)] when n = Targetint.of_int64 0xffff_ffffL ->
+      Ispecific Izextend32, [arg]
+    | [Cconst_natint (n, _); arg] when n = Targetint.of_int64 0xffff_ffffL ->
       Ispecific Izextend32, [arg]
     | _ -> super#select_operation op args dbg
     end

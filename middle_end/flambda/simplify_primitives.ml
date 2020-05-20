@@ -174,7 +174,7 @@ let primitive (p : Clambda_primitives.primitive) (args, approxs)
       | Poffsetint y -> S.const_int_expr expr (x + y)
       | Pfloatofint when fpc -> S.const_float_expr expr (float_of_int x)
       | Pbintofint Pnativeint ->
-        S.const_boxed_int_expr expr Nativeint (Nativeint.of_int x)
+        S.const_boxed_int_expr expr Nativeint (Targetint.of_int x)
       | Pbintofint Pint32 -> S.const_boxed_int_expr expr Int32 (Int32.of_int x)
       | Pbintofint Pint64 -> S.const_boxed_int_expr expr Int64 (Int64.of_int x)
       | _ -> expr, A.value_unknown Other, C.Benefit.zero

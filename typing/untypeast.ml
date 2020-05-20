@@ -136,7 +136,7 @@ let constant = function
   | Const_int i -> Pconst_integer (Int.to_string i, None)
   | Const_int32 i -> Pconst_integer (Int32.to_string i, Some 'l')
   | Const_int64 i -> Pconst_integer (Int64.to_string i, Some 'L')
-  | Const_nativeint i -> Pconst_integer (Nativeint.to_string i, Some 'n')
+  | Const_nativeint i -> Pconst_integer (Targetint.to_string i, Some 'n')
   | Const_float f -> Pconst_float (f,None)
 
 let attribute sub a = {

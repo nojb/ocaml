@@ -27,10 +27,10 @@
 open X86_ast
 
 val sym: string -> arg
-val nat: nativeint -> arg
+val nat: Targetint.t -> arg
 val int: int -> arg
 val const_32: int32 -> constant
-val const_nat: nativeint -> constant
+val const_nat: Targetint.t -> constant
 val const: int -> constant
 val al: arg
 val ah: arg

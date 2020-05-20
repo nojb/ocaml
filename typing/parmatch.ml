@@ -1194,7 +1194,7 @@ let build_other ext env =
           build_other_constant
             (function Constant(Const_nativeint i) -> i | _ -> assert false)
             (function i -> Tpat_constant(Const_nativeint i))
-            0n Nativeint.succ d env
+            Targetint.zero Targetint.succ d env
       | Constant Const_string _ ->
           build_other_constant
             (function Constant(Const_string (s, _, _)) -> String.length s

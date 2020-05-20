@@ -182,7 +182,7 @@ let transl_constant dbg = function
       if n <= max_repr_int && n >= min_repr_int
       then Cconst_int((n lsl 1) + 1, dbg)
       else Cconst_natint
-              (Nativeint.add (Nativeint.shift_left (Nativeint.of_int n) 1) 1n,
+              (Targetint.add (Targetint.shift_left (Targetint.of_int n) 1) Targetint.one,
                dbg)
   | Uconst_ref (label, _) ->
       Cconst_symbol (label, dbg)
@@ -224,17 +224,17 @@ let box_int_constant sym bi n =
     Pnativeint ->
       emit_nativeint_constant (sym, Local) n []
   | Pint32 ->
-      let n = Nativeint.to_int32 n in
+      let n = Targetint.to_int32 n in
       emit_int32_constant (sym, Local) n []
   | Pint64 ->
-      let n = Int64.of_nativeint n in
+      let n = Targetint.to_int64 n in
       emit_int64_constant (sym, Local) n []
 
 let box_int dbg bi arg =
   match arg with
   | Cconst_int (n, _) ->
       let sym = Compilenv.new_const_symbol () in
-      let data_items = box_int_constant sym bi (Nativeint.of_int n) in
+      let data_items = box_int_constant sym bi (Targetint.of_int n) in
       Cmmgen_state.add_data_items data_items;
       Cconst_symbol (sym, dbg)
   | Cconst_natint (n, _) ->
@@ -318,20 +318,20 @@ let is_unboxed_number_cmm ~strict cmm =
   in
   let rec aux = function
     | Cop(Calloc, [Cblockheader (hdr, _); _], dbg)
-      when Nativeint.equal hdr float_header ->
+      when Targetint.equal hdr float_header ->
         notify (Boxed (Boxed_float dbg, false))
     | Cop(Calloc, [Cblockheader (hdr, _); Cconst_symbol (ops, _); _], dbg) ->
-        if Nativeint.equal hdr boxedintnat_header
+        if Targetint.equal hdr boxedintnat_header
         && String.equal ops caml_nativeint_ops
         then
           notify (Boxed (Boxed_integer (Pnativeint, dbg), false))
         else
-        if Nativeint.equal hdr boxedint32_header
+        if Targetint.equal hdr boxedint32_header
         && String.equal ops caml_int32_ops
         then
           notify (Boxed (Boxed_integer (Pint32, dbg), false))
         else
-        if Nativeint.equal hdr boxedint64_header
+        if Targetint.equal hdr boxedint64_header
         && String.equal ops caml_int64_ops
         then
           notify (Boxed (Boxed_integer (Pint64, dbg), false))

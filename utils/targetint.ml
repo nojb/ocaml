@@ -57,6 +57,7 @@ module type S = sig
   val compare: t -> t -> int
   val unsigned_compare : t -> t -> int
   val equal: t -> t -> bool
+  val swap: t -> t
   val repr: t -> repr
   val print : Format.formatter -> t -> unit
 end
@@ -74,7 +75,7 @@ module Int32 = struct
     | 64 ->
         fun n ->
           if n < Int32.(to_int min_int) || n > Int32.(to_int max_int) then
-            Misc.fatal_errorf "Targetint.of_int_exn: 0x%x out of range" n
+            Printf.ksprintf failwith "Targetint.of_int_exn: 0x%x out of range" n
           else
             Int32.of_int n
     | _ ->
@@ -85,6 +86,7 @@ module Int32 = struct
   let to_int64 = Int64.of_int32
   let repr x = Int32 x
   let print ppf t = Format.fprintf ppf "%ld" t
+  external swap : t -> t = "%bswap_int32"
 end
 
 module Int64 = struct
@@ -94,6 +96,7 @@ module Int64 = struct
   let to_int64 x = x
   let repr x = Int64 x
   let print ppf t = Format.fprintf ppf "%Ld" t
+  external swap : t -> t = "%bswap_int64"
 end
 
 include (val

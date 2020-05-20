@@ -546,7 +546,7 @@ let emit_instr fallthrough i =
         | _ -> I.mov (reg src) (reg dst)
         end
   | Lop(Iconst_int n) ->
-      if n = 0n then begin
+      if n = Targetint.zero then begin
         match i.res.(0).loc with
         | Reg _ ->
           (* Clearing the bottom half also clears the top half (except for
@@ -555,7 +555,7 @@ let emit_instr fallthrough i =
           I.xor (res32 i 0) (res32 i 0)
         | _ ->
           I.mov (int 0) (res i 0)
-      end else if n > 0n && n <= 0xFFFF_FFFFn then begin
+      end else if n > Targetint.zero && n <= Targetint.of_int64 0xFFFF_FFFFL then begin
         match i.res.(0).loc with
         | Reg _ ->
           (* Similarly, setting only the bottom half clears the top half. *)

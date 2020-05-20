@@ -145,10 +145,10 @@ let operation d = function
 let rec expr ppf = function
   | Cconst_int (n, _dbg) -> fprintf ppf "%i" n
   | Cconst_natint (n, _dbg) ->
-    fprintf ppf "%s" (Nativeint.to_string n)
+    fprintf ppf "%s" (Targetint.to_string n)
   | Cblockheader(n, d) ->
     fprintf ppf "block-hdr(%s)%s"
-      (Nativeint.to_string n) (location d)
+      (Targetint.to_string n) (location d)
   | Cconst_float (n, _dbg) -> fprintf ppf "%F" n
   | Cconst_symbol (s, _dbg) -> fprintf ppf "\"%s\"" s
   | Cvar id -> V.print ppf id
@@ -276,8 +276,8 @@ let data_item ppf = function
   | Cglobal_symbol s -> fprintf ppf "global \"%s\"" s
   | Cint8 n -> fprintf ppf "byte %i" n
   | Cint16 n -> fprintf ppf "int16 %i" n
-  | Cint32 n -> fprintf ppf "int32 %s" (Nativeint.to_string n)
-  | Cint n -> fprintf ppf "int %s" (Nativeint.to_string n)
+  | Cint32 n -> fprintf ppf "int32 %s" (Targetint.to_string n)
+  | Cint n -> fprintf ppf "int %s" (Targetint.to_string n)
   | Csingle f -> fprintf ppf "single %F" f
   | Cdouble f -> fprintf ppf "double %F" f
   | Csymbol_address s -> fprintf ppf "addr \"%s\"" s

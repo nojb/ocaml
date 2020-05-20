@@ -196,6 +196,8 @@ val unsigned_compare: t -> t -> int
 val equal: t -> t -> bool
 (** The equal function for target ints. *)
 
+val swap: t -> t
+
 type repr =
   | Int32 of int32
   | Int64 of int64

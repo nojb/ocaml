@@ -144,10 +144,10 @@ and operation =
 
 type expression =
     Cconst_int of int * Debuginfo.t
-  | Cconst_natint of nativeint * Debuginfo.t
+  | Cconst_natint of Targetint.t * Debuginfo.t
   | Cconst_float of float * Debuginfo.t
   | Cconst_symbol of string * Debuginfo.t
-  | Cblockheader of nativeint * Debuginfo.t
+  | Cblockheader of Targetint.t * Debuginfo.t
   | Cvar of Backend_var.t
   | Clet of Backend_var.With_provenance.t * expression * expression
   | Clet_mut of Backend_var.With_provenance.t * machtype
@@ -188,8 +188,8 @@ type data_item =
   | Cglobal_symbol of string
   | Cint8 of int
   | Cint16 of int
-  | Cint32 of nativeint
-  | Cint of nativeint
+  | Cint32 of Targetint.t
+  | Cint of Targetint.t
   | Csingle of float
   | Cdouble of float
   | Csymbol_address of string

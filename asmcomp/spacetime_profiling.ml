@@ -131,7 +131,7 @@ let code_for_function_prologue ~function_name ~fun_dbg:dbg ~node_hole =
           dbg)))
 
 let code_for_blockheader ~value's_header ~node ~dbg =
-  let num_words = Nativeint.shift_right_logical value's_header 10 in
+  let num_words = Targetint.shift_right_logical value's_header 10 in
   let existing_profinfo = V.create_local "existing_profinfo" in
   let existing_count = V.create_local "existing_count" in
   let profinfo = V.create_local "profinfo" in
@@ -189,20 +189,20 @@ let code_for_blockheader ~value's_header ~node ~dbg =
                   Cvar existing_count;
                   (* N.B. "*2" since the count is an OCaml integer.
                      The "1 +" is to count the value's header. *)
-                  cconst_int (2 * (1 + Nativeint.to_int num_words));
+                  cconst_int (2 * (1 + Targetint.to_int num_words));
                 ], dbg);
               ], dbg),
             (* [profinfo] looks like a black [Infix_tag] header.  Instead of
                having to mask [profinfo] before ORing it with the desired
                header, we can use an XOR trick, to keep code size down. *)
             let value's_header =
-              Nativeint.logxor value's_header
-                (Nativeint.logor
-                  ((Nativeint.logor (Nativeint.of_int Obj.infix_tag)
-                    (Nativeint.shift_left 3n (* <- Caml_black *) 8)))
-                  (Nativeint.shift_left
+              Targetint.logxor value's_header
+                (Targetint.logor
+                  ((Targetint.logor (Targetint.of_int Obj.infix_tag)
+                    (Targetint.shift_left (Targetint.of_int 3) (* <- Caml_black *) 8)))
+                  (Targetint.shift_left
                     (* The following is the [Infix_offset_val], in words. *)
-                    (Nativeint.of_int (index_within_node + 1)) 10))
+                    (Targetint.of_int (index_within_node + 1)) 10))
             in
             Cop (Cxor, [Cvar profinfo; cconst_natint value's_header], dbg))))))
 

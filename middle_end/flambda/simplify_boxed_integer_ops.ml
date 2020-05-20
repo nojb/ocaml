@@ -96,9 +96,7 @@ end) : Simplify_boxed_integer_ops_intf.S with type t := I.t = struct
 end
 
 module Simplify_boxed_nativeint = Simplify_boxed_integer_operator (struct
-  include Nativeint
-  let to_int64 = Int64.of_nativeint
-  let swap = S.swapnative
+  include Targetint
   let kind = Lambda.Pnativeint
 end)
 

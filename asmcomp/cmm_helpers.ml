@@ -39,7 +39,7 @@ let bind_nonvar name arg fn =
   | Cblockheader _ -> fn arg
   | _ -> let id = V.create_local name in Clet(VP.create id, arg, fn (Cvar id))
 
-let caml_black = Nativeint.shift_left (Nativeint.of_int 3) 8
+let caml_black = Targetint.shift_left (Targetint.of_int 3) 8
     (* cf. runtime/caml/gc.h *)
 
 (* Block headers. Meaning of the tag field: see stdlib/obj.ml *)
@@ -47,12 +47,12 @@ let caml_black = Nativeint.shift_left (Nativeint.of_int 3) 8
 let floatarray_tag dbg = Cconst_int (Obj.double_array_tag, dbg)
 
 let block_header tag sz =
-  Nativeint.add (Nativeint.shift_left (Nativeint.of_int sz) 10)
-                (Nativeint.of_int tag)
+  Targetint.add (Targetint.shift_left (Targetint.of_int sz) 10)
+    (Targetint.of_int tag)
 (* Static data corresponding to "value"s must be marked black in case we are
    in no-naked-pointers mode.  See [caml_darken] and the code below that emits
    structured constants and static module definitions. *)
-let black_block_header tag sz = Nativeint.logor (block_header tag sz) caml_black
+let black_block_header tag sz = Targetint.logor (block_header tag sz) caml_black
 let white_closure_header sz = block_header Obj.closure_tag sz
 let black_closure_header sz = black_block_header Obj.closure_tag sz
 let infix_header ofs = block_header Obj.infix_tag ofs
@@ -90,16 +90,16 @@ let int_const dbg n =
   if n <= max_repr_int && n >= min_repr_int
   then Cconst_int((n lsl 1) + 1, dbg)
   else Cconst_natint
-          (Nativeint.add (Nativeint.shift_left (Nativeint.of_int n) 1) 1n, dbg)
+          (Targetint.add (Targetint.shift_left (Targetint.of_int n) 1) Targetint.one, dbg)
 
 let natint_const_untagged dbg n =
-  if n > Nativeint.of_int max_int
-  || n < Nativeint.of_int min_int
+  if n > Targetint.of_int max_int
+  || n < Targetint.of_int min_int
   then Cconst_natint (n,dbg)
-  else Cconst_int (Nativeint.to_int n, dbg)
+  else Cconst_int (Targetint.to_int n, dbg)
 
 let cint_const n =
-  Cint(Nativeint.add (Nativeint.shift_left (Nativeint.of_int n) 1) 1n)
+  Cint(Targetint.add (Targetint.shift_left (Targetint.of_int n) 1) Targetint.one)
 
 let targetint_const n =
   Targetint.add (Targetint.shift_left (Targetint.of_int n) 1)
@@ -277,11 +277,11 @@ let mk_compare_ints dbg a1 a2 =
   | Cconst_int (c1, _), Cconst_int (c2, _) ->
      int_const dbg (Int.compare c1 c2)
   | Cconst_natint (c1, _), Cconst_natint (c2, _) ->
-     int_const dbg (Nativeint.compare c1 c2)
+     int_const dbg (Targetint.compare c1 c2)
   | Cconst_int (c1, _), Cconst_natint (c2, _) ->
-     int_const dbg Nativeint.(compare (of_int c1) c2)
+     int_const dbg Targetint.(compare (of_int c1) c2)
   | Cconst_natint (c1, _), Cconst_int (c2, _) ->
-     int_const dbg Nativeint.(compare c1 (of_int c2))
+     int_const dbg Targetint.(compare c1 (of_int c2))
   | a1, a2 -> begin
       let op1 = Cop(Ccmpi(Cgt), [a1; a2], dbg) in
       let op2 = Cop(Ccmpi(Clt), [a1; a2], dbg) in
@@ -300,14 +300,14 @@ let create_loop body dbg =
 
 (* Unsigned comparison between native integers. *)
 
-let ucompare x y = Nativeint.(compare (add x min_int) (add y min_int))
+let ucompare x y = Targetint.(compare (add x min_int) (add y min_int))
 
 (* Unsigned division and modulus at type nativeint.
    Algorithm: Hacker's Delight section 9.3 *)
 
-let udivmod n d = Nativeint.(
-  if d < 0n then
-    if ucompare n d < 0 then (0n, n) else (1n, sub n d)
+let udivmod n d = Targetint.(
+  if d < zero then
+    if ucompare n d < 0 then (zero, n) else (one, sub n d)
   else begin
     let q = shift_left (div (shift_right_logical n 1) d) 1 in
     let r = sub n (mul q d) in
@@ -317,8 +317,8 @@ let udivmod n d = Nativeint.(
 (* Compute division parameters.
    Algorithm: Hacker's Delight chapter 10, fig 10-1. *)
 
-let divimm_parameters d = Nativeint.(
-  assert (d > 0n);
+let divimm_parameters d = Targetint.(
+  assert (d > zero);
   let twopsm1 = min_int in (* 2^31 for 32-bit archs, 2^63 for 64-bit archs *)
   let nc = sub (pred twopsm1) (snd (udivmod twopsm1 d)) in
   let rec loop p (q1, r1) (q2, r2) =
@@ -330,7 +330,7 @@ let divimm_parameters d = Nativeint.(
     let (q2, r2) =
       if ucompare r2 d >= 0 then (succ q2, sub r2 d) else (q2, r2) in
     let delta = sub d r2 in
-    if ucompare q1 delta < 0 || (q1 = delta && r1 = 0n)
+    if ucompare q1 delta < 0 || (q1 = delta && r1 = zero)
     then loop p (q1, r1) (q2, r2)
     else (succ q2, p - size)
   in loop (size - 1) (udivmod twopsm1 nc) (udivmod twopsm1 d))
@@ -406,7 +406,7 @@ let rec div_int c1 c2 is_safe dbg =
         Cop(Casr, [bind "dividend" c1 (fun c1 ->
                      let t = asr_int c1 (Cconst_int (l - 1, dbg)) dbg in
                      let t =
-                       lsr_int t (Cconst_int (Nativeint.size - l, dbg)) dbg
+                       lsr_int t (Cconst_int (Targetint.size - l, dbg)) dbg
                      in
                      add_int c1 t dbg);
                    Cconst_int (l, dbg)], dbg)
@@ -415,7 +415,7 @@ let rec div_int c1 c2 is_safe dbg =
           (div_int c1 (Cconst_int (-n, dbg)) is_safe dbg)
           dbg
       else begin
-        let (m, p) = divimm_parameters (Nativeint.of_int n) in
+        let (m, p) = divimm_parameters (Targetint.of_int n) in
         (* Algorithm:
               t = multiply-high-signed(c1, m)
               if m < 0, t = t + c1
@@ -424,11 +424,11 @@ let rec div_int c1 c2 is_safe dbg =
         *)
         bind "dividend" c1 (fun c1 ->
           let t = Cop(Cmulhi, [c1; Cconst_natint (m, dbg)], dbg) in
-          let t = if m < 0n then Cop(Caddi, [t; c1], dbg) else t in
+          let t = if m < Targetint.zero then Cop(Caddi, [t; c1], dbg) else t in
           let t =
             if p > 0 then Cop(Casr, [t; Cconst_int (p, dbg)], dbg) else t
           in
-          add_int t (lsr_int c1 (Cconst_int (Nativeint.size - 1, dbg)) dbg) dbg)
+          add_int t (lsr_int c1 (Cconst_int (Targetint.size - 1, dbg)) dbg) dbg)
       end
   | (c1, c2) when !Clflags.unsafe || is_safe = Lambda.Unsafe ->
       Cop(Cdivi, [c1; c2], dbg)
@@ -487,7 +487,7 @@ let mod_int c1 c2 is_safe dbg =
 
 let is_different_from x = function
     Cconst_int (n, _) -> n <> x
-  | Cconst_natint (n, _) -> n <> Nativeint.of_int x
+  | Cconst_natint (n, _) -> n <> Targetint.of_int x
   | _ -> false
 
 let safe_divmod_bi mkop is_safe mkm1 c1 c2 bi dbg =
@@ -533,7 +533,7 @@ let unbox_float dbg =
   map_tail
     (function
       | Cop(Calloc, [Cblockheader (hdr, _); c], _)
-        when Nativeint.equal hdr float_header ->
+        when Targetint.equal hdr float_header ->
           c
       | Cconst_symbol (s, _dbg) as cmm ->
           begin match Cmmgen_state.structured_constant_of_sym s with
@@ -946,8 +946,9 @@ let rec low_32 dbg = function
   | x when size_int = 4 -> x
     (* Ignore sign and zero extensions, which do not affect the low bits *)
   | Cop(Casr, [Cop(Clsl, [x; Cconst_int (32, _)], _);
-               Cconst_int (32, _)], _)
-  | Cop(Cand, [x; Cconst_natint (0xFFFFFFFFn, _)], _) ->
+               Cconst_int (32, _)], _) ->
+    low_32 dbg x
+  | Cop(Cand, [x; Cconst_natint (n, _)], _) when n = Targetint.of_int64 0xFFFFFFFFL ->
     low_32 dbg x
   | Clet(id, e, body) ->
     Clet(id, e, low_32 dbg body)
@@ -964,7 +965,7 @@ let sign_extend_32 dbg e =
    (if the word size is 32, this is a no-op) *)
 let zero_extend_32 dbg e =
   if size_int = 4 then e else
-    Cop(Cand, [low_32 dbg e; Cconst_natint(0xFFFFFFFFn, dbg)], dbg)
+    Cop(Cand, [low_32 dbg e; Cconst_natint(Targetint.of_int64 0xFFFFFFFFL, dbg)], dbg)
 
 (* Boxed integers *)
 
@@ -1002,13 +1003,13 @@ let split_int64_for_32bit_target arg dbg =
 let alloc_matches_boxed_int bi ~hdr ~ops =
   match (bi : Primitive.boxed_integer), hdr, ops with
   | Pnativeint, Cblockheader (hdr, _dbg), Cconst_symbol (sym, _) ->
-      Nativeint.equal hdr boxedintnat_header
+      Targetint.equal hdr boxedintnat_header
         && String.equal sym caml_nativeint_ops
   | Pint32, Cblockheader (hdr, _dbg), Cconst_symbol (sym, _) ->
-      Nativeint.equal hdr boxedint32_header
+      Targetint.equal hdr boxedint32_header
         && String.equal sym caml_int32_ops
   | Pint64, Cblockheader (hdr, _dbg), Cconst_symbol (sym, _) ->
-      Nativeint.equal hdr boxedint64_header
+      Targetint.equal hdr boxedint64_header
         && String.equal sym caml_int64_ops
   | (Pnativeint | Pint32 | Pint64), _, _ -> false
 
@@ -1045,14 +1046,14 @@ let unbox_int dbg bi =
           | Some (Uconst_nativeint n), Primitive.Pnativeint ->
               Cconst_natint (n, dbg)
           | Some (Uconst_int32 n), Primitive.Pint32 ->
-              Cconst_natint (Nativeint.of_int32 n, dbg)
+              Cconst_natint (Targetint.of_int32 n, dbg)
           | Some (Uconst_int64 n), Primitive.Pint64 ->
               if size_int = 8 then
-                Cconst_natint (Int64.to_nativeint n, dbg)
+                Cconst_natint (Targetint.of_int64 n, dbg)
               else
-                let low = Int64.to_nativeint n in
+                let low = Targetint.of_int64 n in
                 let high =
-                  Int64.to_nativeint (Int64.shift_right_logical n 32)
+                  Targetint.of_int64 (Int64.shift_right_logical n 32)
                 in
                 if big_endian then
                   Ctuple [Cconst_natint (high, dbg); Cconst_natint (low, dbg)]
@@ -1407,9 +1408,9 @@ let make_switch arg cases actions dbg =
     (* Constant integers loaded from a table should end in 1,
        so that Cload never produces untagged integers *)
     | Cconst_int     (n, _), _dbg when (n land 1) = 1 ->
-        Some (Cint (Nativeint.of_int n))
+        Some (Cint (Targetint.of_int n))
     | Cconst_natint     (n, _), _dbg
-      when Nativeint.(to_int (logand n one) = 1) ->
+      when Targetint.(to_int (logand n one) = 1) ->
         Some (Cint n)
     | Cconst_symbol (s,_), _dbg ->
         Some (Csymbol_address s)
@@ -1421,9 +1422,9 @@ let make_switch arg cases actions dbg =
     then begin
       match const_actions.(cases.(0)), const_actions.(cases.(1)) with
       | Cint v0, Cint v1 ->
-          let slope = Nativeint.sub v1 v0 in
+          let slope = Targetint.sub v1 v0 in
           let check i = function
-            | Cint v -> v = Nativeint.(add (mul (of_int i) slope) v0)
+            | Cint v -> v = Targetint.(add (mul (of_int i) slope) v0)
             | _ -> false
           in
           if Misc.Stdlib.Array.for_alli
@@ -2476,7 +2477,7 @@ let cdefine_symbol (symb, (global: Cmmgen_state.is_global)) =
 let emit_block symb white_header cont =
   (* Headers for structured constants must be marked black in case we
      are in no-naked-pointers mode.  See [caml_darken]. *)
-  let black_header = Nativeint.logor white_header caml_black in
+  let black_header = Targetint.logor white_header caml_black in
   Cint black_header :: cdefine_symbol symb @ cont
 
 let emit_string_constant_fields s cont =
@@ -2484,18 +2485,18 @@ let emit_string_constant_fields s cont =
   Cstring s :: Cskip n :: Cint8 n :: cont
 
 let emit_boxed_int32_constant_fields n cont =
-  let n = Nativeint.of_int32 n in
+  let n = Targetint.of_int32 n in
   if size_int = 8 then
-    Csymbol_address caml_int32_ops :: Cint32 n :: Cint32 0n :: cont
+    Csymbol_address caml_int32_ops :: Cint32 n :: Cint32 Targetint.zero :: cont
   else
     Csymbol_address caml_int32_ops :: Cint n :: cont
 
 let emit_boxed_int64_constant_fields n cont =
-  let lo = Int64.to_nativeint n in
+  let lo = Targetint.of_int64 n in
   if size_int = 8 then
     Csymbol_address caml_int64_ops :: Cint lo :: cont
   else begin
-    let hi = Int64.to_nativeint (Int64.shift_right n 32) in
+    let hi = Targetint.of_int64 (Int64.shift_right n 32) in
     if big_endian then
       Csymbol_address caml_int64_ops :: Cint hi :: Cint lo :: cont
     else
@@ -2559,7 +2560,7 @@ let entry_point namelist =
 
 (* Generate the table of globals *)
 
-let cint_zero = Cint 0n
+let cint_zero = Cint Targetint.zero
 
 let global_table namelist =
   let mksym name =
@@ -2730,7 +2731,7 @@ let emit_gc_roots_table ~symbols cont =
   Cdata(Cglobal_symbol table_symbol ::
         Cdefine_symbol table_symbol ::
         List.map (fun s -> Csymbol_address s) symbols @
-        [Cint 0n])
+        [Cint Targetint.zero])
   :: cont
 
 (* Build preallocated blocks (used for Flambda [Initialize_symbol]
@@ -2745,7 +2746,7 @@ let preallocate_block cont { Clambda.symbol; exported; tag; fields } =
     List.map (fun field ->
         match field with
         | None ->
-            Cint (Nativeint.of_int 1 (* Val_unit *))
+            Cint (Targetint.one (* Val_unit *))
         | Some (Clambda.Uconst_field_int n) ->
             cint_const n
         | Some (Clambda.Uconst_field_ref label) ->
