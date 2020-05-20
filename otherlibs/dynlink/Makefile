@@ -72,6 +72,7 @@ COMPILERLIBS_INTFS=\
 COMPILERLIBS_SOURCES=\
   utils/config.ml \
   utils/build_path_prefix_map.ml \
+  utils/targetint.ml \
   utils/misc.ml \
   utils/identifiable.ml \
   utils/numbers.ml \
