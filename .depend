@@ -78,14 +78,17 @@ utils/load_path.cmx : \
     utils/load_path.cmi
 utils/load_path.cmi :
 utils/misc.cmo : \
+    utils/targetint.cmi \
     utils/config.cmi \
     utils/build_path_prefix_map.cmi \
     utils/misc.cmi
 utils/misc.cmx : \
+    utils/targetint.cmx \
     utils/config.cmx \
     utils/build_path_prefix_map.cmx \
     utils/misc.cmi
 utils/misc.cmi : \
+    utils/targetint.cmi \
     utils/build_path_prefix_map.cmi
 utils/numbers.cmo : \
     utils/misc.cmi \
@@ -117,10 +120,8 @@ utils/strongly_connected_components.cmx : \
 utils/strongly_connected_components.cmi : \
     utils/identifiable.cmi
 utils/targetint.cmo : \
-    utils/misc.cmi \
     utils/targetint.cmi
 utils/targetint.cmx : \
-    utils/misc.cmx \
     utils/targetint.cmi
 utils/targetint.cmi :
 utils/terminfo.cmo : \
@@ -214,6 +215,7 @@ parsing/ast_mapper.cmi : \
     parsing/parsetree.cmi \
     parsing/location.cmi
 parsing/asttypes.cmi : \
+    utils/targetint.cmi \
     parsing/location.cmi
 parsing/attr_helper.cmo : \
     parsing/parsetree.cmi \
@@ -768,6 +770,7 @@ typing/parmatch.cmo : \
     typing/types.cmi \
     typing/typedtree.cmi \
     typing/tast_iterator.cmi \
+    utils/targetint.cmi \
     typing/subst.cmi \
     typing/printpat.cmi \
     typing/predef.cmi \
@@ -790,6 +793,7 @@ typing/parmatch.cmx : \
     typing/types.cmx \
     typing/typedtree.cmx \
     typing/tast_iterator.cmx \
+    utils/targetint.cmx \
     typing/subst.cmx \
     typing/printpat.cmx \
     typing/predef.cmx \
@@ -894,12 +898,14 @@ typing/primitive.cmi : \
 typing/printpat.cmo : \
     typing/types.cmi \
     typing/typedtree.cmi \
+    utils/targetint.cmi \
     typing/ident.cmi \
     parsing/asttypes.cmi \
     typing/printpat.cmi
 typing/printpat.cmx : \
     typing/types.cmx \
     typing/typedtree.cmx \
+    utils/targetint.cmx \
     typing/ident.cmx \
     parsing/asttypes.cmi \
     typing/printpat.cmi
@@ -959,6 +965,7 @@ typing/printtyp.cmi : \
 typing/printtyped.cmo : \
     typing/types.cmi \
     typing/typedtree.cmi \
+    utils/targetint.cmi \
     parsing/printast.cmi \
     typing/path.cmi \
     parsing/parsetree.cmi \
@@ -971,6 +978,7 @@ typing/printtyped.cmo : \
 typing/printtyped.cmx : \
     typing/types.cmx \
     typing/typedtree.cmx \
+    utils/targetint.cmx \
     parsing/printast.cmx \
     typing/path.cmx \
     parsing/parsetree.cmi \
@@ -1159,6 +1167,7 @@ typing/typecore.cmo : \
     typing/types.cmi \
     typing/typedtree.cmi \
     typing/typedecl.cmi \
+    utils/targetint.cmi \
     typing/subst.cmi \
     typing/rec_check.cmi \
     typing/printtyp.cmi \
@@ -1190,6 +1199,7 @@ typing/typecore.cmx : \
     typing/types.cmx \
     typing/typedtree.cmx \
     typing/typedecl.cmx \
+    utils/targetint.cmx \
     typing/subst.cmx \
     typing/rec_check.cmx \
     typing/printtyp.cmx \
@@ -1653,6 +1663,7 @@ typing/typetexp.cmi : \
     parsing/asttypes.cmi
 typing/untypeast.cmo : \
     typing/typedtree.cmi \
+    utils/targetint.cmi \
     typing/path.cmi \
     parsing/parsetree.cmi \
     parsing/longident.cmi \
@@ -1664,6 +1675,7 @@ typing/untypeast.cmo : \
     typing/untypeast.cmi
 typing/untypeast.cmx : \
     typing/typedtree.cmx \
+    utils/targetint.cmx \
     typing/path.cmx \
     parsing/parsetree.cmi \
     parsing/longident.cmx \
@@ -2001,9 +2013,11 @@ asmcomp/afl_instrument.cmi : \
     lambda/debuginfo.cmi \
     asmcomp/cmm.cmi
 asmcomp/arch.cmo : \
+    utils/targetint.cmi \
     utils/config.cmi \
     utils/clflags.cmi
 asmcomp/arch.cmx : \
+    utils/targetint.cmx \
     utils/config.cmx \
     utils/clflags.cmx
 asmcomp/asmgen.cmo : \
@@ -2314,6 +2328,7 @@ asmcomp/cmm_helpers.cmi : \
     parsing/asttypes.cmi
 asmcomp/cmmgen.cmo : \
     typing/types.cmi \
+    utils/targetint.cmi \
     middle_end/printclambda_primitives.cmi \
     typing/primitive.cmi \
     utils/misc.cmi \
@@ -2334,6 +2349,7 @@ asmcomp/cmmgen.cmo : \
     asmcomp/cmmgen.cmi
 asmcomp/cmmgen.cmx : \
     typing/types.cmx \
+    utils/targetint.cmx \
     middle_end/printclambda_primitives.cmx \
     typing/primitive.cmx \
     utils/misc.cmx \
@@ -2420,6 +2436,7 @@ asmcomp/emit.cmo : \
     asmcomp/x86_gas.cmi \
     asmcomp/x86_dsl.cmi \
     asmcomp/x86_ast.cmi \
+    utils/targetint.cmi \
     asmcomp/reg.cmi \
     asmcomp/proc.cmi \
     utils/numbers.cmi \
@@ -2442,6 +2459,7 @@ asmcomp/emit.cmx : \
     asmcomp/x86_gas.cmx \
     asmcomp/x86_dsl.cmx \
     asmcomp/x86_ast.cmi \
+    utils/targetint.cmx \
     asmcomp/reg.cmx \
     asmcomp/proc.cmx \
     utils/numbers.cmx \
@@ -2579,6 +2597,7 @@ asmcomp/liveness.cmx : \
 asmcomp/liveness.cmi : \
     asmcomp/mach.cmi
 asmcomp/mach.cmo : \
+    utils/targetint.cmi \
     asmcomp/debug/reg_with_debug_info.cmi \
     asmcomp/debug/reg_availability_set.cmi \
     asmcomp/reg.cmi \
@@ -2589,6 +2608,7 @@ asmcomp/mach.cmo : \
     asmcomp/arch.cmo \
     asmcomp/mach.cmi
 asmcomp/mach.cmx : \
+    utils/targetint.cmx \
     asmcomp/debug/reg_with_debug_info.cmx \
     asmcomp/debug/reg_availability_set.cmx \
     asmcomp/reg.cmx \
@@ -2599,6 +2619,7 @@ asmcomp/mach.cmx : \
     asmcomp/arch.cmx \
     asmcomp/mach.cmi
 asmcomp/mach.cmi : \
+    utils/targetint.cmi \
     asmcomp/debug/reg_availability_set.cmi \
     asmcomp/reg.cmi \
     lambda/lambda.cmi \
@@ -2646,6 +2667,7 @@ asmcomp/printlinear.cmx : \
 asmcomp/printlinear.cmi : \
     asmcomp/linear.cmi
 asmcomp/printmach.cmo : \
+    utils/targetint.cmi \
     asmcomp/debug/reg_availability_set.cmi \
     asmcomp/reg.cmi \
     asmcomp/proc.cmi \
@@ -2661,6 +2683,7 @@ asmcomp/printmach.cmo : \
     asmcomp/arch.cmo \
     asmcomp/printmach.cmi
 asmcomp/printmach.cmx : \
+    utils/targetint.cmx \
     asmcomp/debug/reg_availability_set.cmx \
     asmcomp/reg.cmx \
     asmcomp/proc.cmx \
@@ -2711,6 +2734,7 @@ asmcomp/reg.cmi : \
     asmcomp/cmm.cmi \
     middle_end/backend_var.cmi
 asmcomp/reload.cmo : \
+    utils/targetint.cmi \
     asmcomp/reloadgen.cmi \
     asmcomp/reg.cmi \
     asmcomp/mach.cmi \
@@ -2719,6 +2743,7 @@ asmcomp/reload.cmo : \
     asmcomp/arch.cmo \
     asmcomp/reload.cmi
 asmcomp/reload.cmx : \
+    utils/targetint.cmx \
     asmcomp/reloadgen.cmx \
     asmcomp/reg.cmx \
     asmcomp/mach.cmx \
@@ -2771,6 +2796,7 @@ asmcomp/scheduling.cmx : \
 asmcomp/scheduling.cmi : \
     asmcomp/linear.cmi
 asmcomp/selectgen.cmo : \
+    utils/targetint.cmi \
     lambda/simplif.cmi \
     asmcomp/reg.cmi \
     asmcomp/proc.cmi \
@@ -2786,6 +2812,7 @@ asmcomp/selectgen.cmo : \
     asmcomp/arch.cmo \
     asmcomp/selectgen.cmi
 asmcomp/selectgen.cmx : \
+    utils/targetint.cmx \
     lambda/simplif.cmx \
     asmcomp/reg.cmx \
     asmcomp/proc.cmx \
@@ -2801,6 +2828,7 @@ asmcomp/selectgen.cmx : \
     asmcomp/arch.cmx \
     asmcomp/selectgen.cmi
 asmcomp/selectgen.cmi : \
+    utils/targetint.cmi \
     asmcomp/reg.cmi \
     asmcomp/mach.cmi \
     lambda/debuginfo.cmi \
@@ -2809,6 +2837,7 @@ asmcomp/selectgen.cmi : \
     parsing/asttypes.cmi \
     asmcomp/arch.cmo
 asmcomp/selection.cmo : \
+    utils/targetint.cmi \
     asmcomp/spacetime_profiling.cmi \
     asmcomp/selectgen.cmi \
     asmcomp/proc.cmi \
@@ -2819,6 +2848,7 @@ asmcomp/selection.cmo : \
     asmcomp/arch.cmo \
     asmcomp/selection.cmi
 asmcomp/selection.cmx : \
+    utils/targetint.cmx \
     asmcomp/spacetime_profiling.cmx \
     asmcomp/selectgen.cmx \
     asmcomp/proc.cmx \
@@ -2832,6 +2862,7 @@ asmcomp/selection.cmi : \
     asmcomp/mach.cmi \
     asmcomp/cmm.cmi
 asmcomp/spacetime_profiling.cmo : \
+    utils/targetint.cmi \
     asmcomp/selectgen.cmi \
     asmcomp/proc.cmi \
     utils/misc.cmi \
@@ -2845,6 +2876,7 @@ asmcomp/spacetime_profiling.cmo : \
     asmcomp/arch.cmo \
     asmcomp/spacetime_profiling.cmi
 asmcomp/spacetime_profiling.cmx : \
+    utils/targetint.cmx \
     asmcomp/selectgen.cmx \
     asmcomp/proc.cmx \
     utils/misc.cmx \
@@ -2890,6 +2922,7 @@ asmcomp/split.cmx : \
 asmcomp/split.cmi : \
     asmcomp/mach.cmi
 asmcomp/strmatch.cmo : \
+    utils/targetint.cmi \
     lambda/lambda.cmi \
     lambda/debuginfo.cmi \
     asmcomp/cmm.cmi \
@@ -2898,6 +2931,7 @@ asmcomp/strmatch.cmo : \
     asmcomp/arch.cmo \
     asmcomp/strmatch.cmi
 asmcomp/strmatch.cmx : \
+    utils/targetint.cmx \
     lambda/lambda.cmx \
     lambda/debuginfo.cmx \
     asmcomp/cmm.cmx \
@@ -2912,13 +2946,16 @@ asmcomp/x86_ast.cmi :
 asmcomp/x86_dsl.cmo : \
     asmcomp/x86_proc.cmi \
     asmcomp/x86_ast.cmi \
+    utils/targetint.cmi \
     asmcomp/x86_dsl.cmi
 asmcomp/x86_dsl.cmx : \
     asmcomp/x86_proc.cmx \
     asmcomp/x86_ast.cmi \
+    utils/targetint.cmx \
     asmcomp/x86_dsl.cmi
 asmcomp/x86_dsl.cmi : \
-    asmcomp/x86_ast.cmi
+    asmcomp/x86_ast.cmi \
+    utils/targetint.cmi
 asmcomp/x86_gas.cmo : \
     asmcomp/x86_proc.cmi \
     asmcomp/x86_ast.cmi \
@@ -2979,6 +3016,7 @@ middle_end/backend_var.cmi : \
     typing/ident.cmi \
     lambda/debuginfo.cmi
 middle_end/clambda.cmo : \
+    utils/targetint.cmi \
     typing/path.cmi \
     lambda/lambda.cmi \
     typing/ident.cmi \
@@ -2988,6 +3026,7 @@ middle_end/clambda.cmo : \
     parsing/asttypes.cmi \
     middle_end/clambda.cmi
 middle_end/clambda.cmx : \
+    utils/targetint.cmx \
     typing/path.cmx \
     lambda/lambda.cmx \
     typing/ident.cmx \
@@ -2997,6 +3036,7 @@ middle_end/clambda.cmx : \
     parsing/asttypes.cmi \
     middle_end/clambda.cmi
 middle_end/clambda.cmi : \
+    utils/targetint.cmi \
     typing/path.cmi \
     lambda/lambda.cmi \
     typing/ident.cmi \
@@ -3130,6 +3170,7 @@ middle_end/linkage_name.cmx : \
 middle_end/linkage_name.cmi : \
     utils/identifiable.cmi
 middle_end/printclambda.cmo : \
+    utils/targetint.cmi \
     lambda/printlambda.cmi \
     middle_end/printclambda_primitives.cmi \
     lambda/lambda.cmi \
@@ -3139,6 +3180,7 @@ middle_end/printclambda.cmo : \
     parsing/asttypes.cmi \
     middle_end/printclambda.cmi
 middle_end/printclambda.cmx : \
+    utils/targetint.cmx \
     lambda/printlambda.cmx \
     middle_end/printclambda_primitives.cmx \
     lambda/lambda.cmx \
@@ -3311,6 +3353,7 @@ lambda/matching.cmi : \
     lambda/debuginfo.cmi
 lambda/printlambda.cmo : \
     typing/types.cmi \
+    utils/targetint.cmi \
     typing/printtyp.cmi \
     typing/primitive.cmi \
     parsing/location.cmi \
@@ -3322,6 +3365,7 @@ lambda/printlambda.cmo : \
     lambda/printlambda.cmi
 lambda/printlambda.cmx : \
     typing/types.cmx \
+    utils/targetint.cmx \
     typing/printtyp.cmx \
     typing/primitive.cmx \
     parsing/location.cmx \
@@ -3677,6 +3721,7 @@ file_formats/cmxs_format.cmi : \
     utils/misc.cmi
 middle_end/closure/closure.cmo : \
     utils/warnings.cmi \
+    utils/targetint.cmi \
     lambda/switch.cmi \
     lambda/simplif.cmi \
     middle_end/semantics_of_primitives.cmi \
@@ -3700,6 +3745,7 @@ middle_end/closure/closure.cmo : \
     middle_end/closure/closure.cmi
 middle_end/closure/closure.cmx : \
     utils/warnings.cmx \
+    utils/targetint.cmx \
     lambda/switch.cmx \
     lambda/simplif.cmx \
     middle_end/semantics_of_primitives.cmx \
@@ -3782,12 +3828,15 @@ middle_end/flambda/alias_analysis.cmi : \
     parsing/asttypes.cmi \
     middle_end/flambda/allocated_const.cmi
 middle_end/flambda/allocated_const.cmo : \
+    utils/targetint.cmi \
     utils/int_replace_polymorphic_compare.cmi \
     middle_end/flambda/allocated_const.cmi
 middle_end/flambda/allocated_const.cmx : \
+    utils/targetint.cmx \
     utils/int_replace_polymorphic_compare.cmx \
     middle_end/flambda/allocated_const.cmi
-middle_end/flambda/allocated_const.cmi :
+middle_end/flambda/allocated_const.cmi : \
+    utils/targetint.cmi
 middle_end/flambda/augment_specialised_args.cmo : \
     middle_end/variable.cmi \
     middle_end/flambda/projection.cmi \
@@ -3884,6 +3933,7 @@ middle_end/flambda/build_export_info.cmi : \
     middle_end/backend_intf.cmi
 middle_end/flambda/closure_conversion.cmo : \
     middle_end/variable.cmi \
+    utils/targetint.cmi \
     middle_end/flambda/base_types/tag.cmi \
     middle_end/symbol.cmi \
     middle_end/flambda/base_types/static_exception.cmi \
@@ -3913,6 +3963,7 @@ middle_end/flambda/closure_conversion.cmo : \
     middle_end/flambda/closure_conversion.cmi
 middle_end/flambda/closure_conversion.cmx : \
     middle_end/variable.cmx \
+    utils/targetint.cmx \
     middle_end/flambda/base_types/tag.cmx \
     middle_end/symbol.cmx \
     middle_end/flambda/base_types/static_exception.cmx \
@@ -4011,6 +4062,7 @@ middle_end/flambda/effect_analysis.cmi : \
 middle_end/flambda/export_info.cmo : \
     middle_end/variable.cmi \
     middle_end/flambda/base_types/var_within_closure.cmi \
+    utils/targetint.cmi \
     middle_end/flambda/base_types/tag.cmi \
     middle_end/symbol.cmi \
     middle_end/flambda/simple_value_approx.cmi \
@@ -4023,6 +4075,7 @@ middle_end/flambda/export_info.cmo : \
 middle_end/flambda/export_info.cmx : \
     middle_end/variable.cmx \
     middle_end/flambda/base_types/var_within_closure.cmx \
+    utils/targetint.cmx \
     middle_end/flambda/base_types/tag.cmx \
     middle_end/symbol.cmx \
     middle_end/flambda/simple_value_approx.cmx \
@@ -4947,6 +5000,7 @@ middle_end/flambda/lift_code.cmi : \
 middle_end/flambda/lift_constants.cmo : \
     middle_end/variable.cmi \
     middle_end/flambda/base_types/var_within_closure.cmi \
+    utils/targetint.cmi \
     middle_end/flambda/base_types/tag.cmi \
     middle_end/symbol.cmi \
     utils/strongly_connected_components.cmi \
@@ -4968,6 +5022,7 @@ middle_end/flambda/lift_constants.cmo : \
 middle_end/flambda/lift_constants.cmx : \
     middle_end/variable.cmx \
     middle_end/flambda/base_types/var_within_closure.cmx \
+    utils/targetint.cmx \
     middle_end/flambda/base_types/tag.cmx \
     middle_end/symbol.cmx \
     utils/strongly_connected_components.cmx \
@@ -5182,6 +5237,7 @@ middle_end/flambda/share_constants.cmi : \
 middle_end/flambda/simple_value_approx.cmo : \
     middle_end/variable.cmi \
     middle_end/flambda/base_types/var_within_closure.cmi \
+    utils/targetint.cmi \
     middle_end/flambda/base_types/tag.cmi \
     middle_end/symbol.cmi \
     middle_end/flambda/base_types/set_of_closures_origin.cmi \
@@ -5206,6 +5262,7 @@ middle_end/flambda/simple_value_approx.cmo : \
 middle_end/flambda/simple_value_approx.cmx : \
     middle_end/variable.cmx \
     middle_end/flambda/base_types/var_within_closure.cmx \
+    utils/targetint.cmx \
     middle_end/flambda/base_types/tag.cmx \
     middle_end/symbol.cmx \
     middle_end/flambda/base_types/set_of_closures_origin.cmx \
@@ -5230,6 +5287,7 @@ middle_end/flambda/simple_value_approx.cmx : \
 middle_end/flambda/simple_value_approx.cmi : \
     middle_end/variable.cmi \
     middle_end/flambda/base_types/var_within_closure.cmi \
+    utils/targetint.cmi \
     middle_end/flambda/base_types/tag.cmi \
     middle_end/symbol.cmi \
     middle_end/flambda/base_types/set_of_closures_origin.cmi \
@@ -5243,6 +5301,7 @@ middle_end/flambda/simple_value_approx.cmi : \
     middle_end/flambda/base_types/closure_origin.cmi \
     middle_end/flambda/base_types/closure_id.cmi
 middle_end/flambda/simplify_boxed_integer_ops.cmo : \
+    utils/targetint.cmi \
     middle_end/flambda/simplify_common.cmi \
     middle_end/flambda/simplify_boxed_integer_ops_intf.cmi \
     middle_end/flambda/simple_value_approx.cmi \
@@ -5252,6 +5311,7 @@ middle_end/flambda/simplify_boxed_integer_ops.cmo : \
     middle_end/clambda_primitives.cmi \
     middle_end/flambda/simplify_boxed_integer_ops.cmi
 middle_end/flambda/simplify_boxed_integer_ops.cmx : \
+    utils/targetint.cmx \
     middle_end/flambda/simplify_common.cmx \
     middle_end/flambda/simplify_boxed_integer_ops_intf.cmi \
     middle_end/flambda/simple_value_approx.cmx \
@@ -5261,6 +5321,7 @@ middle_end/flambda/simplify_boxed_integer_ops.cmx : \
     middle_end/clambda_primitives.cmx \
     middle_end/flambda/simplify_boxed_integer_ops.cmi
 middle_end/flambda/simplify_boxed_integer_ops.cmi : \
+    utils/targetint.cmi \
     middle_end/flambda/simplify_boxed_integer_ops_intf.cmi
 middle_end/flambda/simplify_boxed_integer_ops_intf.cmi : \
     middle_end/flambda/simple_value_approx.cmi \
@@ -5287,6 +5348,7 @@ middle_end/flambda/simplify_common.cmi : \
     middle_end/flambda/inlining_cost.cmi \
     middle_end/flambda/flambda.cmi
 middle_end/flambda/simplify_primitives.cmo : \
+    utils/targetint.cmi \
     middle_end/flambda/base_types/tag.cmi \
     middle_end/symbol.cmi \
     middle_end/flambda/simplify_common.cmi \
@@ -5303,6 +5365,7 @@ middle_end/flambda/simplify_primitives.cmo : \
     parsing/asttypes.cmi \
     middle_end/flambda/simplify_primitives.cmi
 middle_end/flambda/simplify_primitives.cmx : \
+    utils/targetint.cmx \
     middle_end/flambda/base_types/tag.cmx \
     middle_end/symbol.cmx \
     middle_end/flambda/simplify_common.cmx \
