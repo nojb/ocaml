@@ -398,7 +398,7 @@ dataitem:
     STRING COLON                { Cdefine_symbol $1 }
   | BYTE INTCONST               { Cint8 $2 }
   | HALF INTCONST               { Cint16 $2 }
-  | INT INTCONST                { Cint(Nativeint.of_int $2) }
+  | INT INTCONST                { Cint(Targetint.of_int $2) }
   | FLOAT FLOATCONST            { Cdouble (float_of_string $2) }
   | ADDR STRING                 { Csymbol_address $2 }
   | VAL STRING                 { Csymbol_address $2 }
