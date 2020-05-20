@@ -240,7 +240,7 @@ let emit_call_bound_errors () =
 (* Record floating-point and large integer literals *)
 
 let float_literals = ref ([] : (int64 * int) list)
-let int_literals = ref ([] : (nativeint * int) list)
+let int_literals = ref ([] : (Targetint.t * int) list)
 
 (* Masks for conditional branches after comparisons *)
 
@@ -339,9 +339,9 @@ let emit_instr i =
                 fatal_error "Emit: Imove"
         end
     | Lop(Iconst_int n) ->
-        if n >= -0x8000n && n <= 0x7FFFn then begin
+        if n >= Targetint.of_int (-0x8000) && n <= Targetint.of_int 0x7FFF then begin
           `	lghi	{emit_reg i.res.(0)}, {emit_nativeint n}\n`;
-        end else if n >= -0x8000_0000n && n <= 0x7FFF_FFFFn then begin
+        end else if n >= Targetint.of_int64 (-0x8000_0000L) && n <= Targetint.of_int64 0x7FFF_FFFFL then begin
           `	lgfi	{emit_reg i.res.(0)}, {emit_nativeint n}\n`;
         end else begin
           let lbl = new_label() in

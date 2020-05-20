@@ -193,7 +193,7 @@ method select_addressing _chunk exp =
 method! select_store is_assign addr exp =
   match exp with
     Cconst_int (n, _) ->
-      (Ispecific(Istore_int(Nativeint.of_int n, addr, is_assign)), Ctuple [])
+      (Ispecific(Istore_int(Targetint.of_int n, addr, is_assign)), Ctuple [])
   | (Cconst_natint (n, _) | Cblockheader (n, _)) ->
       (Ispecific(Istore_int(n, addr, is_assign)), Ctuple [])
   | Cconst_symbol (s, _) ->
@@ -283,7 +283,7 @@ method! insert_op_debug env op dbg rs rd =
 
 method select_push exp =
   match exp with
-    Cconst_int (n, _) -> (Ispecific(Ipush_int(Nativeint.of_int n)), Ctuple [])
+    Cconst_int (n, _) -> (Ispecific(Ipush_int(Targetint.of_int n)), Ctuple [])
   | Cconst_natint (n, _) -> (Ispecific(Ipush_int n), Ctuple [])
   | Cconst_symbol (s, _) -> (Ispecific(Ipush_symbol s), Ctuple [])
   | Cop(Cload ((Word_int | Word_val as chunk), _), [loc], _) ->
