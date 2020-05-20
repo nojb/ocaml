@@ -412,15 +412,30 @@ module FlexDLL = struct
     let characteristics = get_uint16 d buf 22 in
     {e_lfanew; number_of_sections; size_of_optional_header; characteristics}
 
+  type optional_header_magic =
+    | PE32
+    | PE32PLUS
+
   type optional_header =
     {
+      magic: optional_header_magic;
       image_base: int64;
     }
 
   let read_optional_header d {e_lfanew; size_of_optional_header; _} =
     let buf = load_bytes d Int64.(add e_lfanew (of_int header_size)) size_of_optional_header in
-    let image_base = get_word d buf (match d.bitness with B64 -> 24 | B32 -> 28) in
-    {image_base}
+    let magic =
+      match get_uint16 d buf 0 with
+      | 0x10b -> PE32
+      | 0x20b -> PE32PLUS
+      | n -> raise (Error (Unsupported ("optional header magic", n)))
+    in
+    let image_base =
+      match magic with
+      | PE32 -> unsigned_of_int32 (get_uint32 d buf 28)
+      | PE32PLUS -> get_uint64 d buf 24
+    in
+    {magic; image_base}
 
   type section =
     {
@@ -462,7 +477,7 @@ module FlexDLL = struct
   let find_section sections sectname =
     array_find (function ({name; _} : section) -> name = sectname) sections
 
-  let read_symbols d {image_base} sections =
+  let read_symbols d {image_base; _} sections =
     match find_section sections ".exptbl" with
     | None -> [| |]
     | Some ({virtual_address; _} as exptbl) ->
@@ -480,7 +495,7 @@ module FlexDLL = struct
         in
         Array.init numexports mk
 
-  let symbol_offset {image_base} sections symbols =
+  let symbol_offset {image_base; _} sections symbols =
     match find_section sections ".data" with
     | None -> Fun.const None
     | Some {virtual_address; pointer_to_raw_data; _} ->
