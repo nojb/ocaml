@@ -244,9 +244,9 @@ let dump_byte ic =
     toc
 
 let find_dyn_offset filename =
-  match Bfd.read filename with
+  match Binutils.read filename with
   | Ok t ->
-      Bfd.symbol_offset t "caml_plugin_header"
+      Binutils.symbol_offset t "caml_plugin_header"
   | Error _ ->
       None
 

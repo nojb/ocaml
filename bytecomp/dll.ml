@@ -32,7 +32,7 @@ external get_current_dlls: unit -> dll_handle array
 let search_path = ref ([] : string list)
 
 type opened_dll =
-  | Checking of Bfd.t
+  | Checking of Binutils.t
   | Execution of dll_handle
 
 let dll_close = function
@@ -78,10 +78,10 @@ let open_dll mode name =
     let dll =
       match mode with
       | For_checking ->
-          begin match Bfd.read fullname with
+          begin match Binutils.read fullname with
           | Ok t -> Checking t
           | Error err ->
-              failwith (fullname ^ ": " ^ Bfd.string_of_error err)
+              failwith (fullname ^ ": " ^ Binutils.string_of_error err)
           end
       | For_execution ->
           begin match dll_open mode fullname with
@@ -119,7 +119,7 @@ let find_primitive prim_name =
         Some addr
       end
   | Checking t as curr :: rem ->
-      if Bfd.defines_symbol t prim_name then
+      if Binutils.defines_symbol t prim_name then
         None
       else
         find (curr :: seen) rem

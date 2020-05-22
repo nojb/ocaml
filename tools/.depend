@@ -99,7 +99,7 @@ objinfo.cmo : \
     ../file_formats/cmo_format.cmi \
     ../file_formats/cmi_format.cmi \
     ../bytecomp/bytesections.cmi \
-    ../utils/bfd.cmi
+    ../utils/binutils.cmi
 objinfo.cmx : \
     ../bytecomp/symtable.cmx \
     ../middle_end/symbol.cmx \
@@ -115,7 +115,7 @@ objinfo.cmx : \
     ../file_formats/cmo_format.cmi \
     ../file_formats/cmi_format.cmx \
     ../bytecomp/bytesections.cmx \
-    ../utils/bfd.cmx
+    ../utils/binutils.cmx
 ocamlcp.cmo : \
     ../driver/main_args.cmi
 ocamlcp.cmx : \
