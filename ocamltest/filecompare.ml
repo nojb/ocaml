@@ -23,25 +23,23 @@ type result =
   | Unexpected_output
   | Error of string * int
 
-type ignore = {bytes: int; lines: int}
 type tool =
-  |  External of {
-                   tool_name : string;
-                   tool_flags : string;
-                   result_of_exitcode : string -> int -> result
-                }
-  | Internal of ignore
+  |  External of
+      {
+        tool_name : string;
+        tool_flags : string;
+        result_of_exitcode : string -> int -> result
+      }
+  | Internal
 
 let cmp_result_of_exitcode commandline = function
   | 0 -> Same
   | 1 -> Different
   | exit_code -> (Error (commandline, exit_code))
 
-let make_cmp_tool ~ignore =
-  Internal ignore
-
-let make_comparison_tool ?(result_of_exitcode = cmp_result_of_exitcode)
-                         name flags =
+let make_comparison_tool
+    ?(result_of_exitcode = cmp_result_of_exitcode)
+    ?(flags = "") name =
   External
     {
       tool_name = name;
@@ -49,9 +47,11 @@ let make_comparison_tool ?(result_of_exitcode = cmp_result_of_exitcode)
       result_of_exitcode
     }
 
-let default_comparison_tool = make_cmp_tool ~ignore:{bytes=0;lines=0}
+let default_comparison_tool = Internal
 
-type filetype = Binary | Text
+type filetype =
+  | Binary of {skip_bytes: int}
+  | Text of {skip_lines: int}
 
 type files = {
   filetype : filetype;
@@ -128,25 +128,25 @@ let compare_files ?(tool = default_comparison_tool) files =
   match tool with
   | External {tool_name; tool_flags; result_of_exitcode} ->
       let commandline = String.concat " "
-      [
-        tool_name;
-        tool_flags;
-        files.reference_filename;
-        files.output_filename
-      ] in
+          [
+            tool_name;
+            tool_flags;
+            files.reference_filename;
+            files.output_filename
+          ] in
       let settings = Run_command.settings_of_commandline
-        ~stdout_fname:Filename.null ~stderr_fname:Filename.null commandline in
+          ~stdout_fname:Filename.null ~stderr_fname:Filename.null commandline in
       let status = Run_command.run settings in
       result_of_exitcode commandline status
-  | Internal ignore ->
-      match files.filetype with
-        | Text ->
-            (* bytes_to_ignore is silently ignored for text files *)
-            compare_text_files ignore.lines
-              files.reference_filename files.output_filename
-        | Binary ->
-            compare_binary_files ignore.bytes
-                                 files.reference_filename files.output_filename
+  | Internal ->
+      begin match files.filetype with
+      | Text {skip_lines} ->
+          compare_text_files skip_lines
+            files.reference_filename files.output_filename
+      | Binary {skip_bytes} ->
+          compare_binary_files skip_bytes
+            files.reference_filename files.output_filename
+      end
 
 let check_file ?(tool = default_comparison_tool) files =
   if Sys.file_exists files.reference_filename
@@ -172,16 +172,16 @@ let diff files =
   Sys.force_remove temporary_file;
   result
 
-let promote {filetype; reference_filename; output_filename} ignore_conf =
-  match filetype, ignore_conf with
-  | Text, {lines = skip_lines; _} ->
+let promote {filetype; reference_filename; output_filename} =
+  match filetype with
+  | Text {skip_lines} ->
       Sys.with_output_file reference_filename @@ fun reference ->
       Sys.with_input_file output_filename @@ fun output ->
       for _ = 1 to skip_lines do
         try ignore (input_line output) with End_of_file -> ()
       done;
       Sys.copy_chan output reference
-  | Binary, {bytes = skip_bytes; _} ->
+  | Binary {skip_bytes} ->
       Sys.with_output_file ~bin:true reference_filename @@ fun reference ->
       Sys.with_input_file ~bin:true output_filename @@ fun output ->
       seek_in output skip_bytes;

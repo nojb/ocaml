@@ -23,15 +23,13 @@ type result =
 
 type tool
 
-type ignore = {bytes: int; lines: int}
-val make_cmp_tool : ignore:ignore -> tool
-
 val make_comparison_tool :
-  ?result_of_exitcode:(string -> int -> result) -> string -> string -> tool
+  ?result_of_exitcode:(string -> int -> result) ->
+  ?flags:string -> string -> tool
 
 val default_comparison_tool : tool
 
-type filetype = Binary | Text
+type filetype = Binary of {skip_bytes: int} | Text of {skip_lines: int}
 
 type files = {
   filetype : filetype;
@@ -47,4 +45,4 @@ val cmp_result_of_exitcode : string -> int -> result
 
 val diff : files -> (string, string) Stdlib.result
 
-val promote : files -> ignore -> unit
+val promote : files -> unit
