@@ -173,16 +173,14 @@ let diff files =
   result
 
 let promote {filetype; reference_filename; output_filename} =
-  match filetype with
+  Sys.with_output_file reference_filename @@ fun reference ->
+  Sys.with_input_file output_filename @@ fun output ->
+  begin match filetype with
   | Text {skip_lines} ->
-      Sys.with_output_file reference_filename @@ fun reference ->
-      Sys.with_input_file output_filename @@ fun output ->
       for _ = 1 to skip_lines do
         try ignore (input_line output) with End_of_file -> ()
-      done;
-      Sys.copy_chan output reference
+      done
   | Binary {skip_bytes} ->
-      Sys.with_output_file ~bin:true reference_filename @@ fun reference ->
-      Sys.with_input_file ~bin:true output_filename @@ fun output ->
-      seek_in output skip_bytes;
-      Sys.copy_chan output reference
+      seek_in output skip_bytes
+  end;
+  Sys.copy_chan output reference
