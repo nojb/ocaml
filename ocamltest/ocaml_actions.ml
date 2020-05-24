@@ -129,7 +129,7 @@ let generate_module generator output_variable input log env =
     Printf.sprintf "Generating %s module from %s"
     generator.description input_file
   in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let commandline =
   [
     generator.command;
@@ -225,7 +225,7 @@ let compile_program compiler log env =
     (String.concat " " (List.map Ocaml_filetypes.make_filename modules)) in
   let what = Printf.sprintf "Compiling program %s from modules %s"
     program_file module_names in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let compile_only =
     Environments.lookup_as_bool Ocaml_variables.compile_only env = Some true
   in
@@ -284,7 +284,7 @@ let compile_module compiler module_ log env =
     Actions_helpers.exit_status_of_variable env
       (C.exit_status_variable compiler) in
   let what = Printf.sprintf "Compiling module %s" module_ in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let module_with_filetype = Ocaml_filetypes.filetype module_ in
   let is_c = is_c_file module_with_filetype in
   let c_headers_flags =
@@ -465,7 +465,7 @@ let compile compiler log env =
       Actions_helpers.exit_status_of_variable env
         (C.exit_status_variable compiler) in
     let what = Printf.sprintf "Compiling using commandline %s" cmdline in
-    Printf.fprintf log "%s\n%!" what;
+    (* Printf.fprintf log "%s\n%!" what; *)
     let commandline = [C.name compiler; cmdline] in
     let result =
       let stdout_variable = C.output_variable compiler in
@@ -517,7 +517,7 @@ let env_with_lib_unix env =
 let debug log env =
   let program = Environments.safe_lookup Builtin_variables.program env in
   let what = Printf.sprintf "Debugging program %s" program in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let commandline =
   [
     Ocaml_commands.ocamlrun_ocamldebug;
@@ -541,7 +541,7 @@ let objinfo log env =
   let tools_directory = Ocaml_directories.tools in
   let program = Environments.safe_lookup Builtin_variables.program env in
   let what = Printf.sprintf "Running ocamlobjinfo on %s" program in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let commandline =
   [
     Ocaml_commands.ocamlrun_ocamlobjinfo;
@@ -573,7 +573,7 @@ let ocamlobjinfo = Actions.make "ocamlobjinfo" objinfo
 let mklib log env =
   let program = Environments.safe_lookup Builtin_variables.program env in
   let what = Printf.sprintf "Running ocamlmklib to produce %s" program in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let ocamlc_command =
     String.concat " "
     [
@@ -617,7 +617,7 @@ let finalise_codegen_msvc test_basename log env =
   let obj = Filename.make_filename test_basename Ocamltest_config.objext in
   let src = Filename.make_filename test_basename "s" in
   let what = "Running Microsoft assembler" in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let commandline = [Ocamltest_config.asm; obj; src] in
   let result =
     Actions_helpers.run_cmd
@@ -646,7 +646,7 @@ let run_codegen log env =
   let testfile = Actions_helpers.testfile env in
   let testfile_basename = Filename.chop_extension testfile in
   let what = Printf.sprintf "Running codegen on %s" testfile in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let test_build_directory =
     Actions_helpers.test_build_directory env in
   let compiler_output =
@@ -691,7 +691,7 @@ let codegen = Actions.make "codegen" run_codegen
 let run_cc log env =
   let program = Environments.safe_lookup Builtin_variables.program env in
   let what = Printf.sprintf "Running C compiler to build %s" program in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let output_exe =
     if Ocamltest_config.ccomptype="msvc" then "/Fe" else "-o "
   in
@@ -793,9 +793,9 @@ let check_ocamlopt_opt_output =
 let really_compare_programs backend comparison_tool skip_bytes log env =
   let program = Environments.safe_lookup Builtin_variables.program env in
   let program2 = Environments.safe_lookup Builtin_variables.program2 env in
-  let what = Printf.sprintf "Comparing %s programs %s and %s"
-    (Ocaml_backends.string_of_backend backend) program program2 in
-  Printf.fprintf log "%s\n%!" what;
+  let what =
+    Printf.sprintf "Comparing %s programs %s and %s"
+      (Ocaml_backends.string_of_backend backend) program program2 in
   let files =
     {
       Filecompare.filetype = Binary {skip_bytes};
@@ -806,6 +806,7 @@ let really_compare_programs backend comparison_tool skip_bytes log env =
   match Filecompare.compare_files ~tool:comparison_tool files with
   | Filecompare.Same -> (Result.pass, env)
   | Filecompare.Different ->
+      Printf.fprintf log "%s\n%!" what;
       let reason = Printf.sprintf "Files %s and %s are different"
           program program2 in
       (Result.fail_with_reason reason, env)
@@ -971,7 +972,7 @@ let run_test_program_in_toplevel toplevel log env =
             testfile
             (Ocaml_backends.string_of_backend backend)
             expected_exit_status in
-          Printf.fprintf log "%s\n%!" what;
+          (* Printf.fprintf log "%s\n%!" what; *)
           let toplevel_name = T.name toplevel in
           let ocaml_script_as_argument =
             match
@@ -1184,7 +1185,7 @@ let compile_ocamldoc (basename,filetype as module_) log env =
     Actions_helpers.exit_status_of_variable env
       (O.exit_status_variable O.ocamldoc) in
   let what = Printf.sprintf "Compiling documentation for module %s" basename in
-  Printf.fprintf log "%s\n%!" what;
+  (* Printf.fprintf log "%s\n%!" what; *)
   let filename =
     Ocaml_filetypes.make_filename (basename, filetype) in
   let (r,env) = compiler_for_ocamldoc [module_] log env in

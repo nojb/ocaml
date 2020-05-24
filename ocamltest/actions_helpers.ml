@@ -101,11 +101,11 @@ let run_cmd
     ~what
     log env original_cmd
   =
-  let log_redirection std filename =
-    if filename<>"" then
-    begin
-      Printf.fprintf log "  Redirecting %s to %s \n%!" std filename
-    end in
+  (* let log_redirection std filename = *)
+  (*   if filename<>"" then *)
+  (*   begin *)
+  (*     Printf.fprintf log "  Redirecting %s to %s \n%!" std filename *)
+  (*   end in *)
   let cmd =
     if (Environments.lookup_as_bool Strace.strace env) = Some true then
     begin
@@ -128,15 +128,14 @@ let run_cmd
     then List.map Filename.maybe_quote lst
     else lst in
   let cmd' = String.concat " " quoted_lst in
-  Printf.fprintf log "Commandline: %s\n" cmd';
   let progname = List.hd quoted_lst in
   let argv = Array.of_list quoted_lst in
   let stdin_filename = Environments.safe_lookup stdin_variable env in
   let stdout_filename = Environments.safe_lookup stdout_variable env in
   let stderr_filename = Environments.safe_lookup stderr_variable env in
-  log_redirection "stdin" stdin_filename;
-  log_redirection "stdout" stdout_filename;
-  log_redirection "stderr" stderr_filename;
+  (* log_redirection "stdin" stdin_filename; *)
+  (* log_redirection "stdout" stdout_filename; *)
+  (* log_redirection "stderr" stderr_filename; *)
   let envp =
     Array.append
       environment
@@ -160,8 +159,19 @@ let run_cmd
     Result.pass
   else if Some exit_status = skip_exit_status then
     Result.skip_with_reason reason
-  else
+  else begin
+    Printf.fprintf log "Commandline: %s\n" cmd';
+    let stdouterr_same = stdout_filename = stderr_filename in
+    let stdout = Sys.string_of_file stdout_filename in
+    Printf.fprintf log "\n# %s\n\n%s\n"
+      (if stdouterr_same then "stdout/stderr" else "stdout")
+      stdout;
+    if not stdouterr_same then begin
+      let stderr = Sys.string_of_file stderr_filename in
+      Printf.fprintf log "\n# stdout\n\n%s\n" stderr;
+    end;
     Result.fail_with_reason reason
+  end
 
 let run
     (log_message : string)
@@ -302,8 +312,10 @@ let check_output kind_of_output output_variable reference_variable log
     to_int (Environments.lookup Builtin_variables.skip_header_lines env) in
   let reference_filename = Environments.safe_lookup reference_variable env in
   let output_filename = Environments.safe_lookup output_variable env in
-  Printf.fprintf log "Comparing %s output %s to reference %s\n%!"
-    kind_of_output output_filename reference_filename;
+  (* let what = *)
+  (*   Printf.sprintf "Comparing %s output %s to reference %s\n%!" *)
+  (*     kind_of_output output_filename reference_filename *)
+  (* in *)
   let files =
     {
       Filecompare.filetype = Filecompare.Text {skip_lines};
