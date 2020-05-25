@@ -193,6 +193,22 @@ module ELF = struct
         {sec with sh_name_str}
       ) sections
 
+  let read_sections d h =
+    let {e_shoff; e_shentsize; e_shnum; _} = h in
+    if e_shoff = 0L then
+      [||]
+    else
+      let e_shnum =
+        if e_shnum = 0 then
+          let buf = load_bytes d e_shoff e_shentsize in
+          let word_size = word_size d in
+          (* The real e_shnum is the sh_size of the initial section.*)
+          Int64.to_int (get_word d buf (8 + 3 * word_size))
+        else
+          e_shnum
+      in
+      read_sections d {h with e_shnum}
+
   type symbol =
     {
       st_name: string;
