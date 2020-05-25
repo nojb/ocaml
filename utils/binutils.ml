@@ -391,6 +391,7 @@ module Mach_O = struct
 
   let read_symbols d load_commands =
     match
+      (* Can it happen there be more than one LC_SYMTAB? *)
       array_find_map (function
           | LC_SYMTAB symtab -> Some symtab
           | _ -> None
