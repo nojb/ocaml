@@ -79,7 +79,7 @@ let really_input_bytes ic len =
   really_input ic buf 0 len;
   buf
 
-let unsigned_of_int32 n =
+let uint64_of_uint32 n =
   if n < 0l then
     raise (Error (Out_of_range (int32_to_hex n)));
   Int64.of_int32 n
@@ -127,7 +127,7 @@ let get_uint64 {endianness; _} buf idx =
 let get_word d buf idx =
   match d.bitness with
   | B64 -> get_uint64 d buf idx
-  | B32 -> unsigned_of_int32 (get_uint32 d buf idx)
+  | B32 -> uint64_of_uint32 (get_uint32 d buf idx)
 
 let int64_to_unsigned_int s n =
   match Int64.unsigned_to_int n with
@@ -402,8 +402,8 @@ module Mach_O = struct
     with
     | None -> [| |]
     | Some {symoff; nsyms; stroff; strsize} ->
-        let strtbl = load_bytes d (unsigned_of_int32 stroff) strsize in
-        let buf = load_bytes d (unsigned_of_int32 symoff) (nsyms * size_nlist d) in
+        let strtbl = load_bytes d (uint64_of_uint32 stroff) strsize in
+        let buf = load_bytes d (uint64_of_uint32 symoff) (nsyms * size_nlist d) in
         let size_nlist = size_nlist d in
         let mk i =
           let base = i * size_nlist in
@@ -513,7 +513,7 @@ module FlexDLL = struct
     in
     let image_base =
       match magic with
-      | PE32 -> unsigned_of_int32 (get_uint32 d buf 28)
+      | PE32 -> uint64_of_uint32 (get_uint32 d buf 28)
       | PE32PLUS -> get_uint64 d buf 24
     in
     {magic; image_base}
@@ -539,9 +539,9 @@ module FlexDLL = struct
       let base = i * section_header_size in
       let name = name_at ~max_len:8 buf (base + 0) in
       let virtual_size = get_uint "virtual_size" d buf (base + 8) in
-      let virtual_address = unsigned_of_int32 (get_uint32 d buf (base + 12)) in
+      let virtual_address = uint64_of_uint32 (get_uint32 d buf (base + 12)) in
       let size_of_raw_data = get_uint "size_of_raw_data" d buf (base + 16) in
-      let pointer_to_raw_data = unsigned_of_int32 (get_uint32 d buf (base + 20)) in
+      let pointer_to_raw_data = uint64_of_uint32 (get_uint32 d buf (base + 20)) in
       {name; virtual_size; virtual_address; size_of_raw_data; pointer_to_raw_data}
     in
     Array.init number_of_sections mk
@@ -605,7 +605,7 @@ module FlexDLL = struct
     let e_lfanew =
       seek_in ic 0x3c;
       let buf = really_input_bytes ic 4 in
-      unsigned_of_int32 (Bytes.get_int32_le buf 0)
+      uint64_of_uint32 (Bytes.get_int32_le buf 0)
     in
     LargeFile.seek_in ic e_lfanew;
     let buf = really_input_bytes ic header_size in
