@@ -602,6 +602,8 @@ module FlexDLL = struct
     in
     LargeFile.seek_in ic e_lfanew;
     let buf = really_input_bytes ic header_size in
+    let magic = Bytes.sub_string buf 0 4 in
+    if magic <> "PE\000\000" then raise (Error (Unrecognized magic));
     let machine =
       match Bytes.get_uint16_le buf 4 with
       | 0x8664 -> IMAGE_FILE_MACHINE_AMD64
