@@ -275,7 +275,7 @@ module ELF = struct
             let mk i =
               let base = i * dynsym.sh_entsize in
               let st_name = name_at strtbl (get_uint "st_name" d buf base) in
-              let st_value = get_word d buf (base + word_size) in
+              let st_value = get_word d buf (base + word_size (* ! *)) in
               let st_shndx =
                 let off = match d.bitness with B64 -> 6 | B32 -> 14 in
                 get_uint16 d buf (base + off)
