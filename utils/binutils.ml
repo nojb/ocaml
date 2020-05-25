@@ -385,6 +385,7 @@ module Mach_O = struct
   type symbol =
     {
       n_name: string;
+      n_type: int;
       n_value: int64;
     }
 
@@ -407,8 +408,9 @@ module Mach_O = struct
         let mk i =
           let base = i * size_nlist in
           let n_name = name_at strtbl (get_uint "n_name" d buf (base + 0)) in
+          let n_type = Bytes.get_uint8 buf (base + 4) in
           let n_value = get_word d buf (base + 8) in
-          {n_name; n_value}
+          {n_name; n_type; n_value}
         in
         Array.init nsyms mk
 
