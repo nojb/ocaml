@@ -189,8 +189,12 @@ module ELF = struct
       {sh_name; sh_addr; sh_offset; sh_size; sh_entsize; sh_name_str = ""}
     in
     let sections = Array.init e_shnum mk in
-    let shstrtbl = load_section_body d sections.(e_shstrndx) in
-    Array.map (fun sec ->
+    if e_shstrndx = 0 then
+      (* no string table *)
+      sections
+    else
+      let shstrtbl = load_section_body d sections.(e_shstrndx) in
+      Array.map (fun sec ->
         let sh_name_str = name_at shstrtbl sec.sh_name in
         {sec with sh_name_str}
       ) sections
