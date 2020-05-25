@@ -16,9 +16,6 @@
 let char_to_hex c =
   Printf.sprintf "0x%02x" (Char.code c)
 
-let int32_to_hex n =
-  Printf.sprintf "0x%lx" n
-
 let int_to_hex n =
   Printf.sprintf "0x%x" n
 
@@ -80,9 +77,10 @@ let really_input_bytes ic len =
   buf
 
 let uint64_of_uint32 n =
-  if n < 0l then
-    raise (Error (Out_of_range (int32_to_hex n)));
-  Int64.of_int32 n
+  if n >= 0l then
+    Int64.of_int32 n
+  else
+    Int64.(logand (of_int32 n) 0xffffffffL)
 
 type endianness =
   | LE
