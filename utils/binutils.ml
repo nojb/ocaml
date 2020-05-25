@@ -292,7 +292,11 @@ module ELF = struct
     | None ->
         None
     | Some {st_shndx; st_value; _} ->
-        Some Int64.(add sections.(st_shndx).sh_offset (sub st_value sections.(st_shndx).sh_addr))
+        (* st_value in executables and shared objects holds a virtual (absolute)
+           address. See https://refspecs.linuxfoundation.org/elf/elf.pdf, page
+           1-21, "Symbol Values". *)
+        Some Int64.(add sections.(st_shndx).sh_offset
+                      (sub st_value sections.(st_shndx).sh_addr))
 
   let defines_symbol symbols symname =
     Array.exists (fun {st_name; _} -> st_name = symname) symbols
