@@ -265,6 +265,8 @@ module ELF = struct
   let read_symbols d sections =
     match find_section sections SHT_DYNSYM ".dynsym" with
     | None -> [| |]
+    | Some {sh_entsize = 0; _} ->
+        raise (Error (Out_of_range "sh_entsize=0"))
     | Some dynsym ->
         begin match find_section sections SHT_STRTAB ".dynstr" with
         | None -> [| |]
