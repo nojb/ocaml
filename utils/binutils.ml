@@ -501,6 +501,8 @@ module FlexDLL = struct
     }
 
   let read_optional_header d {e_lfanew; size_of_optional_header; _} =
+    if size_of_optional_header = 0 then
+      raise (Error (Unrecognized "SizeOfOptionalHeader=0"));
     let buf = load_bytes d Int64.(add e_lfanew (of_int header_size)) size_of_optional_header in
     let magic =
       match get_uint16 d buf 0 with
