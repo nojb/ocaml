@@ -168,9 +168,15 @@ module ELF = struct
     let e_shstrndx = get_uint16 d buf (38 + 3 * word_size) in
     {e_shnum; e_shentsize; e_shoff; e_shstrndx}
 
+  type sh_type =
+    | SHT_STRTAB
+    | SHT_DYNSYM
+    | SHT_OTHER
+
   type section =
     {
       sh_name: int;
+      sh_type: sh_type;
       sh_addr: int64;
       sh_offset: int64;
       sh_size: int;
@@ -187,6 +193,12 @@ module ELF = struct
     let mk i =
       let base = i * e_shentsize in
       let sh_name = get_uint "sh_name" d buf (base + 0) in
+      let sh_type =
+        match get_uint32 d buf (base + 4) with
+        | 3l -> SHT_STRTAB
+        | 11l -> SHT_DYNSYM
+        | _ -> SHT_OTHER
+      in
       let sh_addr = get_word d buf (base + 8 + word_size) in
       let sh_offset = get_word d buf (base + 8 + 2 * word_size) in
       let sh_size =
@@ -197,7 +209,8 @@ module ELF = struct
         int64_to_unsigned_int "sh_entsize"
           (get_word d buf (base + 16 + 5 * word_size))
       in
-      {sh_name; sh_addr; sh_offset; sh_size; sh_entsize; sh_name_str = ""}
+      {sh_name; sh_type; sh_addr; sh_offset;
+       sh_size; sh_entsize; sh_name_str = ""}
     in
     let sections = Array.init e_shnum mk in
     if e_shstrndx = 0 then
