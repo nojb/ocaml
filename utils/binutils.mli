@@ -19,7 +19,7 @@ type error =
   | Unsupported of string * int64
   | Out_of_range of string
 
-val string_of_error: error -> string
+val error_to_string: error -> string
 
 type t
 

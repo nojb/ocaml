@@ -81,7 +81,7 @@ let open_dll mode name =
           begin match Binutils.read fullname with
           | Ok t -> Checking t
           | Error err ->
-              failwith (fullname ^ ": " ^ Binutils.string_of_error err)
+              failwith (fullname ^ ": " ^ Binutils.error_to_string err)
           end
       | For_execution ->
           begin match dll_open mode fullname with

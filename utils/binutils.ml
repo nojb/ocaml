@@ -28,7 +28,7 @@ type error =
   | Unsupported of string * int64
   | Out_of_range of string
 
-let string_of_error = function
+let error_to_string = function
   | Truncated_file ->
       "Truncated file"
   | Unrecognized magic ->
