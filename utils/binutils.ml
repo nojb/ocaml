@@ -421,7 +421,11 @@ module Mach_O = struct
     let symname = fix symname in
     match array_find (function {n_name; _} -> n_name = symname) symbols with
     | None -> None
-    | Some {n_value; _} -> Some n_value
+    | Some {n_value; n_type; _} ->
+        if n_type land 0b1111 = 0b1111 (* N_EXT + N_SECT *) then
+          Some n_value
+        else
+          None
 
   let defines_symbol symbols symname =
     let symname = fix symname in
