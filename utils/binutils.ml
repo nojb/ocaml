@@ -148,9 +148,9 @@ module ELF = struct
 
   type header =
     {
-      e_shnum: int;
-      e_shentsize: int;
       e_shoff: int64;
+      e_shentsize: int;
+      e_shnum: int;
       e_shstrndx: int;
     }
 
