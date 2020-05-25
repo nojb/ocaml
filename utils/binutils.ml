@@ -196,20 +196,28 @@ module ELF = struct
       ) sections
 
   let read_sections d h =
-    let {e_shoff; e_shentsize; e_shnum; _} = h in
+    let {e_shoff; e_shentsize; e_shnum; e_shstrndx} = h in
     if e_shoff = 0L then
       [||]
-    else
+    else begin
+      let buf = lazy (load_bytes d e_shoff e_shentsize) in
+      let word_size = word_size d in
       let e_shnum =
         if e_shnum = 0 then
-          let buf = load_bytes d e_shoff e_shentsize in
-          let word_size = word_size d in
           (* The real e_shnum is the sh_size of the initial section.*)
-          Int64.to_int (get_word d buf (8 + 3 * word_size))
+          Int64.to_int (get_word d (Lazy.force buf) (8 + 3 * word_size))
         else
           e_shnum
       in
-      read_sections d {h with e_shnum}
+      let e_shstrndx =
+        if e_shstrndx = 0xffff then
+          (* The real e_shstrndx is the sh_link of the initial section. *)
+          get_uint d (Lazy.force buf) (8 + 4 * word_size)
+        else
+          e_shstrndx
+      in
+      read_sections d {h with e_shnum; e_shstrndx}
+    end
 
   type symbol =
     {
