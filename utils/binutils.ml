@@ -141,6 +141,8 @@ type t =
 
 module ELF = struct
 
+  (* Reference: http://man7.org/linux/man-pages/man5/elf.5.html *)
+
   let header_size d =
     40 + 3 * word_size d
 
