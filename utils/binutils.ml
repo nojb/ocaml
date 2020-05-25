@@ -591,6 +591,8 @@ module FlexDLL = struct
     Array.exists (fun {name; _} -> name = symname) symbols
 
   type machine_type =
+    | IMAGE_FILE_MACHINE_ARM
+    | IMAGE_FILE_MACHINE_ARM64
     | IMAGE_FILE_MACHINE_AMD64
     | IMAGE_FILE_MACHINE_I386
 
@@ -606,14 +608,18 @@ module FlexDLL = struct
     if magic <> "PE\000\000" then raise (Error (Unrecognized magic));
     let machine =
       match Bytes.get_uint16_le buf 4 with
+      | 0x1c0 -> IMAGE_FILE_MACHINE_ARM
+      | 0xaa64 -> IMAGE_FILE_MACHINE_ARM64
       | 0x8664 -> IMAGE_FILE_MACHINE_AMD64
       | 0x14c -> IMAGE_FILE_MACHINE_I386
       | n -> raise (Error (Unsupported ("MACHINETYPE", Int64.of_int n)))
     in
     let bitness =
       match machine with
-      | IMAGE_FILE_MACHINE_AMD64 -> B64
-      | IMAGE_FILE_MACHINE_I386 -> B32
+      | IMAGE_FILE_MACHINE_AMD64
+      | IMAGE_FILE_MACHINE_ARM64 -> B64
+      | IMAGE_FILE_MACHINE_I386
+      | IMAGE_FILE_MACHINE_ARM -> B32
     in
     let d = {ic; endianness = LE; bitness} in
     let header = read_header e_lfanew d buf in
