@@ -472,6 +472,8 @@ end
 
 module FlexDLL = struct
 
+  (* Reference: https://docs.microsoft.com/en-us/windows/win32/debug/pe-format *)
+
   let header_size = 24
 
   type header =
