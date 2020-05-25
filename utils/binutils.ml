@@ -256,14 +256,17 @@ module ELF = struct
       st_shndx: int;
     }
 
-  let find_section sections sectname =
-    array_find (function {sh_name_str; _} -> sh_name_str = sectname) sections
+  let find_section sections type_ sectname =
+    let f {sh_type; sh_name_str; _} =
+      sh_type = type_ && sh_name_str = sectname
+    in
+    array_find f sections
 
   let read_symbols d sections =
-    match find_section sections ".dynsym" with
+    match find_section sections SHT_DYNSYM ".dynsym" with
     | None -> [| |]
     | Some dynsym ->
-        begin match find_section sections ".dynstr" with
+        begin match find_section sections SHT_STRTAB ".dynstr" with
         | None -> [| |]
         | Some dynstr ->
             let strtbl = load_section_body d dynstr in
