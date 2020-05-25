@@ -327,7 +327,8 @@ end
 
 module Mach_O = struct
 
-  (* Reference: https://github.com/aidansteele/osx-abi-macho-file-format-reference *)
+  (* Reference:
+     https://github.com/aidansteele/osx-abi-macho-file-format-reference *)
 
   let size_int = 4
 
@@ -401,7 +402,8 @@ module Mach_O = struct
     | None -> [| |]
     | Some {symoff; nsyms; stroff; strsize} ->
         let strtbl = load_bytes d (uint64_of_uint32 stroff) strsize in
-        let buf = load_bytes d (uint64_of_uint32 symoff) (nsyms * size_nlist d) in
+        let buf =
+          load_bytes d (uint64_of_uint32 symoff) (nsyms * size_nlist d) in
         let size_nlist = size_nlist d in
         let mk i =
           let base = i * size_nlist in
@@ -470,7 +472,8 @@ end
 
 module FlexDLL = struct
 
-  (* Reference: https://docs.microsoft.com/en-us/windows/win32/debug/pe-format *)
+  (* Reference:
+     https://docs.microsoft.com/en-us/windows/win32/debug/pe-format *)
 
   let header_size = 24
 
@@ -501,7 +504,10 @@ module FlexDLL = struct
   let read_optional_header d {e_lfanew; size_of_optional_header; _} =
     if size_of_optional_header = 0 then
       raise (Error (Unrecognized "SizeOfOptionalHeader=0"));
-    let buf = load_bytes d Int64.(add e_lfanew (of_int header_size)) size_of_optional_header in
+    let buf =
+      load_bytes d Int64.(add e_lfanew (of_int header_size))
+        size_of_optional_header
+    in
     let magic =
       match get_uint16 d buf 0 with
       | 0x10b -> PE32
@@ -527,7 +533,8 @@ module FlexDLL = struct
 
   let section_header_size = 40
 
-  let read_sections d {e_lfanew; number_of_sections; size_of_optional_header; _} =
+  let read_sections d
+      {e_lfanew; number_of_sections; size_of_optional_header; _} =
     let buf =
       load_bytes d
         Int64.(add e_lfanew (of_int (header_size + size_of_optional_header)))
@@ -539,8 +546,10 @@ module FlexDLL = struct
       let virtual_size = get_uint "virtual_size" d buf (base + 8) in
       let virtual_address = uint64_of_uint32 (get_uint32 d buf (base + 12)) in
       let size_of_raw_data = get_uint "size_of_raw_data" d buf (base + 16) in
-      let pointer_to_raw_data = uint64_of_uint32 (get_uint32 d buf (base + 20)) in
-      {name; virtual_size; virtual_address; size_of_raw_data; pointer_to_raw_data}
+      let pointer_to_raw_data =
+        uint64_of_uint32 (get_uint32 d buf (base + 20)) in
+      {name; virtual_size; virtual_address;
+       size_of_raw_data; pointer_to_raw_data}
     in
     Array.init number_of_sections mk
 
@@ -557,7 +566,8 @@ module FlexDLL = struct
     array_find (function ({name; _} : section) -> name = sectname) sections
 
   (* We extract the list of exported symbols as encoded by flexlink, see
-     https://github.com/alainfrisch/flexdll/blob/bd636def70d941674275b2f4b6c13a34ba23f9c9/reloc.ml#L500-L525 *)
+     https://github.com/alainfrisch/flexdll/blob/bd636def70d941674275b2f4b6c13a34ba23f9c9/reloc.ml
+     #L500-L525 *)
 
   let read_symbols d {image_base; _} sections =
     match find_section sections ".exptbl" with
@@ -584,10 +594,13 @@ module FlexDLL = struct
     | None -> Fun.const None
     | Some {virtual_address; pointer_to_raw_data; _} ->
         fun symname ->
-          begin match array_find (function {name; _} -> name = symname) symbols with
+          begin match
+            array_find (function {name; _} -> name = symname) symbols
+          with
           | None -> None
           | Some {address; _} ->
-              Some Int64.(add pointer_to_raw_data (sub address (add virtual_address image_base)))
+              Some Int64.(add pointer_to_raw_data
+                            (sub address (add virtual_address image_base)))
           end
 
   let defines_symbol symbols symname =
