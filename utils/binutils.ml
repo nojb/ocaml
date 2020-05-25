@@ -329,6 +329,8 @@ end
 
 module Mach_O = struct
 
+  (* Reference: https://github.com/aidansteele/osx-abi-macho-file-format-reference *)
+
   let size_int = 4
 
   let header_size {bitness; _} =
