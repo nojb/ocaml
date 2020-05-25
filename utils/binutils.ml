@@ -129,7 +129,7 @@ let get_word d buf idx =
   | B64 -> get_uint64 d buf idx
   | B32 -> uint64_of_uint32 (get_uint32 d buf idx)
 
-let int64_to_unsigned_int s n =
+let uint64_to_int s n =
   match Int64.unsigned_to_int n with
   | None -> raise (Error (Unsupported (s, n)))
   | Some n -> n
@@ -202,11 +202,11 @@ module ELF = struct
       let sh_addr = get_word d buf (base + 8 + word_size) in
       let sh_offset = get_word d buf (base + 8 + 2 * word_size) in
       let sh_size =
-        int64_to_unsigned_int "sh_size"
+        uint64_to_int "sh_size"
           (get_word d buf (base + 8 + 3 * word_size))
       in
       let sh_entsize =
-        int64_to_unsigned_int "sh_entsize"
+        uint64_to_int "sh_entsize"
           (get_word d buf (base + 16 + 5 * word_size))
       in
       {sh_name; sh_type; sh_addr; sh_offset;
@@ -234,7 +234,7 @@ module ELF = struct
       let e_shnum =
         if e_shnum = 0 then
           (* The real e_shnum is the sh_size of the initial section.*)
-          int64_to_unsigned_int "e_shnum"
+          uint64_to_int "e_shnum"
             (get_word d (Lazy.force buf) (8 + 3 * word_size))
         else
           e_shnum
@@ -567,7 +567,7 @@ module FlexDLL = struct
     | Some ({virtual_address; _} as exptbl) ->
         let buf = load_section_body d exptbl in
         let numexports =
-          int64_to_unsigned_int "numexports" (get_word d buf 0)
+          uint64_to_int "numexports" (get_word d buf 0)
         in
         let word_size = word_size d in
         let mk i =
@@ -575,7 +575,7 @@ module FlexDLL = struct
           let nameoff = get_word d buf (word_size * (2 * i + 2)) in
           let name =
             let off = Int64.(sub nameoff (add virtual_address image_base)) in
-            name_at buf (int64_to_unsigned_int "exptbl name offset" off)
+            name_at buf (uint64_to_int "exptbl name offset" off)
           in
           {name; address}
         in
