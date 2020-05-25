@@ -129,6 +129,11 @@ let get_word d buf idx =
   | B64 -> get_uint64 d buf idx
   | B32 -> unsigned_of_int32 (get_uint32 d buf idx)
 
+let int64_to_unsigned_int s n =
+  match Int64.unsigned_to_int n with
+  | None -> raise (Error (Unsupported (s, n)))
+  | Some n -> n
+
 let load_bytes d off len =
   LargeFile.seek_in d.ic off;
   really_input_bytes d.ic len
@@ -184,8 +189,14 @@ module ELF = struct
       let sh_name = get_uint "sh_name" d buf (base + 0) in
       let sh_addr = get_word d buf (base + 8 + word_size) in
       let sh_offset = get_word d buf (base + 8 + 2 * word_size) in
-      let sh_size = Int64.to_int (get_word d buf (base + 8 + 3 * word_size)) in
-      let sh_entsize = Int64.to_int (get_word d buf (base + 16 + 5 * word_size)) in
+      let sh_size =
+        int64_to_unsigned_int "sh_size"
+          (get_word d buf (base + 8 + 3 * word_size))
+      in
+      let sh_entsize =
+        int64_to_unsigned_int "sh_entsize"
+          (get_word d buf (base + 16 + 5 * word_size))
+      in
       {sh_name; sh_addr; sh_offset; sh_size; sh_entsize; sh_name_str = ""}
     in
     let sections = Array.init e_shnum mk in
@@ -210,7 +221,8 @@ module ELF = struct
       let e_shnum =
         if e_shnum = 0 then
           (* The real e_shnum is the sh_size of the initial section.*)
-          Int64.to_int (get_word d (Lazy.force buf) (8 + 3 * word_size))
+          int64_to_unsigned_int "e_shnum"
+            (get_word d (Lazy.force buf) (8 + 3 * word_size))
         else
           e_shnum
       in
@@ -516,14 +528,16 @@ module FlexDLL = struct
     | None -> [| |]
     | Some ({virtual_address; _} as exptbl) ->
         let buf = load_section_body d exptbl in
-        let numexports = Int64.to_int (get_word d buf 0) in
+        let numexports =
+          int64_to_unsigned_int "numexports" (get_word d buf 0)
+        in
         let word_size = word_size d in
         let mk i =
           let address = get_word d buf (word_size * (2 * i + 1)) in
           let nameoff = get_word d buf (word_size * (2 * i + 2)) in
           let name =
             let off = Int64.(sub nameoff (add virtual_address image_base)) in
-            name_at buf (Int64.to_int off)
+            name_at buf (int64_to_unsigned_int "exptbl name offset" off)
           in
           {name; address}
         in
