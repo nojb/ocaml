@@ -16,7 +16,7 @@
 type error =
   | Truncated_file
   | Unrecognized of string
-  | Unsupported of string * int
+  | Unsupported of string * int64
   | Out_of_range of string
 
 val string_of_error: error -> string

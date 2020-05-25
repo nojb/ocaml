@@ -25,7 +25,7 @@ let int_to_hex n =
 type error =
   | Truncated_file
   | Unrecognized of string
-  | Unsupported of string * int
+  | Unsupported of string * int64
   | Out_of_range of string
 
 let string_of_error = function
@@ -37,7 +37,7 @@ let string_of_error = function
            (List.init (String.length magic)
               (fun i -> char_to_hex magic.[i])))
   | Unsupported (s, n) ->
-      Printf.sprintf "Unsupported %s: 0x%x" s n
+      Printf.sprintf "Unsupported: %s: 0x%Lx" s n
   | Out_of_range s ->
       Printf.sprintf "Out of range constant: %s" s
 
@@ -113,10 +113,10 @@ let get_uint32 {endianness; _} buf idx =
   | LE -> Bytes.get_int32_le buf idx
   | BE -> Bytes.get_int32_be buf idx
 
-let get_uint d buf idx =
+let get_uint s d buf idx =
   let n = get_uint32 d buf idx in
   match Int32.unsigned_to_int n with
-  | None -> raise (Error (Out_of_range (int32_to_hex n)))
+  | None -> raise (Error (Unsupported (s, Int64.of_int32 n)))
   | Some n -> n
 
 let get_uint64 {endianness; _} buf idx =
@@ -181,7 +181,7 @@ module ELF = struct
     let word_size = word_size d in
     let mk i =
       let base = i * e_shentsize in
-      let sh_name = get_uint d buf (base + 0) in
+      let sh_name = get_uint "sh_name" d buf (base + 0) in
       let sh_addr = get_word d buf (base + 8 + word_size) in
       let sh_offset = get_word d buf (base + 8 + 2 * word_size) in
       let sh_size = Int64.to_int (get_word d buf (base + 8 + 3 * word_size)) in
@@ -217,7 +217,7 @@ module ELF = struct
       let e_shstrndx =
         if e_shstrndx = 0xffff then
           (* The real e_shstrndx is the sh_link of the initial section. *)
-          get_uint d (Lazy.force buf) (8 + 4 * word_size)
+          get_uint "e_shstrndx" d (Lazy.force buf) (8 + 4 * word_size)
         else
           e_shstrndx
       in
@@ -246,7 +246,7 @@ module ELF = struct
             let word_size = word_size d in
             let mk i =
               let base = i * dynsym.sh_entsize in
-              let st_name = name_at strtbl (get_uint d buf base) in
+              let st_name = name_at strtbl (get_uint "st_name" d buf base) in
               let st_value = get_word d buf (base + word_size) in
               let st_shndx =
                 let off = match d.bitness with B64 -> 6 | B32 -> 14 in
@@ -274,13 +274,15 @@ module ELF = struct
       match Bytes.get identification 4 with
       | '\x01' -> B32
       | '\x02' -> B64
-      | _ as c -> raise (Error (Unsupported ("ELFCLASS", Char.code c)))
+      | _ as c ->
+          raise (Error (Unsupported ("ELFCLASS", Int64.of_int (Char.code c))))
     in
     let endianness =
       match Bytes.get identification 5 with
       | '\x01' -> LE
       | '\x02' -> BE
-      | _ as c -> raise (Error (Unsupported ("ELFDATA", Char.code c)))
+      | _ as c ->
+          raise (Error (Unsupported ("ELFDATA", Int64.of_int (Char.code c))))
     in
     let d = {ic; bitness; endianness} in
     let header = read_header d in
@@ -306,8 +308,8 @@ module Mach_O = struct
 
   let read_header d =
     let buf = load_bytes d 0L (header_size d) in
-    let ncmds = get_uint d buf (8 + 2 * size_int) in
-    let sizeofcmds = get_uint d buf (12 + 2 * size_int) in
+    let ncmds = get_uint "ncmds" d buf (8 + 2 * size_int) in
+    let sizeofcmds = get_uint "sizeofcmds" d buf (12 + 2 * size_int) in
     {ncmds; sizeofcmds}
 
   type lc_symtab =
@@ -327,14 +329,14 @@ module Mach_O = struct
     let base = ref 0 in
     let mk _ =
       let cmd = get_uint32 d buf (!base + 0) in
-      let cmdsize = get_uint d buf (!base + 4) in
+      let cmdsize = get_uint "cmdsize" d buf (!base + 4) in
       let lc =
         match cmd with
         | 0x2l ->
             let symoff = get_uint32 d buf (!base + 8) in
-            let nsyms = get_uint d buf (!base + 12) in
+            let nsyms = get_uint "nsyms" d buf (!base + 12) in
             let stroff = get_uint32 d buf (!base + 16) in
-            let strsize = get_uint d buf (!base + 20) in
+            let strsize = get_uint "strsize" d buf (!base + 20) in
             LC_SYMTAB {symoff; nsyms; stroff; strsize}
         | _ ->
             OTHER
@@ -367,7 +369,7 @@ module Mach_O = struct
         let size_nlist = size_nlist d in
         let mk i =
           let base = i * size_nlist in
-          let n_name = name_at strtbl (get_uint d buf (base + 0)) in
+          let n_name = name_at strtbl (get_uint "n_name" d buf (base + 0)) in
           let n_value = get_word d buf (base + 8) in
           {n_name; n_value}
         in
@@ -459,7 +461,8 @@ module FlexDLL = struct
       match get_uint16 d buf 0 with
       | 0x10b -> PE32
       | 0x20b -> PE32PLUS
-      | n -> raise (Error (Unsupported ("optional header magic", n)))
+      | n ->
+          raise (Error (Unsupported ("optional_header_magic", Int64.of_int n)))
     in
     let image_base =
       match magic with
@@ -488,9 +491,9 @@ module FlexDLL = struct
     let mk i =
       let base = i * section_header_size in
       let name = name_at ~max_len:8 buf (base + 0) in
-      let virtual_size = get_uint d buf (base + 8) in
+      let virtual_size = get_uint "virtual_size" d buf (base + 8) in
       let virtual_address = unsigned_of_int32 (get_uint32 d buf (base + 12)) in
-      let size_of_raw_data = get_uint d buf (base + 16) in
+      let size_of_raw_data = get_uint "size_of_raw_data" d buf (base + 16) in
       let pointer_to_raw_data = unsigned_of_int32 (get_uint32 d buf (base + 20)) in
       {name; virtual_size; virtual_address; size_of_raw_data; pointer_to_raw_data}
     in
@@ -556,7 +559,7 @@ module FlexDLL = struct
       match Bytes.get_uint16_le buf 4 with
       | 0x8664 -> IMAGE_FILE_MACHINE_AMD64
       | 0x14c -> IMAGE_FILE_MACHINE_I386
-      | n -> raise (Error (Unsupported ("MACHINETYPE", n)))
+      | n -> raise (Error (Unsupported ("MACHINETYPE", Int64.of_int n)))
     in
     let bitness =
       match machine with
