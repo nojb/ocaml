@@ -194,10 +194,11 @@ module ELF = struct
       sections
     else
       let shstrtbl = load_section_body d sections.(e_shstrndx) in
-      Array.map (fun sec ->
+      let set_name sec =
         let sh_name_str = name_at shstrtbl sec.sh_name in
         {sec with sh_name_str}
-      ) sections
+      in
+      Array.map set_name sections
 
   let read_sections d h =
     let {e_shoff; e_shentsize; e_shnum; e_shstrndx} = h in
