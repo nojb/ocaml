@@ -38,7 +38,13 @@ type dll_address
    Return [None] if the primitive is found in a DLL opened "for checking"
    (see above).
    Raise [Not_found] if not found. *)
-val find_primitive: string -> dll_address option
+
+type primitive_address =
+  | Prim_loaded of dll_address (* Primitive found in a DLL opened
+                                  "for execution" *)
+  | Prim_exists (* Primitive found in a DLL opened "for checking" *)
+
+val find_primitive: string -> primitive_address option
 
 (* If linking in core (dynlink or toplevel), synchronize the VM
    table of primitive with the linker's table of primitive

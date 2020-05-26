@@ -105,22 +105,25 @@ let close_all_dlls () =
   opened_dlls := [];
   names_of_opened_dlls := []
 
-(* Find a primitive in the currently opened DLLs.
-   Raise [Not_found] if not found. *)
+(* Find a primitive in the currently opened DLLs. *)
+
+type primitive_address =
+  | Prim_loaded of dll_address
+  | Prim_exists
 
 let find_primitive prim_name =
   let rec find seen = function
     [] ->
-      raise Not_found
+      None
   | Execution dll as curr :: rem ->
       let addr = dll_sym dll prim_name in
       if addr == Obj.magic () then find (curr :: seen) rem else begin
         if seen <> [] then opened_dlls := curr :: List.rev_append seen rem;
-        Some addr
+        Some (Prim_loaded addr)
       end
   | Checking t as curr :: rem ->
       if Binutils.defines_symbol t prim_name then
-        None
+        Some Prim_exists
       else
         find (curr :: seen) rem
   in
