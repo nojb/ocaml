@@ -248,7 +248,6 @@ _build
 /tools/ocamlmklib
 /tools/ocamlmklib.opt
 /tools/ocamlmklibconfig.ml
-/tools/objinfo_helper
 /tools/read_cmt
 /tools/read_cmt.opt
 /tools/cmpbyt
