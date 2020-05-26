@@ -77,10 +77,7 @@ let really_input_bytes ic len =
   buf
 
 let uint64_of_uint32 n =
-  if n >= 0l then
-    Int64.of_int32 n
-  else
-    Int64.(logand (of_int32 n) 0xffffffffL)
+  Int64.(logand (of_int32 n) 0xffffffffL)
 
 type endianness =
   | LE
