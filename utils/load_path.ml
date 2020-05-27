@@ -12,6 +12,39 @@
 (*                                                                        *)
 (**************************************************************************)
 
+module Inc = struct
+  type t = string list
+  (* Kept in reverse order *)
+
+  let empty = []
+
+  let add x l = x :: l
+
+  let add_dir x l = x :: l
+
+  let from_dirs = List.rev
+
+  let dirs = List.rev
+
+  let from_paths = List.rev
+
+  let paths = List.rev
+
+  let mem = List.mem
+
+  let expand_directory dir = List.map (Misc.expand_directory dir)
+
+  let concat l = List.concat (List.rev l)
+
+  let append l l' = List.append l' l
+
+  let find s l = Misc.find_in_path (List.rev l) s
+
+  let find_rel s l = Misc.find_in_path_rel (List.rev l) s
+
+  let find_uncap s l = Misc.find_in_path_uncap (List.rev l) s
+end
+
 module SMap = Misc.Stdlib.String.Map
 
 (* Mapping from basenames to full filenames *)
@@ -51,6 +84,7 @@ let reset () =
 
 let get () = !dirs
 let get_paths () = List.map Dir.path !dirs
+let get_dirs () = Inc.dirs (get_paths ())
 
 let add dir =
   let add_file base =
@@ -72,7 +106,7 @@ let add_dir dir = add (Dir.create dir)
 
 let init l =
   reset ();
-  List.iter add_dir (List.rev l)
+  List.iter add_dir (Inc.paths l)
 
 let is_basename fn = Filename.basename fn = fn
 
@@ -80,10 +114,10 @@ let find fn =
   if is_basename fn then
     SMap.find fn !files
   else
-    Misc.find_in_path (get_paths ()) fn
+    Inc.find fn (get_paths ())
 
 let find_uncap fn =
   if is_basename fn then
     SMap.find (String.uncapitalize_ascii fn) !files_uncap
   else
-    Misc.find_in_path_uncap (get_paths ()) fn
+    Inc.find_uncap fn (get_paths ())

@@ -109,7 +109,7 @@ clean::
 
 CSLPROF=ocamlprof.cmo
 CSLPROF_IMPORTS=config.cmo build_path_prefix_map.cmo misc.cmo identifiable.cmo \
-  numbers.cmo arg_helper.cmo clflags.cmo terminfo.cmo \
+  load_path.cmo numbers.cmo arg_helper.cmo clflags.cmo terminfo.cmo \
   warnings.cmo location.cmo longident.cmo docstrings.cmo \
   syntaxerr.cmo ast_helper.cmo \
   camlinternalMenhirLib.cmo parser.cmo \
@@ -120,8 +120,8 @@ $(call byte_and_opt,ocamlprof,$(CSLPROF_IMPORTS) profiling.cmo $(CSLPROF),)
 
 ocamlcp_cmos = config.cmo build_path_prefix_map.cmo misc.cmo profile.cmo \
                warnings.cmo identifiable.cmo numbers.cmo arg_helper.cmo \
-               clflags.cmo \
-               terminfo.cmo location.cmo load_path.cmo ccomp.cmo compenv.cmo \
+               load_path.cmo clflags.cmo \
+               terminfo.cmo location.cmo ccomp.cmo compenv.cmo \
                main_args.cmo
 
 $(call byte_and_opt,ocamlcp,$(ocamlcp_cmos) ocamlcp.cmo,)
@@ -167,8 +167,8 @@ clean::
 
 OCAMLMKTOP=ocamlmktop.cmo
 OCAMLMKTOP_IMPORTS=config.cmo build_path_prefix_map.cmo misc.cmo \
-       identifiable.cmo numbers.cmo arg_helper.cmo clflags.cmo \
-       load_path.cmo profile.cmo ccomp.cmo
+       identifiable.cmo numbers.cmo arg_helper.cmo load_path.cmo \
+       clflags.cmo profile.cmo ccomp.cmo
 
 $(call byte_and_opt,ocamlmktop,$(OCAMLMKTOP_IMPORTS) $(OCAMLMKTOP),)
 

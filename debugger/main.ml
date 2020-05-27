@@ -148,8 +148,7 @@ exception Found_program_name
 let anonymous s =
   program_name := Unix_tools.make_absolute s; raise Found_program_name
 let add_include d =
-  default_load_path :=
-    Misc.expand_directory Config.standard_library d :: !default_load_path
+  default_load_path := Load_path.Inc.add_dir d !default_load_path
 let set_socket s =
   socket_name := s
 let set_topdirs_path s =
@@ -230,7 +229,9 @@ let main () =
     if !Parameters.version
     then printf "\tOCaml Debugger version %s@.@." Config.version;
     Loadprinter.init();
-    Load_path.init !default_load_path;
+    Load_path.init
+      (Load_path.Inc.expand_directory Config.standard_library
+         !default_load_path);
     Clflags.recursive_types := true;    (* Allow recursive types. *)
     toplevel_loop ();                   (* Toplevel. *)
     kill_program ();

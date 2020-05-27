@@ -27,6 +27,7 @@ utils/clflags.cmo : \
     utils/profile.cmi \
     utils/numbers.cmi \
     utils/misc.cmi \
+    utils/load_path.cmi \
     utils/config.cmi \
     utils/arg_helper.cmi \
     utils/clflags.cmi
@@ -34,12 +35,14 @@ utils/clflags.cmx : \
     utils/profile.cmx \
     utils/numbers.cmx \
     utils/misc.cmx \
+    utils/load_path.cmx \
     utils/config.cmx \
     utils/arg_helper.cmx \
     utils/clflags.cmi
 utils/clflags.cmi : \
     utils/profile.cmi \
-    utils/misc.cmi
+    utils/misc.cmi \
+    utils/load_path.cmi
 utils/config.cmo : \
     utils/config.cmi
 utils/config.cmx : \
@@ -3667,6 +3670,7 @@ file_formats/cmt_format.cmi : \
     typing/typedtree.cmi \
     utils/misc.cmi \
     parsing/location.cmi \
+    utils/load_path.cmi \
     typing/env.cmi \
     file_formats/cmi_format.cmi
 file_formats/cmx_format.cmi : \
@@ -5696,6 +5700,7 @@ driver/compenv.cmo : \
     utils/profile.cmi \
     utils/misc.cmi \
     parsing/location.cmi \
+    utils/load_path.cmi \
     utils/config.cmi \
     utils/clflags.cmi \
     utils/ccomp.cmi \
@@ -5705,11 +5710,13 @@ driver/compenv.cmx : \
     utils/profile.cmx \
     utils/misc.cmx \
     parsing/location.cmx \
+    utils/load_path.cmx \
     utils/config.cmx \
     utils/clflags.cmx \
     utils/ccomp.cmx \
     driver/compenv.cmi
-driver/compenv.cmi :
+driver/compenv.cmi : \
+    utils/load_path.cmi
 driver/compile.cmo : \
     lambda/translmod.cmi \
     lambda/simplif.cmi \
@@ -5856,6 +5863,7 @@ driver/main_args.cmo : \
     utils/warnings.cmi \
     utils/profile.cmi \
     utils/misc.cmi \
+    utils/load_path.cmi \
     utils/config.cmi \
     driver/compenv.cmi \
     utils/clflags.cmi \
@@ -5864,6 +5872,7 @@ driver/main_args.cmx : \
     utils/warnings.cmx \
     utils/profile.cmx \
     utils/misc.cmx \
+    utils/load_path.cmx \
     utils/config.cmx \
     driver/compenv.cmx \
     utils/clflags.cmx \
@@ -5876,6 +5885,7 @@ driver/makedepend.cmo : \
     parsing/parse.cmi \
     utils/misc.cmi \
     parsing/location.cmi \
+    utils/load_path.cmi \
     parsing/lexer.cmi \
     parsing/depend.cmi \
     utils/config.cmi \
@@ -5889,6 +5899,7 @@ driver/makedepend.cmx : \
     parsing/parse.cmx \
     utils/misc.cmx \
     parsing/location.cmx \
+    utils/load_path.cmx \
     parsing/lexer.cmx \
     parsing/depend.cmx \
     utils/config.cmx \
@@ -6378,6 +6389,7 @@ toplevel/topmain.cmo : \
     utils/misc.cmi \
     driver/main_args.cmi \
     parsing/location.cmi \
+    utils/load_path.cmi \
     driver/compmisc.cmi \
     driver/compenv.cmi \
     utils/clflags.cmi \
@@ -6388,6 +6400,7 @@ toplevel/topmain.cmx : \
     utils/misc.cmx \
     driver/main_args.cmx \
     parsing/location.cmx \
+    utils/load_path.cmx \
     driver/compmisc.cmx \
     driver/compenv.cmx \
     utils/clflags.cmx \

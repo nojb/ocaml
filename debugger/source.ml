@@ -16,7 +16,6 @@
 
 (************************ Source management ****************************)
 
-open Misc
 open Primitives
 
 let source_extensions = [".ml"]
@@ -52,11 +51,11 @@ let source_of_module pos mdle =
       function
         | [] -> raise Not_found
         | ext :: exts ->
-          try find_in_path_uncap path (innermost_module ^ ext)
+          try Load_path.Inc.find_uncap (innermost_module ^ ext) path
           with Not_found -> loop exts
     in loop source_extensions
   else if Filename.is_relative fname then
-    find_in_path_rel path fname
+    Load_path.Inc.find_rel fname path
   else if Sys.file_exists fname then fname
   else raise Not_found
 

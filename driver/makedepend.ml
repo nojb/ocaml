@@ -80,14 +80,18 @@ let readdir dir =
 let add_to_list li s =
   li := s :: !li
 
-let add_to_load_path dir =
-  try
-    let dir = Misc.expand_directory Config.standard_library dir in
-    let contents = readdir dir in
-    add_to_list load_path (dir, contents)
-  with Sys_error msg ->
-    Format.fprintf Format.err_formatter "@[Bad -I option: %s@]@." msg;
-    Error_occurred.set ()
+let add_to_load_path includes =
+  let add dir =
+    try
+      let contents = readdir dir in
+      add_to_list load_path (dir, contents)
+    with Sys_error msg ->
+      Format.fprintf Format.err_formatter "@[Bad -I option: %s@]@." msg;
+      Error_occurred.set ()
+  in
+  let includes =
+    Load_path.Inc.expand_directory Config.standard_library includes in
+  List.iter add (Load_path.Inc.paths includes)
 
 let add_to_synonym_list synonyms suffix =
   if (String.length suffix) > 1 && suffix.[0] = '.' then
@@ -408,12 +412,12 @@ let process_file_as process_fun def source_file =
   Compenv.readenv ppf (Before_compile source_file);
   load_path := [];
   let cwd = if !nocwd then [] else [Filename.current_dir_name] in
-  List.iter add_to_load_path (
-      (!Compenv.last_include_dirs @
-       !Clflags.include_dirs @
-       !Compenv.first_include_dirs @
-       cwd
-      ));
+  add_to_load_path
+    (Load_path.Inc.concat
+       [ Load_path.Inc.from_dirs cwd;
+         !Compenv.first_includes;
+         !Clflags.includes;
+         !Compenv.last_includes ]);
   Location.input_name := source_file;
   try
     if Sys.file_exists source_file then process_fun source_file else def
@@ -591,7 +595,8 @@ let main () =
       (* "compiler uses -no-alias-deps, and no module is coerced"; *)
      "-debug-map", Arg.Set debug,
         " Dump the delayed dependency map for each map file";
-     "-I", Arg.String (add_to_list Clflags.include_dirs),
+     "-I", Arg.String (fun dir ->
+         Clflags.includes := Load_path.Inc.add_dir dir !Clflags.includes),
         "<dir>  Add <dir> to the list of include directories";
      "-nocwd", Arg.Set nocwd,
         " Do not add current working directory to \

@@ -561,19 +561,21 @@ let set_paths () =
   (* Add whatever -I options have been specified on the command line,
      but keep the directories that user code linked in with ocamlmktop
      may have added to load_path. *)
-  let expand = Misc.expand_directory Config.standard_library in
   let current_load_path = Load_path.get_paths () in
-  let load_path = List.concat [
-      [ "" ];
-      List.map expand (List.rev !Compenv.first_include_dirs);
-      List.map expand (List.rev !Clflags.include_dirs);
-      List.map expand (List.rev !Compenv.last_include_dirs);
+  let load_path =
+    Load_path.Inc.concat [
+      Load_path.Inc.from_dirs [ "" ];
+      !Compenv.first_includes;
+      !Clflags.includes;
+      !Compenv.last_includes;
       current_load_path;
-      [expand "+camlp4"];
+      Load_path.Inc.from_dirs ["+camlp4"];
     ]
   in
-  Load_path.init load_path;
-  Dll.add_path load_path
+  Load_path.init
+    (Load_path.Inc.expand_directory Config.standard_library
+       load_path);
+  Dll.add_path (Load_path.Inc.dirs load_path)
 
 let initialize_toplevel_env () =
   toplevel_env := Compmisc.initial_env()

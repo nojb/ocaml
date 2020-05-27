@@ -76,12 +76,12 @@ COMPILERLIBS_SOURCES=\
   utils/identifiable.ml \
   utils/numbers.ml \
   utils/arg_helper.ml \
+  utils/load_path.ml \
   utils/clflags.ml \
   utils/profile.ml \
   utils/consistbl.ml \
   utils/terminfo.ml \
   utils/warnings.ml \
-  utils/load_path.ml \
   utils/int_replace_polymorphic_compare.ml \
   parsing/location.ml \
   parsing/longident.ml \
