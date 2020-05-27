@@ -12,37 +12,53 @@
 (*                                                                        *)
 (**************************************************************************)
 
+module Rev_list = Misc.Rev_list
+
 module Inc = struct
-  type t = string list
+  type entry =
+    | File of string
+    | Dir of string
+
+  type t = entry Rev_list.t
   (* Kept in reverse order *)
 
-  let empty = []
+  let entry_to_dir = function
+    | File _ -> None
+    | Dir x -> Some x
 
-  let add x l = x :: l
+  let map_entry f = function
+    | File x -> File (f x)
+    | Dir x -> Dir (f x)
 
-  let add_dir x l = x :: l
+  let empty = Rev_list.empty
 
-  let from_dirs = List.rev
+  let add = Rev_list.add
 
-  let dirs = List.rev
+  let add_file x l = add (File x) l
 
-  let from_paths = List.rev
+  let add_dir x l = add (Dir x) l
 
-  let paths = List.rev
+  let from_dirs l = Rev_list.of_list (List.map (fun s -> Dir s) l)
 
-  let mem = List.mem
+  let dirs l = Rev_list.to_list (Rev_list.filter_map entry_to_dir l)
 
-  let expand_directory dir = List.map (Misc.expand_directory dir)
+  let from_paths = Rev_list.of_list
 
-  let concat l = List.concat (List.rev l)
+  let paths = Rev_list.to_list
 
-  let append l l' = List.append l' l
+  let mem x l = Rev_list.exists (fun y -> x = y) l (* FIXME *)
 
-  let find s l = Misc.find_in_path (List.rev l) s
+  let expand_directory dir = Rev_list.map (map_entry (Misc.expand_directory dir))
 
-  let find_rel s l = Misc.find_in_path_rel (List.rev l) s
+  let concat = Rev_list.concat
 
-  let find_uncap s l = Misc.find_in_path_uncap (List.rev l) s
+  let append = Rev_list.append
+
+  let find s l = Misc.find_in_path (dirs l) s (* FIXME *)
+
+  let find_rel s l = Misc.find_in_path_rel (dirs l) s (* FIXME *)
+
+  let find_uncap s l = Misc.find_in_path_uncap (dirs l) s (* FIXME *)
 end
 
 module SMap = Misc.Stdlib.String.Map
@@ -75,38 +91,62 @@ module Dir = struct
     { path; files = Array.to_list (readdir_compat path) }
 end
 
-let dirs = ref []
+module Entry = struct
+  type t =
+    | Dir of Dir.t
+    | File of string
+
+  let path = function
+    | Dir x -> Inc.Dir (Dir.path x)
+    | File x -> Inc.File x
+end
+
+let entries = ref (Rev_list.empty : Entry.t Rev_list.t)
 
 let reset () =
   files := SMap.empty;
   files_uncap := SMap.empty;
-  dirs := []
+  entries := Rev_list.empty
 
-let get () = !dirs
-let get_paths () = List.map Dir.path !dirs
+let get () = Rev_list.to_list !entries
+let get_paths () = Rev_list.map Entry.path !entries
 let get_dirs () = Inc.dirs (get_paths ())
 
-let add dir =
-  let add_file base =
-    let fn = Filename.concat dir.Dir.path base in
+let add_entry entry =
+  let add_file fn base =
+    let fn = fn base in
     files := SMap.add base fn !files;
     files_uncap := SMap.add (String.uncapitalize_ascii base) fn !files_uncap;
   in
-  List.iter add_file dir.Dir.files;
-  dirs := dir :: !dirs
+  begin match entry with
+  | Entry.Dir dir ->
+      List.iter (add_file (Filename.concat dir.Dir.path)) dir.Dir.files;
+  | Entry.File file ->
+      add_file (Fun.const file) (Filename.basename file)
+  end;
+  entries := Rev_list.add entry !entries
+
+let add x =
+  add_entry
+    (match x with
+     | Inc.File file -> Entry.File file
+     | Inc.Dir dir -> Entry.Dir (Dir.create dir))
 
 let remove_dir dir =
-  let new_dirs = List.filter (fun d -> Dir.path d <> dir) !dirs in
-  if new_dirs <> !dirs then begin
+  let new_entries = get_paths () in
+  let new_entries =
+    Rev_list.filter (function Inc.Dir d -> d <> dir | _ -> true) new_entries in
+  if Rev_list.compare_length new_entries !entries <> 0 then begin
     reset ();
-    List.iter add (List.rev new_dirs)
+    List.iter add (Inc.paths new_entries)
   end
 
-let add_dir dir = add (Dir.create dir)
+let add_dir dir = add (Inc.Dir dir)
+let add_file file = add (Inc.File file)
 
 let init l =
   reset ();
-  List.iter add_dir (Inc.paths l)
+  List.iter add (Inc.paths l)
 
 let is_basename fn = Filename.basename fn = fn
 

@@ -40,11 +40,19 @@ module Inc : sig
   type t
   (** The type of include specifications. *)
 
+  type entry =
+    | File of string
+    | Dir of string
+  (** The type of include specification entries. *)
+
   val empty : t
   (** The empty include specification. *)
 
-  val add : string -> t -> t
+  val add : entry -> t -> t
   (** Append an entry to the include specification. *)
+
+  val add_file : string -> t -> t
+  (** Append a file to the include specification. *)
 
   val add_dir : string -> t -> t
   (** Append a directory to the include specification. *)
@@ -55,13 +63,13 @@ module Inc : sig
   val dirs : t -> string list
   (** The sub sequence of {e directories} in the given include specification. *)
 
-  val from_paths : string list -> t
+  val from_paths : entry list -> t
   (** [from_paths l] is equivalent to [List.fold add l empty]. *)
 
-  val paths : t -> string list
+  val paths : t -> entry list
   (** The sequence of entries in the given include specification. *)
 
-  val mem : string -> t -> bool
+  val mem : entry -> t -> bool
   (** Whether an entry already appears in the include specification. *)
 
   val expand_directory : string -> t -> t
@@ -87,6 +95,9 @@ end
 
 val add_dir : string -> unit
 (** Add a directory to the load path *)
+
+val add_file : string -> unit
+(** Add a file to the load path *)
 
 val remove_dir : string -> unit
 (** Remove a directory from the load path *)
@@ -127,7 +138,15 @@ module Dir : sig
       sub-directories of this directory. *)
 end
 
-val add : Dir.t -> unit
+module Entry : sig
+  type t =
+    | Dir of Dir.t
+    | File of string
+end
 
-val get : unit -> Dir.t list
-(** Same as [get_paths ()], except that it returns a [Dir.t list]. *)
+val add_entry : Entry.t -> unit
+
+val add : Inc.entry -> unit
+
+val get : unit -> Entry.t list
+(** Same as [get_paths ()], except that it returns an [Entry.t list]. *)
