@@ -13,6 +13,8 @@
 (*                                                                        *)
 (**************************************************************************)
 
+[@@@ocaml.warning "-3"]
+
 let generic_quote quotequote s =
   let l = String.length s in
   let b = Buffer.create (l + 20) in
@@ -69,17 +71,17 @@ let generic_dirname is_dir_sep current_dir_name name =
   then current_dir_name
   else trailing_sep (String.length name - 1)
 
-module type SYSDEPS = sig
+module type S = sig
   val null : string
   val current_dir_name : string
   val parent_dir_name : string
   val dir_sep : string
-  val is_dir_sep : string -> int -> bool
   val is_relative : string -> bool
   val is_implicit : string -> bool
   val check_suffix : string -> string -> bool
   val chop_suffix_opt : suffix:string -> string -> string option
   val temp_dir_name : string
+  [@@ocaml.deprecated "Use Filename.get_temp_dir_name instead"]
   val quote : string -> string
   val quote_command :
     string -> ?stdin: string -> ?stdout: string -> ?stderr: string
@@ -88,7 +90,12 @@ module type SYSDEPS = sig
   val dirname : string -> string
 end
 
-module Unix : SYSDEPS = struct
+module type T = sig
+  include S
+  val is_dir_sep : string -> int -> bool
+end
+
+module Unix : T = struct
   let null = "/dev/null"
   let current_dir_name = "."
   let parent_dir_name = ".."
@@ -129,7 +136,7 @@ module Unix : SYSDEPS = struct
   let dirname = generic_dirname is_dir_sep current_dir_name
 end
 
-module Win32 : SYSDEPS = struct
+module Win32 : T = struct
   let null = "NUL"
   let current_dir_name = "."
   let parent_dir_name = ".."
@@ -263,7 +270,7 @@ Quoting commands for execution by cmd.exe is difficult.
     generic_basename is_dir_sep current_dir_name path
 end
 
-module Cygwin : SYSDEPS = struct
+module Cygwin : T = struct
   let null = "/dev/null"
   let current_dir_name = "."
   let parent_dir_name = ".."
@@ -282,9 +289,9 @@ end
 
 module Sysdeps =
   (val (match Sys.os_type with
-       | "Win32" -> (module Win32: SYSDEPS)
-       | "Cygwin" -> (module Cygwin: SYSDEPS)
-       | _ -> (module Unix: SYSDEPS)))
+       | "Win32" -> (module Win32: T)
+       | "Cygwin" -> (module Cygwin: T)
+       | _ -> (module Unix: T)))
 
 include Sysdeps
 
