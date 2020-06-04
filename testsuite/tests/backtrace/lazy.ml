@@ -1,9 +1,10 @@
 (* TEST
    flags = "-g"
-   ocamlrunparam += ",b=1"
    * native
 *)
 
+let () =
+  Printexc.record_backtrace true
 
 let l1 : unit lazy_t = lazy (raise Not_found)
 
