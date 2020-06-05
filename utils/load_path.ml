@@ -12,6 +12,31 @@
 (*                                                                        *)
 (**************************************************************************)
 
+type t = string list
+(* Kept in reverse order *)
+
+let empty = []
+
+let of_dirs l = List.rev l
+
+let of_paths l = List.rev l
+
+let add_dir t dir = dir :: t
+
+let dirs t = List.rev t
+
+let paths t = List.rev t
+
+let mem s t = List.mem s t
+
+let concat ts = List.concat (List.rev ts)
+
+let expand_directory dir t = List.map (Misc.expand_directory dir) t
+
+let find fn t = Misc.find_in_path (List.rev t) fn
+
+let find_uncap fn t = Misc.find_in_path_uncap (List.rev t) fn
+
 module Cache = struct
   module SMap = Misc.Stdlib.String.Map
 
@@ -51,7 +76,7 @@ module Cache = struct
     dirs := []
 
   let get () = List.rev !dirs
-  let get_paths () = List.rev_map Dir.path !dirs
+  let get_paths () = List.map Dir.path !dirs
 
   let add_to_maps fn basenames files files_uncap =
     List.fold_left (fun (files, files_uncap) base ->
@@ -74,7 +99,7 @@ module Cache = struct
 
   let init l =
     reset ();
-    dirs := List.rev_map Dir.create l;
+    dirs := List.map Dir.create l;
     List.iter add !dirs
 
   let remove_dir dir =
@@ -106,11 +131,11 @@ module Cache = struct
     if is_basename fn then
       SMap.find fn !files
     else
-      Misc.find_in_path (get_paths ()) fn
+      find fn (get_paths ())
 
   let find_uncap fn =
     if is_basename fn then
       SMap.find (String.uncapitalize_ascii fn) !files_uncap
     else
-      Misc.find_in_path_uncap (get_paths ()) fn
+      find_uncap fn (get_paths ())
 end
