@@ -787,6 +787,14 @@ module PpxContext = struct
     then Exp.construct (lid "true") None
     else Exp.construct (lid "false") None
 
+  let make_path = function
+    | Load_path.Dir s ->
+        Exp.construct (lid "Dir")
+          (Some (Exp.constant (Const.string s)))
+    | Load_path.File s ->
+        Exp.construct (lid "File")
+          (Some (Exp.constant (Const.string s)))
+
   let rec make_list f lst =
     match lst with
     | x :: rest ->
@@ -818,9 +826,9 @@ module PpxContext = struct
     let fields =
       [
         lid "tool_name",    make_string tool_name;
-        lid "include_dirs", make_list make_string
+        lid "load_path", make_list make_path
           (Load_path.paths !Clflags.load_path);
-        lid "load_path",    make_list make_string
+        lid "cached_load_path", make_list make_path
           (Load_path.paths (Load_path.Cache.get_paths ()));
         lid "open_modules", make_list make_string !Clflags.open_modules;
         lid "for_package",  make_option make_string !Clflags.for_package;
@@ -860,6 +868,20 @@ module PpxContext = struct
             false
         | _ -> raise_errorf "Internal error: invalid [@@@ocaml.ppx.context \
                              { %s }] bool syntax" name
+      and get_path = function
+        | {pexp_desc =
+             Pexp_construct
+               ({txt = Longident.Lident "Dir"},
+                Some {pexp_desc = Pexp_constant (Pconst_string (s, _, None)); _}); _} ->
+            Load_path.Dir s
+        | {pexp_desc =
+             Pexp_construct
+               ({txt = Longident.Lident "File"},
+                Some {pexp_desc = Pexp_constant (Pconst_string (s, _, None)); _}); _} ->
+            Load_path.File s
+        | _ ->
+            raise_errorf "Internal error: invalid [@@@ocaml.ppx.context \
+                          { %s }] path syntax" name
       and get_list elem = function
         | {pexp_desc =
              Pexp_construct ({txt = Longident.Lident "::"},
@@ -888,12 +910,12 @@ module PpxContext = struct
       match name with
       | "tool_name" ->
           tool_name_ref := get_string payload
-      | "include_dirs" ->
-          Clflags.load_path :=
-            Load_path.of_paths (get_list get_string payload)
       | "load_path" ->
+          Clflags.load_path :=
+            Load_path.of_paths (get_list get_path payload)
+      | "cached_load_path" ->
           Load_path.Cache.init
-            (Load_path.of_paths (get_list get_string payload))
+            (Load_path.of_paths (get_list get_path payload))
       | "open_modules" ->
           Clflags.open_modules := get_list get_string payload
       | "for_package" ->
