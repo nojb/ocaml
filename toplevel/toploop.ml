@@ -442,7 +442,7 @@ let use_file ppf ~wrap_in_module name =
   | "" ->
     use_channel ppf ~wrap_in_module stdin name "(stdin)"
   | _ ->
-    match Load_path.find name with
+    match Load_path.Cache.find name with
     | filename ->
       let ic = open_in_bin filename in
       Misc.try_finally ~always:(fun () -> close_in ic)
@@ -562,7 +562,7 @@ let set_paths () =
      but keep the directories that user code linked in with ocamlmktop
      may have added to load_path. *)
   let expand = Misc.expand_directory Config.standard_library in
-  let current_load_path = Load_path.get_paths () in
+  let current_load_path = Load_path.Cache.get_paths () in
   let load_path = List.concat [
       [ "" ];
       List.map expand (List.rev !Compenv.first_include_dirs);
@@ -572,7 +572,7 @@ let set_paths () =
       [expand "+camlp4"];
     ]
   in
-  Load_path.init load_path;
+  Load_path.Cache.init load_path;
   Dll.add_path load_path
 
 let initialize_toplevel_env () =

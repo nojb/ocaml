@@ -120,14 +120,14 @@ let runtime_lib () =
   let libname = "libasmrun" ^ !Clflags.runtime_variant ^ ext_lib in
   try
     if !Clflags.nopervasives || not !Clflags.with_runtime then []
-    else [ Load_path.find libname ]
+    else [ Load_path.Cache.find libname ]
   with Not_found ->
     raise(Error(File_not_found libname))
 
 let object_file_name name =
   let file_name =
     try
-      Load_path.find name
+      Load_path.Cache.find name
     with Not_found ->
       fatal_errorf "Asmlink.object_file_name: %s not found" name in
   if Filename.check_suffix file_name ".cmx" then
@@ -167,7 +167,7 @@ type file =
 let read_file obj_name =
   let file_name =
     try
-      Load_path.find obj_name
+      Load_path.Cache.find obj_name
     with Not_found ->
       raise(Error(File_not_found obj_name)) in
   if Filename.check_suffix file_name ".cmx" then begin

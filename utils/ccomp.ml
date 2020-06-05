@@ -172,7 +172,7 @@ let expand_libname name =
     let libname =
       "lib" ^ String.sub name 2 (String.length name - 2) ^ Config.ext_lib in
     try
-      Load_path.find libname
+      Load_path.Cache.find libname
     with Not_found ->
       libname
   end
@@ -203,7 +203,7 @@ let call_linker mode output_name files extra =
         Printf.sprintf "%s%s %s %s %s"
           Config.native_pack_linker
           (Filename.quote output_name)
-          (quote_prefixed l_prefix (Load_path.get_paths ()))
+          (quote_prefixed l_prefix (Load_path.Cache.get_paths ()))
           (quote_files (remove_Wl files))
           extra
       else
@@ -217,7 +217,7 @@ let call_linker mode output_name files extra =
           )
           (Filename.quote output_name)
           ""  (*(Clflags.std_include_flag "-I")*)
-          (quote_prefixed "-L" (Load_path.get_paths ()))
+          (quote_prefixed "-L" (Load_path.Cache.get_paths ()))
           (String.concat " " (List.rev !Clflags.all_ccopts))
           (quote_files files)
           extra
