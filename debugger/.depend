@@ -2,8 +2,8 @@ breakpoints.cmo : \
     symbols.cmi \
     pos.cmi \
     parameters.cmi \
-    ../utils/compilerlibs__misc.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     exec.cmi \
     events.cmi \
     debugger_config.cmi \
@@ -15,8 +15,8 @@ breakpoints.cmx : \
     symbols.cmx \
     pos.cmx \
     parameters.cmx \
-    ../utils/compilerlibs__misc.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     exec.cmx \
     events.cmx \
     debugger_config.cmx \
@@ -47,7 +47,7 @@ checkpoints.cmi : \
 command_line.cmo : \
     unix_tools.cmi \
     $(UNIXDIR)/unix.cmi \
-    ../typing/compilerlibs__types.cmi \
+    ../compilerlibs/compilerlibs__types.cmi \
     time_travel.cmi \
     symbols.cmi \
     source.cmi \
@@ -61,24 +61,24 @@ command_line.cmo : \
     pos.cmi \
     parser_aux.cmi \
     parameters.cmi \
-    ../parsing/compilerlibs__longident.cmi \
-    ../parsing/compilerlibs__location.cmi \
+    ../compilerlibs/compilerlibs__longident.cmi \
+    ../compilerlibs/compilerlibs__location.cmi \
     loadprinter.cmi \
-    ../utils/compilerlibs__load_path.cmi \
+    ../compilerlibs/compilerlibs__load_path.cmi \
     int64ops.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     input_handling.cmi \
     history.cmi \
     frames.cmi \
     events.cmi \
     eval.cmi \
-    ../typing/compilerlibs__envaux.cmi \
-    ../typing/compilerlibs__env.cmi \
+    ../compilerlibs/compilerlibs__envaux.cmi \
+    ../compilerlibs/compilerlibs__env.cmi \
     debugger_parser.cmi \
     debugger_lexer.cmi \
     debugger_config.cmi \
     debugcom.cmi \
-    ../typing/compilerlibs__ctype.cmi \
+    ../compilerlibs/compilerlibs__ctype.cmi \
     ../compilerlibs/compilerlibs.cmi \
     checkpoints.cmi \
     breakpoints.cmi \
@@ -86,7 +86,7 @@ command_line.cmo : \
 command_line.cmx : \
     unix_tools.cmx \
     $(UNIXDIR)/unix.cmx \
-    ../typing/compilerlibs__types.cmx \
+    ../compilerlibs/compilerlibs__types.cmx \
     time_travel.cmx \
     symbols.cmx \
     source.cmx \
@@ -100,24 +100,24 @@ command_line.cmx : \
     pos.cmx \
     parser_aux.cmi \
     parameters.cmx \
-    ../parsing/compilerlibs__longident.cmx \
-    ../parsing/compilerlibs__location.cmx \
+    ../compilerlibs/compilerlibs__longident.cmx \
+    ../compilerlibs/compilerlibs__location.cmx \
     loadprinter.cmx \
-    ../utils/compilerlibs__load_path.cmx \
+    ../compilerlibs/compilerlibs__load_path.cmx \
     int64ops.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     input_handling.cmx \
     history.cmx \
     frames.cmx \
     events.cmx \
     eval.cmx \
-    ../typing/compilerlibs__envaux.cmx \
-    ../typing/compilerlibs__env.cmx \
+    ../compilerlibs/compilerlibs__envaux.cmx \
+    ../compilerlibs/compilerlibs__env.cmx \
     debugger_parser.cmx \
     debugger_lexer.cmx \
     debugger_config.cmx \
     debugcom.cmx \
-    ../typing/compilerlibs__ctype.cmx \
+    ../compilerlibs/compilerlibs__ctype.cmx \
     ../compilerlibs/compilerlibs.cmi \
     checkpoints.cmx \
     breakpoints.cmx \
@@ -126,23 +126,23 @@ command_line.cmi : \
     ../compilerlibs/compilerlibs.cmi
 debugcom.cmo : \
     primitives.cmi \
-    ../utils/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
     int64ops.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     input_handling.cmi \
     ../compilerlibs/compilerlibs.cmi \
     debugcom.cmi
 debugcom.cmx : \
     primitives.cmx \
-    ../utils/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
     int64ops.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     input_handling.cmx \
     ../compilerlibs/compilerlibs.cmi \
     debugcom.cmi
 debugcom.cmi : \
     primitives.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     ../compilerlibs/compilerlibs.cmi
 debugger_config.cmo : \
     int64ops.cmi \
@@ -167,7 +167,7 @@ debugger_lexer.cmi : \
     ../compilerlibs/compilerlibs.cmi
 debugger_parser.cmo : \
     parser_aux.cmi \
-    ../parsing/compilerlibs__longident.cmi \
+    ../compilerlibs/compilerlibs__longident.cmi \
     int64ops.cmi \
     input_handling.cmi \
     debugcom.cmi \
@@ -175,7 +175,7 @@ debugger_parser.cmo : \
     debugger_parser.cmi
 debugger_parser.cmx : \
     parser_aux.cmi \
-    ../parsing/compilerlibs__longident.cmx \
+    ../compilerlibs/compilerlibs__longident.cmx \
     int64ops.cmx \
     input_handling.cmx \
     debugcom.cmx \
@@ -183,72 +183,72 @@ debugger_parser.cmx : \
     debugger_parser.cmi
 debugger_parser.cmi : \
     parser_aux.cmi \
-    ../parsing/compilerlibs__longident.cmi \
+    ../compilerlibs/compilerlibs__longident.cmi \
     ../compilerlibs/compilerlibs.cmi
 eval.cmo : \
-    ../typing/compilerlibs__types.cmi \
-    ../bytecomp/compilerlibs__symtable.cmi \
-    ../typing/compilerlibs__subst.cmi \
+    ../compilerlibs/compilerlibs__types.cmi \
+    ../compilerlibs/compilerlibs__symtable.cmi \
+    ../compilerlibs/compilerlibs__subst.cmi \
     printval.cmi \
-    ../typing/compilerlibs__printtyp.cmi \
-    ../typing/compilerlibs__predef.cmi \
-    ../typing/compilerlibs__path.cmi \
+    ../compilerlibs/compilerlibs__printtyp.cmi \
+    ../compilerlibs/compilerlibs__predef.cmi \
+    ../compilerlibs/compilerlibs__path.cmi \
     parser_aux.cmi \
-    ../utils/compilerlibs__misc.cmi \
-    ../parsing/compilerlibs__longident.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
-    ../typing/compilerlibs__ident.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__longident.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__ident.cmi \
     frames.cmi \
     events.cmi \
-    ../typing/compilerlibs__env.cmi \
+    ../compilerlibs/compilerlibs__env.cmi \
     debugcom.cmi \
-    ../typing/compilerlibs__ctype.cmi \
+    ../compilerlibs/compilerlibs__ctype.cmi \
     ../compilerlibs/compilerlibs.cmi \
-    ../typing/compilerlibs__btype.cmi \
+    ../compilerlibs/compilerlibs__btype.cmi \
     eval.cmi
 eval.cmx : \
-    ../typing/compilerlibs__types.cmx \
-    ../bytecomp/compilerlibs__symtable.cmx \
-    ../typing/compilerlibs__subst.cmx \
+    ../compilerlibs/compilerlibs__types.cmx \
+    ../compilerlibs/compilerlibs__symtable.cmx \
+    ../compilerlibs/compilerlibs__subst.cmx \
     printval.cmx \
-    ../typing/compilerlibs__printtyp.cmx \
-    ../typing/compilerlibs__predef.cmx \
-    ../typing/compilerlibs__path.cmx \
+    ../compilerlibs/compilerlibs__printtyp.cmx \
+    ../compilerlibs/compilerlibs__predef.cmx \
+    ../compilerlibs/compilerlibs__path.cmx \
     parser_aux.cmi \
-    ../utils/compilerlibs__misc.cmx \
-    ../parsing/compilerlibs__longident.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
-    ../typing/compilerlibs__ident.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__longident.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__ident.cmx \
     frames.cmx \
     events.cmx \
-    ../typing/compilerlibs__env.cmx \
+    ../compilerlibs/compilerlibs__env.cmx \
     debugcom.cmx \
-    ../typing/compilerlibs__ctype.cmx \
+    ../compilerlibs/compilerlibs__ctype.cmx \
     ../compilerlibs/compilerlibs.cmi \
-    ../typing/compilerlibs__btype.cmx \
+    ../compilerlibs/compilerlibs__btype.cmx \
     eval.cmi
 eval.cmi : \
-    ../typing/compilerlibs__types.cmi \
-    ../typing/compilerlibs__path.cmi \
+    ../compilerlibs/compilerlibs__types.cmi \
+    ../compilerlibs/compilerlibs__path.cmi \
     parser_aux.cmi \
-    ../parsing/compilerlibs__longident.cmi \
-    ../typing/compilerlibs__ident.cmi \
+    ../compilerlibs/compilerlibs__longident.cmi \
+    ../compilerlibs/compilerlibs__ident.cmi \
     events.cmi \
-    ../typing/compilerlibs__env.cmi \
+    ../compilerlibs/compilerlibs__env.cmi \
     debugcom.cmi \
     ../compilerlibs/compilerlibs.cmi
 events.cmo : \
-    ../parsing/compilerlibs__location.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__location.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     ../compilerlibs/compilerlibs.cmi \
     events.cmi
 events.cmx : \
-    ../parsing/compilerlibs__location.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__location.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     ../compilerlibs/compilerlibs.cmi \
     events.cmi
 events.cmi : \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     ../compilerlibs/compilerlibs.cmi
 exec.cmo : \
     ../compilerlibs/compilerlibs.cmi \
@@ -260,16 +260,16 @@ exec.cmi : \
     ../compilerlibs/compilerlibs.cmi
 frames.cmo : \
     symbols.cmi \
-    ../utils/compilerlibs__misc.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     events.cmi \
     debugcom.cmi \
     ../compilerlibs/compilerlibs.cmi \
     frames.cmi
 frames.cmx : \
     symbols.cmx \
-    ../utils/compilerlibs__misc.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     events.cmx \
     debugcom.cmx \
     ../compilerlibs/compilerlibs.cmi \
@@ -317,39 +317,39 @@ int64ops.cmx : \
 int64ops.cmi : \
     ../compilerlibs/compilerlibs.cmi
 loadprinter.cmo : \
-    ../typing/compilerlibs__types.cmi \
-    ../bytecomp/compilerlibs__symtable.cmi \
+    ../compilerlibs/compilerlibs__types.cmi \
+    ../compilerlibs/compilerlibs__symtable.cmi \
     printval.cmi \
-    ../typing/compilerlibs__printtyp.cmi \
-    ../typing/compilerlibs__path.cmi \
+    ../compilerlibs/compilerlibs__printtyp.cmi \
+    ../compilerlibs/compilerlibs__path.cmi \
     parameters.cmi \
-    ../utils/compilerlibs__misc.cmi \
-    ../parsing/compilerlibs__longident.cmi \
-    ../utils/compilerlibs__load_path.cmi \
-    ../typing/compilerlibs__ident.cmi \
-    ../typing/compilerlibs__env.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__longident.cmi \
+    ../compilerlibs/compilerlibs__load_path.cmi \
+    ../compilerlibs/compilerlibs__ident.cmi \
+    ../compilerlibs/compilerlibs__env.cmi \
     ../otherlibs/dynlink/dynlink.cmi \
-    ../typing/compilerlibs__ctype.cmi \
+    ../compilerlibs/compilerlibs__ctype.cmi \
     ../compilerlibs/compilerlibs.cmi \
     loadprinter.cmi
 loadprinter.cmx : \
-    ../typing/compilerlibs__types.cmx \
-    ../bytecomp/compilerlibs__symtable.cmx \
+    ../compilerlibs/compilerlibs__types.cmx \
+    ../compilerlibs/compilerlibs__symtable.cmx \
     printval.cmx \
-    ../typing/compilerlibs__printtyp.cmx \
-    ../typing/compilerlibs__path.cmx \
+    ../compilerlibs/compilerlibs__printtyp.cmx \
+    ../compilerlibs/compilerlibs__path.cmx \
     parameters.cmx \
-    ../utils/compilerlibs__misc.cmx \
-    ../parsing/compilerlibs__longident.cmx \
-    ../utils/compilerlibs__load_path.cmx \
-    ../typing/compilerlibs__ident.cmx \
-    ../typing/compilerlibs__env.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__longident.cmx \
+    ../compilerlibs/compilerlibs__load_path.cmx \
+    ../compilerlibs/compilerlibs__ident.cmx \
+    ../compilerlibs/compilerlibs__env.cmx \
     ../otherlibs/dynlink/dynlink.cmi \
-    ../typing/compilerlibs__ctype.cmx \
+    ../compilerlibs/compilerlibs__ctype.cmx \
     ../compilerlibs/compilerlibs.cmi \
     loadprinter.cmi
 loadprinter.cmi : \
-    ../parsing/compilerlibs__longident.cmi \
+    ../compilerlibs/compilerlibs__longident.cmi \
     ../otherlibs/dynlink/dynlink.cmi \
     ../compilerlibs/compilerlibs.cmi
 main.cmo : \
@@ -360,20 +360,20 @@ main.cmo : \
     question.cmi \
     program_management.cmi \
     primitives.cmi \
-    ../typing/compilerlibs__persistent_env.cmi \
+    ../compilerlibs/compilerlibs__persistent_env.cmi \
     parameters.cmi \
-    ../utils/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
     loadprinter.cmi \
-    ../utils/compilerlibs__load_path.cmi \
+    ../compilerlibs/compilerlibs__load_path.cmi \
     input_handling.cmi \
     frames.cmi \
     exec.cmi \
     debugger_config.cmi \
-    ../utils/compilerlibs__config.cmi \
+    ../compilerlibs/compilerlibs__config.cmi \
     ../compilerlibs/compilerlibs.cmi \
     command_line.cmi \
-    ../file_formats/compilerlibs__cmi_format.cmi \
-    ../utils/compilerlibs__clflags.cmi \
+    ../compilerlibs/compilerlibs__cmi_format.cmi \
+    ../compilerlibs/compilerlibs__clflags.cmi \
     checkpoints.cmi
 main.cmx : \
     unix_tools.cmx \
@@ -383,73 +383,73 @@ main.cmx : \
     question.cmx \
     program_management.cmx \
     primitives.cmx \
-    ../typing/compilerlibs__persistent_env.cmx \
+    ../compilerlibs/compilerlibs__persistent_env.cmx \
     parameters.cmx \
-    ../utils/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
     loadprinter.cmx \
-    ../utils/compilerlibs__load_path.cmx \
+    ../compilerlibs/compilerlibs__load_path.cmx \
     input_handling.cmx \
     frames.cmx \
     exec.cmx \
     debugger_config.cmx \
-    ../utils/compilerlibs__config.cmx \
+    ../compilerlibs/compilerlibs__config.cmx \
     ../compilerlibs/compilerlibs.cmi \
     command_line.cmx \
-    ../file_formats/compilerlibs__cmi_format.cmx \
-    ../utils/compilerlibs__clflags.cmx \
+    ../compilerlibs/compilerlibs__cmi_format.cmx \
+    ../compilerlibs/compilerlibs__clflags.cmx \
     checkpoints.cmx
 parameters.cmo : \
-    ../utils/compilerlibs__load_path.cmi \
-    ../typing/compilerlibs__envaux.cmi \
+    ../compilerlibs/compilerlibs__load_path.cmi \
+    ../compilerlibs/compilerlibs__envaux.cmi \
     debugger_config.cmi \
-    ../utils/compilerlibs__config.cmi \
+    ../compilerlibs/compilerlibs__config.cmi \
     ../compilerlibs/compilerlibs.cmi \
     parameters.cmi
 parameters.cmx : \
-    ../utils/compilerlibs__load_path.cmx \
-    ../typing/compilerlibs__envaux.cmx \
+    ../compilerlibs/compilerlibs__load_path.cmx \
+    ../compilerlibs/compilerlibs__envaux.cmx \
     debugger_config.cmx \
-    ../utils/compilerlibs__config.cmx \
+    ../compilerlibs/compilerlibs__config.cmx \
     ../compilerlibs/compilerlibs.cmi \
     parameters.cmi
 parameters.cmi : \
     ../compilerlibs/compilerlibs.cmi
 parser_aux.cmi : \
-    ../parsing/compilerlibs__longident.cmi \
+    ../compilerlibs/compilerlibs__longident.cmi \
     debugcom.cmi \
     ../compilerlibs/compilerlibs.cmi
 pattern_matching.cmo : \
-    ../typing/compilerlibs__typedtree.cmi \
+    ../compilerlibs/compilerlibs__typedtree.cmi \
     parser_aux.cmi \
-    ../utils/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
     debugger_config.cmi \
     debugcom.cmi \
-    ../typing/compilerlibs__ctype.cmi \
+    ../compilerlibs/compilerlibs__ctype.cmi \
     ../compilerlibs/compilerlibs.cmi \
     pattern_matching.cmi
 pattern_matching.cmx : \
-    ../typing/compilerlibs__typedtree.cmx \
+    ../compilerlibs/compilerlibs__typedtree.cmx \
     parser_aux.cmi \
-    ../utils/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
     debugger_config.cmx \
     debugcom.cmx \
-    ../typing/compilerlibs__ctype.cmx \
+    ../compilerlibs/compilerlibs__ctype.cmx \
     ../compilerlibs/compilerlibs.cmi \
     pattern_matching.cmi
 pattern_matching.cmi : \
-    ../typing/compilerlibs__typedtree.cmi \
+    ../compilerlibs/compilerlibs__typedtree.cmi \
     parser_aux.cmi \
     debugcom.cmi \
     ../compilerlibs/compilerlibs.cmi
 pos.cmo : \
-    ../parsing/compilerlibs__location.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__location.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     events.cmi \
     ../compilerlibs/compilerlibs.cmi \
     pos.cmi
 pos.cmx : \
-    ../parsing/compilerlibs__location.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__location.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     events.cmx \
     ../compilerlibs/compilerlibs.cmi \
     pos.cmi
@@ -468,34 +468,34 @@ primitives.cmi : \
     $(UNIXDIR)/unix.cmi \
     ../compilerlibs/compilerlibs.cmi
 printval.cmo : \
-    ../typing/compilerlibs__types.cmi \
-    ../bytecomp/compilerlibs__symtable.cmi \
-    ../typing/compilerlibs__printtyp.cmi \
+    ../compilerlibs/compilerlibs__types.cmi \
+    ../compilerlibs/compilerlibs__symtable.cmi \
+    ../compilerlibs/compilerlibs__printtyp.cmi \
     parser_aux.cmi \
-    ../typing/compilerlibs__outcometree.cmi \
-    ../typing/compilerlibs__oprint.cmi \
-    ../toplevel/compilerlibs__genprintval.cmi \
-    ../typing/compilerlibs__env.cmi \
+    ../compilerlibs/compilerlibs__outcometree.cmi \
+    ../compilerlibs/compilerlibs__oprint.cmi \
+    ../compilerlibs/compilerlibs__genprintval.cmi \
+    ../compilerlibs/compilerlibs__env.cmi \
     debugcom.cmi \
     ../compilerlibs/compilerlibs.cmi \
     printval.cmi
 printval.cmx : \
-    ../typing/compilerlibs__types.cmx \
-    ../bytecomp/compilerlibs__symtable.cmx \
-    ../typing/compilerlibs__printtyp.cmx \
+    ../compilerlibs/compilerlibs__types.cmx \
+    ../compilerlibs/compilerlibs__symtable.cmx \
+    ../compilerlibs/compilerlibs__printtyp.cmx \
     parser_aux.cmi \
-    ../typing/compilerlibs__outcometree.cmi \
-    ../typing/compilerlibs__oprint.cmx \
-    ../toplevel/compilerlibs__genprintval.cmx \
-    ../typing/compilerlibs__env.cmx \
+    ../compilerlibs/compilerlibs__outcometree.cmi \
+    ../compilerlibs/compilerlibs__oprint.cmx \
+    ../compilerlibs/compilerlibs__genprintval.cmx \
+    ../compilerlibs/compilerlibs__env.cmx \
     debugcom.cmx \
     ../compilerlibs/compilerlibs.cmi \
     printval.cmi
 printval.cmi : \
-    ../typing/compilerlibs__types.cmi \
-    ../typing/compilerlibs__path.cmi \
+    ../compilerlibs/compilerlibs__types.cmi \
+    ../compilerlibs/compilerlibs__path.cmi \
     parser_aux.cmi \
-    ../typing/compilerlibs__env.cmi \
+    ../compilerlibs/compilerlibs__env.cmi \
     debugcom.cmi \
     ../compilerlibs/compilerlibs.cmi
 program_loading.cmo : \
@@ -528,11 +528,11 @@ program_management.cmo : \
     program_loading.cmi \
     primitives.cmi \
     parameters.cmi \
-    ../utils/compilerlibs__load_path.cmi \
+    ../compilerlibs/compilerlibs__load_path.cmi \
     int64ops.cmi \
     input_handling.cmi \
     history.cmi \
-    ../typing/compilerlibs__envaux.cmi \
+    ../compilerlibs/compilerlibs__envaux.cmi \
     debugger_config.cmi \
     ../compilerlibs/compilerlibs.cmi \
     breakpoints.cmi \
@@ -546,11 +546,11 @@ program_management.cmx : \
     program_loading.cmx \
     primitives.cmx \
     parameters.cmx \
-    ../utils/compilerlibs__load_path.cmx \
+    ../compilerlibs/compilerlibs__load_path.cmx \
     int64ops.cmx \
     input_handling.cmx \
     history.cmx \
-    ../typing/compilerlibs__envaux.cmx \
+    ../compilerlibs/compilerlibs__envaux.cmx \
     debugger_config.cmx \
     ../compilerlibs/compilerlibs.cmi \
     breakpoints.cmx \
@@ -577,8 +577,8 @@ show_information.cmo : \
     show_source.cmi \
     printval.cmi \
     parameters.cmi \
-    ../utils/compilerlibs__misc.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     frames.cmi \
     events.cmi \
     debugcom.cmi \
@@ -592,8 +592,8 @@ show_information.cmx : \
     show_source.cmx \
     printval.cmx \
     parameters.cmx \
-    ../utils/compilerlibs__misc.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     frames.cmx \
     events.cmx \
     debugcom.cmx \
@@ -608,8 +608,8 @@ show_source.cmo : \
     source.cmi \
     primitives.cmi \
     parameters.cmi \
-    ../parsing/compilerlibs__location.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__location.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     events.cmi \
     debugger_config.cmi \
     ../compilerlibs/compilerlibs.cmi \
@@ -618,57 +618,57 @@ show_source.cmx : \
     source.cmx \
     primitives.cmx \
     parameters.cmx \
-    ../parsing/compilerlibs__location.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__location.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     events.cmx \
     debugger_config.cmx \
     ../compilerlibs/compilerlibs.cmi \
     show_source.cmi
 show_source.cmi : \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     ../compilerlibs/compilerlibs.cmi
 source.cmo : \
     primitives.cmi \
-    ../utils/compilerlibs__misc.cmi \
-    ../utils/compilerlibs__load_path.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__load_path.cmi \
     debugger_config.cmi \
     ../compilerlibs/compilerlibs.cmi \
     source.cmi
 source.cmx : \
     primitives.cmx \
-    ../utils/compilerlibs__misc.cmx \
-    ../utils/compilerlibs__load_path.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__load_path.cmx \
     debugger_config.cmx \
     ../compilerlibs/compilerlibs.cmi \
     source.cmi
 source.cmi : \
     ../compilerlibs/compilerlibs.cmi
 symbols.cmo : \
-    ../bytecomp/compilerlibs__symtable.cmi \
+    ../compilerlibs/compilerlibs__symtable.cmi \
     program_loading.cmi \
-    ../utils/compilerlibs__misc.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     events.cmi \
     debugger_config.cmi \
     debugcom.cmi \
     ../compilerlibs/compilerlibs.cmi \
     checkpoints.cmi \
-    ../bytecomp/compilerlibs__bytesections.cmi \
+    ../compilerlibs/compilerlibs__bytesections.cmi \
     symbols.cmi
 symbols.cmx : \
-    ../bytecomp/compilerlibs__symtable.cmx \
+    ../compilerlibs/compilerlibs__symtable.cmx \
     program_loading.cmx \
-    ../utils/compilerlibs__misc.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     events.cmx \
     debugger_config.cmx \
     debugcom.cmx \
     ../compilerlibs/compilerlibs.cmi \
     checkpoints.cmx \
-    ../bytecomp/compilerlibs__bytesections.cmx \
+    ../compilerlibs/compilerlibs__bytesections.cmx \
     symbols.cmi
 symbols.cmi : \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     events.cmi \
     debugcom.cmi \
     ../compilerlibs/compilerlibs.cmi
@@ -678,9 +678,9 @@ time_travel.cmo : \
     question.cmi \
     program_loading.cmi \
     primitives.cmi \
-    ../utils/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
     int64ops.cmi \
-    ../bytecomp/compilerlibs__instruct.cmi \
+    ../compilerlibs/compilerlibs__instruct.cmi \
     input_handling.cmi \
     exec.cmi \
     events.cmi \
@@ -696,9 +696,9 @@ time_travel.cmx : \
     question.cmx \
     program_loading.cmx \
     primitives.cmx \
-    ../utils/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
     int64ops.cmx \
-    ../bytecomp/compilerlibs__instruct.cmx \
+    ../compilerlibs/compilerlibs__instruct.cmx \
     input_handling.cmx \
     exec.cmx \
     events.cmx \
@@ -727,12 +727,12 @@ trap_barrier.cmi : \
     ../compilerlibs/compilerlibs.cmi
 unix_tools.cmo : \
     $(UNIXDIR)/unix.cmi \
-    ../utils/compilerlibs__misc.cmi \
+    ../compilerlibs/compilerlibs__misc.cmi \
     ../compilerlibs/compilerlibs.cmi \
     unix_tools.cmi
 unix_tools.cmx : \
     $(UNIXDIR)/unix.cmx \
-    ../utils/compilerlibs__misc.cmx \
+    ../compilerlibs/compilerlibs__misc.cmx \
     ../compilerlibs/compilerlibs.cmi \
     unix_tools.cmi
 unix_tools.cmi : \

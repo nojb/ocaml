@@ -348,7 +348,7 @@ OPTTOPLEVEL_CMI=
 ## TWO PROBLEMS: dependencies of deprecated modules
 
 define define_vars
-$(1)_DEPRECATED=$$(addprefix compilerlibs/deprecated/,$$(notdir $$(filter-out $$(DO_NOT_PREFIX),$$($(1) $$($(1)_CMI)))))
+$(1)_DEPRECATED=$$(addprefix compilerlibs/deprecated/,$$(notdir $$(filter-out $$(DO_NOT_PREFIX),$$($(1)) $$($(1)_CMI))))
 
 $(1)_PREFIXED=$$(foreach m,$$($(1)) $$($(1)_CMI),$$(or $$(filter $$(DO_NOT_PREFIX),$$(m)),$$(addprefix compilerlibs/$$(COMPLIBPREFIX),$$(notdir $$(m)))))
 

@@ -1,29 +1,29 @@
-parsing/compilerlibs__parser.cmo : \
-    parsing/compilerlibs__syntaxerr.cmi \
-    parsing/compilerlibs__parsetree.cmi \
-    parsing/compilerlibs__longident.cmi \
-    parsing/compilerlibs__location.cmi \
-    parsing/compilerlibs__docstrings.cmi \
+compilerlibs/compilerlibs__parser.cmo : \
+    compilerlibs/compilerlibs__syntaxerr.cmi \
+    compilerlibs/compilerlibs__parsetree.cmi \
+    compilerlibs/compilerlibs__longident.cmi \
+    compilerlibs/compilerlibs__location.cmi \
+    compilerlibs/compilerlibs__docstrings.cmi \
     compilerlibs/compilerlibs.cmi \
-    utils/compilerlibs__clflags.cmi \
-    parsing/compilerlibs__asttypes.cmi \
-    parsing/compilerlibs__ast_helper.cmi \
-    parsing/compilerlibs__parser.cmi
-parsing/compilerlibs__parser.cmx : \
-    parsing/compilerlibs__syntaxerr.cmx \
-    parsing/compilerlibs__parsetree.cmi \
-    parsing/compilerlibs__longident.cmx \
-    parsing/compilerlibs__location.cmx \
-    parsing/compilerlibs__docstrings.cmx \
+    compilerlibs/compilerlibs__clflags.cmi \
+    compilerlibs/compilerlibs__asttypes.cmi \
+    compilerlibs/compilerlibs__ast_helper.cmi \
+    compilerlibs/compilerlibs__parser.cmi
+compilerlibs/compilerlibs__parser.cmx : \
+    compilerlibs/compilerlibs__syntaxerr.cmx \
+    compilerlibs/compilerlibs__parsetree.cmi \
+    compilerlibs/compilerlibs__longident.cmx \
+    compilerlibs/compilerlibs__location.cmx \
+    compilerlibs/compilerlibs__docstrings.cmx \
     compilerlibs/compilerlibs.cmi \
-    utils/compilerlibs__clflags.cmx \
-    parsing/compilerlibs__asttypes.cmi \
-    parsing/compilerlibs__ast_helper.cmx \
-    parsing/compilerlibs__parser.cmi
-parsing/compilerlibs__parser.cmi : \
-    parsing/compilerlibs__parsetree.cmi \
-    parsing/compilerlibs__longident.cmi \
-    parsing/compilerlibs__location.cmi \
-    parsing/compilerlibs__docstrings.cmi \
+    compilerlibs/compilerlibs__clflags.cmx \
+    compilerlibs/compilerlibs__asttypes.cmi \
+    compilerlibs/compilerlibs__ast_helper.cmx \
+    compilerlibs/compilerlibs__parser.cmi
+compilerlibs/compilerlibs__parser.cmi : \
+    compilerlibs/compilerlibs__parsetree.cmi \
+    compilerlibs/compilerlibs__longident.cmi \
+    compilerlibs/compilerlibs__location.cmi \
+    compilerlibs/compilerlibs__docstrings.cmi \
     compilerlibs/compilerlibs.cmi
-parsing/compilerlibs__parser.ml parsing/compilerlibs__parser.mli: parsing/compilerlibs__ast_helper.cmi parsing/compilerlibs__asttypes.cmi utils/compilerlibs__clflags.cmi compilerlibs/compilerlibs.cmi parsing/compilerlibs__docstrings.cmi parsing/compilerlibs__location.cmi parsing/compilerlibs__longident.cmi parsing/compilerlibs__parsetree.cmi parsing/compilerlibs__syntaxerr.cmi
+compilerlibs/compilerlibs__parser.ml compilerlibs/compilerlibs__parser.mli: compilerlibs/compilerlibs__ast_helper.cmi compilerlibs/compilerlibs__asttypes.cmi compilerlibs/compilerlibs__clflags.cmi compilerlibs/compilerlibs.cmi compilerlibs/compilerlibs__docstrings.cmi compilerlibs/compilerlibs__location.cmi compilerlibs/compilerlibs__longident.cmi compilerlibs/compilerlibs__parsetree.cmi compilerlibs/compilerlibs__syntaxerr.cmi
