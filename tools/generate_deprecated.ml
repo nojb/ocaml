@@ -15,10 +15,10 @@
 
 let _ =
   let name = Filename.basename (Filename.remove_extension Sys.argv.(2)) in
-  let cmo = Filename.check_suffix Sys.argv.(2) ".cmo" in
+  let impl = Filename.check_suffix Sys.argv.(2) ".ml" in
   let s = String.capitalize_ascii Sys.argv.(1) ^ "." ^ String.capitalize_ascii name in
   Printf.printf "[@@@ocaml.deprecated \"Use %s instead.\"]\n" s;
-  if cmo then
+  if impl then
     Printf.printf "include %s\n" s
   else
     Printf.printf "include module type of struct include %s end\n" s

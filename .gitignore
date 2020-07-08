@@ -77,6 +77,9 @@ _build
 /compilerlibs/*.mli
 /compilerlibs/*.sed
 
+/compilerlibs/deprecated/*.ml
+/compilerlibs/deprecated/*.mli
+
 /debugger/debugger_lexer.ml
 /debugger/debugger_parser.ml
 /debugger/debugger_parser.mli
@@ -261,6 +264,10 @@ _build
 /tools/make_opcodes.ml
 /tools/caml-tex
 /tools/eventlog_metadata
+/tools/postprocess_depend
+/tools/postprocess_depend.ml
+/tools/generate_module_aliases
+/tools/generate_deprecated
 
 /utils/config.ml
 /utils/domainstate.ml

@@ -510,8 +510,8 @@ depend:
 	$(OCAMLLEX) $(OCAMLLEX_FLAGS) odoc_lexer.mll
 	$(OCAMLLEX) $(OCAMLLEX_FLAGS) odoc_ocamlhtml.mll
 	$(OCAMLLEX) $(OCAMLLEX_FLAGS) odoc_see_lexer.mll
-	$(OCAMLDEP) $(DEPFLAGS) $(DEPINCLUDES) *.mll *.mly *.ml *.mli > .depend.tmp
-	$(OCAMLDEP) $(DEPFLAGS) $(DEPINCLUDES) -shared generators/*.ml >> .depend.tmp
-	../runtime/ocamlrun ../tools/postprocess_depend < .depend.tmp > .depend
+	($(OCAMLDEP) $(DEPFLAGS) $(DEPINCLUDES) *.mll *.mly *.ml *.mli; \
+	 $(OCAMLDEP) $(DEPFLAGS) $(DEPINCLUDES) -shared generators/*.ml) | \
+	  ../runtime/ocamlrun ../tools/postprocess_depend > .depend
 
 include .depend

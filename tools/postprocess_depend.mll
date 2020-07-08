@@ -17,7 +17,7 @@
 module SMap = Map.Make (String)
 
 let addprefix s =
-  Filename.dirname s ^ "/compilerlibs__" ^ Filename.basename s
+  "compilerlibs/compilerlibs__" ^ Filename.basename s
 
 let map =
   Postprocess_depend_data.v
@@ -33,14 +33,11 @@ let subst s =
 
 rule replace = parse
 | ("../"* as pre) (['/''a'-'z''A'-'Z''_''0'-'9''$''('')']+ as s) ('.' as post)
-    { print_string pre;
-      print_string (subst s);
-      print_char post;
-      replace lexbuf }
+    { print_string pre; print_string (subst s); print_char post; replace lexbuf }
 | _ as c { print_char c; replace lexbuf }
 | eof { () }
 
 {
 let () =
-  replace @@ Lexing.from_channel stdin
+  replace (Lexing.from_channel stdin)
 }
