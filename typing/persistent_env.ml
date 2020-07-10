@@ -233,12 +233,10 @@ let check_pers_struct penv f ~loc name =
     ignore (find_pers_struct penv f false name)
   with
   | Not_found ->
-      let warn = Warnings.No_cmi_file(name, None) in
-        Location.prerr_warning loc warn
+      Location.prerr_warning loc No_cmi_file(name, None)
   | Cmi_format.Error err ->
       let msg = Format.asprintf "%a" Cmi_format.report_error err in
-      let warn = Warnings.No_cmi_file(name, Some msg) in
-        Location.prerr_warning loc warn
+      Location.prerr_warning loc No_cmi_file(name, Some msg)
   | Error err ->
       let msg =
         match err with
@@ -256,8 +254,7 @@ let check_pers_struct penv f ~loc name =
             Printf.sprintf "%s uses -unsafe-string"
               name
       in
-      let warn = Warnings.No_cmi_file(name, Some msg) in
-        Location.prerr_warning loc warn
+      Location.prerr_warning loc No_cmi_file(name, Some msg)
 
 let read penv f modname filename =
   snd (read_pers_struct penv f true modname filename)
@@ -272,7 +269,7 @@ let check penv f ~loc name =
        whether the check succeeds, to help make builds more
        deterministic. *)
     add_import penv name;
-    if (Warnings.is_active (Warnings.No_cmi_file("", None))) then
+    if Warnings.is_active Warnings.No_cmi_file then
       !add_delayed_check_forward
         (fun () -> check_pers_struct penv f ~loc name)
   end

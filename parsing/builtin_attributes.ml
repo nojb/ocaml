@@ -168,12 +168,12 @@ let check_no_alert attrs =
   List.iter
     (fun (a, _, _) ->
        Location.prerr_warning a.attr_loc
-         (Warnings.Misplaced_attribute a.attr_name.txt)
+         Warnings.Misplaced_attribute a.attr_name.txt
     )
     (alert_attrs attrs)
 
 let warn_payload loc txt msg =
-  Location.prerr_warning loc (Warnings.Attribute_payload (txt, msg))
+  Location.prerr_warning loc Warnings.Attribute_payload (txt, msg)
 
 let warning_attribute ?(ppwarning = true) =
   let process loc txt errflag payload =
@@ -221,7 +221,7 @@ let warning_attribute ?(ppwarning = true) =
            pstr_loc }
        ];
     } when ppwarning ->
-     Location.prerr_warning pstr_loc (Warnings.Preprocessor s)
+     Location.prerr_warning pstr_loc Warnings.Preprocessor s
   | {attr_name = {txt = ("ocaml.alert"|"alert") as txt; _};
      attr_loc;
      attr_payload;

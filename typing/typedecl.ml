@@ -335,7 +335,7 @@ let transl_declaration env sdecl (id, uid) =
           match cstrs with
             [] -> ()
           | (_,_,loc)::_ ->
-              Location.prerr_warning loc Warnings.Constraint_on_gadt
+              Location.prerr_warning loc Warnings.Constraint_on_gadt ()
         end;
         let all_constrs = ref String.Set.empty in
         List.iter
@@ -747,9 +747,9 @@ let check_duplicates sdecl_list =
             try
               let name' = Hashtbl.find constrs pcd.pcd_name.txt in
               Location.prerr_warning pcd.pcd_loc
-                (Warnings.Duplicate_definitions
+                Warnings.Duplicate_definitions
                    ("constructor", pcd.pcd_name.txt, name',
-                    sdecl.ptype_name.txt))
+                    sdecl.ptype_name.txt)
             with Not_found ->
               Hashtbl.add constrs pcd.pcd_name.txt sdecl.ptype_name.txt)
           cl
@@ -759,8 +759,8 @@ let check_duplicates sdecl_list =
             try
               let name' = Hashtbl.find labels cname.txt in
               Location.prerr_warning loc
-                (Warnings.Duplicate_definitions
-                   ("label", cname.txt, name', sdecl.ptype_name.txt))
+                Warnings.Duplicate_definitions
+                   ("label", cname.txt, name', sdecl.ptype_name.txt)
             with Not_found -> Hashtbl.add labels cname.txt sdecl.ptype_name.txt)
           fl
     | Ptype_abstract -> ()
@@ -796,7 +796,7 @@ let check_redefined_unit (td: Parsetree.type_declaration) =
       ptype_manifest = None;
       ptype_kind = Ptype_variant [ cd ] }
     when is_unit_constructor cd ->
-      Location.prerr_warning td.ptype_loc (Warnings.Redefining_unit name)
+      Location.prerr_warning td.ptype_loc Warnings.Redefining_unit name
   | _ ->
       ()
 
@@ -840,7 +840,7 @@ let transl_type_decl env rec_flag sdecl_list =
     List.fold_left2 (enter_type rec_flag) env sdecl_list ids_list in
   (* Translate each declaration. *)
   let current_slot = ref None in
-  let warn_unused = Warnings.is_active (Warnings.Unused_type_declaration "") in
+  let warn_unused = Warnings.is_active Warnings.Unused_type_declaration in
   let ids_slots (id, _uid as ids) =
     match rec_flag with
     | Asttypes.Recursive when warn_unused ->
@@ -1311,7 +1311,7 @@ let check_unboxable env loc ty =
   Path.Set.fold
     (fun p () ->
        Location.prerr_warning loc
-         (Warnings.Unboxable_type_in_prim_decl (Path.name p))
+         Warnings.Unboxable_type_in_prim_decl (Path.name p)
     )
     all_unboxable_types
     ()
@@ -1360,7 +1360,7 @@ let transl_value_decl env loc valdecl =
   in
   let (id, newenv) =
     Env.enter_value valdecl.pval_name.txt v env
-      ~check:(fun s -> Warnings.Unused_value_declaration s)
+      ~check:Warnings.Unused_value_declaration
   in
   let desc =
     {

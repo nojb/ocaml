@@ -84,7 +84,7 @@ let is_unit_name name =
 let check_unit_name filename name =
   if not (is_unit_name name) then
     Location.prerr_warning (Location.in_file filename)
-      (Warnings.Bad_module_name name);;
+      Warnings.Bad_module_name name;;
 
 (* Compute name of module from output file name *)
 let module_of_filename inputfile outputprefix =
@@ -112,7 +112,7 @@ exception SyntaxError of string
 
 let print_error ppf msg =
   Location.print_warning Location.none ppf
-    (Warnings.Bad_env_variable ("OCAMLPARAM", msg))
+    Warnings.Bad_env_variable ("OCAMLPARAM", msg)
 
 let parse_args s =
   let args =

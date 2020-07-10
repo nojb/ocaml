@@ -205,11 +205,11 @@ val default_warning_reporter: t -> Warnings.t -> report option
 
 val formatter_for_warnings : formatter ref
 
-val print_warning: t -> formatter -> Warnings.t -> unit
+val print_warning: t -> formatter -> 'a Warnings.name -> 'a -> unit
 (** Prints a warning. This is simply the composition of [report_warning] and
    [print_report]. *)
 
-val prerr_warning: t -> Warnings.t -> unit
+val prerr_warning: t -> 'a Warnings.name -> 'a -> unit
 (** Same as [print_warning], but uses [!formatter_for_warnings] as output
    formatter. *)
 

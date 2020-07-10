@@ -60,7 +60,7 @@ let set_from_env flag Clflags.{ parse; usage; env_var } =
     match parse (Sys.getenv env_var) with
     | None ->
         Location.prerr_warning Location.none
-          (Warnings.Bad_env_variable (env_var, usage))
+          Warnings.Bad_env_variable (env_var, usage)
     | Some x -> match !flag with
       | None -> flag := Some x
       | Some _ -> ()

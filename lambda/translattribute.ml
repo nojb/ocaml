@@ -47,7 +47,7 @@ let find_attribute p attributes =
     | [] -> None
     | [attr] -> Some attr
     | _ :: {Parsetree.attr_name = {txt;loc}; _} :: _ ->
-      Location.prerr_warning loc (Warnings.Duplicated_attribute txt);
+      Location.prerr_warning loc Warnings.Duplicated_attribute txt;
       None
   in
   attr, other_attributes
@@ -77,7 +77,7 @@ let parse_id_payload txt loc ~default ~empty cases payload =
       |> String.concat ", "
       |> Printf.sprintf "It must be either %s or empty"
     in
-    Location.prerr_warning loc (Warnings.Attribute_payload (txt, msg));
+    Location.prerr_warning loc Warnings.Attribute_payload (txt, msg);
     default
   in
   match get_id_payload payload with
@@ -95,7 +95,8 @@ let parse_inline_attribute attr =
     let open Parsetree in
     if is_unrolled id then begin
       (* the 'unrolled' attributes must be used as [@unrolled n]. *)
-      let warning txt = Warnings.Attribute_payload
+      let warning loc txt =
+        Location.prerr_warning loc Warnings.Attribute_payload
           (txt, "It must be an integer literal")
       in
       match payload with
@@ -105,15 +106,15 @@ let parse_inline_attribute attr =
               try
                 Unroll (Misc.Int_literal_converter.int s)
               with Failure _ ->
-                Location.prerr_warning loc (warning txt);
+                warning loc txt;
                 Default_inline
             end
           | _ ->
-            Location.prerr_warning loc (warning txt);
+            warning loc txt;
             Default_inline
         end
       | _ ->
-        Location.prerr_warning loc (warning txt);
+        warning loc txt;
         Default_inline
     end else
       parse_id_payload txt loc
@@ -169,7 +170,7 @@ let check_local_inline loc attr =
   match attr.local, attr.inline with
   | Always_local, (Always_inline | Hint_inline | Unroll _) ->
       Location.prerr_warning loc
-        (Warnings.Duplicated_attribute "local/inline")
+        Warnings.Duplicated_attribute "local/inline"
   | _ ->
       ()
 
@@ -181,14 +182,14 @@ let add_inline_attribute expr loc attributes =
       | Default_inline -> ()
       | Always_inline | Hint_inline | Never_inline | Unroll _ ->
           Location.prerr_warning loc
-            (Warnings.Duplicated_attribute "inline")
+            Warnings.Duplicated_attribute "inline"
       end;
       let attr = { attr with inline } in
       check_local_inline loc attr;
       Lfunction { funct with attr = attr }
   | expr, (Always_inline | Hint_inline | Never_inline | Unroll _) ->
       Location.prerr_warning loc
-        (Warnings.Misplaced_attribute "inline");
+        Warnings.Misplaced_attribute "inline";
       expr
 
 let add_specialise_attribute expr loc attributes =
@@ -199,13 +200,13 @@ let add_specialise_attribute expr loc attributes =
       | Default_specialise -> ()
       | Always_specialise | Never_specialise ->
           Location.prerr_warning loc
-            (Warnings.Duplicated_attribute "specialise")
+            Warnings.Duplicated_attribute "specialise"
       end;
       let attr = { attr with specialise } in
       Lfunction { funct with attr }
   | expr, (Always_specialise | Never_specialise) ->
       Location.prerr_warning loc
-        (Warnings.Misplaced_attribute "specialise");
+        Warnings.Misplaced_attribute "specialise";
       expr
 
 let add_local_attribute expr loc attributes =
@@ -216,14 +217,14 @@ let add_local_attribute expr loc attributes =
       | Default_local -> ()
       | Always_local | Never_local ->
           Location.prerr_warning loc
-            (Warnings.Duplicated_attribute "local")
+            Warnings.Duplicated_attribute "local"
       end;
       let attr = { attr with local } in
       check_local_inline loc attr;
       Lfunction { funct with attr }
   | expr, (Always_local | Never_local) ->
       Location.prerr_warning loc
-        (Warnings.Misplaced_attribute "local");
+        Warnings.Misplaced_attribute "local";
       expr
 
 (* Get the [@inlined] attribute payload (or default if not present).
@@ -283,7 +284,7 @@ let get_tailcall_attribute e =
         begin match r with
         | [] -> ()
         | {Parsetree.attr_name = {txt;loc}; _} :: _ ->
-            Location.prerr_warning loc (Warnings.Duplicated_attribute txt)
+            Location.prerr_warning loc Warnings.Duplicated_attribute txt
         end;
         let payload_result : (_, _) result = match payload with
           | PStr [] -> Ok Should_be_tailcall
@@ -293,7 +294,7 @@ let get_tailcall_attribute e =
         | Ok tailcall_attribute -> tailcall_attribute
         | Error () ->
             let msg = "No payload is currently supported." in
-            Location.prerr_warning loc (Warnings.Attribute_payload (txt, msg));
+            Location.prerr_warning loc Warnings.Attribute_payload (txt, msg);
             Default_tailcall
       in
       tailcall_attribute, { e with exp_attributes = other_attributes }
@@ -306,14 +307,14 @@ let check_attribute e {Parsetree.attr_name = { txt; loc }; _} =
       | Texp_function _ -> ()
       | _ ->
           Location.prerr_warning loc
-            (Warnings.Misplaced_attribute txt)
+            Warnings.Misplaced_attribute txt
     end
   | "inlined" | "ocaml.inlined"
   | "specialised" | "ocaml.specialised"
   | "tailcall" | "ocaml.tailcall" ->
       (* Removed by the Texp_apply cases *)
       Location.prerr_warning loc
-        (Warnings.Misplaced_attribute txt)
+        Warnings.Misplaced_attribute txt
   | _ -> ()
 
 let check_attribute_on_module e {Parsetree.attr_name = { txt; loc }; _} =
@@ -323,12 +324,12 @@ let check_attribute_on_module e {Parsetree.attr_name = { txt; loc }; _} =
       | Tmod_functor _ -> ()
       | _ ->
           Location.prerr_warning loc
-            (Warnings.Misplaced_attribute txt)
+            Warnings.Misplaced_attribute txt
     end
   | "inlined" | "ocaml.inlined" ->
       (* Removed by the Texp_apply cases *)
       Location.prerr_warning loc
-        (Warnings.Misplaced_attribute txt)
+        Warnings.Misplaced_attribute txt
   | _ -> ()
 
 let add_function_attributes lam loc attr =

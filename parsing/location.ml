@@ -857,12 +857,12 @@ let report_warning loc w = !warning_reporter loc w
 
 let formatter_for_warnings = ref Format.err_formatter
 
-let print_warning loc ppf w =
-  match report_warning loc w with
+let print_warning loc ppf name x =
+  match report_warning loc Warnings.(mk name x) with
   | None -> ()
   | Some report -> print_report ppf report
 
-let prerr_warning loc w = print_warning loc !formatter_for_warnings w
+let prerr_warning loc name x = print_warning loc !formatter_for_warnings name x
 
 let default_alert_reporter =
   default_warning_alert_reporter

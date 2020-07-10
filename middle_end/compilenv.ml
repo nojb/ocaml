@@ -203,9 +203,8 @@ let get_global_info global_ident = (
               raise(Error(Illegal_renaming(modname, ui.ui_name, filename)));
             (Some ui, Some crc)
           with Not_found ->
-            let warn = Warnings.No_cmx_file modname in
-              Location.prerr_warning Location.none warn;
-              (None, None)
+            Location.prerr_warning Location.none No_cmx_file modname;
+            (None, None)
           end
       in
       current_unit.ui_imports_cmx <-

@@ -621,7 +621,7 @@ let rec emit_tail_infos is_tail lambda =
           if not is_tail
           && Warnings.is_active Warnings.Expect_tailcall
           then Location.prerr_warning (to_location ap.ap_loc)
-                 Warnings.Expect_tailcall;
+                 Warnings.Expect_tailcall ();
       end;
       emit_tail_infos false ap.ap_func;
       list_emit_tail_infos false ap.ap_args
@@ -780,8 +780,8 @@ let simplify_local_functions lam =
   let check_static lf =
     if lf.attr.local = Always_local then
       Location.prerr_warning (to_location lf.loc)
-        (Warnings.Inlining_impossible
-           "This function cannot be compiled into a static continuation")
+        Warnings.Inlining_impossible
+           "This function cannot be compiled into a static continuation"
   in
   let enabled = function
     | {local = Always_local; _}

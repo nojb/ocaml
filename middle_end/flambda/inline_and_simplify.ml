@@ -793,19 +793,19 @@ and simplify_partial_application env r ~lhs_of_application
   begin match (inline_requested : Lambda.inline_attribute) with
   | Always_inline | Never_inline ->
     Location.prerr_warning (Debuginfo.to_location dbg)
-      (Warnings.Inlining_impossible "[@inlined] attributes may not be used \
-        on partial applications")
+      Warnings.Inlining_impossible "[@inlined] attributes may not be used \
+        on partial applications"
   | Unroll _ ->
     Location.prerr_warning (Debuginfo.to_location dbg)
-      (Warnings.Inlining_impossible "[@unrolled] attributes may not be used \
-        on partial applications")
+      Warnings.Inlining_impossible "[@unrolled] attributes may not be used \
+        on partial applications"
   | Hint_inline | Default_inline -> ()
   end;
   begin match (specialise_requested : Lambda.specialise_attribute) with
   | Always_specialise | Never_specialise ->
     Location.prerr_warning (Debuginfo.to_location dbg)
-      (Warnings.Inlining_impossible "[@specialised] attributes may not be used \
-        on partial applications")
+      Warnings.Inlining_impossible "[@specialised] attributes may not be used \
+        on partial applications"
   | Default_specialise -> ()
   end;
   let freshened_params =
@@ -1026,7 +1026,7 @@ and simplify_named env r (tree : Flambda.named) : Flambda.named * R.t =
         [block_approx; _field_approx; value_approx] ->
         if A.warn_on_mutation block_approx then begin
           Location.prerr_warning (Debuginfo.to_location dbg)
-            Warnings.Assignment_to_non_mutable_value
+            Warnings.Assignment_to_non_mutable_value ()
         end;
         let kind =
           let check () =
@@ -1055,7 +1055,7 @@ and simplify_named env r (tree : Flambda.named) : Flambda.named * R.t =
       | Psetfield _, _block::_, block_approx::_ ->
         if A.warn_on_mutation block_approx then begin
           Location.prerr_warning (Debuginfo.to_location dbg)
-            Warnings.Assignment_to_non_mutable_value
+            Warnings.Assignment_to_non_mutable_value ()
         end;
         tree, ret r (A.value_unknown Other)
       | (Psetfield _ | Parraysetu _ | Parraysets _), _, _ ->

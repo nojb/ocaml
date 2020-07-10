@@ -330,11 +330,11 @@ let inheritance self_type env ovf concr_meths warn_vals loc parent =
           in
           if not (Concr.is_empty over_meths) then
             Location.prerr_warning loc
-              (Warnings.Method_override (cname :: Concr.elements over_meths));
+              Warnings.Method_override (cname :: Concr.elements over_meths);
           if not (Concr.is_empty over_vals) then
             Location.prerr_warning loc
-              (Warnings.Instance_variable_override
-                 (cname :: Concr.elements over_vals));
+              Warnings.Instance_variable_override
+                 (cname :: Concr.elements over_vals);
       | Some Override
         when Concr.is_empty over_meths && Concr.is_empty over_vals ->
         raise (Error(loc, env, No_overriding ("","")))
@@ -639,7 +639,7 @@ and class_field_aux self_loc cl_num self_type meths vars
             (class_env,None)
         | Some {txt=name} ->
             let (_id, class_env) =
-              enter_met_env ~check:(fun s -> Warnings.Unused_ancestor s)
+              enter_met_env ~check:Warnings.Unused_ancestor
                 sparent.pcl_loc name (Val_anc (inh_meths, cl_num))
                 Val_unbound_ancestor self_type class_env
             in
@@ -674,7 +674,7 @@ and class_field_aux self_loc cl_num self_type meths vars
       if Concr.mem lab.txt warn_vals then begin
         if ovf = Fresh then
           Location.prerr_warning lab.loc
-            (Warnings.Instance_variable_override[lab.txt])
+            Warnings.Instance_variable_override[lab.txt]
       end else begin
         if ovf = Override then
           raise(Error(loc, val_env,
@@ -714,7 +714,7 @@ and class_field_aux self_loc cl_num self_type meths vars
         raise(Error(loc, val_env, Duplicate ("method", lab.txt)));
       if Concr.mem lab.txt concr_meths then begin
         if ovf = Fresh then
-          Location.prerr_warning loc (Warnings.Method_override [lab.txt])
+          Location.prerr_warning loc Warnings.Method_override [lab.txt]
       end else begin
         if ovf = Override then
           raise(Error(loc, val_env, No_overriding("method", lab.txt)))
@@ -932,7 +932,7 @@ and class_structure cl_num final val_env met_env loc
   let l1 = names priv_meths and l2 = names pub_meths' in
   let added = List.filter (fun x -> List.mem x l1) l2 in
   if added <> [] then
-    Location.prerr_warning loc (Warnings.Implicit_public_methods added);
+    Location.prerr_warning loc Warnings.Implicit_public_methods added;
   let sign = if final then sign else
       {sign with Types.csig_self = Ctype.expand_head val_env public_self} in
   {
@@ -1063,7 +1063,7 @@ and class_expr_aux cl_num val_env met_env scl =
       Ctype.end_def ();
       if Btype.is_optional l && not_function cl.cl_type then
         Location.prerr_warning pat.pat_loc
-          Warnings.Unerasable_optional_argument;
+          Warnings.Unerasable_optional_argument ();
       rc {cl_desc = Tcl_fun (l, pat, pv, cl, partial);
           cl_loc = scl.pcl_loc;
           cl_type = Cty_arrow
@@ -1095,9 +1095,9 @@ and class_expr_aux cl_num val_env met_env scl =
         begin
           Location.prerr_warning
             cl.cl_loc
-            (Warnings.Labels_omitted
+            Warnings.Labels_omitted
                (List.map Printtyp.string_of_label
-                         (List.filter ((<>) Nolabel) labels)));
+                         (List.filter ((<>) Nolabel) labels));
           true
         end
       in
@@ -1143,8 +1143,8 @@ and class_expr_aux cl_num val_env met_env scl =
                 | Some (l', sarg, _, remaining_sargs) ->
                     if not optional && Btype.is_optional l' then
                       Location.prerr_warning sarg.pexp_loc
-                        (Warnings.Nonoptional_label
-                           (Printtyp.string_of_label l));
+                        Warnings.Nonoptional_label
+                           (Printtyp.string_of_label l);
                     remaining_sargs, use_arg sarg l'
                 | None ->
                     sargs,

@@ -1639,7 +1639,7 @@ let rec components_of_module_maker
 and check_usage loc id uid warn tbl =
   if not loc.Location.loc_ghost &&
      Uid.for_actual_declaration uid &&
-     Warnings.is_active (warn "")
+     Warnings.is_active warn
   then begin
     let name = Ident.name id in
     if Types.Uid.Tbl.mem tbl uid then ()
@@ -1648,7 +1648,7 @@ and check_usage loc id uid warn tbl =
     if not (name = "" || name.[0] = '_' || name.[0] = '#')
     then
       !add_delayed_check_forward
-        (fun () -> if not !used then Location.prerr_warning loc (warn name))
+        (fun () -> if not !used then Location.prerr_warning loc warn name)
   end;
 
 and check_value_name name loc =
@@ -1675,7 +1675,7 @@ and store_type ~check id info env =
   let loc = info.type_loc in
   if check then
     check_usage loc id info.type_uid
-      (fun s -> Warnings.Unused_type_declaration s)
+      Warnings.Unused_type_declaration
       type_declarations;
   let path = Pident id in
   let constructors =
@@ -1686,7 +1686,7 @@ and store_type ~check id info env =
   let descrs = (List.map snd constructors, List.map snd labels) in
   let tda = { tda_declaration = info; tda_descriptions = descrs } in
   if check && not loc.Location.loc_ghost &&
-    Warnings.is_active (Warnings.Unused_constructor ("", false, false))
+    Warnings.is_active Warnings.Unused_constructor
   then begin
     let ty_name = Ident.name id in
     let priv = info.type_private in
@@ -1704,8 +1704,8 @@ and store_type ~check id info env =
               (fun () ->
                 if not (is_in_signature env) && not used.cu_positive then
                   Location.prerr_warning loc
-                    (Warnings.Unused_constructor
-                       (name, used.cu_pattern, used.cu_privatize)))
+                    Warnings.Unused_constructor
+                       (name, used.cu_pattern, used.cu_privatize))
       end
       constructors
   end;
@@ -1741,7 +1741,7 @@ and store_extension ~check ~rebind id addr ext env =
   in
   let cda = { cda_description = cstr; cda_address = Some addr } in
   if check && not loc.Location.loc_ghost &&
-    Warnings.is_active (Warnings.Unused_extension ("", false, false, false))
+    Warnings.is_active Warnings.Unused_extension
   then begin
     let priv = ext.ext_private in
     let is_exception = Path.same ext.ext_type_path Predef.path_exn in
@@ -1755,9 +1755,8 @@ and store_extension ~check ~rebind id addr ext env =
         (fun () ->
           if not (is_in_signature env) && not used.cu_positive then
             Location.prerr_warning loc
-              (Warnings.Unused_extension
+              Warnings.Unused_extension
                  (name, is_exception, used.cu_pattern, used.cu_privatize)
-              )
         )
     end;
   end;
@@ -1863,9 +1862,9 @@ and add_module_declaration ?(arg=false) ~check id presence md env =
     if not check then
       None
     else if arg && is_in_signature env then
-      Some (fun s -> Warnings.Unused_functor_parameter s)
+      Some Warnings.Unused_functor_parameter
     else
-      Some (fun s -> Warnings.Unused_module s)
+      Some Warnings.Unused_module
   in
   let addr = module_declaration_address env id presence md in
   let env = store_module ~freshening_sub:None ~check id addr presence md env in
@@ -2034,15 +2033,15 @@ let open_signature
     ovf root env =
   let unused =
     match ovf with
-    | Asttypes.Fresh -> Warnings.Unused_open (Path.name root)
-    | Asttypes.Override -> Warnings.Unused_open_bang (Path.name root)
+    | Asttypes.Fresh -> Warnings.Unused_open
+    | Asttypes.Override -> Warnings.Unused_open_bang
   in
   let warn_unused =
     Warnings.is_active unused
   and warn_shadow_id =
-    Warnings.is_active (Warnings.Open_shadow_identifier ("", ""))
+    Warnings.is_active Warnings.Open_shadow_identifier
   and warn_shadow_lc =
-    Warnings.is_active (Warnings.Open_shadow_label_constructor ("",""))
+    Warnings.is_active Warnings.Open_shadow_label_constructor
   in
   if not toplevel && not loc.Location.loc_ghost
      && (warn_unused || warn_shadow_id || warn_shadow_lc)
@@ -2053,7 +2052,7 @@ let open_signature
         (fun () ->
            if not !used then begin
              used := true;
-             Location.prerr_warning loc unused
+             Location.prerr_warning loc unused (Path.name root)
            end
         );
     let shadowed = ref [] in
@@ -2065,10 +2064,10 @@ let open_signature
           let w =
             match kind with
             | "label" | "constructor" ->
-                Warnings.Open_shadow_label_constructor (kind, s)
-            | _ -> Warnings.Open_shadow_identifier (kind, s)
+                Warnings.Open_shadow_label_constructor
+            | _ -> Warnings.Open_shadow_identifier
           in
-          Location.prerr_warning loc w
+          Location.prerr_warning loc w (kind, s)
       | _ -> ()
       end;
       used := true

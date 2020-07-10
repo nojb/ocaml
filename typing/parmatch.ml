@@ -1974,7 +1974,7 @@ let do_check_partial ~pred loc casel pss = match pss with
     | [] -> ()
     | _  ->
       if Warnings.is_active Warnings.All_clauses_guarded then
-        Location.prerr_warning loc Warnings.All_clauses_guarded
+        Location.prerr_warning loc Warnings.All_clauses_guarded ()
     end ;
     Partial
 | ps::_  ->
@@ -1984,7 +1984,7 @@ let do_check_partial ~pred loc casel pss = match pss with
     match counter_examples () with
     | Seq.Nil -> Total
     | Seq.Cons (v, _rest) ->
-      if Warnings.is_active (Warnings.Partial_match "") then begin
+      if Warnings.is_active Warnings.Partial_match then begin
         let errmsg =
           try
             let buf = Buffer.create 16 in
@@ -2003,7 +2003,7 @@ let do_check_partial ~pred loc casel pss = match pss with
           with _ ->
             ""
         in
-        Location.prerr_warning loc (Warnings.Partial_match errmsg)
+        Location.prerr_warning loc Warnings.Partial_match errmsg
       end;
       Partial
 
@@ -2074,7 +2074,7 @@ let do_check_fragile loc casel pss =
             | Seq.Nil ->
                 Location.prerr_warning
                   loc
-                  (Warnings.Fragile_match (Path.name ext))
+                  Warnings.Fragile_match (Path.name ext)
             | Seq.Cons _ -> ())
           exts
 
@@ -2127,19 +2127,19 @@ let check_unused pred casel =
                 let pattern = {pattern with Parsetree.ppat_loc = q.pat_loc} in
                 match pred refute constrs labels pattern with
                   None when not refute ->
-                    Location.prerr_warning q.pat_loc Warnings.Unreachable_case;
+                    Location.prerr_warning q.pat_loc Warnings.Unreachable_case ();
                     Used
                 | _ -> r
               in
               match r with
               | Unused ->
                   Location.prerr_warning
-                    q.pat_loc Warnings.Unused_match
+                    q.pat_loc Warnings.Unused_match ()
               | Upartial ps ->
                   List.iter
                     (fun p ->
                       Location.prerr_warning
-                        p.pat_loc Warnings.Unused_pat)
+                        p.pat_loc Warnings.Unused_pat ())
                     ps
               | Used -> ()
             with Empty | Not_found -> assert false
@@ -2208,7 +2208,7 @@ let check_partial pred loc casel =
   let pss = get_mins le_pats pss in
   let total = do_check_partial ~pred loc casel pss in
   if
-    total = Total && Warnings.is_active (Warnings.Fragile_match "")
+    total = Total && Warnings.is_active Warnings.Fragile_match
   then begin
     do_check_fragile loc casel pss
   end ;
@@ -2478,7 +2478,7 @@ let all_rhs_idents exp =
 
 let check_ambiguous_bindings =
   let open Warnings in
-  let warn0 = Ambiguous_pattern [] in
+  let warn0 = Ambiguous_pattern in
   fun cases ->
     if is_active warn0 then
       let check_case ns case = match case with
@@ -2494,8 +2494,8 @@ let check_ambiguous_bindings =
                   if not (Ident.Set.is_empty ambiguous) then begin
                     let pps =
                       Ident.Set.elements ambiguous |> List.map Ident.name in
-                    let warn = Ambiguous_pattern pps in
-                    Location.prerr_warning p.pat_loc warn
+                    let warn = Warnings.Ambiguous_pattern in
+                    Location.prerr_warning p.pat_loc warn pps
                   end
             end;
             ns
