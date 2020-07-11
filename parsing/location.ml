@@ -831,6 +831,8 @@ let error_of_printer_file print x =
 (* Reporting warnings: generating a report from a warning number using the
    information in [Warnings] + convenience functions. *)
 
+type warn = W : 'a Warnings.t * 'a -> warn
+
 let default_warning_alert_reporter report mk (loc: t) w : report option =
   match report w with
   | `Inactive -> None
@@ -843,22 +845,27 @@ let default_warning_alert_reporter report mk (loc: t) w : report option =
       ) sub_locs in
       Some { kind; main; sub }
 
+type warning_reporter =
+  { warn : 'a. t -> 'a Warnings.t -> 'a -> report option }
 
 let default_warning_reporter =
-  default_warning_alert_reporter
-    Warnings.report
-    (fun is_error id ->
-       if is_error then Report_warning_as_error id
-       else Report_warning id
-    )
+  let reporter =
+    default_warning_alert_reporter
+      (fun (W (name, x)) -> Warnings.report name x)
+      (fun is_error id ->
+         if is_error then Report_warning_as_error id
+         else Report_warning id
+      )
+  in
+  { warn = fun loc name x -> reporter loc (W (name, x)) }
 
 let warning_reporter = ref default_warning_reporter
-let report_warning loc w = !warning_reporter loc w
+let report_warning loc name x = !warning_reporter.warn loc name x
 
 let formatter_for_warnings = ref Format.err_formatter
 
 let print_warning loc ppf name x =
-  match report_warning loc Warnings.(mk name x) with
+  match report_warning loc name x with
   | None -> ()
   | Some report -> print_report ppf report
 

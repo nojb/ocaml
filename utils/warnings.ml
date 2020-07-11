@@ -24,79 +24,75 @@ type loc = {
   loc_ghost: bool;
 }
 
-type _ name =
-  | Comment_start: unit name                (*  1 *)
-  | Comment_not_end: unit name              (*  2 *)
-(*| Deprecated --> alert "deprecated" *)    (*  3 *)
-  | Fragile_match: string name              (*  4 *)
-  | Partial_application: unit name          (*  5 *)
-  | Labels_omitted: string list name        (*  6 *)
-  | Method_override: string list name       (*  7 *)
-  | Partial_match: string name              (*  8 *)
-  | Non_closed_record_pattern: string name  (*  9 *)
-  | Statement_type: unit name               (* 10 *)
-  | Unused_match: unit name                 (* 11 *)
-  | Unused_pat: unit name                   (* 12 *)
-  | Instance_variable_override: string list name (* 13 *)
-  | Illegal_backslash: unit name            (* 14 *)
-  | Implicit_public_methods: string list name (* 15 *)
-  | Unerasable_optional_argument: unit name (* 16 *)
-  | Undeclared_virtual_method: string name  (* 17 *)
-  | Not_principal: string name              (* 18 *)
-  | Without_principality: string name       (* 19 *)
-  | Unused_argument: unit name              (* 20 *)
-  | Nonreturning_statement: unit name       (* 21 *)
-  | Preprocessor: string name               (* 22 *)
-  | Useless_record_with: unit name          (* 23 *)
-  | Bad_module_name: string name            (* 24 *)
-  | All_clauses_guarded: unit name          (* 8, used to be 25 *)
-  | Unused_var: string name                 (* 26 *)
-  | Unused_var_strict: string name          (* 27 *)
-  | Wildcard_arg_to_constant_constr: unit name (* 28 *)
-  | Eol_in_string: unit name                (* 29 *)
-  | Duplicate_definitions: (string * string * string * string) name (* 30 *)
-  | Multiple_definition: (string * string * string) name (* 31 *)
-  | Unused_value_declaration: string name   (* 32 *)
-  | Unused_open: string name                (* 33 *)
-  | Unused_type_declaration: string name    (* 34 *)
-  | Unused_for_index: string name           (* 35 *)
-  | Unused_ancestor: string name            (* 36 *)
-  | Unused_constructor: (string * bool * bool) name (* 37 *)
-  | Unused_extension: (string * bool * bool * bool) name (* 38 *)
-  | Unused_rec_flag: unit name              (* 39 *)
-  | Name_out_of_scope: (string * string list * bool) name (* 40 *)
-  | Ambiguous_name: (string list * string list *  bool * string) name (* 41 *)
-  | Disambiguated_name: string name         (* 42 *)
-  | Nonoptional_label: string name          (* 43 *)
-  | Open_shadow_identifier: (string * string) name (* 44 *)
-  | Open_shadow_label_constructor: (string * string) name (* 45 *)
-  | Bad_env_variable: (string * string) name (* 46 *)
-  | Attribute_payload: (string * string) name (* 47 *)
-  | Eliminated_optional_arguments: string list name (* 48 *)
-  | No_cmi_file: (string * string option) name (* 49 *)
-  | Bad_docstring: bool name                (* 50 *)
-  | Expect_tailcall: unit name              (* 51 *)
-  | Fragile_literal_pattern: unit name      (* 52 *)
-  | Misplaced_attribute: string name        (* 53 *)
-  | Duplicated_attribute: string name       (* 54 *)
-  | Inlining_impossible: string name        (* 55 *)
-  | Unreachable_case: unit name             (* 56 *)
-  | Ambiguous_pattern: string list name     (* 57 *)
-  | No_cmx_file: string name                (* 58 *)
-  | Assignment_to_non_mutable_value: unit name (* 59 *)
-  | Unused_module: string name              (* 60 *)
-  | Unboxable_type_in_prim_decl: string name (* 61 *)
-  | Constraint_on_gadt: unit name           (* 62 *)
-  | Erroneous_printed_signature: string name (* 63 *)
-  | Unsafe_without_parsing: unit name       (* 64 *)
-  | Redefining_unit: string name            (* 65 *)
-  | Unused_open_bang: string name           (* 66 *)
-  | Unused_functor_parameter: string name   (* 67 *)
+type _ t =
+  | Comment_start: unit t                (*  1 *)
+  | Comment_not_end: unit t              (*  2 *)
+(*| Deprecated --> alert "deprecated" *) (*  3 *)
+  | Fragile_match: string t              (*  4 *)
+  | Partial_application: unit t          (*  5 *)
+  | Labels_omitted: string list t        (*  6 *)
+  | Method_override: string list t       (*  7 *)
+  | Partial_match: string t              (*  8 *)
+  | Non_closed_record_pattern: string t  (*  9 *)
+  | Statement_type: unit t               (* 10 *)
+  | Unused_match: unit t                 (* 11 *)
+  | Unused_pat: unit t                   (* 12 *)
+  | Instance_variable_override: string list t (* 13 *)
+  | Illegal_backslash: unit t            (* 14 *)
+  | Implicit_public_methods: string list t (* 15 *)
+  | Unerasable_optional_argument: unit t (* 16 *)
+  | Undeclared_virtual_method: string t  (* 17 *)
+  | Not_principal: string t              (* 18 *)
+  | Without_principality: string t       (* 19 *)
+  | Unused_argument: unit t              (* 20 *)
+  | Nonreturning_statement: unit t       (* 21 *)
+  | Preprocessor: string t               (* 22 *)
+  | Useless_record_with: unit t          (* 23 *)
+  | Bad_module_name: string t            (* 24 *)
+  | All_clauses_guarded: unit t          (* 8, used to be 25 *)
+  | Unused_var: string t                 (* 26 *)
+  | Unused_var_strict: string t          (* 27 *)
+  | Wildcard_arg_to_constant_constr: unit t (* 28 *)
+  | Eol_in_string: unit t                (* 29 *)
+  | Duplicate_definitions: (string * string * string * string) t (* 30 *)
+  | Multiple_definition: (string * string * string) t (* 31 *)
+  | Unused_value_declaration: string t   (* 32 *)
+  | Unused_open: string t                (* 33 *)
+  | Unused_type_declaration: string t    (* 34 *)
+  | Unused_for_index: string t           (* 35 *)
+  | Unused_ancestor: string t            (* 36 *)
+  | Unused_constructor: (string * bool * bool) t (* 37 *)
+  | Unused_extension: (string * bool * bool * bool) t (* 38 *)
+  | Unused_rec_flag: unit t              (* 39 *)
+  | Name_out_of_scope: (string * string list * bool) t (* 40 *)
+  | Ambiguous_name: (string list * string list *  bool * string) t (* 41 *)
+  | Disambiguated_name: string t         (* 42 *)
+  | Nonoptional_label: string t          (* 43 *)
+  | Open_shadow_identifier: (string * string) t (* 44 *)
+  | Open_shadow_label_constructor: (string * string) t (* 45 *)
+  | Bad_env_variable: (string * string) t (* 46 *)
+  | Attribute_payload: (string * string) t (* 47 *)
+  | Eliminated_optional_arguments: string list t (* 48 *)
+  | No_cmi_file: (string * string option) t (* 49 *)
+  | Bad_docstring: bool t                (* 50 *)
+  | Expect_tailcall: unit t              (* 51 *)
+  | Fragile_literal_pattern: unit t      (* 52 *)
+  | Misplaced_attribute: string t        (* 53 *)
+  | Duplicated_attribute: string t       (* 54 *)
+  | Inlining_impossible: string t        (* 55 *)
+  | Unreachable_case: unit t             (* 56 *)
+  | Ambiguous_pattern: string list t     (* 57 *)
+  | No_cmx_file: string t                (* 58 *)
+  | Assignment_to_non_mutable_value: unit t (* 59 *)
+  | Unused_module: string t              (* 60 *)
+  | Unboxable_type_in_prim_decl: string t (* 61 *)
+  | Constraint_on_gadt: unit t           (* 62 *)
+  | Erroneous_printed_signature: string t (* 63 *)
+  | Unsafe_without_parsing: unit t       (* 64 *)
+  | Redefining_unit: string t            (* 65 *)
+  | Unused_open_bang: string t           (* 66 *)
+  | Unused_functor_parameter: string t   (* 67 *)
 ;;
-
-type t = W : 'a name * 'a -> t
-
-let mk name x = W (name, x)
 
 (* If you remove a warning, leave a hole in the numbering.  NEVER change
    the numbers of existing warnings.
@@ -107,7 +103,7 @@ let mk name x = W (name, x)
 type alert = {kind:string; message:string; def:loc; use:loc}
 
 
-let number : type a. a name -> int = function
+let number : type a. a t -> int = function
   | Comment_start -> 1
   | Comment_not_end -> 2
   | Fragile_match -> 4
@@ -409,7 +405,7 @@ let ref_manual_explanation () =
   let[@manual.ref "s:comp-warnings"] chapter, section = 9, 5 in
   Printf.sprintf "(See manual section %d.%d)" chapter section
 
-let message (W (name, x)) : string =
+let message : type a. a t -> a -> string = fun name x ->
   match name, x with
   | Comment_start, () ->
       "this `(*' is the start of a comment.\n\
@@ -648,14 +644,14 @@ type reporting_information =
   ; sub_locs : (loc * string) list;
   }
 
-let report (W (name, _) as w) =
+let report name x =
   match is_active name with
   | false -> `Inactive
   | true ->
      if is_error name then incr nerrors;
      `Active
        { id = string_of_int (number name);
-         message = message w;
+         message = message name x;
          is_error = is_error name;
          sub_locs = [];
        }

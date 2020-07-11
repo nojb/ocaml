@@ -642,7 +642,7 @@ end) = struct
   open Name
 
   type warn =
-    { warn : 'a. Warnings.loc -> 'a Warnings.name -> 'a -> unit }
+    { warn : 'a. Location.t -> 'a Warnings.t -> 'a -> unit }
 
   let get_type_path d = get_constr_type_path (get_type d)
 
@@ -892,7 +892,7 @@ let disambiguate_lid_a_list loc closed env expected_type lid_a_list =
   let ids = List.map (fun (lid, _) -> Longident.last lid.txt) lid_a_list in
   let w_pr = ref false and w_amb = ref []
   and w_scope = ref [] and w_scope_ty = ref "" in
-  let warn : type a. _ -> a Warnings.name -> a -> _ = fun loc name x ->
+  let warn : type a. _ -> a Warnings.t -> a -> _ = fun loc name x ->
     let open Warnings in
     match name, x with
     | Not_principal, _ -> w_pr := true

@@ -37,20 +37,20 @@ let lambda_to_flambda ~ppf_dump ~prefixname ~backend ~size ~filename
     let previous_warning_reporter = !Location.warning_reporter in
     let module WarningSet =
       Set.Make (struct
-        type t = Location.t * Warnings.t
+        type t = W : Location.t * 'a Warnings.t * 'a -> t
         let compare = Stdlib.compare
       end)
     in
     let warning_set = ref WarningSet.empty in
-    let flambda_warning_reporter loc w =
-      let elt = loc, w in
+    let flambda_warning_reporter loc name x =
+      let elt = W (loc, name, x) in
       if not (WarningSet.mem elt !warning_set) then begin
         warning_set := WarningSet.add elt !warning_set;
-        previous_warning_reporter loc w
+        previous_warning_reporter.warn loc name x
       end else None
     in
     Misc.protect_refs
-      [Misc.R (Location.warning_reporter, flambda_warning_reporter)]
+      [Misc.R (Location.warning_reporter, {warn = flambda_warning_reporter})]
       (fun () ->
          let pass_number = ref 0 in
          let round_number = ref 0 in

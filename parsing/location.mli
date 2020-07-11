@@ -191,25 +191,28 @@ val default_report_printer: unit -> report_printer
 
 (** {2 Converting a [Warnings.t] into a [report]} *)
 
-val report_warning: t -> Warnings.t -> report option
+val report_warning: t -> 'a Warnings.t -> 'a -> report option
 (** [report_warning loc w] produces a report for the given warning [w], or
    [None] if the warning is not to be printed. *)
 
-val warning_reporter: (t -> Warnings.t -> report option) ref
+type warning_reporter =
+  { warn : 'a. t -> 'a Warnings.t -> 'a -> report option }
+
+val warning_reporter: warning_reporter ref
 (** Hook for intercepting warnings. *)
 
-val default_warning_reporter: t -> Warnings.t -> report option
+val default_warning_reporter: warning_reporter
 (** Original warning reporter for use in hooks. *)
 
 (** {2 Printing warnings} *)
 
 val formatter_for_warnings : formatter ref
 
-val print_warning: t -> formatter -> 'a Warnings.name -> 'a -> unit
+val print_warning: t -> formatter -> 'a Warnings.t -> 'a -> unit
 (** Prints a warning. This is simply the composition of [report_warning] and
    [print_report]. *)
 
-val prerr_warning: t -> 'a Warnings.name -> 'a -> unit
+val prerr_warning: t -> 'a Warnings.t -> 'a -> unit
 (** Same as [print_warning], but uses [!formatter_for_warnings] as output
    formatter. *)
 
