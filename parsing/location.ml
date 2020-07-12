@@ -831,8 +831,8 @@ let error_of_printer_file print x =
 (* Reporting warnings: generating a report from a warning number using the
    information in [Warnings] + convenience functions. *)
 
-let default_warning_alert_reporter report mk (loc: t) w : report option =
-  match report w with
+let default_warning_alert_reporter report mk (loc: t) w state : report option =
+  match report w state with
   | `Inactive -> None
   | `Active { Warnings.id; message; is_error; sub_locs } ->
       let msg_of_str str = fun ppf -> Format.pp_print_string ppf str in
@@ -853,16 +853,16 @@ let default_warning_reporter =
     )
 
 let warning_reporter = ref default_warning_reporter
-let report_warning loc w = !warning_reporter loc w
+let report_warning loc w state = !warning_reporter loc w state
 
 let formatter_for_warnings = ref Format.err_formatter
 
-let print_warning loc ppf w =
-  match report_warning loc w with
+let print_warning loc ppf w state =
+  match report_warning loc w state with
   | None -> ()
   | Some report -> print_report ppf report
 
-let prerr_warning loc w = print_warning loc !formatter_for_warnings w
+let prerr_warning loc w state = print_warning loc !formatter_for_warnings w state
 
 let default_alert_reporter =
   default_warning_alert_reporter
@@ -873,14 +873,14 @@ let default_alert_reporter =
     )
 
 let alert_reporter = ref default_alert_reporter
-let report_alert loc w = !alert_reporter loc w
+let report_alert loc w state = !alert_reporter loc w state
 
-let print_alert loc ppf w =
-  match report_alert loc w with
+let print_alert loc ppf w state =
+  match report_alert loc w state with
   | None -> ()
   | Some report -> print_report ppf report
 
-let prerr_alert loc w = print_alert loc !formatter_for_warnings w
+let prerr_alert loc w state = print_alert loc !formatter_for_warnings w state
 
 let alert ?(def = none) ?(use = none) ~kind loc message =
   prerr_alert loc {Warnings.kind; message; def; use}

@@ -196,11 +196,8 @@ let initial_env ~loc ~safe_string ~initially_opened_module
 
 let type_open_descr ?used_slot ?toplevel env sod =
   let (path, newenv) =
-    Builtin_attributes.warning_scope sod.popen_attributes
-      (fun () ->
-         type_open_ ?used_slot ?toplevel sod.popen_override env sod.popen_loc
-           sod.popen_expr
-      )
+    type_open_ ?used_slot ?toplevel sod.popen_override
+      (Env.warning_scope sod.popen_attributes env) sod.popen_loc sod.popen_expr
   in
   let od =
     {
@@ -1121,8 +1118,7 @@ let mksig desc env loc =
 (* let signature sg = List.map (fun item -> item.sig_type) sg *)
 
 let rec transl_modtype env smty =
-  Builtin_attributes.warning_scope smty.pmty_attributes
-    (fun () -> transl_modtype_aux env smty)
+  transl_modtype_aux (Env.warning_scope smty.pmty_attributes env) smty
 
 and transl_modtype_functor_arg env sarg =
   let mty = transl_modtype env sarg in
@@ -1288,8 +1284,7 @@ and transl_signature env sg =
         | Psig_module pmd ->
             let scope = Ctype.create_scope () in
             let tmty =
-              Builtin_attributes.warning_scope pmd.pmd_attributes
-                (fun () -> transl_modtype env pmd.pmd_type)
+              transl_modtype (Env.warning_scope pmd.pmd_attributes env) pmd.pmd_type
             in
             let pres =
               match tmty.mty_type with
@@ -1398,8 +1393,7 @@ and transl_signature env sg =
         | Psig_include sincl ->
             let smty = sincl.pincl_mod in
             let tmty =
-              Builtin_attributes.warning_scope sincl.pincl_attributes
-                (fun () -> transl_modtype env smty)
+              transl_modtype (Env.warning_scope sincl.pincl_attributes env) smty
             in
             let mty = tmty.mty_type in
             let scope = Ctype.create_scope () in
@@ -1483,21 +1477,19 @@ and transl_signature env sg =
             raise (Error_forward (Builtin_attributes.error_of_extension ext))
   in
   let previous_saved_types = Cmt_format.get_saved_types () in
-  Builtin_attributes.warning_scope []
-    (fun () ->
-       let (trem, rem, final_env) = transl_sig (Env.in_signature true env) sg in
-       let rem = Signature_names.simplify final_env names rem in
-       let sg =
-         { sig_items = trem; sig_type = rem; sig_final_env = final_env }
-       in
-       Cmt_format.set_saved_types
-         ((Cmt_format.Partial_signature sg) :: previous_saved_types);
-       sg
-    )
+  let env = Env.warning_scope [] env in
+  let (trem, rem, final_env) = transl_sig (Env.in_signature true env) sg in
+  let rem = Signature_names.simplify final_env names rem in
+  let sg =
+    { sig_items = trem; sig_type = rem; sig_final_env = final_env }
+  in
+  Cmt_format.set_saved_types
+    ((Cmt_format.Partial_signature sg) :: previous_saved_types);
+  sg
 
 and transl_modtype_decl names env pmtd =
-  Builtin_attributes.warning_scope pmtd.pmtd_attributes
-    (fun () -> transl_modtype_decl_aux names env pmtd)
+  transl_modtype_decl_aux names (Env.warning_scope pmtd.pmtd_attributes env)
+    pmtd
 
 and transl_modtype_decl_aux names env
     {pmtd_name; pmtd_type; pmtd_attributes; pmtd_loc} =
@@ -1538,8 +1530,8 @@ and transl_recmodule_modtypes env sdecls =
     List.map2
       (fun pmd (id, id_loc, md, _) ->
         let tmty =
-          Builtin_attributes.warning_scope pmd.pmd_attributes
-            (fun () -> transl_modtype env_c pmd.pmd_type)
+          transl_modtype (Env.warning_scope pmd.pmd_attributes env_c)
+            pmd.pmd_type
         in
         let md = { md with Types.md_type = tmty.mty_type } in
         (id, id_loc, md, tmty))
@@ -1867,8 +1859,8 @@ let wrap_constraint env mark arg mty explicit =
 (* Type a module value expression *)
 
 let rec type_module ?(alias=false) sttn funct_body anchor env smod =
-  Builtin_attributes.warning_scope smod.pmod_attributes
-    (fun () -> type_module_aux ~alias sttn funct_body anchor env smod)
+  type_module_aux ~alias sttn funct_body anchor
+    (Env.warning_scope smod.pmod_attributes env) smod
 
 and type_module_aux ~alias sttn funct_body anchor env smod =
   match smod.pmod_desc with
@@ -2072,10 +2064,8 @@ and type_module_aux ~alias sttn funct_body anchor env smod =
       raise (Error_forward (Builtin_attributes.error_of_extension ext))
 
 and type_open_decl ?used_slot ?toplevel funct_body names env sod =
-  Builtin_attributes.warning_scope sod.popen_attributes
-    (fun () ->
-       type_open_decl_aux ?used_slot ?toplevel funct_body names env sod
-    )
+  type_open_decl_aux ?used_slot ?toplevel funct_body names
+    (Env.warning_scope sod.popen_attributes env) sod
 
 and type_open_decl_aux ?used_slot ?toplevel funct_body names env od =
   let loc = od.popen_loc in
@@ -2142,8 +2132,7 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
     match desc with
     | Pstr_eval (sexpr, attrs) ->
         let expr =
-          Builtin_attributes.warning_scope attrs
-            (fun () -> Typecore.type_expression env sexpr)
+          Typecore.type_expression (Env.warning_scope attrs env) sexpr
         in
         Tstr_eval (expr, attrs), [], env
     | Pstr_value(rec_flag, sdefs) ->
@@ -2219,11 +2208,9 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
         let outer_scope = Ctype.get_current_level () in
         let scope = Ctype.create_scope () in
         let modl =
-          Builtin_attributes.warning_scope attrs
-            (fun () ->
-               type_module ~alias:true true funct_body
-                 (anchor_submodule name.txt anchor) env smodl
-            )
+          type_module ~alias:true true funct_body
+            (anchor_submodule name.txt anchor)
+            (Env.warning_scope attrs env) smodl
         in
         let pres =
           match modl.mod_type with
@@ -2288,11 +2275,8 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
           List.map2
             (fun ({md_id=id; md_type=mty}, uid) (name, _, smodl, attrs, loc) ->
                let modl =
-                 Builtin_attributes.warning_scope attrs
-                   (fun () ->
-                      type_module true funct_body (anchor_recmodule id)
-                        newenv smodl
-                   )
+                 type_module true funct_body (anchor_recmodule id)
+                   (Env.warning_scope attrs newenv) smodl
                in
                let mty' =
                  enrich_module_type anchor name.txt modl.mod_type newenv
@@ -2410,8 +2394,8 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
     | Pstr_include sincl ->
         let smodl = sincl.pincl_mod in
         let modl =
-          Builtin_attributes.warning_scope sincl.pincl_attributes
-            (fun () -> type_module true funct_body None env smodl)
+          type_module true funct_body None
+            (Env.warning_scope sincl.pincl_attributes env) smodl
         in
         let scope = Ctype.create_scope () in
         (* Rename all identifiers bound by this signature to avoid clashes *)
@@ -2445,15 +2429,15 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
         (str :: str_rem, sg @ sig_rem, final_env)
   in
   let previous_saved_types = Cmt_format.get_saved_types () in
-  let run () =
+  let run env =
     let (items, sg, final_env) = type_struct env sstr in
     let str = { str_items = items; str_type = sg; str_final_env = final_env } in
     Cmt_format.set_saved_types
       (Cmt_format.Partial_structure str :: previous_saved_types);
     str, sg, names, final_env
   in
-  if toplevel then run ()
-  else Builtin_attributes.warning_scope [] run
+  if toplevel then run env
+  else run (Env.warning_scope [] env)
 
 let type_toplevel_phrase env s =
   Env.reset_required_globals ();

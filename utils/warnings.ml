@@ -233,38 +233,23 @@ let without_warnings f =
 
 let backup () = !current
 
-let restore x = current := x
+(* let restore x = current := x *)
 
-let is_active x =
-  not !disabled && (!current).active.(number x)
+let is_active x state =
+  not !disabled && state.active.(number x)
 
-let is_error x =
-  not !disabled && (!current).error.(number x)
+let is_error x state =
+  not !disabled && state.error.(number x)
 
-let alert_is_active {kind; _} =
+let alert_is_active {kind; _} state =
   not !disabled &&
-  let (set, pos) = (!current).alerts in
+  let (set, pos) = state.alerts in
   Misc.Stdlib.String.Set.mem kind set = pos
 
-let alert_is_error {kind; _} =
+let alert_is_error {kind; _} state =
   not !disabled &&
-  let (set, pos) = (!current).alert_errors in
+  let (set, pos) = state.alert_errors in
   Misc.Stdlib.String.Set.mem kind set = pos
-
-let mk_lazy f =
-  let state = backup () in
-  lazy
-    (
-      let prev = backup () in
-      restore state;
-      try
-        let r = f () in
-        restore prev;
-        r
-      with exn ->
-        restore prev;
-        raise exn
-    )
 
 let set_alert ~error ~enable s =
   let upd =
@@ -642,23 +627,23 @@ type reporting_information =
   ; sub_locs : (loc * string) list;
   }
 
-let report w =
-  match is_active w with
+let report w state =
+  match is_active w state with
   | false -> `Inactive
   | true ->
-     if is_error w then incr nerrors;
+     if is_error w state then incr nerrors;
      `Active
        { id = string_of_int (number w);
          message = message w;
-         is_error = is_error w;
+         is_error = is_error w state;
          sub_locs = [];
        }
 
-let report_alert (alert : alert) =
-  match alert_is_active alert with
+let report_alert (alert : alert) state =
+  match alert_is_active alert state with
   | false -> `Inactive
   | true ->
-      let is_error = alert_is_error alert in
+      let is_error = alert_is_error alert state in
       if is_error then incr nerrors;
       let message = Misc.normalise_eol alert.message in
        (* Reduce \r\n to \n:

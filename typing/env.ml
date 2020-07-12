@@ -403,6 +403,7 @@ type t = {
   summary: summary;
   local_constraints: type_declaration Path.Map.t;
   flags: int;
+  warnings: Warnings.state;
 }
 
 and module_declaration_lazy =
@@ -591,6 +592,7 @@ let empty = {
   summary = Env_empty; local_constraints = Path.Map.empty;
   flags = 0;
   functor_args = Ident.empty;
+  warnings = Warnings.backup ();
  }
 
 let in_signature b env =
@@ -3056,6 +3058,9 @@ let extract_instance_variables env =
        match descr.val_kind with
        | Val_ivar _ -> name :: acc
        | _ -> acc) None env []
+
+let warning_scope ?ppwarning:_ _attr env =
+  env
 
 let report_lookup_error _loc env ppf = function
   | Unbound_value(lid, hint) -> begin

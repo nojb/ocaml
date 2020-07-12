@@ -109,8 +109,10 @@ val parse_alert_option: string -> unit
 val without_warnings : (unit -> 'a) -> 'a
   (** Run the thunk with all warnings and alerts disabled. *)
 
-val is_active : t -> bool;;
-val is_error : t -> bool;;
+type state
+
+val is_active : t -> state -> bool;;
+val is_error : t -> state -> bool;;
 
 val defaults_w : string;;
 val defaults_warn_error : string;;
@@ -122,8 +124,8 @@ type reporting_information =
   ; sub_locs : (loc * string) list;
   }
 
-val report : t -> [ `Active of reporting_information | `Inactive ]
-val report_alert : alert -> [ `Active of reporting_information | `Inactive ]
+val report : t -> state -> [ `Active of reporting_information | `Inactive ]
+val report_alert : alert -> state -> [ `Active of reporting_information | `Inactive ]
 
 exception Errors;;
 
@@ -132,9 +134,4 @@ val reset_fatal: unit -> unit
 
 val help_warnings: unit -> unit
 
-type state
 val backup: unit -> state
-val restore: state -> unit
-val mk_lazy: (unit -> 'a) -> 'a Lazy.t
-    (** Like [Lazy.of_fun], but the function is applied with
-        the warning/alert settings at the time [mk_lazy] is called. *)

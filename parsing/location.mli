@@ -191,25 +191,25 @@ val default_report_printer: unit -> report_printer
 
 (** {2 Converting a [Warnings.t] into a [report]} *)
 
-val report_warning: t -> Warnings.t -> report option
+val report_warning: t -> Warnings.t -> Warnings.state -> report option
 (** [report_warning loc w] produces a report for the given warning [w], or
    [None] if the warning is not to be printed. *)
 
-val warning_reporter: (t -> Warnings.t -> report option) ref
+val warning_reporter: (t -> Warnings.t -> Warnings.state -> report option) ref
 (** Hook for intercepting warnings. *)
 
-val default_warning_reporter: t -> Warnings.t -> report option
+val default_warning_reporter: t -> Warnings.t -> Warnings.state -> report option
 (** Original warning reporter for use in hooks. *)
 
 (** {2 Printing warnings} *)
 
 val formatter_for_warnings : formatter ref
 
-val print_warning: t -> formatter -> Warnings.t -> unit
+val print_warning: t -> formatter -> Warnings.t -> Warnings.state -> unit
 (** Prints a warning. This is simply the composition of [report_warning] and
    [print_report]. *)
 
-val prerr_warning: t -> Warnings.t -> unit
+val prerr_warning: t -> Warnings.t -> Warnings.state -> unit
 (** Same as [print_warning], but uses [!formatter_for_warnings] as output
    formatter. *)
 
@@ -217,30 +217,30 @@ val prerr_warning: t -> Warnings.t -> unit
 
 (** {2 Converting an [Alert.t] into a [report]} *)
 
-val report_alert: t -> Warnings.alert -> report option
+val report_alert: t -> Warnings.alert -> Warnings.state -> report option
 (** [report_alert loc w] produces a report for the given alert [w], or
    [None] if the alert is not to be printed. *)
 
-val alert_reporter: (t -> Warnings.alert -> report option) ref
+val alert_reporter: (t -> Warnings.alert -> Warnings.state -> report option) ref
 (** Hook for intercepting alerts. *)
 
-val default_alert_reporter: t -> Warnings.alert -> report option
+val default_alert_reporter: t -> Warnings.alert -> Warnings.state -> report option
 (** Original alert reporter for use in hooks. *)
 
 (** {2 Printing alerts} *)
 
-val print_alert: t -> formatter -> Warnings.alert -> unit
+val print_alert: t -> formatter -> Warnings.alert -> Warnings.state -> unit
 (** Prints an alert. This is simply the composition of [report_alert] and
    [print_report]. *)
 
-val prerr_alert: t -> Warnings.alert -> unit
+val prerr_alert: t -> Warnings.alert -> Warnings.state -> unit
 (** Same as [print_alert], but uses [!formatter_for_warnings] as output
    formatter. *)
 
-val deprecated: ?def:t -> ?use:t -> t -> string -> unit
+val deprecated: ?def:t -> ?use:t -> t -> string -> Warnings.state -> unit
 (** Prints a deprecation alert. *)
 
-val alert: ?def:t -> ?use:t -> kind:string -> t -> string -> unit
+val alert: ?def:t -> ?use:t -> kind:string -> t -> string -> Warnings.state -> unit
 (** Prints an arbitrary alert. *)
 
 

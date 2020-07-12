@@ -230,18 +230,6 @@ let warning_attribute ?(ppwarning = true) =
   | _ ->
      ()
 
-let warning_scope ?ppwarning attrs f =
-  let prev = Warnings.backup () in
-  try
-    List.iter (warning_attribute ?ppwarning) (List.rev attrs);
-    let ret = f () in
-    Warnings.restore prev;
-    ret
-  with exn ->
-    Warnings.restore prev;
-    raise exn
-
-
 let warn_on_literal_pattern =
   List.exists
     (fun a -> match a.attr_name.txt with

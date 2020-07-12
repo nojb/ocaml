@@ -258,6 +258,7 @@ let warn_latin1 lexbuf =
   Location.deprecated
     (Location.curr lexbuf)
     "ISO-Latin1 characters in identifiers"
+    (Warnings.backup ())
 
 let handle_docstrings = ref true
 let comment_list = ref []
@@ -476,7 +477,7 @@ rule token = parse
         COMMENT (s, loc) }
   | "(*)"
       { if !print_warnings then
-          Location.prerr_warning (Location.curr lexbuf) Warnings.Comment_start;
+          Location.prerr_warning (Location.curr lexbuf) Warnings.Comment_start (Warnings.backup ());
         let s, loc = wrap_comment_lexer comment lexbuf in
         COMMENT (s, loc) }
   | "(*" (('*'*) as stars) "*)"
@@ -487,7 +488,7 @@ rule token = parse
           COMMENT (stars, Location.curr lexbuf) }
   | "*)"
       { let loc = Location.curr lexbuf in
-        Location.prerr_warning loc Warnings.Comment_not_end;
+        Location.prerr_warning loc Warnings.Comment_not_end (Warnings.backup ());
         lexbuf.Lexing.lex_curr_pos <- lexbuf.Lexing.lex_curr_pos - 1;
         let curpos = lexbuf.lex_curr_p in
         lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
@@ -703,14 +704,14 @@ and string = parse
           error lexbuf (Illegal_escape (Lexing.lexeme lexbuf, None))
 *)
           let loc = Location.curr lexbuf in
-          Location.prerr_warning loc Warnings.Illegal_backslash;
+          Location.prerr_warning loc Warnings.Illegal_backslash (Warnings.backup ());
         end;
         store_lexeme lexbuf;
         string lexbuf
       }
   | newline
       { if not (in_comment ()) then
-          Location.prerr_warning (Location.curr lexbuf) Warnings.Eol_in_string;
+          Location.prerr_warning (Location.curr lexbuf) Warnings.Eol_in_string (Warnings.backup ());
         update_loc lexbuf None 1 false 0;
         store_lexeme lexbuf;
         string lexbuf

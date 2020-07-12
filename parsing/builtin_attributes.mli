@@ -60,19 +60,6 @@ val warning_attribute: ?ppwarning:bool -> Parsetree.attribute -> unit
       passed).
   *)
 
-val warning_scope:
-  ?ppwarning:bool ->
-  Parsetree.attributes -> (unit -> 'a) -> 'a
-  (** Execute a function in a new scope for warning settings.  This
-      means that the effect of any call to [warning_attribute] during
-      the execution of this function will be discarded after
-      execution.
-
-      The function also takes a list of attributes which are processed
-      with [warning_attribute] in the fresh scope before the function
-      is executed.
-  *)
-
 val warn_on_literal_pattern: Parsetree.attributes -> bool
 val explicit_arity: Parsetree.attributes -> bool
 

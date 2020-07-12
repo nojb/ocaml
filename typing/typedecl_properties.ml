@@ -29,8 +29,8 @@ type ('prop, 'req) property = {
 
 let add_type ~check id decl env =
   let open Types in
-  Builtin_attributes.warning_scope ~ppwarning:false decl.type_attributes
-    (fun () -> Env.add_type ~check id decl env)
+  Env.add_type ~check id decl
+    (Env.warning_scope ~ppwarning:false decl.type_attributes env)
 
 let add_types_to_env decls env =
   List.fold_right

@@ -86,8 +86,8 @@ let get_unboxed_from_attributes sdecl =
 (* Enter all declared types in the environment as abstract types *)
 
 let add_type ~check id decl env =
-  Builtin_attributes.warning_scope ~ppwarning:false decl.type_attributes
-    (fun () -> Env.add_type ~check id decl env)
+  Env.add_type ~check id decl
+    (Env.warning_scope ~ppwarning:false decl.type_attributes env)
 
 let enter_type rec_flag env sdecl (id, uid) =
   let needed =
@@ -211,14 +211,12 @@ let transl_labels env closed lbls =
     lbls;
   let mk {pld_name=name;pld_mutable=mut;pld_type=arg;pld_loc=loc;
           pld_attributes=attrs} =
-    Builtin_attributes.warning_scope attrs
-      (fun () ->
-         let arg = Ast_helper.Typ.force_poly arg in
-         let cty = transl_simple_type env closed arg in
-         {ld_id = Ident.create_local name.txt;
-          ld_name = name; ld_mutable = mut;
-          ld_type = cty; ld_loc = loc; ld_attributes = attrs}
-      )
+    let env = Env.warning_scope attrs env in
+    let arg = Ast_helper.Typ.force_poly arg in
+    let cty = transl_simple_type env closed arg in
+    {ld_id = Ident.create_local name.txt;
+     ld_name = name; ld_mutable = mut;
+     ld_type = cty; ld_loc = loc; ld_attributes = attrs}
   in
   let lbls = List.map mk lbls in
   let lbls' =
@@ -349,6 +347,7 @@ let transl_declaration env sdecl (id, uid) =
            > (Config.max_tag + 1) then
           raise(Error(sdecl.ptype_loc, Too_many_constructors));
         let make_cstr scstr =
+          let env = Env.warning_scope scstr.pcd_attributes env in
           let name = Ident.create_local scstr.pcd_name.txt in
           let targs, tret_type, args, ret_type =
             make_constructor env (Path.Pident id) params
@@ -371,10 +370,6 @@ let transl_declaration env sdecl (id, uid) =
               cd_uid = Uid.mk ~current_unit:(Env.get_unit_name ()) }
           in
             tcstr, cstr
-        in
-        let make_cstr scstr =
-          Builtin_attributes.warning_scope scstr.pcd_attributes
-            (fun () -> make_cstr scstr)
         in
         let tcstrs, cstrs = List.split (List.map make_cstr scstrs) in
           Ttype_variant tcstrs, Type_variant cstrs
@@ -863,9 +858,8 @@ let transl_type_decl env rec_flag sdecl_list =
   in
   let transl_declaration name_sdecl (id, slot) =
     current_slot := slot;
-    Builtin_attributes.warning_scope
-      name_sdecl.ptype_attributes
-      (fun () -> transl_declaration temp_env name_sdecl id)
+    transl_declaration (Env.warning_scope name_sdecl.ptype_attributes temp_env)
+      name_sdecl id
   in
   let tdecls =
     List.map2 transl_declaration sdecl_list (List.map ids_slots ids_list) in
@@ -1062,9 +1056,8 @@ let transl_extension_constructor env type_path type_params
 
 let transl_extension_constructor env type_path type_params
     typext_params priv sext =
-  Builtin_attributes.warning_scope sext.pext_attributes
-    (fun () -> transl_extension_constructor env type_path type_params
-        typext_params priv sext)
+  transl_extension_constructor (Env.warning_scope sext.pext_attributes env) type_path type_params
+    typext_params priv sext
 
 let is_rebind ext =
   match ext.ext_kind with
@@ -1176,8 +1169,8 @@ let transl_type_extension extend env loc styext =
     (tyext, newenv)
 
 let transl_type_extension extend env loc styext =
-  Builtin_attributes.warning_scope styext.ptyext_attributes
-    (fun () -> transl_type_extension extend env loc styext)
+  transl_type_extension extend (Env.warning_scope styext.ptyext_attributes env)
+    loc styext
 
 let transl_exception env sext =
   reset_type_variables();
@@ -1205,10 +1198,8 @@ let transl_exception env sext =
 let transl_type_exception env t =
   Builtin_attributes.check_no_alert t.ptyexn_attributes;
   let contructor, newenv =
-    Builtin_attributes.warning_scope t.ptyexn_attributes
-      (fun () ->
-         transl_exception env t.ptyexn_constructor
-      )
+    transl_exception (Env.warning_scope t.ptyexn_attributes env)
+      t.ptyexn_constructor
   in
   {tyexn_constructor = contructor;
    tyexn_loc = t.ptyexn_loc;
@@ -1375,8 +1366,7 @@ let transl_value_decl env loc valdecl =
   desc, newenv
 
 let transl_value_decl env loc valdecl =
-  Builtin_attributes.warning_scope valdecl.pval_attributes
-    (fun () -> transl_value_decl env loc valdecl)
+  transl_value_decl (Env.warning_scope valdecl.pval_attributes env) loc valdecl
 
 (* Translate a "with" constraint -- much simplified version of
    transl_type_decl. For a constraint [Sig with t = sdecl],
