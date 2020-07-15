@@ -1,5 +1,5 @@
 (* TEST
-   flags = "-I ${ocamlsrcdir}/parsing -I ${ocamlsrcdir}/compilerlibs -open Ocamlcommon"
+   flags = "-I ${ocamlsrcdir}/parsing -I ${ocamlsrcdir}/compilerlibs -open Compilerlibs"
    * expect
 *)
 [@@@alert "-deprecated"]

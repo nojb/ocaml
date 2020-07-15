@@ -1,5 +1,5 @@
 (* TEST
-   flags = "-I ${ocamlsrcdir}/utils -I ${ocamlsrcdir}/compilerlibs -open Ocamlcommon"
+   flags = "-I ${ocamlsrcdir}/utils -I ${ocamlsrcdir}/compilerlibs -open Compilerlibs"
    * expect
 *)
 
