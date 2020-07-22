@@ -150,28 +150,23 @@ static void realloc_gray_vals (void)
 
 #ifdef NATIVE_CODE_AND_NO_NAKED_POINTERS
 
-#if defined(__clang__)
-#define OPTNONE __attribute__((optnone))
-#elif defined(__GNUC__)
-#define OPTNONE __attribute__((optimize("O0")))
-#else
-#error "Naked pointer checker unsupported for this platform"
-#endif
+#include <setjmp.h>
 
-static int OPTNONE is_pointer_safe (value v, value *p)
+static jmp_buf checkbuf;
+
+static int is_pointer_safe (value v, value *p)
 {
   header_t h;
   tag_t t;
 
-  Caml_state->checking_pointer_pc = &&on_segfault;
+  if (setjmp(checkbuf) != 0) {
+    Caml_state->checking_pointer_pc = NULL;
+    fprintf (stderr, "Out-of-heap pointer at %p of value %p. "
+                     "Cannot read head.\n", p, (void*)v);
+    return 0;
+  }
 
-  /* This conditional is only needed so that clang does not miscompile the use
-   * of first-class label above. [Caml_state->young_ptr] will never be [42],
-   * but the use of [goto] is sufficient to force clang to get the right
-   * address of [on_segfault] label. */
-  if (Caml_state->young_ptr == (void*)42)
-    goto *Caml_state->checking_pointer_pc;
-
+  Caml_state->checking_pointer_pc = &checkbuf;
   h = Hd_val(v);
   Caml_state->checking_pointer_pc = NULL;
 
@@ -197,12 +192,6 @@ static int OPTNONE is_pointer_safe (value v, value *p)
                       "suspiciously large size: %lu words\n",
               p, (void*)v, Wosize_hd(h));
   }
-  return 0;
-
-on_segfault:
-  Caml_state->checking_pointer_pc = NULL;
-  fprintf (stderr, "Out-of-heap pointer at %p of value %p. "
-                   "Cannot read head.\n", p, (void*)v);
   return 0;
 }
 

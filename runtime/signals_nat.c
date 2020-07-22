@@ -241,11 +241,7 @@ DECLARE_SIGNAL_HANDLER(segv_handler)
     caml_raise_stack_overflow();
 #endif
   } else if (Caml_state->checking_pointer_pc) {
-#ifdef CONTEXT_PC
-    CONTEXT_PC = (context_reg)Caml_state->checking_pointer_pc;
-#else
-#error "CONTEXT_PC must be defined if RETURN_AFTER_STACK_OVERFLOW is"
-#endif
+    longjmp(*(Caml_state->checking_pointer_pc), 1);
   } else {
     /* Otherwise, deactivate our exception handler and return,
        causing fatal signal to be generated at point of error. */
