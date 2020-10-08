@@ -632,22 +632,11 @@ let get_field_gen mut ptr n dbg =
 let set_field ptr n newval init dbg =
   Cop(Cstore (Word_val, init), [field_address ptr n dbg; newval], dbg)
 
-let non_profinfo_mask =
-  if Config.profinfo
-  then (1 lsl (64 - Config.profinfo_width)) - 1
-  else 0 (* [non_profinfo_mask] is unused in this case *)
-
 let get_header ptr dbg =
   (* We cannot deem this as [Immutable] due to the presence of [Obj.truncate]
      and [Obj.set_tag]. *)
   Cop(Cload (Word_int, Mutable),
     [Cop(Cadda, [ptr; Cconst_int(-size_int, dbg)], dbg)], dbg)
-
-let get_header_without_profinfo ptr dbg =
-  if Config.profinfo then
-    Cop(Cand, [get_header ptr dbg; Cconst_int (non_profinfo_mask, dbg)], dbg)
-  else
-    get_header ptr dbg
 
 let tag_offset =
   if big_endian then -1 else -size_int
@@ -661,7 +650,7 @@ let get_tag ptr dbg =
         [Cop(Cadda, [ptr; Cconst_int(tag_offset, dbg)], dbg)], dbg)
 
 let get_size ptr dbg =
-  Cop(Clsr, [get_header_without_profinfo ptr dbg; Cconst_int (10, dbg)], dbg)
+  Cop(Clsr, [get_header ptr dbg; Cconst_int (10, dbg)], dbg)
 
 (* Array indexing *)
 
@@ -2125,7 +2114,7 @@ let offsetref n arg dbg =
              dbg)))
 
 let arraylength kind arg dbg =
-  let hdr = get_header_without_profinfo arg dbg in
+  let hdr = get_header arg dbg in
   match (kind : Lambda.array_kind) with
     Pgenarray ->
       let len =
@@ -2324,7 +2313,7 @@ let arrayref_safe kind arg1 arg2 dbg =
   | Pgenarray ->
       bind "index" arg2 (fun idx ->
       bind "arr" arg1 (fun arr ->
-      bind "header" (get_header_without_profinfo arr dbg) (fun hdr ->
+      bind "header" (get_header arr dbg) (fun hdr ->
         if wordsize_shift = numfloat_shift then
           Csequence(
             make_checkbound dbg [addr_array_length_shifted hdr dbg; idx],
@@ -2351,7 +2340,7 @@ let arrayref_safe kind arg1 arg2 dbg =
             Csequence(
               make_checkbound dbg [
                 addr_array_length_shifted
-                  (get_header_without_profinfo arr dbg) dbg; idx],
+                  (get_header arr dbg) dbg; idx],
               addr_array_ref arr idx dbg)))
       | Pintarray ->
           bind "index" arg2 (fun idx ->
@@ -2359,7 +2348,7 @@ let arrayref_safe kind arg1 arg2 dbg =
             Csequence(
               make_checkbound dbg [
                 addr_array_length_shifted
-                  (get_header_without_profinfo arr dbg) dbg; idx],
+                  (get_header arr dbg) dbg; idx],
               int_array_ref arr idx dbg)))
       | Pfloatarray ->
           box_float dbg (
@@ -2368,7 +2357,7 @@ let arrayref_safe kind arg1 arg2 dbg =
               Csequence(
                 make_checkbound dbg [
                   float_array_length_shifted
-                    (get_header_without_profinfo arr dbg) dbg;
+                    (get_header arr dbg) dbg;
                   idx],
                 unboxed_float_array_ref arr idx dbg))))
 
@@ -2427,7 +2416,7 @@ let arrayset_safe kind arg1 arg2 arg3 dbg =
       bind "newval" arg3 (fun newval ->
       bind "index" arg2 (fun idx ->
       bind "arr" arg1 (fun arr ->
-      bind "header" (get_header_without_profinfo arr dbg) (fun hdr ->
+      bind "header" (get_header arr dbg) (fun hdr ->
         if wordsize_shift = numfloat_shift then
           Csequence(
             make_checkbound dbg [addr_array_length_shifted hdr dbg; idx],
@@ -2459,7 +2448,7 @@ let arrayset_safe kind arg1 arg2 arg3 dbg =
         Csequence(
           make_checkbound dbg [
             addr_array_length_shifted
-              (get_header_without_profinfo arr dbg) dbg;
+              (get_header arr dbg) dbg;
             idx],
           addr_array_set arr idx newval dbg))))
   | Pintarray ->
@@ -2469,7 +2458,7 @@ let arrayset_safe kind arg1 arg2 arg3 dbg =
         Csequence(
           make_checkbound dbg [
             addr_array_length_shifted
-              (get_header_without_profinfo arr dbg) dbg;
+              (get_header arr dbg) dbg;
             idx],
           int_array_set arr idx newval dbg))))
   | Pfloatarray ->
@@ -2479,7 +2468,7 @@ let arrayset_safe kind arg1 arg2 arg3 dbg =
         Csequence(
           make_checkbound dbg [
             float_array_length_shifted
-              (get_header_without_profinfo arr dbg) dbg;
+              (get_header arr dbg) dbg;
             idx],
           float_array_set arr idx newval dbg))))
   )

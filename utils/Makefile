@@ -72,7 +72,6 @@ config.ml: config.mlp $(ROOTDIR)/Makefile.config Makefile
 	    $(call SUBST_STRING,OCAMLOPT_CFLAGS) \
 	    $(call SUBST_STRING,OCAMLOPT_CPPFLAGS) \
 	    $(call SUBST_STRING,PACKLD) \
-	    $(call SUBST,PROFINFO_WIDTH) \
 	    $(call SUBST_STRING,RANLIBCMD) \
 	    $(call SUBST,FORCE_SAFE_STRING) \
 	    $(call SUBST,DEFAULT_SAFE_STRING) \
@@ -82,7 +81,6 @@ config.ml: config.mlp $(ROOTDIR)/Makefile.config Makefile
 	    $(call SUBST,SYSTHREAD_SUPPORT) \
 	    $(call SUBST,TARGET) \
 	    $(call SUBST,WITH_FRAME_POINTERS) \
-	    $(call SUBST,WITH_PROFINFO) \
 	    $(call SUBST,FLAT_FLOAT_ARRAY) \
 	    $(call SUBST,FUNCTION_SECTIONS) \
 	    $(call SUBST,CC_HAS_DEBUG_PREFIX_MAP) \

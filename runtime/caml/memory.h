@@ -36,20 +36,12 @@ extern "C" {
 #endif
 
 CAMLextern value caml_alloc_shr (mlsize_t wosize, tag_t);
-#ifdef WITH_PROFINFO
-CAMLextern value caml_alloc_shr_with_profinfo (mlsize_t, tag_t, intnat);
-#else
-#define caml_alloc_shr_with_profinfo(size, tag, profinfo) \
-  caml_alloc_shr(size, tag)
-#endif /* WITH_PROFINFO */
 
 /* Variant of [caml_alloc_shr] where no memprof sampling is performed. */
 CAMLextern value caml_alloc_shr_no_track_noexc (mlsize_t, tag_t);
 
-/* Variant of [caml_alloc_shr] where no memprof sampling is performed,
-   and re-using the profinfo associated with the header given in
-   parameter. */
-CAMLextern value caml_alloc_shr_for_minor_gc (mlsize_t, tag_t, header_t);
+/* Variant of [caml_alloc_shr] where no memprof sampling is performed. */
+CAMLextern value caml_alloc_shr_for_minor_gc (mlsize_t, tag_t);
 
 CAMLextern void caml_adjust_gc_speed (mlsize_t, mlsize_t);
 CAMLextern void caml_alloc_dependent_memory (mlsize_t bsz);
@@ -220,7 +212,7 @@ extern void caml_alloc_small_dispatch (intnat wosize, int flags,
                                        int nallocs, unsigned char* alloc_lens);
 // Do not call asynchronous callbacks from allocation functions
 #define Alloc_small_origin CAML_FROM_C
-#define Alloc_small_aux(result, wosize, tag, profinfo, track) do {     \
+#define Alloc_small_aux(result, wosize, tag, track) do {     \
   CAMLassert ((wosize) >= 1);                                          \
   CAMLassert ((tag_t) (tag) < 256);                                    \
   CAMLassert ((wosize) <= Max_young_wosize);                           \
@@ -232,18 +224,15 @@ extern void caml_alloc_small_dispatch (intnat wosize, int flags,
     Restore_after_gc;                                                  \
   }                                                                    \
   Hd_hp (Caml_state_field(young_ptr)) =                                \
-    Make_header_with_profinfo ((wosize), (tag), 0, profinfo);          \
+    Make_header ((wosize), (tag), 0);                                  \
   (result) = Val_hp (Caml_state_field(young_ptr));                     \
   DEBUG_clear ((result), (wosize));                                    \
 }while(0)
 
-#define Alloc_small_with_profinfo(result, wosize, tag, profinfo) \
-  Alloc_small_aux(result, wosize, tag, profinfo, CAML_DO_TRACK)
-
 #define Alloc_small(result, wosize, tag) \
-  Alloc_small_with_profinfo(result, wosize, tag, (uintnat) 0)
+  Alloc_small_aux(result, wosize, tag, CAML_DO_TRACK)
 #define Alloc_small_no_track(result, wosize, tag) \
-  Alloc_small_aux(result, wosize, tag, (uintnat) 0, CAML_DONT_TRACK)
+  Alloc_small_aux(result, wosize, tag, CAML_DONT_TRACK)
 
 /* Deprecated alias for [caml_modify] */
 

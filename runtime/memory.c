@@ -473,7 +473,7 @@ CAMLexport color_t caml_allocation_color (void *hp)
 }
 
 Caml_inline value caml_alloc_shr_aux (mlsize_t wosize, tag_t tag, int track,
-                                      int raise_oom, uintnat profinfo)
+                                      int raise_oom)
 {
   header_t *hp;
   value *new_block;
@@ -505,16 +505,15 @@ Caml_inline value caml_alloc_shr_aux (mlsize_t wosize, tag_t tag, int track,
   /* Inline expansion of caml_allocation_color. */
   if (caml_gc_phase == Phase_mark || caml_gc_phase == Phase_clean ||
       (caml_gc_phase == Phase_sweep && (char *)hp >= (char *)caml_gc_sweep_hp)){
-    Hd_hp (hp) = Make_header_with_profinfo (wosize, tag, Caml_black, profinfo);
+    Hd_hp (hp) = Make_header (wosize, tag, Caml_black);
   }else{
     CAMLassert (caml_gc_phase == Phase_idle
             || (caml_gc_phase == Phase_sweep
                 && (char *)hp < (char *)caml_gc_sweep_hp));
-    Hd_hp (hp) = Make_header_with_profinfo (wosize, tag, Caml_white, profinfo);
+    Hd_hp (hp) = Make_header (wosize, tag, Caml_white);
   }
   CAMLassert (Hd_hp (hp)
-    == Make_header_with_profinfo (wosize, tag, caml_allocation_color (hp),
-                                  profinfo));
+    == Make_header (wosize, tag, caml_allocation_color (hp)));
   caml_allocated_words += Whsize_wosize (wosize);
   if (caml_allocated_words > Caml_state->minor_heap_wsz){
     CAML_EV_COUNTER (EV_C_REQUEST_MAJOR_ALLOC_SHR, 1);
@@ -533,41 +532,19 @@ Caml_inline value caml_alloc_shr_aux (mlsize_t wosize, tag_t tag, int track,
   return Val_hp (hp);
 }
 
-#ifdef WITH_PROFINFO
-
-/* Use this to debug problems with macros... */
-#define NO_PROFINFO 0xff
-
-CAMLexport value caml_alloc_shr_with_profinfo (mlsize_t wosize, tag_t tag,
-                                               intnat profinfo)
+CAMLexport value caml_alloc_shr_for_minor_gc (mlsize_t wosize, tag_t tag)
 {
-  return caml_alloc_shr_aux(wosize, tag, 1, 1, profinfo);
+  return caml_alloc_shr_aux (wosize, tag, 0, 1);
 }
-
-CAMLexport value caml_alloc_shr_for_minor_gc (mlsize_t wosize,
-                                              tag_t tag, header_t old_header)
-{
-  return caml_alloc_shr_aux (wosize, tag, 0, 1, Profinfo_hd(old_header));
-}
-
-#else
-#define NO_PROFINFO 0
-
-CAMLexport value caml_alloc_shr_for_minor_gc (mlsize_t wosize,
-                                              tag_t tag, header_t old_header)
-{
-  return caml_alloc_shr_aux (wosize, tag, 0, 1, NO_PROFINFO);
-}
-#endif /* WITH_PROFINFO */
 
 CAMLexport value caml_alloc_shr (mlsize_t wosize, tag_t tag)
 {
-  return caml_alloc_shr_aux (wosize, tag, 1, 1, NO_PROFINFO);
+  return caml_alloc_shr_aux (wosize, tag, 1, 1);
 }
 
 CAMLexport value caml_alloc_shr_no_track_noexc (mlsize_t wosize, tag_t tag)
 {
-  return caml_alloc_shr_aux (wosize, tag, 0, 0, NO_PROFINFO);
+  return caml_alloc_shr_aux (wosize, tag, 0, 0);
 }
 
 /* Dependent memory is all memory blocks allocated out of the heap

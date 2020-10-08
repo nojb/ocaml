@@ -57,8 +57,6 @@ ostype="Unix"
 iflexdir=""
 SO="so"
 toolchain="cc"
-profinfo=false
-profinfo_width=0
 extralibs=
 instrumented_runtime=false
 instrumented_runtime_ldlibs=""
@@ -147,8 +145,6 @@ AC_SUBST([mkmaindll])
 AC_SUBST([mksharedlibrpath])
 AC_SUBST([install_bytecode_programs])
 AC_SUBST([install_source_artifacts])
-AC_SUBST([profinfo])
-AC_SUBST([profinfo_width])
 AC_SUBST([frame_pointers])
 AC_SUBST([flambda])
 AC_SUBST([flambda_invariants])
@@ -303,18 +299,6 @@ AC_ARG_ENABLE([flambda-invariants],
 AC_ARG_WITH([target-bindir],
   [AS_HELP_STRING([--with-target-bindir],
     [location of binary programs on target system])])
-
-AC_ARG_ENABLE([reserved-header-bits],
-  [AS_HELP_STRING([--enable-reserved-header-bits=BITS],
-  [reserve BITS (between 0 and 31) bits in block headers for profiling info])],
-  [AS_CASE([$enable_reserved_header_bits],
-    [0],
-      [with_profinfo=false
-      profinfo_width=0],
-    [[[1-9]]|1[[0-9]]|2[[0-1]]],
-      [with_profinfo=true
-      profinfo_width="$enable_reserved_header_bits"],
-    [AC_MSG_ERROR([invalid argument to --enable-reserved-header-bits])])])
 
 AC_ARG_ENABLE([stdlib-manpages],
   [AS_HELP_STRING([--disable-stdlib-manpages],
@@ -1690,9 +1674,6 @@ AS_IF([test x"$enable_naked_pointers_checker" = "xyes" ],
 
 ## Check for mmap support for huge pages and contiguous heap
 OCAML_MMAP_SUPPORTS_HUGE_PAGES
-
-AC_DEFINE_UNQUOTED([PROFINFO_WIDTH], [$profinfo_width])
-AS_IF([$profinfo], [AC_DEFINE([WITH_PROFINFO])])
 
 AS_IF([test x"$enable_installing_bytecode_programs" = "xno"],
   [install_bytecode_programs=false],

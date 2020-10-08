@@ -197,13 +197,6 @@ val flambda : bool
 val with_flambda_invariants : bool
 (** Whether the invariants checks for flambda are enabled *)
 
-val profinfo : bool
-(** Whether the compiler was configured for profiling *)
-
-val profinfo_width : int
-(** How many bits are to be used in values' headers for profiling
-    information *)
-
 val safe_string: bool
 (** Whether the compiler was configured with -force-safe-string;
     in that case, the -unsafe-string compile-time option is unavailable

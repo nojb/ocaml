@@ -214,7 +214,7 @@ CAMLprim value caml_obj_truncate (value v, value newsize)
   Field (v, new_wosize) =
     Make_header (Wosize_whsize (wosize-new_wosize), Abstract_tag, frag_color);
   Hd_val (v) =
-    Make_header_with_profinfo (new_wosize, tag, color, Profinfo_val(v));
+    Make_header (new_wosize, tag, color);
   return Val_unit;
 }
 

@@ -46,16 +46,6 @@
                     + (tag_t) (tag)))                                         \
       )
 
-#ifdef WITH_PROFINFO
-#define Make_header_with_profinfo(wosize, tag, color, profinfo)               \
-      (Make_header(wosize, tag, color)                                        \
-        | ((((intnat) profinfo) & PROFINFO_MASK) << PROFINFO_SHIFT)           \
-      )
-#else
-#define Make_header_with_profinfo(wosize, tag, color, profinfo) \
-  Make_header(wosize, tag, color)
-#endif
-
 #define Is_white_val(val) (Color_val(val) == Caml_white)
 #define Is_blue_val(val) (Color_val(val) == Caml_blue)
 #define Is_black_val(val) (Color_val(val) == Caml_black)
