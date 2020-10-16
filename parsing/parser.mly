@@ -254,7 +254,7 @@ let string_set_fun ~loc =
 
 let multi_indices ~loc = function
   | [a] -> false, a
-  | l -> true, mkexp ~loc (Pexp_array l)
+  | l -> true, mkexp ~loc (Pexp_array (Genarray, l))
 
 let index_get ~loc get_fun array index =
   let args = [Nolabel, array; Nolabel, index] in
@@ -304,7 +304,7 @@ let bigarray_get ~loc arr arg =
                        [Nolabel, arr; Nolabel, c1; Nolabel, c2; Nolabel, c3]))
   | coords ->
       mkexp(Pexp_apply(ghexp(Pexp_ident(bigarray_function "Genarray" "get")),
-                       [Nolabel, arr; Nolabel, ghexp(Pexp_array coords)]))
+                       [Nolabel, arr; Nolabel, ghexp(Pexp_array (Genarray, coords))]))
 
 let bigarray_set ~loc arr arg newval =
   let mkexp, ghexp = mkexp ~loc, ghexp ~loc in
@@ -325,7 +325,7 @@ let bigarray_set ~loc arr arg newval =
   | coords ->
       mkexp(Pexp_apply(ghexp(Pexp_ident(bigarray_function "Genarray" "set")),
                        [Nolabel, arr;
-                        Nolabel, ghexp(Pexp_array coords);
+                        Nolabel, ghexp(Pexp_array (Genarray, coords));
                         Nolabel, newval]))
 
 let lapply ~loc p1 p2 =
@@ -591,7 +591,7 @@ let mk_directive ~loc name arg =
 %token BANG
 %token BAR
 %token BARBAR
-%token BARRBRACKET
+%token BARRBRACKET BARDOTRBRACKET
 %token BEGIN
 %token <char> CHAR
 %token CLASS
@@ -640,7 +640,7 @@ let mk_directive ~loc name arg =
 %token LBRACE
 %token LBRACELESS
 %token LBRACKET
-%token LBRACKETBAR
+%token LBRACKETBAR LBRACKETDOTBAR
 %token LBRACKETLESS
 %token LBRACKETGREATER
 %token LBRACKETPERCENT
@@ -770,7 +770,7 @@ The precedences must be listed from low to high.
 %nonassoc DOT DOTOP
 /* Finally, the first tokens of simple_expr are above everything else. */
 %nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT
-          LBRACE LBRACELESS LBRACKET LBRACKETBAR LIDENT LPAREN
+          LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETDOTBAR LIDENT LPAREN
           NEW PREFIXOP STRING TRUE UIDENT
           LBRACKETPERCENT QUOTED_STRING_EXPR
 
@@ -2359,19 +2359,33 @@ simple_expr:
   | mod_longident DOT LBRACE record_expr_content error
       { unclosed "{" $loc($3) "}" $loc($5) }
   | LBRACKETBAR expr_semi_list BARRBRACKET
-      { Pexp_array($2) }
+      { Pexp_array(Genarray, $2) }
   | LBRACKETBAR expr_semi_list error
       { unclosed "[|" $loc($1) "|]" $loc($3) }
   | LBRACKETBAR BARRBRACKET
-      { Pexp_array [] }
+      { Pexp_array (Genarray, []) }
+  | LBRACKETDOTBAR expr_semi_list BARDOTRBRACKET
+      { Pexp_array(Floatarray, $2) }
+  | LBRACKETDOTBAR expr_semi_list error
+      { unclosed "[.|" $loc($1) "|.]" $loc($3) }
+  | LBRACKETDOTBAR BARDOTRBRACKET
+      { Pexp_array (Floatarray, []) }
   | od=open_dot_declaration DOT LBRACKETBAR expr_semi_list BARRBRACKET
-      { Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array($4))) }
+      { Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array(Genarray, $4))) }
   | od=open_dot_declaration DOT LBRACKETBAR BARRBRACKET
       { (* TODO: review the location of Pexp_array *)
-        Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array [])) }
+        Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array (Genarray, []))) }
   | mod_longident DOT
     LBRACKETBAR expr_semi_list error
       { unclosed "[|" $loc($3) "|]" $loc($5) }
+  | od=open_dot_declaration DOT LBRACKETDOTBAR expr_semi_list BARDOTRBRACKET
+      { Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array(Floatarray, $4))) }
+  | od=open_dot_declaration DOT LBRACKETDOTBAR BARDOTRBRACKET
+      { (* TODO: review the location of Pexp_array *)
+        Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array (Floatarray, []))) }
+  | mod_longident DOT
+    LBRACKETDOTBAR expr_semi_list error
+      { unclosed "[.|" $loc($3) "|.]" $loc($5) }
   | LBRACKET expr_semi_list RBRACKET
       { fst (mktailexp $loc($3) $2) }
   | LBRACKET expr_semi_list error
@@ -2736,11 +2750,17 @@ simple_delimited_pattern:
     | LBRACKET pattern_semi_list error
       { unclosed "[" $loc($1) "]" $loc($3) }
     | LBRACKETBAR pattern_semi_list BARRBRACKET
-      { Ppat_array $2 }
+      { Ppat_array (Genarray, $2) }
     | LBRACKETBAR BARRBRACKET
-      { Ppat_array [] }
+      { Ppat_array (Genarray, []) }
     | LBRACKETBAR pattern_semi_list error
       { unclosed "[|" $loc($1) "|]" $loc($3) }
+    | LBRACKETDOTBAR pattern_semi_list BARDOTRBRACKET
+      { Ppat_array (Floatarray, $2) }
+    | LBRACKETDOTBAR BARDOTRBRACKET
+      { Ppat_array (Floatarray, []) }
+    | LBRACKETDOTBAR pattern_semi_list error
+      { unclosed "[.|" $loc($1) "|.]" $loc($3) }
   ) { $1 }
 
 pattern_comma_list(self):

@@ -1085,7 +1085,7 @@ let rec has_literal_pattern p = match p.ppat_desc with
   | Ppat_open (_, p) ->
      has_literal_pattern p
   | Ppat_tuple ps
-  | Ppat_array ps ->
+  | Ppat_array (_, ps) ->
      List.exists has_literal_pattern ps
   | Ppat_record (ps, _) ->
      List.exists (fun (_,p) -> has_literal_pattern p) ps
@@ -1719,14 +1719,18 @@ and type_pat_aux
           type_label_a_list ~labels loc false !env type_label_pat expected_type
             lid_sp_list (fun lbl_pat_list -> k' (make_record_pat lbl_pat_list))
       end
-  | Ppat_array spl ->
-      let ty_elt = newgenvar() in
+  | Ppat_array (kind, spl) ->
+      let ty_elt, to_unify =
+        match kind with
+        | Floatarray -> Predef.type_float, Predef.type_floatarray
+        | Genarray -> let ty = newgenvar() in ty, Predef.type_array ty
+      in
       let expected_ty = generic_instance expected_ty in
       unify_pat_types ~refine
-        loc env (Predef.type_array ty_elt) expected_ty;
+        loc env to_unify expected_ty;
       map_fold_cont (fun p -> type_pat Value p ty_elt) spl (fun pl ->
         rvp k {
-        pat_desc = Tpat_array pl;
+        pat_desc = Tpat_array (kind, pl);
         pat_loc = loc; pat_extra=[];
         pat_type = instance expected_ty;
         pat_attributes = sp.ppat_attributes;
@@ -2085,7 +2089,7 @@ let rec is_nonexpansive exp =
   | Texp_constant _
   | Texp_unreachable
   | Texp_function _
-  | Texp_array [] -> true
+  | Texp_array (_, []) -> true
   | Texp_let(_rec_flag, pat_exp_list, body) ->
       List.for_all (fun vb -> is_nonexpansive vb.vb_expr) pat_exp_list &&
       is_nonexpansive body
@@ -2162,7 +2166,7 @@ let rec is_nonexpansive exp =
                          ("%raise" | "%reraise" | "%raise_notrace")}}) },
       [Nolabel, Some e]) ->
      is_nonexpansive e
-  | Texp_array (_ :: _)
+  | Texp_array (_, _ :: _)
   | Texp_apply _
   | Texp_try _
   | Texp_setfield _
@@ -2459,7 +2463,7 @@ let shallow_iter_ppat f p =
   | Ppat_any | Ppat_var _ | Ppat_constant _ | Ppat_interval _
   | Ppat_extension _
   | Ppat_type _ | Ppat_unpack _ -> ()
-  | Ppat_array pats -> List.iter f pats
+  | Ppat_array (_, pats) -> List.iter f pats
   | Ppat_or (p1,p2) -> f p1; f p2
   | Ppat_variant (_, arg) | Ppat_construct (_, arg) -> Option.iter f arg
   | Ppat_tuple lst ->  List.iter f lst
@@ -3020,15 +3024,18 @@ and type_expect_
         exp_type = instance Predef.type_unit;
         exp_attributes = sexp.pexp_attributes;
         exp_env = env }
-  | Pexp_array(sargl) ->
-      let ty = newgenvar() in
-      let to_unify = Predef.type_array ty in
+  | Pexp_array(kind, sargl) ->
+      let ty, to_unify =
+        match kind with
+        | Floatarray -> Predef.type_float, Predef.type_floatarray
+        | Genarray -> let ty = newgenvar() in ty, Predef.type_array ty
+      in
       with_explanation (fun () ->
         unify_exp_types loc env to_unify (generic_instance ty_expected));
       let argl =
         List.map (fun sarg -> type_expect env sarg (mk_expected ty)) sargl in
       re {
-        exp_desc = Texp_array argl;
+        exp_desc = Texp_array (kind, argl);
         exp_loc = loc; exp_extra = [];
         exp_type = instance ty_expected;
         exp_attributes = sexp.pexp_attributes;

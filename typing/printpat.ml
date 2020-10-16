@@ -88,8 +88,10 @@ let rec pretty_val : type k . _ -> k general_pattern -> _ = fun ppf v ->
           fprintf ppf "@[{%a%t}@]"
             pretty_lvals filtered_lvs elision_mark
       end
-  | Tpat_array vs ->
+  | Tpat_array (Genarray, vs) ->
       fprintf ppf "@[[| %a |]@]" (pretty_vals " ;") vs
+  | Tpat_array (Floatarray, vs) ->
+      fprintf ppf "@[[.| %a |.]@]" (pretty_vals " ;") vs
   | Tpat_lazy v ->
       fprintf ppf "@[<2>lazy@ %a@]" pretty_arg v
   | Tpat_alias (v, x,_) ->

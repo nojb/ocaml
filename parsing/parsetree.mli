@@ -230,8 +230,8 @@ and pattern_desc =
 
            Invariant: n > 0
          *)
-  | Ppat_array of pattern list
-        (* [| P1; ...; Pn |] *)
+  | Ppat_array of array_kind * pattern list
+        (* [| P1; ...; Pn |] or [.| P1; ...; Pn |.] *)
   | Ppat_or of pattern * pattern
         (* P1 | P2 *)
   | Ppat_constraint of pattern * core_type
@@ -323,8 +323,8 @@ and expression_desc =
         (* E.l *)
   | Pexp_setfield of expression * Longident.t loc * expression
         (* E1.l <- E2 *)
-  | Pexp_array of expression list
-        (* [| E1; ...; En |] *)
+  | Pexp_array of array_kind * expression list
+        (* [| E1; ...; En |] or [.| E1; ...; En |.] *)
   | Pexp_ifthenelse of expression * expression * expression option
         (* if E1 then E2 else E3 *)
   | Pexp_sequence of expression * expression

@@ -113,7 +113,7 @@ module Pat:
     val variant: ?loc:loc -> ?attrs:attrs -> label -> pattern option -> pattern
     val record: ?loc:loc -> ?attrs:attrs -> (lid * pattern) list -> closed_flag
                 -> pattern
-    val array: ?loc:loc -> ?attrs:attrs -> pattern list -> pattern
+    val array: ?loc:loc -> ?attrs:attrs -> array_kind -> pattern list -> pattern
     val or_: ?loc:loc -> ?attrs:attrs -> pattern -> pattern -> pattern
     val constraint_: ?loc:loc -> ?attrs:attrs -> pattern -> core_type -> pattern
     val type_: ?loc:loc -> ?attrs:attrs -> lid -> pattern
@@ -152,7 +152,7 @@ module Exp:
     val field: ?loc:loc -> ?attrs:attrs -> expression -> lid -> expression
     val setfield: ?loc:loc -> ?attrs:attrs -> expression -> lid -> expression
                   -> expression
-    val array: ?loc:loc -> ?attrs:attrs -> expression list -> expression
+    val array: ?loc:loc -> ?attrs:attrs -> array_kind -> expression list -> expression
     val ifthenelse: ?loc:loc -> ?attrs:attrs -> expression -> expression
                     -> expression option -> expression
     val sequence: ?loc:loc -> ?attrs:attrs -> expression -> expression

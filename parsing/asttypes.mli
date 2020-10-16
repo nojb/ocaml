@@ -65,3 +65,7 @@ type variance =
 type injectivity =
   | Injective
   | NoInjectivity
+
+type array_kind =
+  | Floatarray
+  | Genarray
