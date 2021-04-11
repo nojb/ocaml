@@ -639,8 +639,8 @@ let build_custom_runtime prim_name exec_name =
   in
   let debug_info =
     if !Clflags.output_complete_executable && Config.ccomp_type = "msvc" && Ccomp.linker_is_flexlink then
-      if Sys.command ("rc.exe " ^ flag ^ ".rc") = 0 then
-        Some ("-link" :: flag ^ ".res" :: [])
+      if Sys.command ("rc.exe " ^ prim_name ^ ".rc") = 0 then
+        Some ("-link" :: (prim_name ^ ".res") :: [])
       else
         None
     else
