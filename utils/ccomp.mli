@@ -39,5 +39,3 @@ type link_mode =
 val call_linker: link_mode -> string -> string list -> string -> int
 
 val linker_is_flexlink : bool
-
-val compile_resource: output:string -> string -> int

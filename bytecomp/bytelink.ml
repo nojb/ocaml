@@ -634,19 +634,24 @@ let build_custom_runtime prim_name exec_name =
           flag
     else
       [] in
-  let debug_info =
-    if !Clflags.output_complete_executable && Sys.win32 then
-      assert (0 = Ccomp.compile_resource ~output:(flag ^ Config.res_ext) (flag ^ ".rc"));
-      if Ccomp.linker_is_flexlink then "-link" :: (flag ^ Config.res_ext) :: [] else (flag ^ Config.res_ext) :: []
-    else
-      []
-  in
   let exitcode =
     (Clflags.std_include_flag "-I" ^ " " ^ Config.bytecomp_c_libraries)
   in
-  Ccomp.call_linker Ccomp.Exe exec_name
-    (debug_prefix_map @ debug_info @ [prim_name] @ List.rev !Clflags.ccobjs @ [runtime_lib])
-    exitcode = 0
+  let debug_info =
+    if !Clflags.output_complete_executable && Config.ccomp_type = "msvc" && Ccomp.linker_is_flexlink then
+      if Sys.command ("rc.exe " ^ flag ^ ".rc") = 0 then
+        Some ("-link" :: flag ^ ".res" :: [])
+      else
+        None
+    else
+      Some []
+  in
+  match debug_info with
+  | None -> false
+  | Some debug_info ->
+      Ccomp.call_linker Ccomp.Exe exec_name
+        (debug_prefix_map @ debug_info @ [prim_name] @ List.rev !Clflags.ccobjs @ [runtime_lib])
+        exitcode = 0
 
 let append_bytecode bytecode_name exec_name =
   let oc = open_out_gen [Open_wronly; Open_append; Open_binary] 0 exec_name in
