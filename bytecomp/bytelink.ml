@@ -114,6 +114,10 @@ let remove_required (rel, _pos) =
       provided_globals := Ident.Set.add id !provided_globals;
   | _ -> ()
 
+let update_required cu =
+  add_required cu;
+  List.iter remove_required cu.cu_reloc
+
 let scan_file obj_name tolink =
   let file_name =
     try
@@ -131,8 +135,7 @@ let scan_file obj_name tolink =
       seek_in ic compunit_pos;
       let compunit = (input_value ic : compilation_unit) in
       close_in ic;
-      add_required compunit;
-      List.iter remove_required compunit.cu_reloc;
+      update_required compunit;
       Link_object(file_name, compunit) :: tolink
     end
     else if buffer = cma_magic_number then begin
@@ -150,8 +153,7 @@ let scan_file obj_name tolink =
             || !Clflags.link_everything
             || List.exists is_required compunit.cu_reloc
             then begin
-              add_required compunit;
-              List.iter remove_required compunit.cu_reloc;
+              update_required compunit;
               compunit :: reqd
             end else
               reqd)
