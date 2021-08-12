@@ -742,6 +742,12 @@ let link objfiles output_name =
       )
   end
 
+let check_dependency_order () =
+  match !badly_ordered_dependencies with
+  | [] -> ()
+  | _ :: _ as l ->
+      raise (Error (Wrong_link_order l))
+
 (* Error report *)
 
 open Format
@@ -778,6 +784,7 @@ let report_error ppf = function
   | Camlheader (msg, header) ->
       fprintf ppf "System error while copying file %s: %s" header msg
   | Wrong_link_order l ->
+      let l = List.sort_uniq Stdlib.compare l in
       let depends_on ppf (dep, depending) =
         fprintf ppf "%s depends on %s" depending dep
       in
@@ -796,7 +803,9 @@ let reset () =
   lib_ccopts := [];
   lib_dllibs := [];
   missing_globals := Ident.Map.empty;
+  provided_globals := Ident.Set.empty;
   Consistbl.clear crc_interfaces;
   implementations_defined := [];
   debug_info := [];
-  output_code_string_counter := 0
+  output_code_string_counter := 0;
+  badly_ordered_dependencies := []

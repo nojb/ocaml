@@ -70,6 +70,7 @@ let copy_object_file oc name =
       let compunit = (input_value ic : compilation_unit) in
       Bytelink.check_consistency file_name compunit;
       copy_compunit ic oc compunit;
+      Bytelink.update_required compunit;
       close_in ic;
       [compunit]
     end else
@@ -80,6 +81,7 @@ let copy_object_file oc name =
       List.iter (Bytelink.check_consistency file_name) toc.lib_units;
       add_ccobjs toc;
       List.iter (copy_compunit ic oc) toc.lib_units;
+      List.iter Bytelink.update_required (List.rev toc.lib_units);
       close_in ic;
       toc.lib_units
     end else
@@ -98,7 +100,8 @@ let create_archive file_list lib_name =
        let ofs_pos_toc = pos_out outchan in
        output_binary_int outchan 0;
        let units =
-         List.flatten(List.map (copy_object_file outchan) file_list) in
+         List.flatten(List.fold_right (fun file accu -> copy_object_file outchan file :: accu) file_list []) in
+       Bytelink.check_dependency_order ();
        let toc =
          { lib_units = units;
            lib_custom = !Clflags.custom_runtime;

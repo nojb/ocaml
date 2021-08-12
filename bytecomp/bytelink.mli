@@ -24,6 +24,18 @@ val check_consistency: filepath -> Cmo_format.compilation_unit -> unit
 
 val extract_crc_interfaces: unit -> crcs
 
+val update_required: Cmo_format.compilation_unit -> unit
+(** Updates a record of which globals are defined and used by this compilation
+    unit. This information is used by {!check_dependency_order} to verify that
+    the modules stored in a library can in fact be linked.
+
+    NB: when dealing with more than one unit, they should be passed to this
+    function in {e reverse} order. *)
+
+val check_dependency_order: unit -> unit
+(** Check that the dependencies between units (as recorded by {!update_required}) allow
+    the units to be linked. *)
+
 type error =
   | File_not_found of filepath
   | Not_an_object_file of filepath
