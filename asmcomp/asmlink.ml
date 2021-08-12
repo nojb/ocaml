@@ -142,6 +142,10 @@ let add_required by (name, _crc) =
 let remove_required name =
   Hashtbl.remove missing_globals name
 
+let update_required file_name info =
+  remove_required info.ui_name;
+  List.iter (add_required file_name) info.ui_imports_cmx
+
 let extract_missing_globals () =
   let mg = ref [] in
   Hashtbl.iter (fun md rq -> mg := (md, !rq) :: !mg) missing_globals;
@@ -187,8 +191,7 @@ let read_file obj_name =
 let scan_file file tolink = match file with
   | Unit (file_name,info,crc) ->
       (* This is a .cmx file. It must be linked in any case. *)
-      remove_required info.ui_name;
-      List.iter (add_required file_name) info.ui_imports_cmx;
+      update_required file_name info;
       (info, file_name, crc) :: tolink
   | Library (file_name,infos) ->
       (* This is an archive file. Each unit contained in it will be linked
@@ -200,10 +203,7 @@ let scan_file file tolink = match file with
            || !Clflags.link_everything
            || is_required info.ui_name
            then begin
-             remove_required info.ui_name;
-             List.iter (add_required (Printf.sprintf "%s(%s)"
-                                        file_name info.ui_name))
-               info.ui_imports_cmx;
+             update_required (Printf.sprintf "%s(%s)" file_name info.ui_name) info;
              (info, file_name, crc) :: reqd
            end else
            reqd)
