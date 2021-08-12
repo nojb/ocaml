@@ -29,6 +29,10 @@ val check_consistency: filepath -> Cmx_format.unit_infos -> Digest.t -> unit
 val extract_crc_interfaces: unit -> crcs
 val extract_crc_implementations: unit -> crcs
 
+val update_required: string -> Cmx_format.unit_infos -> unit
+
+val check_dependency_order: unit -> unit
+
 type error =
   | File_not_found of filepath
   | Not_an_object_file of filepath
@@ -39,6 +43,7 @@ type error =
   | Linking_error of int
   | Multiple_definition of modname * filepath * filepath
   | Missing_cmx of filepath * modname
+  | Wrong_link_order of (modname * modname) list
 
 exception Error of error
 

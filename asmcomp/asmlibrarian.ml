@@ -60,6 +60,12 @@ let create_archive file_list lib_name =
          (fun file_name (unit, crc) ->
             Asmlink.check_consistency file_name unit crc)
          file_list descr_list;
+       let () =
+         List.fold_right2 (fun file_name (unit, _) () ->
+             Asmlink.update_required file_name unit
+           ) file_list descr_list ()
+       in
+       Asmlink.check_dependency_order ();
        let infos =
          { lib_units = descr_list;
            lib_ccobjs = !Clflags.ccobjs;

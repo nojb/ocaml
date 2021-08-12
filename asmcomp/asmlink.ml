@@ -32,6 +32,7 @@ type error =
   | Linking_error of int
   | Multiple_definition of modname * filepath * filepath
   | Missing_cmx of filepath * modname
+  | Wrong_link_order of (modname * modname) list
 
 exception Error of error
 
@@ -127,12 +128,16 @@ let runtime_lib () =
 (* First pass: determine which units are needed *)
 
 let missing_globals = (Hashtbl.create 17 : (string, string list ref) Hashtbl.t)
+let provided_globals = ref String.Set.empty
+let badly_ordered_dependencies : (string * string) list ref = ref []
 
 let is_required name =
   try ignore (Hashtbl.find missing_globals name); true
   with Not_found -> false
 
 let add_required by (name, _crc) =
+  if String.Set.mem name !provided_globals then
+    badly_ordered_dependencies := (by, name) :: !badly_ordered_dependencies;
   try
     let rq = Hashtbl.find missing_globals name in
     rq := by :: !rq
@@ -140,11 +145,18 @@ let add_required by (name, _crc) =
     Hashtbl.add missing_globals name (ref [by])
 
 let remove_required name =
-  Hashtbl.remove missing_globals name
+  Hashtbl.remove missing_globals name;
+  provided_globals := String.Set.add name !provided_globals
 
 let update_required file_name info =
   remove_required info.ui_name;
   List.iter (add_required file_name) info.ui_imports_cmx
+
+let check_dependency_order () =
+  match !badly_ordered_dependencies with
+  | [] -> ()
+  | _ :: _ as l ->
+      raise (Error (Wrong_link_order l))
 
 let extract_missing_globals () =
   let mg = ref [] in
@@ -428,6 +440,13 @@ let report_error ppf = function
         Location.print_filename filename name
         Location.print_filename  filename
         name
+  | Wrong_link_order l ->
+      let l = List.sort_uniq Stdlib.compare l in
+      let depends_on ppf (dep, depending) =
+        fprintf ppf "%s depends on %s" depending dep
+      in
+      fprintf ppf "@[<hov 2>Wrong link order: %a@]"
+        (pp_print_list ~pp_sep:(fun ppf () -> fprintf ppf ",@ ") depends_on) l
 
 let () =
   Location.register_error_of_exn
@@ -444,4 +463,7 @@ let reset () =
   interfaces := [];
   implementations := [];
   lib_ccobjs := [];
-  lib_ccopts := []
+  lib_ccopts := [];
+  Hashtbl.clear missing_globals;
+  provided_globals := String.Set.empty;
+  badly_ordered_dependencies := []
