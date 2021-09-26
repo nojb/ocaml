@@ -29,7 +29,7 @@ external get_current_dlls: unit -> dll_handle array
                                            = "caml_dynlink_get_current_libs"
 
 (* Current search path for DLLs *)
-let search_path = ref ([] : string list)
+let search_path = ref Includes.empty
 
 type opened_dll =
   | Checking of Binutils.t
@@ -47,10 +47,10 @@ let names_of_opened_dlls = ref ([] : string list)
 
 (* Add the given directories to the search path for DLLs. *)
 let add_path dirs =
-  search_path := dirs @ !search_path
+  search_path := Includes.concat [dirs; !search_path]
 
 let remove_path dirs =
-  search_path := List.filter (fun d -> not (List.mem d dirs)) !search_path
+  search_path := Includes.remove_dirs dirs !search_path
 
 (* Extract the name of a DLLs from its external name (xxx.so or -lxxx) *)
 
@@ -69,7 +69,7 @@ let open_dll mode name =
   let name = name ^ Config.ext_dll in
   let fullname =
     try
-      let fullname = Misc.find_in_path !search_path name in
+      let fullname = Includes.find name !search_path in
       if Filename.is_implicit fullname then
         Filename.concat Filename.current_dir_name fullname
       else fullname
@@ -175,16 +175,21 @@ let split_dll_path path =
 
 let init_compile nostdlib =
   search_path :=
-    ld_library_path_contents() @
-    (if nostdlib then [] else ld_conf_contents())
+    Includes.concat [
+      Includes.of_dirs (ld_library_path_contents());
+      (if nostdlib then Includes.empty else Includes.of_dirs (ld_conf_contents()));
+    ]
 
 (* Initialization for linking in core (dynlink or toplevel) *)
 
 let init_toplevel dllpath =
   search_path :=
-    ld_library_path_contents() @
-    split_dll_path dllpath @
-    ld_conf_contents();
+    Includes.concat
+      [
+        Includes.of_dirs (ld_library_path_contents());
+        Includes.of_dirs (split_dll_path dllpath);
+        Includes.of_dirs (ld_conf_contents());
+      ];
   opened_dlls :=
     List.map (fun dll -> Execution dll)
       (Array.to_list (get_current_dlls()));
@@ -192,7 +197,7 @@ let init_toplevel dllpath =
   linking_in_core := true
 
 let reset () =
-  search_path := [];
+  search_path := Includes.empty;
   opened_dlls :=[];
   names_of_opened_dlls := [];
   linking_in_core := false

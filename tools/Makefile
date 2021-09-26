@@ -83,7 +83,7 @@ ocamldep.opt$(EXE): $(call byte2native, $(OCAMLDEP))
 # The profiler
 
 OCAMLPROF=config.cmo build_path_prefix_map.cmo misc.cmo identifiable.cmo \
-  numbers.cmo arg_helper.cmo clflags.cmo terminfo.cmo \
+  numbers.cmo arg_helper.cmo includes.cmo clflags.cmo terminfo.cmo \
   warnings.cmo location.cmo longident.cmo docstrings.cmo \
   syntaxerr.cmo ast_helper.cmo \
   camlinternalMenhirLib.cmo parser.cmo \
@@ -97,7 +97,7 @@ opt.opt: profiling.cmx
 
 OCAMLCP = config.cmo build_path_prefix_map.cmo misc.cmo profile.cmo \
           warnings.cmo identifiable.cmo numbers.cmo arg_helper.cmo \
-          clflags.cmo local_store.cmo \
+          includes.cmo clflags.cmo local_store.cmo \
           terminfo.cmo location.cmo load_path.cmo ccomp.cmo compenv.cmo \
           main_args.cmo
 
@@ -132,7 +132,7 @@ ocamlmklib.opt$(EXE): $(call byte2native, $(OCAMLMKLIB))
 # To make custom toplevels
 
 OCAMLMKTOP=config.cmo build_path_prefix_map.cmo misc.cmo \
-       identifiable.cmo numbers.cmo arg_helper.cmo clflags.cmo \
+       identifiable.cmo numbers.cmo arg_helper.cmo includes.cmo clflags.cmo \
        local_store.cmo load_path.cmo profile.cmo ccomp.cmo ocamlmktop.cmo
 
 ocamlmktop$(EXE): $(OCAMLMKTOP)

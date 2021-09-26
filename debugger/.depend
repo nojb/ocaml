@@ -319,6 +319,7 @@ main.cmo : \
     loadprinter.cmi \
     ../utils/load_path.cmi \
     input_handling.cmi \
+    ../utils/includes.cmi \
     frames.cmi \
     exec.cmi \
     debugger_config.cmi \
@@ -341,6 +342,7 @@ main.cmx : \
     loadprinter.cmx \
     ../utils/load_path.cmx \
     input_handling.cmx \
+    ../utils/includes.cmx \
     frames.cmx \
     exec.cmx \
     debugger_config.cmx \
@@ -355,17 +357,20 @@ ocamldebug_entry.cmx : \
     $(UNIXDIR)/unix.cmx
 parameters.cmo : \
     ../utils/load_path.cmi \
+    ../utils/includes.cmi \
     ../typing/envaux.cmi \
     debugger_config.cmi \
     ../utils/config.cmi \
     parameters.cmi
 parameters.cmx : \
     ../utils/load_path.cmx \
+    ../utils/includes.cmx \
     ../typing/envaux.cmx \
     debugger_config.cmx \
     ../utils/config.cmx \
     parameters.cmi
-parameters.cmi :
+parameters.cmi : \
+    ../utils/includes.cmi
 parser_aux.cmi : \
     ../parsing/longident.cmi \
     debugcom.cmi
@@ -467,6 +472,7 @@ program_management.cmo : \
     ../utils/load_path.cmi \
     int64ops.cmi \
     input_handling.cmi \
+    ../utils/includes.cmi \
     history.cmi \
     ../typing/envaux.cmi \
     debugger_config.cmi \
@@ -484,6 +490,7 @@ program_management.cmx : \
     ../utils/load_path.cmx \
     int64ops.cmx \
     input_handling.cmx \
+    ../utils/includes.cmx \
     history.cmx \
     ../typing/envaux.cmx \
     debugger_config.cmx \

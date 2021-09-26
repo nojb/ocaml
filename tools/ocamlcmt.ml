@@ -36,7 +36,7 @@ let arg_list = Arg.align [
     "<file> Read additional NUL separated command line arguments from \n\
     \      <file>";
   "-I", Arg.String (fun s ->
-    Clflags.include_dirs := s :: !Clflags.include_dirs),
+    Clflags.include_dirs := Includes.append_dir s !Clflags.include_dirs),
     "<dir> Add <dir> to the list of include directories";
   ]
 

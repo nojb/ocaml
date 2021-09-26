@@ -52,8 +52,8 @@ let default_output = function
   | Some s -> s
   | None -> Config.default_executable_name
 
-let first_include_dirs = ref []
-let last_include_dirs = ref []
+let first_include_dirs = ref Includes.empty
+let last_include_dirs = ref Includes.empty
 let first_ccopts = ref []
 let last_ccopts = ref []
 let first_ppx = ref []
@@ -399,9 +399,9 @@ let read_one_param ppf position name v =
 
   | "I" -> begin
       match position with
-      | Before_args -> first_include_dirs := v :: !first_include_dirs
+      | Before_args -> first_include_dirs := Includes.append_dir v !first_include_dirs
       | Before_link | Before_compile _ ->
-        last_include_dirs := v :: !last_include_dirs
+        last_include_dirs := Includes.append_dir v !last_include_dirs
     end
 
   | "cclib" ->
@@ -590,7 +590,7 @@ let apply_config_file ppf position =
     config
 
 let readenv ppf position =
-  last_include_dirs := [];
+  last_include_dirs := Includes.empty;
   last_ccopts := [];
   last_ppx := [];
   last_objfiles := [];

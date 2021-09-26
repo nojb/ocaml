@@ -31,11 +31,13 @@ val remove_dir : string -> unit
 val reset : unit -> unit
 (** Remove all directories *)
 
-val init : string list -> unit
-(** [init l] is the same as [reset (); List.iter add_dir (List.rev l)] *)
+val init : Includes.t -> unit
+(** [init l] is the same as [reset (); Includes.iter add_dir l] *)
 
 val get_paths : unit -> string list
 (** Return the list of directories passed to [add_dir] so far. *)
+
+val get_includes : unit -> Includes.t
 
 val find : string -> string
 (** Locate a file in the load path. Raise [Not_found] if the file

@@ -50,7 +50,7 @@ val find_primitive: string -> primitive_address option
 val synchronize_primitive: int -> dll_address -> unit
 
 (* Add the given directories at the head of the search path for DLLs *)
-val add_path: string list -> unit
+val add_path: Includes.t -> unit
 
 (* Remove the given directories from the search path for DLLs *)
 val remove_path: string list -> unit

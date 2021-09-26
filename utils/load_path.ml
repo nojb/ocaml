@@ -54,6 +54,7 @@ let reset () =
 
 let get () = List.rev !dirs
 let get_paths () = List.rev_map Dir.path !dirs
+let get_includes () = Includes.of_dirs (get_paths ())
 
 (* Optimized version of [add] below, for use in [init] and [remove_dir]: since
    we are starting from an empty cache, we can avoid checking whether a unit
@@ -68,7 +69,7 @@ let prepend_add dir =
 
 let init l =
   reset ();
-  dirs := List.rev_map Dir.create l;
+  dirs := Includes.rev_map_to_list Dir.create l;
   List.iter prepend_add !dirs
 
 let remove_dir dir =
@@ -114,11 +115,11 @@ let find fn =
   if is_basename fn && not !Sys.interactive then
     STbl.find !files fn
   else
-    Misc.find_in_path (get_paths ()) fn
+    Includes.find fn (get_includes ())
 
 let find_uncap fn =
   assert (not Config.merlin || Local_store.is_bound ());
   if is_basename fn && not !Sys.interactive then
     STbl.find !files_uncap (String.uncapitalize_ascii fn)
   else
-    Misc.find_in_path_uncap (get_paths ()) fn
+    Includes.find_uncap fn (get_includes ())

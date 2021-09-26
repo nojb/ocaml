@@ -31,6 +31,7 @@ UTILS = \
   utils/identifiable.cmo \
   utils/numbers.cmo \
   utils/arg_helper.cmo \
+  utils/includes.cmo \
   utils/clflags.cmo \
   utils/profile.cmo \
   utils/local_store.cmo \

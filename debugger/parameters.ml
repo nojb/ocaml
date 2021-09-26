@@ -23,7 +23,7 @@ let socket_name = ref ""
 let arguments = ref ""
 
 let default_load_path =
-  ref [ Filename.current_dir_name; Config.standard_library ]
+  ref (Includes.of_dirs [ Config.standard_library; Filename.current_dir_name ])
 
 let breakpoint = ref true
 let prompt = ref true

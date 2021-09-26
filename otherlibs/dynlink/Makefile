@@ -79,6 +79,7 @@ COMPILERLIBS_SOURCES=\
   utils/identifiable.ml \
   utils/numbers.ml \
   utils/arg_helper.ml \
+  utils/includes.ml \
   utils/clflags.ml \
   utils/profile.ml \
   utils/consistbl.ml \

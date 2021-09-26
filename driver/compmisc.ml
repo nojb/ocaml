@@ -21,17 +21,22 @@
 
 let init_path ?(dir="") () =
   let dirs =
-    if !Clflags.use_threads then "+threads" :: !Clflags.include_dirs
+    if !Clflags.use_threads then Includes.append_dir "+threads" !Clflags.include_dirs
     else
       !Clflags.include_dirs
   in
   let dirs =
-    !Compenv.last_include_dirs @ dirs @ Config.flexdll_dirs @
-    !Compenv.first_include_dirs
+    Includes.concat
+      [
+        !Compenv.first_include_dirs;
+        Includes.of_dirs Config.flexdll_dirs;
+        dirs;
+        !Compenv.last_include_dirs;
+      ]
   in
   let exp_dirs =
-    List.map (Misc.expand_directory Config.standard_library) dirs in
-  Load_path.init (dir :: List.rev_append exp_dirs (Clflags.std_include_dir ()));
+    Includes.expand_directory Config.standard_library dirs in
+  Load_path.init (Includes.prepend_dir dir (Includes.append_dirs (Clflags.std_include_dir ()) exp_dirs));
   Env.reset_cache ()
 
 (* Return the initial environment in which compilation proceeds. *)

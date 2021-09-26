@@ -17,6 +17,7 @@ utils/ccomp.cmo : \
     utils/profile.cmi \
     utils/misc.cmi \
     utils/load_path.cmi \
+    utils/includes.cmi \
     utils/config.cmi \
     utils/clflags.cmi \
     utils/ccomp.cmi
@@ -24,6 +25,7 @@ utils/ccomp.cmx : \
     utils/profile.cmx \
     utils/misc.cmx \
     utils/load_path.cmx \
+    utils/includes.cmx \
     utils/config.cmx \
     utils/clflags.cmx \
     utils/ccomp.cmi
@@ -32,6 +34,7 @@ utils/clflags.cmo : \
     utils/profile.cmi \
     utils/numbers.cmi \
     utils/misc.cmi \
+    utils/includes.cmi \
     utils/config.cmi \
     utils/arg_helper.cmi \
     utils/clflags.cmi
@@ -39,12 +42,14 @@ utils/clflags.cmx : \
     utils/profile.cmx \
     utils/numbers.cmx \
     utils/misc.cmx \
+    utils/includes.cmx \
     utils/config.cmx \
     utils/arg_helper.cmx \
     utils/clflags.cmi
 utils/clflags.cmi : \
     utils/profile.cmi \
-    utils/misc.cmi
+    utils/misc.cmi \
+    utils/includes.cmi
 utils/config.cmo : \
     utils/config.cmi
 utils/config.cmx : \
@@ -88,6 +93,13 @@ utils/identifiable.cmx : \
     utils/misc.cmx \
     utils/identifiable.cmi
 utils/identifiable.cmi :
+utils/includes.cmo : \
+    utils/misc.cmi \
+    utils/includes.cmi
+utils/includes.cmx : \
+    utils/misc.cmx \
+    utils/includes.cmi
+utils/includes.cmi :
 utils/int_replace_polymorphic_compare.cmo : \
     utils/int_replace_polymorphic_compare.cmi
 utils/int_replace_polymorphic_compare.cmx : \
@@ -101,14 +113,17 @@ utils/lazy_backtrack.cmi :
 utils/load_path.cmo : \
     utils/misc.cmi \
     utils/local_store.cmi \
+    utils/includes.cmi \
     utils/config.cmi \
     utils/load_path.cmi
 utils/load_path.cmx : \
     utils/misc.cmx \
     utils/local_store.cmx \
+    utils/includes.cmx \
     utils/config.cmx \
     utils/load_path.cmi
-utils/load_path.cmi :
+utils/load_path.cmi : \
+    utils/includes.cmi
 utils/local_store.cmo : \
     utils/local_store.cmi
 utils/local_store.cmx : \
@@ -231,6 +246,7 @@ parsing/ast_mapper.cmo : \
     parsing/longident.cmi \
     parsing/location.cmi \
     utils/load_path.cmi \
+    utils/includes.cmi \
     utils/config.cmi \
     utils/clflags.cmi \
     parsing/asttypes.cmi \
@@ -242,6 +258,7 @@ parsing/ast_mapper.cmx : \
     parsing/longident.cmx \
     parsing/location.cmx \
     utils/load_path.cmx \
+    utils/includes.cmx \
     utils/config.cmx \
     utils/clflags.cmx \
     parsing/asttypes.cmi \
@@ -2003,15 +2020,18 @@ bytecomp/bytesections.cmx : \
 bytecomp/bytesections.cmi :
 bytecomp/dll.cmo : \
     utils/misc.cmi \
+    utils/includes.cmi \
     utils/config.cmi \
     utils/binutils.cmi \
     bytecomp/dll.cmi
 bytecomp/dll.cmx : \
     utils/misc.cmx \
+    utils/includes.cmx \
     utils/config.cmx \
     utils/binutils.cmx \
     bytecomp/dll.cmi
-bytecomp/dll.cmi :
+bytecomp/dll.cmi : \
+    utils/includes.cmi
 bytecomp/emitcode.cmo : \
     lambda/translmod.cmi \
     typing/primitive.cmi \
@@ -5829,6 +5849,7 @@ driver/compenv.cmo : \
     utils/profile.cmi \
     utils/misc.cmi \
     parsing/location.cmi \
+    utils/includes.cmi \
     utils/config.cmi \
     utils/clflags.cmi \
     utils/ccomp.cmi \
@@ -5838,11 +5859,13 @@ driver/compenv.cmx : \
     utils/profile.cmx \
     utils/misc.cmx \
     parsing/location.cmx \
+    utils/includes.cmx \
     utils/config.cmx \
     utils/clflags.cmx \
     utils/ccomp.cmx \
     driver/compenv.cmi
 driver/compenv.cmi : \
+    utils/includes.cmi \
     utils/clflags.cmi
 driver/compile.cmo : \
     typing/typedtree.cmi \
@@ -5929,6 +5952,7 @@ driver/compmisc.cmo : \
     utils/misc.cmi \
     parsing/location.cmi \
     utils/load_path.cmi \
+    utils/includes.cmi \
     typing/ident.cmi \
     typing/env.cmi \
     utils/config.cmi \
@@ -5942,6 +5966,7 @@ driver/compmisc.cmx : \
     utils/misc.cmx \
     parsing/location.cmx \
     utils/load_path.cmx \
+    utils/includes.cmx \
     typing/ident.cmx \
     typing/env.cmx \
     utils/config.cmx \
@@ -5967,6 +5992,7 @@ driver/main_args.cmo : \
     utils/profile.cmi \
     utils/misc.cmi \
     parsing/location.cmi \
+    utils/includes.cmi \
     utils/config.cmi \
     driver/compenv.cmi \
     utils/clflags.cmi \
@@ -5976,6 +6002,7 @@ driver/main_args.cmx : \
     utils/profile.cmx \
     utils/misc.cmx \
     parsing/location.cmx \
+    utils/includes.cmx \
     utils/config.cmx \
     driver/compenv.cmx \
     utils/clflags.cmx \
@@ -6020,6 +6047,7 @@ driver/makedepend.cmo : \
     utils/misc.cmi \
     parsing/location.cmi \
     parsing/lexer.cmi \
+    utils/includes.cmi \
     parsing/depend.cmi \
     utils/config.cmi \
     driver/compenv.cmi \
@@ -6033,6 +6061,7 @@ driver/makedepend.cmx : \
     utils/misc.cmx \
     parsing/location.cmx \
     parsing/lexer.cmx \
+    utils/includes.cmx \
     parsing/depend.cmx \
     utils/config.cmx \
     driver/compenv.cmx \
@@ -6224,6 +6253,7 @@ toplevel/topcommon.cmo : \
     parsing/location.cmi \
     utils/load_path.cmi \
     parsing/lexer.cmi \
+    utils/includes.cmi \
     typing/ident.cmi \
     toplevel/genprintval.cmi \
     typing/env.cmi \
@@ -6249,6 +6279,7 @@ toplevel/topcommon.cmx : \
     parsing/location.cmx \
     utils/load_path.cmx \
     parsing/lexer.cmx \
+    utils/includes.cmx \
     typing/ident.cmx \
     toplevel/genprintval.cmx \
     typing/env.cmx \
@@ -6283,6 +6314,7 @@ toplevel/topdirs.cmo : \
     parsing/longident.cmi \
     parsing/location.cmi \
     utils/load_path.cmi \
+    utils/includes.cmi \
     typing/ident.cmi \
     typing/env.cmi \
     bytecomp/dll.cmi \
@@ -6307,6 +6339,7 @@ toplevel/topdirs.cmx : \
     parsing/longident.cmx \
     parsing/location.cmx \
     utils/load_path.cmx \
+    utils/includes.cmx \
     typing/ident.cmx \
     typing/env.cmx \
     bytecomp/dll.cmx \
@@ -6459,6 +6492,7 @@ toplevel/byte/topmain.cmo : \
     utils/misc.cmi \
     driver/main_args.cmi \
     parsing/location.cmi \
+    utils/includes.cmi \
     typing/env.cmi \
     typing/ctype.cmi \
     driver/compmisc.cmi \
@@ -6477,6 +6511,7 @@ toplevel/byte/topmain.cmx : \
     utils/misc.cmx \
     driver/main_args.cmx \
     parsing/location.cmx \
+    utils/includes.cmx \
     typing/env.cmx \
     typing/ctype.cmx \
     driver/compmisc.cmx \
