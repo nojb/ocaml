@@ -138,3 +138,5 @@ exception Error of Location.t * Env.t * error
 exception Error_forward of Location.error
 
 val report_error: Env.t -> loc:Location.t -> error -> Location.error
+
+val get_toplevel_printers: unit -> Longident.t list

@@ -817,6 +817,7 @@ let transl_implementation_flambda module_name (str, cc) =
   { module_ident = module_id;
     main_module_block_size = size;
     required_globals = required_globals ~flambda:true body;
+    toplevel_printers = Typemod.get_toplevel_printers (); (* FIXME *)
     code = body }
 
 let transl_implementation module_name (str, cc) =
@@ -1403,7 +1404,8 @@ let transl_store_implementation module_name (str, restr) =
     (* module_ident is not used by closure, but this allow to share
        the type with the flambda version *)
     module_ident;
-    required_globals = required_globals ~flambda:true code }
+    required_globals = required_globals ~flambda:true code;
+    toplevel_printers = Typemod.get_toplevel_printers () }
 
 (* Compile a toplevel phrase *)
 

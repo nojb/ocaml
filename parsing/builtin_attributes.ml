@@ -272,6 +272,13 @@ let immediate64 =
        | _ -> false
     )
 
+let toplevel_printer =
+  List.exists
+    (fun a -> match a.attr_name.txt with
+       | "ocaml.toplevel_printer"|"toplevel_printer" -> true
+       | _ -> false
+    )
+
 (* The "ocaml.boxed (default)" and "ocaml.unboxed (default)"
    attributes cannot be input by the user, they are added by the
    compiler when applying the default setting. This is done to record

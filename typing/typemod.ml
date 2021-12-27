@@ -86,6 +86,13 @@ let rec path_concat head p =
   | Pdot (pre, s) -> Pdot (path_concat head pre, s)
   | Papply _ -> assert false
 
+(* Toplevel printers *)
+
+let toplevel_printers = ref []
+let add_toplevel_printer lid = toplevel_printers := lid :: !toplevel_printers
+let clear_toplevel_printers () = toplevel_printers := []
+let get_toplevel_printers () = List.rev !toplevel_printers
+
 (* Extract a signature from a module type *)
 
 let extract_sig env loc mty =
@@ -2453,6 +2460,12 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr =
         let () = if rec_flag = Recursive then
           Typecore.check_recursive_bindings env defs
         in
+        List.iter (fun {vb_pat; vb_attributes; _} ->
+            match vb_pat.pat_desc with
+            | Tpat_var (_, {txt; _}) when Builtin_attributes.toplevel_printer vb_attributes ->
+                add_toplevel_printer (Longident.Lident txt)
+            | _ -> ()
+          ) defs;
         (* Note: Env.find_value does not trigger the value_used event. Values
            will be marked as being used during the signature inclusion test. *)
         let items, shape_map =
@@ -2811,6 +2824,7 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr =
 
 let type_toplevel_phrase env s =
   Env.reset_required_globals ();
+  clear_toplevel_printers ();
   type_structure ~toplevel:true false None env s
 
 let type_module_alias = type_module ~alias:true true false None
@@ -2986,6 +3000,7 @@ let type_implementation sourcefile outputprefix modulename initial_env ast =
   Cmt_format.clear ();
   Misc.try_finally (fun () ->
       Typecore.reset_delayed_checks ();
+      clear_toplevel_printers ();
       Env.reset_required_globals ();
       if !Clflags.print_types then (* #7656 *)
         ignore @@ Warnings.parse_options false "-32-34-37-38-60";

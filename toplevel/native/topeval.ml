@@ -97,6 +97,7 @@ let load_lambda ppf ~module_ident ~required_globals phrase_name lam size =
       main_module_block_size = size;
       module_ident;
       required_globals;
+      toplevel_printers = []; (* FIXME *)
     }
   in
   Tophooks.load ppf phrase_name program

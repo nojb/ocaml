@@ -27,6 +27,7 @@
     - ocaml.immediate
     - ocaml.immediate64
     - ocaml.boxed / ocaml.unboxed
+    - ocaml.toplevel_printer
 
     {b Warning:} this module is unstable and part of
   {{!Compiler_libs}compiler-libs}.
@@ -82,3 +83,5 @@ val immediate64: Parsetree.attributes -> bool
 
 val has_unboxed: Parsetree.attributes -> bool
 val has_boxed: Parsetree.attributes -> bool
+
+val toplevel_printer: Parsetree.attributes -> bool

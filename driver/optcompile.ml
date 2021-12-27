@@ -54,6 +54,7 @@ let flambda i backend Typedtree.{structure; coercion; _} =
           module_ident;
           main_module_block_size;
           required_globals;
+          toplevel_printers = []; (* FIXME *)
           code;
         }
       in

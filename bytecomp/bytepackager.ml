@@ -227,6 +227,19 @@ let package_object_files ~ppf_dump files targetfile targetname coercion =
             List.fold_right Ident.Set.add cu_required_globals required_globals)
       members Ident.Set.empty
   in
+  let toplevel_printers =
+    let rec prefix_lid = function
+      | Longident.Lident s -> Longident.Ldot (Longident.Lident targetname, s)
+      | Longident.Ldot (lid, s) -> Longident.Ldot (prefix_lid lid, s)
+      | Longident.Lapply _ -> assert false
+    in
+    List.concat_map (fun compunit ->
+        match compunit with
+        | { pm_kind = PM_intf } -> []
+        | { pm_kind = PM_impl { cu_toplevel_printers } } ->
+            List.map prefix_lid cu_toplevel_printers
+      ) members
+  in
   let unit_names =
     List.map (fun m -> m.pm_name) members in
   let mapping =
@@ -263,6 +276,7 @@ let package_object_files ~ppf_dump files targetfile targetname coercion =
           (targetname, Some (Env.crc_of_unit targetname)) :: imports;
         cu_primitives = !primitives;
         cu_required_globals = Ident.Set.elements required_globals;
+        cu_toplevel_printers = toplevel_printers;
         cu_force_link = !force_link;
         cu_debug = if pos_final > pos_debug then pos_debug else 0;
         cu_debugsize = pos_final - pos_debug } in

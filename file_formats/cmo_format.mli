@@ -36,6 +36,8 @@ type compilation_unit =
     cu_required_globals: Ident.t list;  (* Compilation units whose
                                            initialization side effects
                                            must occur before this one. *)
+    cu_toplevel_printers: Longident.t list;
+                                        (* Toplevel printers declared inside *)
     cu_primitives: string list;         (* Primitives declared inside *)
     mutable cu_force_link: bool;        (* Must be linked even if unref'ed *)
     mutable cu_debug: int;              (* Position of debugging info, or 0 *)

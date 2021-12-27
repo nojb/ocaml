@@ -343,6 +343,7 @@ type program =
   { module_ident : Ident.t;
     main_module_block_size : int;
     required_globals : Ident.Set.t;
+    toplevel_printers : Longident.t list;
     code : lambda }
 
 let const_int n = Const_base (Const_int n)

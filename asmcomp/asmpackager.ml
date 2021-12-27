@@ -112,6 +112,7 @@ let make_package_object ~ppf_dump members targetobj targetname coercion
             main_module_block_size;
             module_ident;
             required_globals;
+            toplevel_printers = []; (* FIXME *)
           }
         in
         program, Flambda_middle_end.lambda_to_clambda
@@ -127,6 +128,7 @@ let make_package_object ~ppf_dump members targetobj targetname coercion
             main_module_block_size;
             module_ident;
             required_globals;
+            toplevel_printers = []; (* FIXME *)
           }
         in
         program, Closure_middle_end.lambda_to_clambda

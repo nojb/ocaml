@@ -19,7 +19,8 @@ open Cmo_format
 open Instruct
 
 val to_file: out_channel -> string -> string ->
-  required_globals:Ident.Set.t -> instruction list -> unit
+  required_globals:Ident.Set.t ->
+  toplevel_printers:Longident.t list -> instruction list -> unit
         (* Arguments:
              channel on output file
              name of compilation unit implemented

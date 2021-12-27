@@ -32,17 +32,17 @@ let to_bytecode i Typedtree.{structure; coercion; _} =
   |> Profile.(record transl)
     (Translmod.transl_implementation i.module_name)
   |> Profile.(record ~accumulate:true generate)
-    (fun { Lambda.code = lambda; required_globals } ->
+    (fun { Lambda.code = lambda; required_globals; toplevel_printers } ->
        lambda
        |> print_if i.ppf_dump Clflags.dump_rawlambda Printlambda.lambda
        |> Simplif.simplify_lambda
        |> print_if i.ppf_dump Clflags.dump_lambda Printlambda.lambda
        |> Bytegen.compile_implementation i.module_name
        |> print_if i.ppf_dump Clflags.dump_instr Printinstr.instrlist
-       |> fun bytecode -> bytecode, required_globals
+       |> fun bytecode -> bytecode, required_globals, toplevel_printers
     )
 
-let emit_bytecode i (bytecode, required_globals) =
+let emit_bytecode i (bytecode, required_globals, toplevel_printers) =
   let cmofile = cmo i in
   let oc = open_out_bin cmofile in
   Misc.try_finally
@@ -51,7 +51,7 @@ let emit_bytecode i (bytecode, required_globals) =
     (fun () ->
        bytecode
        |> Profile.(record ~accumulate:true generate)
-         (Emitcode.to_file oc i.module_name cmofile ~required_globals);
+         (Emitcode.to_file oc i.module_name cmofile ~required_globals ~toplevel_printers);
     )
 
 let implementation ~start_from ~source_file ~output_prefix =
