@@ -83,14 +83,6 @@ let print fct arg =
     flush stderr;
     raise x
 
-let catch fct arg =
-  try
-    fct arg
-  with x ->
-    flush stdout;
-    eprintf "Uncaught exception: %s\n" (to_string x);
-    exit 2
-
 type raw_backtrace_slot
 type raw_backtrace_entry = private int
 type raw_backtrace = raw_backtrace_entry array
