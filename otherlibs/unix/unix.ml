@@ -610,7 +610,6 @@ type socket_bool_option =
 type socket_int_option =
     SO_SNDBUF
   | SO_RCVBUF
-  | SO_ERROR
   | SO_TYPE
   | SO_RCVLOWAT
   | SO_SNDLOWAT

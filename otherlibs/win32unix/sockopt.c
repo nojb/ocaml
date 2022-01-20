@@ -62,7 +62,6 @@ static struct socket_option sockopt_bool[] = {
 static struct socket_option sockopt_int[] = {
   { SOL_SOCKET, SO_SNDBUF },
   { SOL_SOCKET, SO_RCVBUF },
-  { SOL_SOCKET, SO_ERROR },
   { SOL_SOCKET, SO_TYPE },
   { SOL_SOCKET, SO_RCVLOWAT },
   { SOL_SOCKET, SO_SNDLOWAT } };
