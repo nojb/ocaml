@@ -187,8 +187,3 @@ val ikbprintf : (Buffer.t -> 'd) -> Buffer.t ->
    Useful to ignore some material when conditionally printing.
    @since 4.11.0
 *)
-
-(** Deprecated *)
-
-val kprintf : (string -> 'b) -> ('a, unit, string, 'b) format4 -> 'a
-(** A deprecated synonym for [ksprintf]. *)

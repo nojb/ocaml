@@ -39,5 +39,3 @@ let ksprintf k (Format (fmt, _)) =
   make_printf k' End_of_acc fmt
 
 let sprintf fmt = ksprintf (fun s -> s) fmt
-
-let kprintf = ksprintf
