@@ -329,6 +329,9 @@ let dir_remove_printer ppf lid =
     end
   with Exit -> ()
 
+let () =
+  Topcommon.dir_install_printer := dir_install_printer
+
 let _ = add_directive "install_printer"
     (Directive_ident (with_error_fmt dir_install_printer))
     {

@@ -218,6 +218,13 @@ val override_sys_argv : string array -> unit
    "script.ml args..." instead of the full command line:
    "ocamlrun unix.cma ... script.ml args...". *)
 
+val dir_install_printer : (Format.formatter -> Longident.t -> unit) ref
+(* Forward reference *)
+
+val scan_auto_printers : Format.formatter -> unit
+(* Install printers annotated with \[@toplevel_printer\] in the current
+   environment. *)
+
 (**/**)
 
 (* internal functions used by [Topeval] *)

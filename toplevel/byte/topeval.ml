@@ -157,6 +157,7 @@ let execute_phrase print_outcome ppf phr =
               in
               Ophr_exception (exn, outv)
         in
+        scan_auto_printers ppf;
         !print_out_phrase ppf out_phr;
         if Printexc.backtrace_status ()
         then begin
