@@ -399,19 +399,32 @@ module Auto_printers = struct
     | "toplevel_printer" | "ocaml.toplevel_printer" -> true
     | _ -> false
 
-  let rec walk_sig ppf ?path signature =
-    List.iter (walk_sig_item ppf path) signature
+  let rec lid_of_path = function
+    | Path.Pident id -> Longident.Lident (Ident.name id)
+    | Path.Pdot (path, s) -> Longident.Ldot (lid_of_path path, s)
+    | Path.Papply (path1, path2) -> Longident.Lapply (lid_of_path path1, lid_of_path path2)
 
-  and walk_sig_item ppf path = function
+  let rec walk_sig env ppf ?path signature =
+    List.iter (walk_sig_item env ppf path) signature
+
+  and walk_sig_item env ppf path = function
     | Sig_module (id, _, {md_type = mty; _}, _, _) ->
-        walk_mty ppf (cons_path path id) mty
+        walk_mty env ppf (cons_path path id) mty
     | Sig_value (id, vd, _) ->
         if List.exists is_auto_printer_attribute vd.val_attributes then
           !dir_install_printer ppf (cons_path path id)
     | _ -> ()
 
-  and walk_mty ppf path = function
-    | Mty_signature s -> walk_sig ppf ~path s
+  and walk_mty env ppf path = function
+    | Mty_signature s -> walk_sig env ppf ~path s
+    | Mty_ident path' ->
+        let lid = lid_of_path path' in
+        let path'', mtd = Env.find_modtype_by_name lid env in
+        if Path.same path'' path' then begin
+          match mtd.mtd_type with
+          | None -> ()
+          | Some mty -> walk_mty env ppf path mty
+        end
     | _ -> ()
 
   let scan =
@@ -419,11 +432,10 @@ module Auto_printers = struct
     let last_summary = ref Env.Env_empty in
     fun ppf env ->
       let scan_module env id =
-        let path, md =
-          Env.find_module_by_name (Longident.Lident (Ident.name id)) env
-        in
+        let lid = Longident.Lident (Ident.name id) in
+        let path, md = Env.find_module_by_name lid env in
         if path = Path.Pident id then
-          walk_mty ppf (Longident.Lident (Ident.name id)) md.md_type
+          walk_mty env ppf lid md.md_type
       in
       let rec scan_globals last = function
         | [] -> ()
