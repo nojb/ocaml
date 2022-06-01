@@ -267,7 +267,7 @@ let emit_call_gc gc =
   I.jmp (label gc.gc_return_lbl)
 
 let bound_error_label env dbg =
-  if !Clflags.debug then begin
+  if !Clflags.debug <> Clflags.Debug_nothing then begin
     let lbl_bound_error = new_label() in
     let lbl_frame = record_frame_label env Reg.Set.empty (Dbg_other dbg) in
     env.bound_error_sites <- { bd_lbl = lbl_bound_error; bd_frame = lbl_frame; }

@@ -1,5 +1,5 @@
 (* TEST
-flags = "-c -nostdlib -nopervasives -dlambda -dno-unique-ids"
+flags = "-c -nostdlib -nopervasives -dlambda -dno-unique-ids -no-g"
 * setup-ocamlc.byte-build-env
 ** ocamlc.byte
 *** check-ocamlc.byte-output

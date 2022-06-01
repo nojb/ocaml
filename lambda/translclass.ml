@@ -727,7 +727,7 @@ let transl_class ~scopes ids cl_id pub_meths cl vflag =
         begin try
           (* Doesn't seem to improve size for bytecode *)
           (* if not !Clflags.native_code then raise Not_found; *)
-          if not arr || !Clflags.debug then raise Not_found;
+          if not arr || !Clflags.debug <> Clflags.Debug_nothing then raise Not_found;
           builtin_meths [self] env env2 (lfunction args body')
         with Not_found ->
           [lfunction ((self, Pgenval) :: args)

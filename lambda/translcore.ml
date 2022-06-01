@@ -173,14 +173,14 @@ let event_after ~scopes exp lam =
   Translprim.event_after (of_location ~scopes exp.exp_loc) exp lam
 
 let event_function ~scopes exp lam =
-  if !Clflags.debug && not !Clflags.native_code then
+  if !Clflags.debug <> Clflags.Debug_nothing && not !Clflags.native_code then
     let repr = Some (ref 0) in
     let (info, body) = lam repr in
     (info,
      Levent(body, {lev_loc = of_location ~scopes exp.exp_loc;
                    lev_kind = Lev_function;
                    lev_repr = repr;
-                   lev_env = exp.exp_env}))
+                   lev_env = if !Clflags.debug = Clflags.Debug_full then exp.exp_env else Env.empty}))
   else
     lam None
 

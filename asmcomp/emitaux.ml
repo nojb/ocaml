@@ -196,7 +196,7 @@ let emit_frames a =
       | Dbg_other d | Dbg_raise d ->
         if Debuginfo.is_none d then 0 else 1
       | Dbg_alloc dbgs ->
-        if !Clflags.debug &&
+        if !Clflags.debug <> Clflags.Debug_nothing &&
            List.exists (fun d ->
              not (Debuginfo.is_none d.Debuginfo.alloc_dbg)) dbgs
         then 3 else 2
@@ -365,7 +365,7 @@ let reset_debug_info () =
    display .loc for every instruction. *)
 let emit_debug_info_gen dbg file_emitter loc_emitter =
   if is_cfi_enabled () &&
-    (!Clflags.debug || Config.with_frame_pointers) then begin
+    (!Clflags.debug <> Clflags.Debug_nothing || Config.with_frame_pointers) then begin
     match List.rev dbg with
     | [] -> ()
     | { Debuginfo.dinfo_line = line;

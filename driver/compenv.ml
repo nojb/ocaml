@@ -236,7 +236,7 @@ let read_one_param ppf position name v =
     setter ppf error_if_unset name [ ref true ] s
   in
   match name with
-  | "g" -> set "g" [ Clflags.debug ] v
+  (* | "g" -> set "g" [ Clflags.debug ] v *)
   | "bin-annot" -> set "bin-annot" [ Clflags.binary_annotations ] v
   | "afl-instrument" -> set "afl-instrument" [ Clflags.afl_instrument ] v
   | "afl-inst-ratio" ->

@@ -6051,7 +6051,8 @@ driver/main_args.cmx : \
     driver/compenv.cmx \
     utils/clflags.cmx \
     driver/main_args.cmi
-driver/main_args.cmi :
+driver/main_args.cmi : \
+    utils/clflags.cmi
 driver/maindriver.cmo : \
     utils/warnings.cmi \
     utils/profile.cmi \

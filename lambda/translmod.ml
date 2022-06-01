@@ -580,12 +580,12 @@ and transl_structure ~scopes loc fields cc rootpath final_env = function
       (* This debugging event provides information regarding the structure
          items. It is ignored by the OCaml debugger but is used by
          Js_of_ocaml to preserve variable names. *)
-      (if !Clflags.debug && not !Clflags.native_code then
+      (if !Clflags.debug <> Clflags.Debug_nothing && not !Clflags.native_code then
          Levent(body,
                 {lev_loc = loc;
                  lev_kind = Lev_pseudo;
                  lev_repr = None;
-                 lev_env = final_env})
+                 lev_env = if !Clflags.debug = Clflags.Debug_full then final_env else Env.empty})
        else
          body),
       size

@@ -1,7 +1,7 @@
 (* TEST
    * setup-ocamlc.byte-build-env
    ** ocamlc.byte
-      flags = "-dlambda -dno-unique-ids"
+      flags = "-dlambda -dno-unique-ids -no-g"
    *** check-ocamlc.byte-output
 *)
 

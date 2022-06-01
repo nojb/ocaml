@@ -221,7 +221,7 @@ let link_compunit output_fun currpos_fun inchan file_name compunit =
   seek_in inchan compunit.cu_pos;
   let code_block = LongString.input_bytes inchan compunit.cu_codesize in
   Symtable.patch_object code_block compunit.cu_reloc;
-  if !Clflags.debug && compunit.cu_debug > 0 then begin
+  if !Clflags.debug <> Clflags.Debug_nothing && compunit.cu_debug > 0 then begin
     seek_in inchan compunit.cu_debug;
     let debug_event_list : Instruct.debug_event list = input_value inchan in
     let debug_dirs : string list = input_value inchan in
@@ -399,7 +399,7 @@ let link_bytecode ?final_name tolink exec_name standalone =
        output_value outchan (extract_crc_interfaces());
        Bytesections.record outchan "CRCS";
        (* Debug info *)
-       if !Clflags.debug then begin
+       if !Clflags.debug <> Clflags.Debug_nothing then begin
          output_debug_info outchan;
          Bytesections.record outchan "DBUG"
        end;
@@ -567,7 +567,7 @@ let link_bytecode_as_c tolink outfile with_main =
 \n}\
 \n#endif\n";
     );
-  if not with_main && !Clflags.debug then
+  if not with_main && !Clflags.debug <> Clflags.Debug_nothing then
     output_cds_file ((Filename.chop_extension outfile) ^ ".cds")
 
 (* Build a custom runtime *)

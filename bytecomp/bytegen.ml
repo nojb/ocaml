@@ -302,7 +302,7 @@ let add_event ev =
    2) we prefer inserting a pseudo event rather than an event after
       to prevent the debugger to stop at every single allocation. *)
 let add_pseudo_event loc modname c =
-  if !Clflags.debug then
+  if !Clflags.debug <> Clflags.Debug_nothing then
     let ev_defname = string_of_scoped_location loc in
     let ev =
       { ev_pos = 0;                   (* patched in emitcode *)

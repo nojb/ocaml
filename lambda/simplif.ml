@@ -345,7 +345,7 @@ let beta_reduce params body args =
 let simplify_lets lam =
 
   (* Disable optimisations for bytecode compilation with -g flag *)
-  let optimize = !Clflags.native_code || not !Clflags.debug in
+  let optimize = !Clflags.native_code || !Clflags.debug = Clflags.Debug_nothing in
 
   (* First pass: count the occurrences of all let-bound identifiers *)
 
@@ -897,7 +897,7 @@ let simplify_local_functions lam =
 let simplify_lambda lam =
   let lam =
     lam
-    |> (if !Clflags.native_code || not !Clflags.debug
+    |> (if !Clflags.native_code || !Clflags.debug = Clflags.Debug_nothing
         then simplify_local_functions else Fun.id
        )
     |> simplify_exits

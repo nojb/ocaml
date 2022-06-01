@@ -83,7 +83,7 @@ module type Compiler_options = sig
   val _config : unit -> unit
   val _config_var : string -> unit
   val _for_pack : string -> unit
-  val _g : bool -> unit
+  val _g : Clflags.debug_level -> unit
   val _stop_after : string -> unit
   val _i : unit -> unit
   val _impl : string -> unit

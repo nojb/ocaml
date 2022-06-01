@@ -128,19 +128,21 @@ let mk_for_pack_opt f =
   "<ident>  Generate code that can later be `packed' with\n\
   \     ocamlopt -pack -o <ident>.cmx"
 
-let mk_g_byt f =
-  "-g", Arg.Unit (fun () -> f true), " Save debugging information"
+let mk_g0 f =
+  "-g0", Arg.Unit (fun () -> f Clflags.Debug_nothing),
+  " Do not save debugging information"
 
-let mk_no_g_byt f =
-  "-no-g", Arg.Unit (fun () -> f false), " Do not save debugging information"
+let mk_g1 f =
+  "-g1", Arg.Unit (fun () -> f Clflags.Debug_call_site),
+  " Save debugging location information (for backtraces)"
 
-let mk_g_opt f =
-  "-g", Arg.Unit (fun () -> f true),
-  " Record debugging information for exception backtrace"
+let mk_g2 f =
+  "-g2", Arg.Unit (fun () -> f Clflags.Debug_full),
+  " Save full debugging information (for ocamlc only)"
 
-let mk_no_g_opt f =
-  "-no-g", Arg.Unit (fun () -> f false),
-  " Do not record debugging information for exception backtrace"
+let mk_g f =
+  "-g", Arg.Unit (fun () -> f Clflags.Debug_full),
+  " Save debugging information"
 
 let mk_i f =
   "-i", Arg.Unit f, " Print inferred interface"
@@ -817,7 +819,7 @@ module type Compiler_options = sig
   val _config : unit -> unit
   val _config_var : string -> unit
   val _for_pack : string -> unit
-  val _g : bool -> unit
+  val _g : Clflags.debug_level -> unit
   val _stop_after : string -> unit
   val _i : unit -> unit
   val _impl : string -> unit
@@ -1017,8 +1019,10 @@ struct
     mk_dllpath F._dllpath;
     mk_dtypes F._annot;
     mk_for_pack_byt F._for_pack;
-    mk_g_byt F._g;
-    mk_no_g_byt F._g;
+    mk_g0 F._g;
+    mk_g1 F._g;
+    mk_g2 F._g;
+    mk_g F._g;
     mk_stop_after ~native:false F._stop_after;
     mk_i F._i;
     mk_I F._I;
@@ -1204,8 +1208,10 @@ struct
     mk_config_var F._config_var;
     mk_dtypes F._annot;
     mk_for_pack_opt F._for_pack;
-    mk_g_opt F._g;
-    mk_no_g_opt F._g;
+    mk_g0 F._g;
+    mk_g1 F._g;
+    mk_g2 F._g;
+    mk_g F._g;
     mk_function_sections F._function_sections;
     mk_stop_after ~native:true F._stop_after;
     mk_save_ir_after ~native:true F._save_ir_after;

@@ -801,31 +801,36 @@ let subst update_env ?(freshen_bound_variables = false) s input_lam =
     | Lsend (k, met, obj, args, loc) ->
         Lsend (k, subst s l met, subst s l obj, subst_list s l args, loc)
     | Levent (lam, evt) ->
-        let old_env = evt.lev_env in
-        let env_updates =
-          let find_in_old id = Env.find_value (Path.Pident id) old_env in
-          let rebind id id' new_env =
-            match find_in_old id with
-            | exception Not_found -> new_env
-            | vd -> Env.add_value id' vd new_env
-          in
-          let update_free id new_env =
-            match find_in_old id with
-            | exception Not_found -> new_env
-            | vd -> update_env id vd new_env
-          in
-          Ident.Map.merge (fun id bound free ->
-            match bound, free with
-            | Some id', _ ->
-                if Ident.equal id id' then None else Some (rebind id id')
-            | None, Some _ -> Some (update_free id)
-            | None, None -> None
-          ) l s
+        let evt =
+          if !Clflags.debug != Clflags.Debug_full then evt
+          else
+            let old_env = evt.lev_env in
+            let env_updates =
+              let find_in_old id = Env.find_value (Path.Pident id) old_env in
+              let rebind id id' new_env =
+                match find_in_old id with
+                | exception Not_found -> new_env
+                | vd -> Env.add_value id' vd new_env
+              in
+              let update_free id new_env =
+                match find_in_old id with
+                | exception Not_found -> new_env
+                | vd -> update_env id vd new_env
+              in
+              Ident.Map.merge (fun id bound free ->
+                  match bound, free with
+                  | Some id', _ ->
+                      if Ident.equal id id' then None else Some (rebind id id')
+                  | None, Some _ -> Some (update_free id)
+                  | None, None -> None
+                ) l s
+            in
+            let new_env =
+              Ident.Map.fold (fun _id update env -> update env) env_updates old_env
+            in
+            { evt with lev_env = new_env }
         in
-        let new_env =
-          Ident.Map.fold (fun _id update env -> update env) env_updates old_env
-        in
-        Levent (subst s l lam, { evt with lev_env = new_env })
+        Levent (subst s l lam, evt)
     | Lifused (id, e) ->
         let id = try Ident.Map.find id l with Not_found -> id in
         Lifused (id, subst s l e)

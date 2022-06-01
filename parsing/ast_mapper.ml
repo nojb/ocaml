@@ -836,7 +836,7 @@ module PpxContext = struct
         lid "load_path",    make_list make_string (Load_path.get_paths ());
         lid "open_modules", make_list make_string !Clflags.open_modules;
         lid "for_package",  make_option make_string !Clflags.for_package;
-        lid "debug",        make_bool !Clflags.debug;
+        lid "debug",        make_bool (!Clflags.debug <> Clflags.Debug_nothing);
         lid "use_threads",  make_bool !Clflags.use_threads;
         lid "use_vmthreads", make_bool false;
         lid "recursive_types", make_bool !Clflags.recursive_types;
@@ -918,7 +918,7 @@ module PpxContext = struct
       | "for_package" ->
           Clflags.for_package := get_option get_string payload
       | "debug" ->
-          Clflags.debug := get_bool payload
+          Clflags.debug := if get_bool payload then Clflags.Debug_full else Clflags.Debug_nothing
       | "use_threads" ->
           Clflags.use_threads := get_bool payload
       | "use_vmthreads" ->

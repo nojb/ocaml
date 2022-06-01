@@ -2,7 +2,7 @@
    * bytecode
    * native
    * native
-     ocamlopt_flags = "-compact"
+     ocamlopt_flags = "-compact -no-g"
 *)
 
 type mut2 = { mutable p: int; mutable q:int }

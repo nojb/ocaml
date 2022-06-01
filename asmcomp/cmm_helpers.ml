@@ -2131,7 +2131,7 @@ let int_as_pointer arg dbg =
   (* always a pointer outside the heap *)
 
 let raise_prim raise_kind arg dbg =
-  if !Clflags.debug then
+  if !Clflags.debug <> Clflags.Debug_nothing then
     Cop (Craise raise_kind, [arg], dbg)
   else
     Cop (Craise Lambda.Raise_notrace, [arg], dbg)

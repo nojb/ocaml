@@ -38,6 +38,11 @@ module Float_arg_helper = Arg_helper.Make (struct
   end
 end)
 
+type debug_level =
+  | Debug_nothing
+  | Debug_call_site
+  | Debug_full
+
 let objfiles = ref ([] : string list)   (* .cmo and .cma files *)
 and ccobjs = ref ([] : string list)     (* .o, .a, .so and -cclib -lxxx *)
 and dllibs = ref ([] : string list)     (* .so and -dllib -lxxx *)
@@ -51,7 +56,7 @@ and no_std_include = ref false          (* -nostdlib *)
 and no_cwd = ref false                  (* -nocwd *)
 and print_types = ref false             (* -i *)
 and make_archive = ref false            (* -a *)
-and debug = ref true                    (* -g *)
+and debug = ref Debug_call_site         (* -g, -g0, -g1, -g2 *)
 and debug_full = ref false              (* For full DWARF support *)
 and unsafe = ref false                  (* -unsafe *)
 and use_linscan = ref false             (* -linscan *)

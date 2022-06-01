@@ -548,7 +548,7 @@ let find_action idxs acts tag =
     None
 
 let subst_debuginfo loc dbg =
-  if !Clflags.debug then
+  if !Clflags.debug <> Clflags.Debug_nothing then
     Debuginfo.inline loc dbg
   else
     dbg

@@ -1,6 +1,6 @@
 (* TEST
 
-flags = "-nopervasives"
+flags = "-nopervasives -no-g"
 
 * setup-ocamlc.byte-build-env
 ** ocamlc.byte

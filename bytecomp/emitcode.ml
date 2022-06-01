@@ -401,7 +401,7 @@ let to_file outchan unit_name objfile ~required_globals code =
   emit code;
   LongString.output outchan !out_buffer 0 !out_position;
   let (pos_debug, size_debug) =
-    if !Clflags.debug then begin
+    if !Clflags.debug <> Clflags.Debug_nothing then begin
       debug_dirs := String.Set.add
         (Filename.dirname (Location.absolute_path objfile))
         !debug_dirs;

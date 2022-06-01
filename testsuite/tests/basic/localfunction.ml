@@ -1,4 +1,6 @@
-(* TEST *)
+(* TEST
+flags="-no-g"
+*)
 
 let f x =
   let r = ref 0 in
