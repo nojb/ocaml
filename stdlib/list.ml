@@ -261,11 +261,11 @@ let find_all p =
 let filter = find_all
 
 let filteri p l =
-  let rec aux i acc = function
-  | [] -> rev acc
-  | x::l -> aux (i + 1) (if p i x then x::acc else acc) l
+  let[@tail_mod_cons] rec aux i = function
+  | [] -> []
+  | x::l -> if p i x then x :: aux (i + 1) l else aux (i + 1) l
   in
-  aux 0 [] l
+  aux 0 l
 
 let[@tail_mod_cons] rec filter_map f = function
   | [] -> []
