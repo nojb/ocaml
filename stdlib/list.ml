@@ -267,15 +267,12 @@ let filteri p l =
   in
   aux 0 [] l
 
-let filter_map f =
-  let rec aux accu = function
-    | [] -> rev accu
-    | x :: l ->
-        match f x with
-        | None -> aux accu l
-        | Some v -> aux (v :: accu) l
-  in
-  aux []
+let[@tail_mod_cons] rec filter_map f = function
+  | [] -> []
+  | x :: l ->
+      match f x with
+      | None -> filter_map f l
+      | Some v -> v :: filter_map f l
 
 let concat_map f l =
   let rec aux f acc = function
