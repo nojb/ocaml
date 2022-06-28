@@ -350,7 +350,7 @@ let[@tail_mod_cons] rec combine l1 l2 =
 
 (** sorting *)
 
-let rec merge cmp l1 l2 =
+let[@tail_mod_cons] rec merge cmp l1 l2 =
   match l1, l2 with
   | [], l2 -> l2
   | l1, [] -> l1
