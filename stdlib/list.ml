@@ -595,14 +595,7 @@ let to_seq l =
   in
   aux l
 
-let of_seq seq =
-  let rec direct depth seq : _ list =
-    if depth=0
-    then
-      Seq.fold_left (fun acc x -> x::acc) [] seq
-      |> rev (* tailrec *)
-    else match seq() with
-      | Seq.Nil -> []
-      | Seq.Cons (x, next) -> x :: direct (depth-1) next
-  in
-  direct 500 seq
+let[@tail_mod_cons] rec of_seq seq =
+  match seq() with
+  | Seq.Nil -> []
+  | Seq.Cons (x, next) -> x :: of_seq next
