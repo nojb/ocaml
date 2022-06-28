@@ -232,7 +232,7 @@ let rec remove_assoc x = function
   | (a, _ as pair) :: l ->
       if compare a x = 0 then l else pair :: remove_assoc x l
 
-let rec remove_assq x = function
+let[@tail_mod_cons] rec remove_assq x = function
   | [] -> []
   | (a, _ as pair) :: l -> if a == x then l else pair :: remove_assq x l
 

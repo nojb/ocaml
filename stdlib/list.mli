@@ -415,7 +415,7 @@ val remove_assoc : 'a -> ('a * 'b) list -> ('a * 'b) list
 
 val remove_assq : 'a -> ('a * 'b) list -> ('a * 'b) list
 (** Same as {!remove_assoc}, but uses physical equality instead
-   of structural equality to compare keys. Not tail-recursive.
+   of structural equality to compare keys.
  *)
 
 
