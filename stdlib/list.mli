@@ -410,7 +410,6 @@ val mem_assq : 'a -> ('a * 'b) list -> bool
 val remove_assoc : 'a -> ('a * 'b) list -> ('a * 'b) list
 (** [remove_assoc a l] returns the list of
    pairs [l] without the first pair with key [a], if any.
-   Not tail-recursive.
  *)
 
 val remove_assq : 'a -> ('a * 'b) list -> ('a * 'b) list

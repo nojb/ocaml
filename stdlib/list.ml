@@ -227,7 +227,7 @@ let rec mem_assq x = function
   | [] -> false
   | (a, _) :: l -> a == x || mem_assq x l
 
-let rec remove_assoc x = function
+let[@tail_mod_cons] rec remove_assoc x = function
   | [] -> []
   | (a, _ as pair) :: l ->
       if compare a x = 0 then l else pair :: remove_assoc x l
