@@ -97,15 +97,11 @@ val init : len:int -> f:(int -> 'a) -> 'a list
  *)
 
 val append : 'a list -> 'a list -> 'a list
-(** Concatenate two lists. Same function as the infix operator [@].
-   Not tail-recursive (length of the first argument). The [@]
-   operator is not tail-recursive either.
- *)
+(** Concatenate two lists. Same function as the infix operator [@]. *)
 
 val rev_append : 'a list -> 'a list -> 'a list
 (** [rev_append l1 l2] reverses [l1] and concatenates it with [l2].
-   This is equivalent to [(]{!rev}[ l1) @ l2], but [rev_append] is
-   tail-recursive and more efficient.
+   This is equivalent to [(]{!rev}[ l1) @ l2].
  *)
 
 val concat : 'a list list -> 'a list
