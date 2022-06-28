@@ -252,11 +252,9 @@ let rec find_map f = function
        | None -> find_map f l
      end
 
-let find_all p =
-  let rec find accu = function
-  | [] -> rev accu
-  | x :: l -> if p x then find (x :: accu) l else find accu l in
-  find []
+let[@tail_mod_cons] rec find_all p = function
+  | [] -> []
+  | x :: l -> if p x then x :: find_all p l else find_all p l
 
 let filter = find_all
 
