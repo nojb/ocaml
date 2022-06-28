@@ -433,7 +433,7 @@ val combine : 'a list -> 'b list -> ('a * 'b) list
    [combine [a1; ...; an] [b1; ...; bn]] is
    [[(a1,b1); ...; (an,bn)]].
    @raise Invalid_argument if the two lists
-   have different lengths. Not tail-recursive.
+   have different lengths.
  *)
 
 
