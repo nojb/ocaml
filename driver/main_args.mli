@@ -90,11 +90,9 @@ module type Compiler_options = sig
   val _impl : string -> unit
   val _intf : string -> unit
   val _intf_suffix : string -> unit
-  val _keep_docs : unit -> unit
-  val _no_keep_docs : unit -> unit
-  val _keep_locs : unit -> unit
-  val _no_keep_locs : unit -> unit
-  val _linkall : unit -> unit
+  val _keep_docs : bool -> unit
+  val _keep_locs : bool -> unit
+  val _linkall : bool -> unit
   val _noautolink : unit -> unit
   val _o : string -> unit
   val _opaque :  unit -> unit

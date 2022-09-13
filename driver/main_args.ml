@@ -238,34 +238,27 @@ let mk_intf_suffix_2 f =
   "-intf_suffix", Arg.String f, "<string>  (deprecated) same as -intf-suffix"
 
 let mk_bool_flag flag default f doc =
-  let doc_true = " " ^ String.capitalize_ascii doc ^ if default then " (default)" else "" in
-  let doc_false = " Do not " ^ doc ^ if default then "" else " (default)" in
+  let doc_true = " " ^ doc ^ if default then " (default)" else "" in
+  let doc_false = " Do not " ^ String.uncapitalize_ascii doc ^ if default then "" else " (default)" in
   [
     flag, Arg.Unit (fun () -> f true), doc_true;
     "-no" ^ flag, Arg.Unit (fun () -> f false), doc_false;
   ]
 
 let mk_insn_sched f =
-  mk_bool_flag "-insn-sched" Clflags.insn_sched_default f "run the instruction scheduling pass"
+  mk_bool_flag "-insn-sched" Clflags.insn_sched_default f "Run the instruction scheduling pass"
 
 let mk_keep_docs f =
-  "-keep-docs", Arg.Unit f, " Keep documentation strings in .cmi files"
-
-let mk_no_keep_docs f =
-  "-no-keep-docs", Arg.Unit f,
-  " Do not keep documentation strings in .cmi files (default)"
+  mk_bool_flag "-keep-docs" false f "Keep documentation strings in .cmi files"
 
 let mk_keep_locs f =
-  "-keep-locs", Arg.Unit f, " Keep locations in .cmi files (default)"
-
-let mk_no_keep_locs f =
-  "-no-keep-locs", Arg.Unit f, " Do not keep locations in .cmi files"
+  mk_bool_flag "-keep-locs" true f "Keep locations in .cmi files"
 
 let mk_labels f =
   "-labels", Arg.Unit f, " Use commuting label mode"
 
 let mk_linkall f =
-  "-linkall", Arg.Unit f, " Link all modules, even unused ones"
+  mk_bool_flag "-linkall" false f "Link all modules, even unused ones"
 
 let mk_linscan f =
   "-linscan", Arg.Unit f, " Use the linear scan register allocator"
@@ -821,11 +814,9 @@ module type Compiler_options = sig
   val _impl : string -> unit
   val _intf : string -> unit
   val _intf_suffix : string -> unit
-  val _keep_docs : unit -> unit
-  val _no_keep_docs : unit -> unit
-  val _keep_locs : unit -> unit
-  val _no_keep_locs : unit -> unit
-  val _linkall : unit -> unit
+  val _keep_docs : bool -> unit
+  val _keep_locs : bool -> unit
+  val _linkall : bool -> unit
   val _noautolink : unit -> unit
   val _o : string -> unit
   val _opaque :  unit -> unit
@@ -1022,12 +1013,14 @@ struct
     mk_intf F._intf;
     mk_intf_suffix F._intf_suffix;
     mk_intf_suffix_2 F._intf_suffix;
-    mk_keep_docs F._keep_docs;
-    mk_no_keep_docs F._no_keep_docs;
-    mk_keep_locs F._keep_locs;
-    mk_no_keep_locs F._no_keep_locs;
+  ] @
+    mk_keep_docs F._keep_docs @
+    mk_keep_locs F._keep_locs @
+  [
     mk_labels F._labels;
-    mk_linkall F._linkall;
+  ] @
+    mk_linkall F._linkall @
+  [
     mk_make_runtime F._make_runtime;
     mk_make_runtime_2 F._make_runtime;
     mk_modern F._labels;
@@ -1218,15 +1211,19 @@ struct
     mk_inline_indirect_cost F._inline_indirect_cost;
     mk_inline_lifting_benefit F._inline_lifting_benefit;
     mk_inlining_report F._inlining_report;
-  ] @ mk_insn_sched F._insn_sched @ [
+  ] @
+    mk_insn_sched F._insn_sched @
+  [
     mk_intf F._intf;
     mk_intf_suffix F._intf_suffix;
-    mk_keep_docs F._keep_docs;
-    mk_no_keep_docs F._no_keep_docs;
-    mk_keep_locs F._keep_locs;
-    mk_no_keep_locs F._no_keep_locs;
+  ] @
+    mk_keep_docs F._keep_docs @
+    mk_keep_locs F._keep_locs @
+  [
     mk_labels F._labels;
-    mk_linkall F._linkall;
+  ] @
+    mk_linkall F._linkall @
+  [
     mk_inline_max_depth F._inline_max_depth;
     mk_alias_deps F._alias_deps;
     mk_no_alias_deps F._no_alias_deps;
@@ -1724,9 +1721,9 @@ module Default = struct
     let _impl = Compenv.impl
     let _intf = Compenv.intf
     let _intf_suffix s = Config.interface_suffix := s
-    let _keep_docs = set keep_docs
-    let _keep_locs = set keep_locs
-    let _linkall = set link_everything
+    let _keep_docs = toggle keep_docs
+    let _keep_locs = toggle keep_locs
+    let _linkall = toggle link_everything
     let _match_context_rows n = match_context_rows := n
     let _no_keep_docs = clear keep_docs
     let _no_keep_locs = clear keep_locs
