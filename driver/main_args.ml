@@ -237,15 +237,16 @@ let mk_intf_suffix f =
 let mk_intf_suffix_2 f =
   "-intf_suffix", Arg.String f, "<string>  (deprecated) same as -intf-suffix"
 
-let mk_insn_sched f =
-  "-insn-sched", Arg.Unit f,
-  Printf.sprintf " Run the instruction scheduling pass%s"
-    (if Clflags.insn_sched_default then " (default)" else "")
+let mk_bool_flag flag default f doc =
+  let doc_true = " " ^ String.capitalize_ascii doc ^ if default then " (default)" else "" in
+  let doc_false = " Do not " ^ doc ^ if default then "" else " (default)" in
+  [
+    flag, Arg.Unit (fun () -> f true), doc_true;
+    "-no" ^ flag, Arg.Unit (fun () -> f false), doc_false;
+  ]
 
-let mk_no_insn_sched f =
-  "-no-insn-sched", Arg.Unit f,
-  Printf.sprintf " Do not run the instruction scheduling pass%s"
-    (if not Clflags.insn_sched_default then " (default)" else "")
+let mk_insn_sched f =
+  mk_bool_flag "-insn-sched" Clflags.insn_sched_default f "run the instruction scheduling pass"
 
 let mk_keep_docs f =
   "-keep-docs", Arg.Unit f, " Keep documentation strings in .cmi files"
@@ -921,8 +922,7 @@ module type Optcommon_options = sig
   val _no_unbox_specialised_args : unit -> unit
   val _o2 : unit -> unit
   val _o3 : unit -> unit
-  val _insn_sched : unit -> unit
-  val _no_insn_sched : unit -> unit
+  val _insn_sched : bool -> unit
   val _linscan : unit -> unit
   val _no_float_const_prop : unit -> unit
 
@@ -1218,7 +1218,7 @@ struct
     mk_inline_indirect_cost F._inline_indirect_cost;
     mk_inline_lifting_benefit F._inline_lifting_benefit;
     mk_inlining_report F._inlining_report;
-    mk_insn_sched F._insn_sched;
+  ] @ mk_insn_sched F._insn_sched @ [
     mk_intf F._intf;
     mk_intf_suffix F._intf_suffix;
     mk_keep_docs F._keep_docs;
@@ -1237,7 +1237,6 @@ struct
     mk_noassert F._noassert;
     mk_noautolink_opt F._noautolink;
     mk_nodynlink F._nodynlink;
-    mk_no_insn_sched F._no_insn_sched;
     mk_nolabels F._nolabels;
     mk_nostdlib F._nostdlib;
     mk_nocwd F._nocwd;
@@ -1542,6 +1541,7 @@ module Default = struct
   open Clflags
   let set r () = r := true
   let clear r () = r := false
+  let toggle r b = r := b
 
   module Common = struct
     let _absname = set Clflags.absname
@@ -1671,8 +1671,7 @@ module Default = struct
         "Syntax: -inline-toplevel <n> | <round>=<n>[,...]"
         inline_toplevel_threshold
     let _inlining_report () = inlining_report := true
-    let _insn_sched = set insn_sched
-    let _no_insn_sched = clear insn_sched
+    let _insn_sched = toggle insn_sched
     let _linscan = set use_linscan
     let _no_float_const_prop = clear float_const_prop
     let _no_unbox_free_vars_of_closures = clear unbox_free_vars_of_closures
