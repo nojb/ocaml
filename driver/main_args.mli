@@ -17,7 +17,7 @@
   to update ocamldoc options too, in odoc_args.ml. *)
 
 module type Common_options = sig
-  val _absname : unit -> unit
+  val _absname : bool -> unit
   val _alert : string -> unit
   val _I : string -> unit
   val _labels : bool -> unit
@@ -32,10 +32,9 @@ module type Common_options = sig
   val _principal : bool -> unit
   val _rectypes : bool -> unit
   val _safer_matching : unit -> unit
-  val _short_paths : unit -> unit
+  val _short_paths : bool -> unit
   val _strict_sequence : bool -> unit
-  val _strict_formats : unit -> unit
-  val _no_strict_formats : unit -> unit
+  val _strict_formats : bool -> unit
   val _force_tmc : unit -> unit
   val _unboxed_types : unit -> unit
   val _no_unboxed_types : unit -> unit
@@ -101,7 +100,7 @@ module type Compiler_options = sig
   val _runtime_variant : string -> unit
   val _with_runtime : unit -> unit
   val _without_runtime : unit -> unit
-  val _short_paths : unit -> unit
+  val _short_paths : bool -> unit
   val _thread : unit -> unit
   val _v : unit -> unit
   val _verbose : unit -> unit

@@ -13,6 +13,24 @@
 (*                                                                        *)
 (**************************************************************************)
 
+let mk_bool_flag flag default f doc =
+  let doc_true = " " ^ doc ^ if default then " (default)" else "" in
+  let doc_false =
+    let doc =
+      let prefix = "Enable " in
+      if String.starts_with ~prefix doc then
+        let prefix_len = String.length prefix in
+        "Disable " ^ String.sub doc prefix_len (String.length doc - prefix_len)
+      else
+        "Do not " ^ String.uncapitalize_ascii doc
+    in
+    doc ^ if default then "" else " (default)"
+  in
+  [
+    flag, Arg.Unit (fun () -> f true), doc_true;
+    "-no" ^ flag, Arg.Unit (fun () -> f false), doc_false;
+  ]
+
 let mk_a f = [
   "-a", Arg.Unit f, " Build a library"
 ]
@@ -29,9 +47,8 @@ let mk_alert f = [
     \    <alertname> can be 'all' to refer to all alert names"
 ]
 
-let mk_absname f = [
-  "-absname", Arg.Unit f, " Show absolute filenames in error messages"
-]
+let mk_absname f =
+  mk_bool_flag "-absname" false f "Show absolute filenames in error messages"
 
 let mk_annot f = [
   "-annot", Arg.Unit f, " (deprecated) Save information in <filename>.annot"
@@ -152,24 +169,6 @@ let mk_for_pack_opt f = [
   "<ident>  Generate code that can later be `packed' with\n\
   \     ocamlopt -pack -o <ident>.cmx"
 ]
-
-let mk_bool_flag flag default f doc =
-  let doc_true = " " ^ doc ^ if default then " (default)" else "" in
-  let doc_false =
-    let doc =
-      let prefix = "Enable " in
-      if String.starts_with ~prefix doc then
-        let prefix_len = String.length prefix in
-        "Disable " ^ String.sub doc prefix_len (String.length doc - prefix_len)
-      else
-        "Do not " ^ String.uncapitalize_ascii doc
-    in
-    doc ^ if default then "" else " (default)"
-  in
-  [
-    flag, Arg.Unit (fun () -> f true), doc_true;
-    "-no" ^ flag, Arg.Unit (fun () -> f false), doc_false;
-  ]
 
 let mk_g_byt f =
   mk_bool_flag "-g" false f "Save debugging information"
@@ -489,18 +488,17 @@ let mk_safe_string = [
   " (default unconditionally since 5.0)"
 ]
 
-let mk_safer_matching f = [
-  "-safer-matching", Arg.Unit f,
-  " Do not use type information to optimize pattern-matching"
-]
+let mk_safer_matching f =
+  mk_bool_flag
+  "-safer-matching" false f
+  " Use type information to optimize pattern-matching"
 
 let mk_shared f = [
   "-shared", Arg.Unit f, " Produce a dynlinkable plugin"
 ]
 
-let mk_short_paths f = [
-  "-short-paths", Arg.Unit f, " Shorten paths in types"
-]
+let mk_short_paths f =
+  mk_bool_flag "-short-paths" false f "Shorten paths in types"
 
 let mk_stdin f = [
   "-stdin", Arg.Unit f, " Read script from standard input"
@@ -837,23 +835,14 @@ let mk_opaque f = [
   \     (reduces necessary recompilation on module change)"
 ]
 
-let mk_strict_formats f = [
-  "-strict-formats", Arg.Unit f,
-  " Reject invalid formats accepted by legacy implementations\n\
+let mk_strict_formats f =
+  mk_bool_flag
+  "-strict-formats" false f
+  "Reject invalid formats accepted by legacy implementations\n\
   \     (Warning: Invalid formats may behave differently from\n\
   \      previous OCaml versions, and will become always-rejected\n\
   \      in future OCaml versions. You should always use this flag\n\
   \      to detect invalid formats so you can fix them.)"
-]
-
-let mk_no_strict_formats f = [
-  "-no-strict-formats", Arg.Unit f,
-  " Accept invalid formats accepted by legacy implementations (default)\n\
-  \     (Warning: Invalid formats may behave differently from\n\
-  \      previous OCaml versions, and will become always-rejected\n\
-  \      in future OCaml versions. You should never use this flag\n\
-  \      and instead fix invalid formats.)"
-]
 
 let mk_args f = [
   "-args", Arg.Expand f,
@@ -883,7 +872,7 @@ let mk__ f = [
 ]
 
 module type Common_options = sig
-  val _absname : unit -> unit
+  val _absname : bool -> unit
   val _alert : string -> unit
   val _I : string -> unit
   val _labels : bool -> unit
@@ -898,10 +887,9 @@ module type Common_options = sig
   val _principal : bool -> unit
   val _rectypes : bool -> unit
   val _safer_matching : unit -> unit
-  val _short_paths : unit -> unit
+  val _short_paths : bool -> unit
   val _strict_sequence : bool -> unit
-  val _strict_formats : unit -> unit
-  val _no_strict_formats : unit -> unit
+  val _strict_formats : bool -> unit
   val _force_tmc : unit -> unit
   val _unboxed_types : unit -> unit
   val _no_unboxed_types : unit -> unit
@@ -968,7 +956,7 @@ module type Compiler_options = sig
   val _runtime_variant : string -> unit
   val _with_runtime : unit -> unit
   val _without_runtime : unit -> unit
-  val _short_paths : unit -> unit
+  val _short_paths : bool -> unit
   val _thread : unit -> unit
   val _v : unit -> unit
   val _verbose : unit -> unit
@@ -1186,7 +1174,6 @@ struct
     mk_short_paths F._short_paths;
     mk_strict_sequence F._strict_sequence;
     mk_strict_formats F._strict_formats;
-    mk_no_strict_formats F._no_strict_formats;
     mk_thread F._thread;
     mk_force_tmc F._force_tmc;
     mk_unboxed_types F._unboxed_types;
@@ -1261,7 +1248,6 @@ struct
     mk_stdin F._stdin;
     mk_strict_sequence F._strict_sequence;
     mk_strict_formats F._strict_formats;
-    mk_no_strict_formats F._no_strict_formats;
     mk_unboxed_types F._unboxed_types;
     mk_no_unboxed_types F._no_unboxed_types;
     mk_unsafe F._unsafe;
@@ -1385,7 +1371,6 @@ struct
     mk_short_paths F._short_paths;
     mk_strict_sequence F._strict_sequence;
     mk_strict_formats F._strict_formats;
-    mk_no_strict_formats F._no_strict_formats;
     mk_thread F._thread;
     mk_force_tmc F._force_tmc;
     mk_unbox_closures F._unbox_closures;
@@ -1503,7 +1488,6 @@ module Make_opttop_options (F : Opttop_options) = struct
     mk_stdin F._stdin;
     mk_strict_sequence F._strict_sequence;
     mk_strict_formats F._strict_formats;
-    mk_no_strict_formats F._no_strict_formats;
     mk_unbox_closures F._unbox_closures;
     mk_unbox_closures_factor F._unbox_closures_factor;
     mk_unboxed_types F._unboxed_types;
@@ -1582,7 +1566,6 @@ struct
     mk_short_paths F._short_paths;
     mk_strict_sequence F._strict_sequence;
     mk_strict_formats F._strict_formats;
-    mk_no_strict_formats F._no_strict_formats;
     mk_thread F._thread;
     mk_force_tmc F._force_tmc;
     mk_unboxed_types F._unboxed_types;
@@ -1648,31 +1631,29 @@ let options_with_command_line_syntax options r =
 
 module Default = struct
   open Clflags
-  let set r () = r := true
-  let clear r () = r := false
-  let toggle r b = r := b
+  let set r b = r := b
+  let clear r b  = r := not b
 
   module Common = struct
     let _absname = set Clflags.absname
     let _alert = Warnings.parse_alert_option
     let _alias_deps = clear transparent_modules
-    let _app_funct = toggle applicative_functors
-    let _labels b = toggle classic (not b)
-    let _alias_deps b = toggle transparent_modules (not b)
-    let _no_strict_formats = clear strict_formats
-    let _strict_sequence = toggle strict_sequence
-    let _no_unboxed_types = clear unboxed_types
-    let _noassert = set noassert
-    let _nolabels = set classic
-    let _nostdlib = set no_std_include
-    let _nocwd = set no_cwd
+    let _app_funct = set applicative_functors
+    let _labels = clear classic
+    let _alias_deps = clear transparent_modules
+    let _strict_sequence = clear strict_sequence
+    let _no_unboxed_types = set unboxed_types false
+    let _noassert () = set noassert true
+    let _nolabels () = set classic true
+    let _nostdlib () = set no_std_include true
+    let _nocwd () = set no_cwd true
     let _open s = open_modules := (s :: (!open_modules))
-    let _principal = toggle principal
-    let _rectypes = toggle recursive_types
-    let _safer_matching = set safer_matching
+    let _principal = set principal
+    let _rectypes = set recursive_types
+    let _safer_matching () = set safer_matching true
     let _short_paths = clear real_paths
     let _strict_formats = set strict_formats
-    let _unboxed_types = set unboxed_types
+    let _unboxed_types = set unboxed_types true
     let _w s =
       Warnings.parse_options false s |> Option.iter Location.(prerr_alert none)
 
@@ -1684,21 +1665,21 @@ module Default = struct
     include Common
     let _I dir = include_dirs := (dir :: (!include_dirs))
     let _color = Misc.set_or_ignore color_reader.parse color
-    let _dlambda = set dump_lambda
-    let _dparsetree = set dump_parsetree
-    let _drawlambda = set dump_rawlambda
-    let _dsource = set dump_source
-    let _dtypedtree = set dump_typedtree
-    let _dshape = set dump_shape
-    let _dunique_ids = set unique_ids
-    let _dno_unique_ids = clear unique_ids
-    let _dlocations = set locations
-    let _dno_locations = clear locations
+    let _dlambda = set dump_lambda true
+    let _dparsetree = set dump_parsetree true
+    let _drawlambda = set dump_rawlambda true
+    let _dsource = set dump_source true
+    let _dtypedtree = set dump_typedtree true
+    let _dshape = set dump_shape true
+    let _dunique_ids = set unique_ids true
+    let _dno_unique_ids = set unique_ids false
+    let _dlocations = set locations true
+    let _dno_locations = set locations false
     let _error_style =
       Misc.set_or_ignore error_style_reader.parse error_style
-    let _nopervasives = set nopervasives
+    let _nopervasives = set nopervasives true
     let _ppx s = Compenv.first_ppx := (s :: (!Compenv.first_ppx))
-    let _unsafe = set unsafe
+    let _unsafe = set unsafe true
     let _warn_error s =
       Warnings.parse_options true s |> Option.iter Location.(prerr_alert none)
     let _warn_help = Warnings.help_warnings
@@ -1720,20 +1701,20 @@ module Default = struct
     let _dflambda_let stamp = dump_flambda_let := (Some stamp)
     let _dflambda_no_invariants = clear flambda_invariant_checks
     let _dflambda_verbose () =
-      set dump_flambda (); set dump_flambda_verbose ()
-    let _dinterval = set dump_interval
-    let _dinterf = set dump_interf
-    let _dlinear = set dump_linear
+      set dump_flambda true; set dump_flambda_verbose true
+    let _dinterval = set dump_interval true
+    let _dinterf = set dump_interf true
+    let _dlinear = set dump_linear true
     let _dlive () = dump_live := true
-    let _dprefer = set dump_prefer
-    let _drawclambda = set dump_rawclambda
-    let _drawflambda = set dump_rawflambda
-    let _dreload = set dump_reload
-    let _dscheduling = set dump_scheduling
-    let _dsel = set dump_selection
-    let _dspill = set dump_spill
-    let _dsplit = set dump_split
-    let _dstartup = set keep_startup_file
+    let _dprefer = set dump_prefer true
+    let _drawclambda = set dump_rawclambda true
+    let _drawflambda = set dump_rawflambda true
+    let _dreload = set dump_reload true
+    let _dscheduling = set dump_scheduling true
+    let _dsel = set dump_selection true
+    let _dspill = set dump_spill true
+    let _dsplit = set dump_split true
+    let _dstartup = set keep_startup_file true
     let _dump_pass pass = set_dumped_pass pass true
     let _inline spec =
       Float_arg_helper.parse spec "Syntax: -inline <n> | <round>=<n>[,...]"
@@ -1776,11 +1757,11 @@ module Default = struct
         "Syntax: -inline-toplevel <n> | <round>=<n>[,...]"
         inline_toplevel_threshold
     let _inlining_report () = inlining_report := true
-    let _insn_sched = toggle insn_sched
-    let _linscan = toggle use_linscan
-    let _float_const_prop b = toggle float_const_prop (not b)
-    let _no_unbox_free_vars_of_closures = clear unbox_free_vars_of_closures
-    let _no_unbox_specialised_args = clear unbox_specialised_args
+    let _insn_sched = set insn_sched
+    let _linscan = set use_linscan
+    let _float_const_prop = set float_const_prop
+    let _no_unbox_free_vars_of_closures = set unbox_free_vars_of_closures false
+    let _no_unbox_specialised_args = set unbox_specialised_args false
     (* CR-someday mshinwell: should stop e.g. -O2 -classic-inlining
        lgesbert: could be done in main() below, like for -pack and -c, but that
        would prevent overriding using OCAMLPARAM.
@@ -1824,17 +1805,15 @@ module Default = struct
     let _dump_into_file = set dump_into_file
     let _dump_dir s = dump_dir := Some s
     let _for_pack s = for_package := (Some s)
-    let _g = toggle debug
-    let _i = set print_types
+    let _g = set debug
+    let _i = set print_types true
     let _impl = Compenv.impl
     let _intf = Compenv.intf
     let _intf_suffix s = Config.interface_suffix := s
-    let _keep_docs = toggle keep_docs
-    let _keep_locs = toggle keep_locs
-    let _linkall = toggle link_everything
+    let _keep_docs = set keep_docs
+    let _keep_locs = set keep_locs
+    let _linkall = set link_everything
     let _match_context_rows n = match_context_rows := n
-    let _no_keep_docs = clear keep_docs
-    let _no_keep_locs = clear keep_locs
     let _noautolink = set no_auto_link
     let _o s = output_name := (Some s)
     let _opaque = set opaque
@@ -1917,8 +1896,8 @@ module Default = struct
       function_sections := true
     let _nodynlink = clear dlcode
     let _output_complete_obj () =
-      set output_c_object (); set output_complete_object ()
-    let _output_obj = set output_c_object
+      set output_c_object true; set output_complete_object true
+    let _output_obj = set output_c_object true
     let _p () =
       Compenv.fatal
         "Profiling with \"gprof\" (option `-p') is only supported up to \
@@ -1963,15 +1942,15 @@ third-party libraries such as Lwt, but with a different API."
 
     include Core
     include Compiler
-    let _compat_32 = set bytecode_compatible_32
-    let _custom = set custom_runtime
-    let _dcamlprimc = set keep_camlprimc_file
-    let _dinstr = set dump_instr
+    let _compat_32 = set bytecode_compatible_32 true
+    let _custom = set custom_runtime true
+    let _dcamlprimc = set keep_camlprimc_file true
+    let _dinstr = set dump_instr true
     let _dllib s = Compenv.defer (ProcessDLLs (Misc.rev_split_words s))
     let _dllpath s = dllpaths := ((!dllpaths) @ [s])
     let _make_runtime () =
       custom_runtime := true; make_runtime := true; link_everything := true
-    let _check_prims b = toggle no_check_prims (not b)
+    let _check_prims = clear no_check_prims
     let _output_complete_obj () =
       output_c_object := true;
       output_complete_object := true;
@@ -1979,7 +1958,7 @@ third-party libraries such as Lwt, but with a different API."
     let _output_complete_exe () =
       _output_complete_obj (); output_complete_executable := true
     let _output_obj () = output_c_object := true; custom_runtime := true
-    let _force_tmc = set force_tmc
+    let _force_tmc = set force_tmc true
     let _use_prims s = use_prims := s
     let _use_runtime s = use_runtime := s
     let _v () = Compenv.print_version_and_library "compiler"
