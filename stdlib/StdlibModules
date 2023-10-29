@@ -36,6 +36,7 @@
 STDLIB_MODULE_BASENAMES = \
   camlinternalFormatBasics \
   stdlib \
+  pair \
   either \
   sys \
   obj \
