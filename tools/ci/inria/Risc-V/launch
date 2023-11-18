@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -euxo pipefail
+
+docker build -t riscv .
+
+docker run --rm -v $(pwd):/root/ocaml riscv
