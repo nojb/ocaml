@@ -1537,7 +1537,7 @@ AS_IF([test -z "$PARTIALLD"],
       # string.
       [PACKLD="link -lib -nologo $machine -out:"],
     [*gcc*],
-      [PACKLD="$CC -r$PACKLD_FLAGS -o "],
+      [PACKLD="$CC -nodefaultlibs -r$PACKLD_FLAGS -o "],
     [PACKLD="$DIRECT_LD -r$PACKLD_FLAGS -o "])],
   [PACKLD="$PARTIALLD -o "])
 
