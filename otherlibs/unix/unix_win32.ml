@@ -1000,7 +1000,7 @@ let make_process_env env =
   Array.iter
     (fun s -> if String.contains s '\000' then raise(Unix_error(EINVAL, "", s)))
     env;
-  String.concat "\000" (Array.to_list env) ^ "\000"
+  String.concat "\000" (Array.to_list env @ ["\000"])
 
 let create_process prog args fd1 fd2 fd3 =
   create_process_stub prog (make_cmdline args) None fd1 fd2 fd3
