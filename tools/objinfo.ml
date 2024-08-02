@@ -25,8 +25,6 @@ open Cmo_format
    function code and CRC
  *)
 let quiet = ref false
-let no_approx = ref false
-let no_code = ref false
 let no_crc = ref false
 let shape = ref false
 let index = ref false
@@ -184,60 +182,7 @@ let print_global_table table =
     )
     table
 
-open Cmx_format
 open Cmxs_format
-
-let print_cmx_infos (ui, crc) =
-  print_general_infos
-    ui.ui_name crc ui.ui_defines ui.ui_imports_cmi ui.ui_imports_cmx;
-  begin match ui.ui_export_info with
-  | Clambda approx ->
-    if not !no_approx then begin
-      printf "Clambda approximation:\n";
-      Format.fprintf Format.std_formatter "  %a@." Printclambda.approx approx
-    end else
-      Format.printf "Clambda unit@.";
-  | Flambda export ->
-    if not !no_approx || not !no_code then
-      printf "Flambda export information:\n"
-    else
-      printf "Flambda unit\n";
-    if not !no_approx then begin
-      let cu =
-        Compilation_unit.create (Ident.create_persistent ui.ui_name)
-          (Linkage_name.create "__dummy__")
-      in
-      Compilation_unit.set_current cu;
-      let root_symbols =
-        List.map (fun s ->
-            Symbol.of_global_linkage cu (Linkage_name.create ("caml"^s)))
-          ui.ui_defines
-      in
-      Format.printf "approximations@ %a@.@."
-        Export_info.print_approx (export, root_symbols)
-    end;
-    if not !no_code then
-      Format.printf "functions@ %a@.@."
-        Export_info.print_functions export
-  end;
-  let pr_funs _ fns =
-    List.iter (fun arity -> printf " %d" arity) fns in
-  printf "Currying functions:%a\n" pr_funs ui.ui_curry_fun;
-  printf "Apply functions:%a\n" pr_funs ui.ui_apply_fun;
-  printf "Send functions:%a\n" pr_funs ui.ui_send_fun;
-  printf "Force link: %s\n" (if ui.ui_force_link then "YES" else "no");
-  printf "For pack: %s\n"
-    (match ui.ui_for_pack with
-     | None -> "no"
-     | Some pack -> "YES: " ^ pack)
-
-let print_cmxa_infos (lib : Cmx_format.library_infos) =
-  printf "Extra C object files:";
-  List.iter print_spaced_string (List.rev lib.lib_ccobjs);
-  printf "\nExtra C options:";
-  List.iter print_spaced_string (List.rev lib.lib_ccopts);
-  printf "\n";
-  List.iter print_cmx_infos lib.lib_units
 
 let print_cmxs_infos header =
   List.iter
@@ -324,7 +269,7 @@ let exit_magic_error ~expected_kind err =
 (* assume that 'ic' is already positioned at the right place
    depending on the format (usually right after the magic number,
    but Exec and Cmxs differ) *)
-let dump_obj_by_kind filename ic obj_kind =
+let dump_obj_by_kind ~cmx ~cmxa filename ic obj_kind =
   let open Magic_number in
   match obj_kind with
     | Cmo ->
@@ -351,15 +296,8 @@ let dump_obj_by_kind filename ic obj_kind =
          | None -> ()
          | Some cmt -> print_cmt_infos cmt
        end
-    | Cmx _config ->
-       let ui = (input_value ic : unit_infos) in
-       let crc = Digest.input ic in
-       close_in ic;
-       print_cmx_infos (ui, crc)
-    | Cmxa _config ->
-       let li = (input_value ic : library_infos) in
-       close_in ic;
-       print_cmxa_infos li
+    | Cmx config -> cmx config ic; close_in ic
+    | Cmxa config -> cmxa config ic; close_in ic
     | Exec ->
        (* no assumptions on [ic] position,
           [dump_byte] will seek at the right place *)
@@ -376,14 +314,14 @@ let dump_obj_by_kind filename ic obj_kind =
                   is currently unsupported by this tool."
          (human_name_of_kind obj_kind)
 
-let dump_obj filename =
+let dump_obj ~cmx ~cmxa filename =
   let open Magic_number in
   let dump_standard ic =
     match read_current_info ~expected_kind:None ic with
       | Error ((Unexpected_error _) as err) ->
          exit_magic_error ~expected_kind:None err
       | Ok { kind; version = _ } ->
-         dump_obj_by_kind filename ic kind;
+         dump_obj_by_kind ~cmx ~cmxa filename ic kind;
          Ok ()
       | Error (Parse_error head_error) ->
          Error head_error
@@ -395,7 +333,7 @@ let dump_obj filename =
       | Error ((Unexpected_error _) as err) ->
          exit_magic_error ~expected_kind err
       | Ok _ ->
-         dump_obj_by_kind filename ic Exec;
+         dump_obj_by_kind ~cmx ~cmxa filename ic Exec;
          Ok ()
       | Error (Parse_error _)  ->
          Error ()
@@ -418,7 +356,7 @@ let dump_obj filename =
               exit_magic_error ~expected_kind (Unexpected_error err)
            | Ok () ->
          LargeFile.seek_in ic offset;
-         dump_obj_by_kind filename ic Cmxs;
+         dump_obj_by_kind ~cmx ~cmxa filename ic Cmxs;
          ()
   in
   if not !quiet then printf "File %s\n" filename;
@@ -444,10 +382,6 @@ let print_version_num () =
 let arg_list = [
   "-quiet", Arg.Set quiet,
     " Only print explicitly required information";
-  "-no-approx", Arg.Set no_approx,
-    " Do not print module approximation information";
-  "-no-code", Arg.Set no_code,
-    " Do not print code from exported flambda functions";
   "-shape", Arg.Set shape,
     " Print the shape of the module";
   "-index", Arg.Set index,
@@ -467,8 +401,6 @@ let arg_list = [
 let arg_usage =
    Printf.sprintf "%s [OPTIONS] FILES : give information on files" Sys.argv.(0)
 
-let main () =
-  Arg.parse_expand arg_list dump_obj arg_usage;
+let main ~cmx ~cmxa extra_arg_list =
+  Arg.parse_expand (extra_arg_list @ arg_list) (dump_obj ~cmx ~cmxa) arg_usage;
   exit 0
-
-let _ = main ()

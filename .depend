@@ -7962,20 +7962,13 @@ tools/make_opcodes.cmi :
 tools/objinfo.cmo : \
     typing/typedtree.cmi \
     bytecomp/symtable.cmi \
-    middle_end/symbol.cmi \
     typing/shape_reduce.cmi \
     typing/shape.cmi \
-    middle_end/printclambda.cmi \
     parsing/pprintast.cmi \
     utils/misc.cmi \
     parsing/location.cmi \
-    middle_end/linkage_name.cmi \
-    typing/ident.cmi \
     utils/format_doc.cmi \
-    middle_end/flambda/export_info.cmi \
-    middle_end/compilation_unit.cmi \
     file_formats/cmxs_format.cmi \
-    file_formats/cmx_format.cmi \
     file_formats/cmt_format.cmi \
     file_formats/cmo_format.cmi \
     file_formats/cmi_format.cmi \
@@ -7985,27 +7978,51 @@ tools/objinfo.cmo : \
 tools/objinfo.cmx : \
     typing/typedtree.cmx \
     bytecomp/symtable.cmx \
-    middle_end/symbol.cmx \
     typing/shape_reduce.cmx \
     typing/shape.cmx \
-    middle_end/printclambda.cmx \
     parsing/pprintast.cmx \
     utils/misc.cmx \
     parsing/location.cmx \
-    middle_end/linkage_name.cmx \
-    typing/ident.cmx \
     utils/format_doc.cmx \
-    middle_end/flambda/export_info.cmx \
-    middle_end/compilation_unit.cmx \
     file_formats/cmxs_format.cmi \
-    file_formats/cmx_format.cmi \
     file_formats/cmt_format.cmx \
     file_formats/cmo_format.cmi \
     file_formats/cmi_format.cmx \
     bytecomp/bytesections.cmx \
     utils/binutils.cmx \
     tools/objinfo.cmi
-tools/objinfo.cmi :
+tools/objinfo.cmi : \
+    utils/misc.cmi
+tools/objinfobyte.cmo : \
+    tools/objinfo.cmi \
+    utils/misc.cmi \
+    tools/objinfobyte.cmi
+tools/objinfobyte.cmx : \
+    tools/objinfo.cmx \
+    utils/misc.cmx \
+    tools/objinfobyte.cmi
+tools/objinfobyte.cmi :
+tools/objinfonat.cmo : \
+    middle_end/symbol.cmi \
+    middle_end/printclambda.cmi \
+    tools/objinfo.cmi \
+    middle_end/linkage_name.cmi \
+    typing/ident.cmi \
+    middle_end/flambda/export_info.cmi \
+    middle_end/compilation_unit.cmi \
+    file_formats/cmx_format.cmi \
+    tools/objinfonat.cmi
+tools/objinfonat.cmx : \
+    middle_end/symbol.cmx \
+    middle_end/printclambda.cmx \
+    tools/objinfo.cmx \
+    middle_end/linkage_name.cmx \
+    typing/ident.cmx \
+    middle_end/flambda/export_info.cmx \
+    middle_end/compilation_unit.cmx \
+    file_formats/cmx_format.cmi \
+    tools/objinfonat.cmi
+tools/objinfonat.cmi :
 tools/ocamlcmt.cmo : \
     typing/untypeast.cmi \
     typing/stypes.cmi \

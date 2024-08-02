@@ -2407,9 +2407,21 @@ beforedepend:: $(addprefix tools/,opnames.ml make_opcodes.ml)
 
 # Display info on compiled files
 
+ocamlobjinfo_COMMON_SOURCES = tools/objinfo.mli tools/objinfo.ml
+
+ifeq "$(NATIVE_COMPILER)" "true"
+
 ocamlobjinfo_LIBRARIES = \
   $(addprefix compilerlibs/,ocamlcommon ocamlbytecomp ocamlmiddleend)
-ocamlobjinfo_SOURCES = tools/objinfo.mli tools/objinfo.ml
+ocamlobjinfo_SOURCES = $(ocamlobjinfo_COMMON_SOURCES) tools/objinfonat.ml
+
+else
+
+ocamlobjinfo_LIBRARIES = \
+  $(addprefix compilerlibs/,ocamlcommon ocamlbytecomp)
+ocamlobjinfo_SOURCES = $(ocamlobjinfo_COMMON_SOURCES) tools/objinfobyte.ml
+
+endif
 
 # Scan object files for required primitives
 
