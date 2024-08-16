@@ -44,6 +44,8 @@ OCAMLTEST_OPT_TARGET = @ocamltest_opt_target@
 
 build_ocamltest = @build_ocamltest@
 
+build_ocamlobjinfo = @build_ocamlobjinfo@
+
 build_ocamltex = @build_ocamltex@
 
 lib_dynlink = @lib_dynlink@

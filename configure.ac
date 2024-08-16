@@ -219,6 +219,7 @@ AC_SUBST([with_ocamldoc])
 AC_SUBST([documentation_tool])
 AC_SUBST([documentation_tool_cmd])
 AC_SUBST([build_ocamltest])
+AC_SUBST([build_ocamlobjinfo])
 AC_SUBST([ocamltest])
 AC_SUBST([ocamltest_target])
 AC_SUBST([ocamltest_opt_target])
@@ -441,6 +442,9 @@ AC_ARG_WITH([odoc],
   [AS_HELP_STRING([--with-odoc],
     [build documentation with odoc])])
 
+AC_ARG_ENABLE([ocamlobjinfo],
+  [AS_HELP_STRING([--disable-ocamlobjinfo],
+    [do not build ocamlobjinfo])])
 
 AC_ARG_ENABLE([ocamltest],
   [AS_HELP_STRING([--disable-ocamltest],
@@ -2478,8 +2482,6 @@ AC_ARG_WITH([odoc],
   [documentation_tool='ocamldoc'])
 AS_IF([test "x$documentation_tool_cmd" = 'x']
  [documentation_tool_cmd="$documentation_tool"])
-
-
 
 AS_CASE([$enable_ocamltest,OCAML__DEVELOPMENT_VERSION],
   [yes,*|,true],
