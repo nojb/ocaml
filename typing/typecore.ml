@@ -3090,6 +3090,8 @@ let rec is_nonexpansive exp =
       is_nonexpansive_mod mexp && is_nonexpansive e
   | Texp_lettype (_, _, e) ->
       is_nonexpansive e
+  | Texp_lettypext (te, e) ->
+      is_nonexpansive_typext te && is_nonexpansive e
   | Texp_pack mexp ->
       is_nonexpansive_mod mexp
   (* Computations which raise exceptions are nonexpansive, since (raise e) is
@@ -3143,15 +3145,18 @@ and is_nonexpansive_mod mexp =
           | Tstr_exception {tyexn_constructor = {ext_kind = Text_rebind _}} ->
               true
           | Tstr_typext te ->
-              List.for_all
-                (function {ext_kind = Text_decl _} -> false
-                        | {ext_kind = Text_rebind _} -> true)
-                te.tyext_constructors
+              is_nonexpansive_typext te
           | Tstr_class _ -> false (* could be more precise *)
           | Tstr_attribute _ -> true
         )
         str.str_items
   | Tmod_apply _ | Tmod_apply_unit _ -> false
+
+and is_nonexpansive_typext te =
+  List.for_all
+    (function {ext_kind = Text_decl _} -> false
+      | {ext_kind = Text_rebind _} -> true)
+    te.tyext_constructors
 
 and is_nonexpansive_opt = function
   | None -> true
@@ -3404,7 +3409,7 @@ let check_partial_application ~statement exp =
                 check e1; check e2
             | Texp_let (_, _, e) | Texp_sequence (_, e) | Texp_open (_, e)
             | Texp_letexception (_, e) | Texp_letmodule (_, _, _, _, e)
-            | Texp_lettype (_, _, e) ->
+            | Texp_lettype (_, _, e) | Texp_lettypext (_, e) ->
                 check e
             | Texp_apply _ | Texp_send _ | Texp_new _ | Texp_letop _ ->
                 Location.prerr_warning exp_loc
@@ -4593,6 +4598,15 @@ and type_expect_
         exp_attributes = sexp.pexp_attributes;
         exp_env = env }
 
+  | Pexp_lettypext (styext, sbody) ->
+      let (tyext, newenv, _shape) = Typedecl.transl_type_extension true env loc styext in
+      let body = type_expect newenv sbody ty_expected_explained in
+      re {
+        exp_desc = Texp_lettypext (tyext, body);
+        exp_loc = loc; exp_extra = [];
+        exp_type = body.exp_type;
+        exp_attributes = sexp.pexp_attributes;
+        exp_env = env }
   | Pexp_assert (e) ->
       let cond = type_expect env e
           (mk_expected ~explanation:Assert_condition Predef.type_bool) in

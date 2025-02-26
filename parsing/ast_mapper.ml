@@ -523,6 +523,8 @@ module E = struct
         lettype ~loc rf
           (List.map (sub.type_declaration sub) td)
           (sub.expr sub e)
+    | Pexp_lettypext (te, e) ->
+        lettypext ~loc (sub.type_extension sub te) (sub.expr sub e)
     | Pexp_assert e -> assert_ ~loc ~attrs (sub.expr sub e)
     | Pexp_lazy e -> lazy_ ~loc ~attrs (sub.expr sub e)
     | Pexp_poly (e, t) ->

@@ -374,6 +374,10 @@ and expression i ppf x =
       line i ppf "Pexp_lettype %a\n" fmt_rec_flag rf;
       list i type_declaration ppf td;
       expression i ppf e
+  | Pexp_lettypext (te, e) ->
+      line i ppf "Pexp_lettypext\n";
+      type_extension i ppf te;
+      expression i ppf e;
   | Pexp_assert (e) ->
       line i ppf "Pexp_assert\n";
       expression i ppf e;

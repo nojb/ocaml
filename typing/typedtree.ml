@@ -139,6 +139,7 @@ and expression_desc =
         expression
   | Texp_letexception of extension_constructor * expression
   | Texp_lettype of rec_flag * type_declaration list * expression
+  | Texp_lettypext of type_extension * expression
   | Texp_assert of expression * Location.t
   | Texp_lazy of expression
   | Texp_object of class_structure * string list

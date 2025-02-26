@@ -415,7 +415,9 @@ and expression_desc =
   | Pexp_letexception of extension_constructor * expression
       (** [let exception C in E] *)
   | Pexp_lettype of rec_flag * type_declaration list * expression
-      (** [let type t = T in E] *)
+      (** [let type t = ... in E] *)
+  | Pexp_lettypext of type_extension * expression
+      (** [let type t += ... in E] *)
   | Pexp_assert of expression
       (** [assert E].
 

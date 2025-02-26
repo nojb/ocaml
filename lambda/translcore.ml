@@ -70,6 +70,22 @@ let transl_extension_constructor ~scopes env path ext =
   | Text_rebind(path, _lid) ->
       transl_extension_path loc env path
 
+let transl_type_extension ~scopes env path tyext body =
+  let field_path path field =
+    match path with
+      None -> None
+    | Some p -> Some(Path.Pdot(p, Ident.name field))
+  in
+  List.fold_right
+    (fun ext body ->
+      let lam =
+        transl_extension_constructor ~scopes env
+          (field_path path ext.ext_id) ext
+      in
+      Llet(Strict, Pgenval, ext.ext_id, lam, body))
+    tyext.tyext_constructors
+    body
+
 (* To propagate structured constants *)
 
 exception Not_constant
@@ -509,6 +525,9 @@ and transl_exp0 ~in_new_scope ~scopes e =
            transl_exp ~scopes body)
   | Texp_lettype (_, _, body) ->
       transl_exp ~scopes body
+  | Texp_lettypext (tyext, body) ->
+      transl_type_extension ~scopes e.exp_env None tyext
+        (transl_exp ~scopes body)
   | Texp_pack modl ->
       !transl_module ~scopes Tcoerce_none None modl
   | Texp_assert ({exp_desc=Texp_construct(_, {cstr_name="false"}, _)}, loc) ->

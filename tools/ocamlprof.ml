@@ -290,6 +290,9 @@ and rw_exp iflag sexp =
   | Pexp_lettype (_rf, _td, exp) ->
       rewrite_exp iflag exp
 
+  | Pexp_lettypext (_te, exp) ->
+      rewrite_exp iflag exp
+
   | Pexp_assert (cond) -> rewrite_exp iflag cond
 
   | Pexp_lazy (expr) -> rewrite_exp iflag expr

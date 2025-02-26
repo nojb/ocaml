@@ -167,7 +167,8 @@ let classify_expression : Typedtree.expression -> sd =
     | Texp_letmodule (None, _, _, _, e)
     | Texp_sequence (_, e)
     | Texp_letexception (_, e)
-    | Texp_lettype (_, _, e) ->
+    | Texp_lettype (_, _, e)
+    | Texp_lettypext (_, e) ->
         classify_expression env e
 
     | Texp_construct (_, {cstr_tag = Cstr_unboxed}, [e]) ->
@@ -814,6 +815,9 @@ let rec expression : Typedtree.expression -> term_judg =
       remove_id ext_id (expression e)
     | Texp_lettype (_, _, e) ->
       expression e
+    | Texp_lettypext ({tyext_constructors = exts; _}, e) ->
+      let ext_ids = List.map (fun {ext_id = id; _} -> id) exts in
+      remove_ids ext_ids (expression e)
     | Texp_assert (e, _) ->
       (*
         G |- e: m[Dereference]

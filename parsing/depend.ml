@@ -249,7 +249,10 @@ let rec add_expr bv exp =
       in
       add_expr bv e
   | Pexp_letexception(_, e) -> add_expr bv e
-  | Pexp_lettype (_, td, e) -> List.iter (add_type_declaration bv) td; add_expr bv e
+  | Pexp_lettype (_, td, e) ->
+      List.iter (add_type_declaration bv) td;
+      add_expr bv e
+  | Pexp_lettypext (te, e) -> add_type_extension bv te; add_expr bv e
   | Pexp_assert (e) -> add_expr bv e
   | Pexp_lazy (e) -> add_expr bv e
   | Pexp_poly (e, t) -> add_expr bv e; add_opt add_type bv t

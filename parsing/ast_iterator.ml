@@ -462,6 +462,9 @@ module E = struct
     | Pexp_lettype (_, td, e) ->
         List.iter (sub.type_declaration sub) td;
         sub.expr sub e
+    | Pexp_lettypext (te, e) ->
+        sub.type_extension sub te;
+        sub.expr sub e
     | Pexp_assert e -> sub.expr sub e
     | Pexp_lazy e -> sub.expr sub e
     | Pexp_poly (e, t) ->

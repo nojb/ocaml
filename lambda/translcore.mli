@@ -37,6 +37,10 @@ val transl_extension_constructor: scopes:scopes ->
   Env.t -> Path.t option ->
   extension_constructor -> lambda
 
+val transl_type_extension: scopes:scopes ->
+  Env.t -> Path.t option ->
+  type_extension -> lambda -> lambda
+
 val transl_scoped_exp : scopes:scopes -> expression -> lambda
 
 type error =

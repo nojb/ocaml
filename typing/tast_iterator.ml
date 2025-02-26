@@ -386,6 +386,9 @@ let expr sub {exp_loc; exp_extra; exp_desc; exp_env; exp_attributes; _} =
   | Texp_lettype (rf, td, exp) ->
       sub.type_declarations sub (rf, td);
       sub.expr sub exp
+  | Texp_lettypext (te, exp) ->
+      sub.type_extension sub te;
+      sub.expr sub exp
   | Texp_assert (exp, _) -> sub.expr sub exp
   | Texp_lazy exp -> sub.expr sub exp
   | Texp_object (cl, _) -> sub.class_structure sub cl

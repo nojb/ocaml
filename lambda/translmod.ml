@@ -60,19 +60,6 @@ let field_path path field =
     None -> None
   | Some p -> Some(Pdot(p, Ident.name field))
 
-(* Compile type extensions *)
-
-let transl_type_extension ~scopes env rootpath tyext body =
-  List.fold_right
-    (fun ext body ->
-      let lam =
-        transl_extension_constructor ~scopes env
-          (field_path rootpath ext.ext_id) ext
-      in
-      Llet(Strict, Pgenval, ext.ext_id, lam, body))
-    tyext.tyext_constructors
-    body
-
 (* Compile a coercion *)
 
 let rec apply_coercion loc strict restr arg =

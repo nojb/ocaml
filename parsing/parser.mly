@@ -2475,6 +2475,9 @@ fun_expr:
   | LET type_declarations IN seq_expr
       { let (rec_flag, ext), td = $2 in
         Pexp_lettype(rec_flag, td, $4), (ext, []) }
+  | LET str_type_extension IN seq_expr
+      { let (te, ext) = $2 in
+        Pexp_lettypext (te, $4), (ext, []) }
   /* Cf #5939: we used to accept (fun p when e0 -> e) */
   | FUN ext_attributes fun_params preceded(COLON, atomic_type)?
       MINUSGREATER fun_body
