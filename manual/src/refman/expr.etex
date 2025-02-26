@@ -63,6 +63,7 @@ expr:
   | 'try' expr 'with' pattern-matching
   | 'let' ['rec'] let-binding { 'and' let-binding } 'in' expr
   | "let" "exception" constr-decl "in" expr
+  | "let" type-definition "in" expr
   | 'let' 'module' module-name { '(' module-name ':' module-type ')' }
     [ ':' module-type ] \\ '=' module-expr 'in' expr
   | '(' expr ':>' typexpr ')'
@@ -578,6 +579,33 @@ exception definition). For instance:
 let gen () = let exception A in A
 
 let () = assert(gen () = gen ());;
+\end{caml_example}
+
+\subsubsection{sss:expr-let-type}{Local types}
+(Introduced in OCaml 5.4)
+
+It is possible to define local types in expressions:
+@ "let" type-definition "in" expr @ .
+
+\begin{caml_example}{toplevel}
+let read_dist () =
+  let type t = {x: float; y: float} in
+  let norm p = p.x ** 2. +. p.y ** 2. in
+  let read () = let x = read_float () in let y = read_float () in {x; y} in
+  let rec loop () =
+    let r = norm (read ()) in if r < 10.0 then r else loop () in
+  loop ();;
+\end{caml_example}
+
+The scope of the type definition is the inner expression, so that it is not
+possible to pass values of the local type as part of the result of the
+expression or as argument to functions defined outside of the local scope.
+
+\begin{caml_example}{toplevel}
+let cannot_work () =
+  let type t = {x: float; y: float} in
+  let x = read_float () and y = read_float () in
+  {x; y} [@@expect error];;
 \end{caml_example}
 
 \subsubsection{sss:expr-explicit-polytype}{Explicit polymorphic type annotations}

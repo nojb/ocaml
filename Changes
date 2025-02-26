@@ -19,6 +19,10 @@ Working version
   (Ryan Tjoa and Chris Casinghino, review by Gabriel Scherer, Chris Casinghino,
   and Leo White)
 
+- #?????: Add local type declarations ("let type t = ... in e") and local type
+  extensions ("let type t += ... in e").
+  (Nicolás Ojeda Bär)
+
 ### Runtime system:
 
 - #13819: Fix field initialisation bug in runtime events subsystem.
