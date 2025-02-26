@@ -2472,6 +2472,9 @@ fun_expr:
       { let open_loc = make_loc ($startpos($2), $endpos($5)) in
         let od = Opn.mk $5 ~override:$3 ~loc:open_loc in
         Pexp_open(od, $7), $4 }
+  | LET type_declarations IN seq_expr
+      { let (rec_flag, ext), td = $2 in
+        Pexp_lettype(rec_flag, td, $4), (ext, []) }
   /* Cf #5939: we used to accept (fun p when e0 -> e) */
   | FUN ext_attributes fun_params preceded(COLON, atomic_type)?
       MINUSGREATER fun_body

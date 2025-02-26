@@ -3088,6 +3088,8 @@ let rec is_nonexpansive exp =
   | Texp_letmodule (_, _, _, mexp, e)
   | Texp_open ({ open_expr = mexp; _}, e) ->
       is_nonexpansive_mod mexp && is_nonexpansive e
+  | Texp_lettype (_, _, e) ->
+      is_nonexpansive e
   | Texp_pack mexp ->
       is_nonexpansive_mod mexp
   (* Computations which raise exceptions are nonexpansive, since (raise e) is
@@ -3401,7 +3403,8 @@ let check_partial_application ~statement exp =
             | Texp_ifthenelse (_, e1, Some e2) ->
                 check e1; check e2
             | Texp_let (_, _, e) | Texp_sequence (_, e) | Texp_open (_, e)
-            | Texp_letexception (_, e) | Texp_letmodule (_, _, _, _, e) ->
+            | Texp_letexception (_, e) | Texp_letmodule (_, _, _, _, e)
+            | Texp_lettype (_, _, e) ->
                 check e
             | Texp_apply _ | Texp_send _ | Texp_new _ | Texp_letop _ ->
                 Location.prerr_warning exp_loc
@@ -4575,6 +4578,16 @@ and type_expect_
       let body = type_expect newenv sbody ty_expected_explained in
       re {
         exp_desc = Texp_letexception(cd, body);
+        exp_loc = loc; exp_extra = [];
+        exp_type = body.exp_type;
+        exp_attributes = sexp.pexp_attributes;
+        exp_env = env }
+
+  | Pexp_lettype (rf, td, sbody) ->
+      let (td, newenv, _shape) = Typedecl.transl_type_decl env rf td in
+      let body = type_expect newenv sbody ty_expected_explained in
+      re {
+        exp_desc = Texp_lettype(rf, td, body);
         exp_loc = loc; exp_extra = [];
         exp_type = body.exp_type;
         exp_attributes = sexp.pexp_attributes;

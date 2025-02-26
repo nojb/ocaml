@@ -186,6 +186,8 @@ module Exp:
     val letexception:
       ?loc:loc -> ?attrs:attrs -> extension_constructor -> expression
       -> expression
+    val lettype:
+      ?loc:loc -> rec_flag -> type_declaration list -> expression -> expression
     val assert_: ?loc:loc -> ?attrs:attrs -> expression -> expression
     val lazy_: ?loc:loc -> ?attrs:attrs -> expression -> expression
     val poly: ?loc:loc -> ?attrs:attrs -> expression -> core_type option

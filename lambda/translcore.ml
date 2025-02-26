@@ -507,6 +507,8 @@ and transl_exp0 ~in_new_scope ~scopes e =
       Llet(Strict, Pgenval,
            cd.ext_id, transl_extension_constructor ~scopes e.exp_env None cd,
            transl_exp ~scopes body)
+  | Texp_lettype (_, _, body) ->
+      transl_exp ~scopes body
   | Texp_pack modl ->
       !transl_module ~scopes Tcoerce_none None modl
   | Texp_assert ({exp_desc=Texp_construct(_, {cstr_name="false"}, _)}, loc) ->

@@ -519,6 +519,10 @@ module E = struct
         letexception ~loc ~attrs
           (sub.extension_constructor sub cd)
           (sub.expr sub e)
+    | Pexp_lettype (rf, td, e) ->
+        lettype ~loc rf
+          (List.map (sub.type_declaration sub) td)
+          (sub.expr sub e)
     | Pexp_assert e -> assert_ ~loc ~attrs (sub.expr sub e)
     | Pexp_lazy e -> lazy_ ~loc ~attrs (sub.expr sub e)
     | Pexp_poly (e, t) ->

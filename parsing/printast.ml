@@ -370,6 +370,10 @@ and expression i ppf x =
       line i ppf "Pexp_letexception\n";
       extension_constructor i ppf cd;
       expression i ppf e;
+  | Pexp_lettype (rf, td, e) ->
+      line i ppf "Pexp_lettype %a\n" fmt_rec_flag rf;
+      list i type_declaration ppf td;
+      expression i ppf e
   | Pexp_assert (e) ->
       line i ppf "Pexp_assert\n";
       expression i ppf e;

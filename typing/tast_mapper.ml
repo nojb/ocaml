@@ -489,6 +489,9 @@ let expr sub x =
           sub.extension_constructor sub cd,
           sub.expr sub exp
         )
+    | Texp_lettype (rf, td, exp) ->
+        let rf, td = sub.type_declarations sub (rf, td) in
+        Texp_lettype (rf, td, sub.expr sub exp)
     | Texp_assert (exp, loc) ->
         Texp_assert (sub.expr sub exp, loc)
     | Texp_lazy exp ->

@@ -447,6 +447,10 @@ and expression i ppf x =
       line i ppf "Texp_letexception\n";
       extension_constructor i ppf cd;
       expression i ppf e;
+  | Texp_lettype (rf, td, e) ->
+      line i ppf "Texp_lettype %a\n" fmt_rec_flag rf;
+      list i type_declaration ppf td;
+      expression i ppf e;
   | Texp_assert (e, _) ->
       line i ppf "Texp_assert";
       expression i ppf e;
