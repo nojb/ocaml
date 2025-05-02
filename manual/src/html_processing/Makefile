@@ -18,12 +18,20 @@ WEBDIRMAN = $(WEBDIR)/$(VERSION)
 WEBDIRAPI = $(WEBDIRMAN)/api
 WEBDIRCOMP = $(WEBDIRAPI)/compilerlibref
 
+# Whether to add pre-release disclaimer to generated web pages
+DISCLAIMER ?= 0
+ifeq ($(DISCLAIMER), 1)
+    DISCL=disclaimer
+else
+    DISCL=
+endif
+
 # The "all" target generates the Web Manual in the directories
 # ../webman/manual, ../webman/api, and ../webman/api/compilerlibref
 all: css js img
-	$(DUNE) exec --root=. src/process_manual.exe $(DBG)
-	$(DUNE) exec --root=. src/process_api.exe overwrite $(DBG)
-	$(DUNE) exec --root=. src/process_api.exe compiler overwrite $(DBG)
+	$(DUNE) exec --root=. src/process_manual.exe $(DISCL) $(DBG)
+	$(DUNE) exec --root=. src/process_api.exe overwrite $(DISCL) $(DBG)
+	$(DUNE) exec --root=. src/process_api.exe compiler overwrite $(DISCL) $(DBG)
 
 $(WEBDIR)/%:
 	mkdir -p $@

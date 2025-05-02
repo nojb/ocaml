@@ -16,7 +16,8 @@ let compiler_libref = ref false
 type config = {
   src_dir : string;
   dst_dir : string;
-  title : string
+  title : string;
+  disclaimer : bool
 }
 
 (* HTML code for the search widget. We don't add the "onchange" event because it
@@ -178,6 +179,9 @@ let process ?(search=true) ~version config file out =
   (* Add left sidebar with TOC *)
   let title = soup $ "title" |> R.leaf_text in
   make_toc ~version ~search file config title body;
+
+  (* Add pre-release disclaimer *)
+  if config.disclaimer then prepend_child body (disclaimer ());
 
   dbg "Saving %s..." out;
 
@@ -387,11 +391,14 @@ let copy_files config =
 let () =
   let version = find_version () in
   let args = Sys.argv |> Array.to_list |> List.tl in
+  let disclaimer = List.mem "disclaimer" args in
   let config = if List.mem "compiler" args
     then { src_dir = html_maindir // "compilerlibref";
-           dst_dir = api_dir // "compilerlibref"; title = "Compiler "}
+           dst_dir = api_dir // "compilerlibref"; title = "Compiler ";
+           disclaimer }
     else { src_dir = html_maindir // "libref";
-           dst_dir = api_dir; title = ""} in
+           dst_dir = api_dir; title = "";
+           disclaimer } in
   let overwrite = List.mem "overwrite" args in
   let makeindex = List.mem "makeindex" args in
   let makehtml = List.mem "html" args || not makeindex in

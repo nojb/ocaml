@@ -436,10 +436,14 @@ let get_xfiles = function
             rf::list
           end else list) []
 
+type config = {
+  disclaimer : bool
+}
+
 (* This is the main script for processing a specified file. [convert] has to be
    run for each "entry" [file] of the manual, making a "Chapter". (The list of
    [chapters] corresponds to a "Part" of the manual.) *)
-let convert version (part_title, chapters) toc_table (file, title) =
+let convert config version (part_title, chapters) toc_table (file, title) =
   dbg "%s ==> %s" (html_file file) (docs_file file);
 
   (* Parse html *)
@@ -471,6 +475,9 @@ let convert version (part_title, chapters) toc_table (file, title) =
   (* Move authors to the end *)
   move_authors body;
 
+  (* Add pre-release disclaimer *)
+  if config.disclaimer then prepend_child body (disclaimer ());
+
   (* Bottom navigation links *)
   update_navigation soup toc_table;
 
@@ -489,7 +496,7 @@ let convert version (part_title, chapters) toc_table (file, title) =
 
 (* Completely process the given version of the manual. Returns the names of the
    main html files. *)
-let process version =
+let process config version =
   print_endline (sprintf "\nProcessing version %s into %s...\n" version docs_maindir);
 
   dbg "Current directory is: %s" (Sys.getcwd ());
@@ -498,11 +505,11 @@ let process version =
   let toc_table, all_chapters = parse_toc () in
 
   (* special case of the "index.html" file: *)
-  convert version ("", []) toc_table ("index.html", "The OCaml Manual");
+  convert config version ("", []) toc_table ("index.html", "The OCaml Manual");
 
   let main_files = List.fold_left (fun list (part_title, chapters) ->
       dbg "* Processing chapters for %s" part_title;
-      List.iter (convert version (part_title, chapters) toc_table) chapters;
+      List.iter (convert config version (part_title, chapters) toc_table) chapters;
       (fst (List.hd chapters)) :: list) [] all_chapters in
 
   main_files
@@ -510,7 +517,8 @@ let process version =
 (******************************************************************************)
 
 let () =
-  let _list = process (find_version ()) in
+  let disclaimer = Array.mem "disclaimer" Sys.argv in
+  let _list = process { disclaimer } (find_version ()) in
   print_endline "DONE."
 
 (*

@@ -126,6 +126,15 @@ let add_sidebar_button body =
   |> prepend_child btn;
   prepend_child body btn
 
+let disclaimer () =
+  let container = create_element ~id:"disclaimer" "div" in
+  let content =
+    {|<strong>WARNING:</strong> This is a pre-release version of the OCaml manual.
+For the released versions, please visit <a href="https://ocaml.org/manual">https://ocaml.org/manual</a>.|}
+  in
+  append_child container (parse content);
+  container
+
 let find_version () = "@OCAML_VERSION_SHORT@"
 
 (*
