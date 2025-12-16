@@ -62,6 +62,9 @@ struct caml_intern_state {
   const unsigned char * intern_src;
   /* Reading pointer in block holding input data. */
 
+  const unsigned char * intern_src_end;
+  /* Pointer to the end of the readable data. */
+
   unsigned char * intern_input;
   /* Pointer to beginning of block holding input data,
     if non-NULL this pointer will be freed by the cleanup function.
@@ -110,6 +113,7 @@ static struct caml_intern_state* init_intern_state (void)
   s = caml_stat_alloc(sizeof(struct caml_intern_state));
 
   s->intern_src = NULL;
+  s->intern_src_end = NULL;
   s->intern_input = NULL;
   s->obj_counter = 0;
   s->intern_obj_table = NULL;
@@ -141,19 +145,36 @@ void caml_free_intern_state (void)
   }
 }
 
+static void intern_cleanup(struct caml_intern_state* s);
 static char * intern_resolve_code_pointer(unsigned char digest[16],
                                           asize_t offset);
 
 CAMLnoret static void intern_bad_code_pointer(unsigned char digest[16]);
 
+Caml_inline void intern_check_read(struct caml_intern_state* s, uintnat len)
+{
+  if (CAMLunlikely(s->intern_src > s->intern_src_end ||
+                   len + s->intern_src > s->intern_src_end)) {
+    intern_cleanup(s);
+    caml_failwith("input_value: invalid read");
+  }
+}
+
 Caml_inline unsigned char read8u(struct caml_intern_state* s)
-{ return *s->intern_src++; }
+{
+  intern_check_read(s, 1);
+  return *s->intern_src++;
+}
 
 Caml_inline signed char read8s(struct caml_intern_state* s)
-{ return *s->intern_src++; }
+{
+  intern_check_read(s, 1);
+  return *s->intern_src++;
+}
 
 Caml_inline uint16_t read16u(struct caml_intern_state* s)
 {
+  intern_check_read(s, 2);
   uint16_t res = (s->intern_src[0] << 8) + s->intern_src[1];
   s->intern_src += 2;
   return res;
@@ -161,6 +182,7 @@ Caml_inline uint16_t read16u(struct caml_intern_state* s)
 
 Caml_inline int16_t read16s(struct caml_intern_state* s)
 {
+  intern_check_read(s, 2);
   int16_t res = (s->intern_src[0] << 8) + s->intern_src[1];
   s->intern_src += 2;
   return res;
@@ -168,6 +190,7 @@ Caml_inline int16_t read16s(struct caml_intern_state* s)
 
 Caml_inline uint32_t read32u(struct caml_intern_state* s)
 {
+  intern_check_read(s, 4);
   uint32_t res =
     ((uint32_t)(s->intern_src[0]) << 24) + (s->intern_src[1] << 16)
     + (s->intern_src[2] << 8) + s->intern_src[3];
@@ -177,6 +200,7 @@ Caml_inline uint32_t read32u(struct caml_intern_state* s)
 
 Caml_inline int32_t read32s(struct caml_intern_state* s)
 {
+  intern_check_read(s, 4);
   int32_t res =
     ((uint32_t)(s->intern_src[0]) << 24) + (s->intern_src[1] << 16)
     + (s->intern_src[2] << 8) + s->intern_src[3];
@@ -187,6 +211,7 @@ Caml_inline int32_t read32s(struct caml_intern_state* s)
 #ifdef ARCH_SIXTYFOUR
 static uintnat read64u(struct caml_intern_state* s)
 {
+  intern_check_read(s, 8);
   uintnat res =
     ((uintnat) (s->intern_src[0]) << 56)
     + ((uintnat) (s->intern_src[1]) << 48)
@@ -217,14 +242,15 @@ static int readvlq(struct caml_intern_state* s, /*out*/ uintnat * res)
 }
 
 Caml_inline void readblock(struct caml_intern_state* s,
-                           void * dest, intnat len)
+                           void * dest, uintnat len)
 {
+  intern_check_read(s, len);
   memcpy(dest, s->intern_src, len);
   s->intern_src += len;
 }
 
 static void intern_init(struct caml_intern_state* s, const void * src,
-                        void * input)
+                        uintnat len, void * input)
 {
   CAMLassert (s);
   /* This is asserted at the beginning of demarshaling primitives.
@@ -233,6 +259,7 @@ static void intern_init(struct caml_intern_state* s, const void * src,
   CAMLassert(s->intern_input == NULL);
   CAMLassert(s->intern_obj_table == NULL);
   s->intern_src = src;
+  s->intern_src_end = s->intern_src + len;
   s->intern_input = input;
 }
 
@@ -848,6 +875,7 @@ static void intern_decompress_input(struct caml_intern_state * s,
     if (s->intern_input != NULL) free(s->intern_input);
     s->intern_input = blk;  /* to be freed at end of demarshaling */
     s->intern_src = blk;
+    s->intern_src_end = s->intern_src + h->uncompressed_data_len;
   } else {
     intern_cleanup(s);
     intern_failwith2(fun_name, "compressed object, cannot decompress");
@@ -873,6 +901,7 @@ value caml_input_val(struct channel *chan)
   else if (r < 5)
     caml_failwith("input_value: truncated object");
   s->intern_src = (unsigned char *) header;
+  s->intern_src_end = s->intern_src + 5;
   int hlen;
   switch (read32u(s)) {
   case Intext_magic_number_big:
@@ -888,6 +917,7 @@ value caml_input_val(struct channel *chan)
     caml_failwith("input_value: truncated object");
   /* Parse the full header */
   s->intern_src = (unsigned char *) header;
+  s->intern_src_end = s->intern_src + hlen;
   caml_parse_header(s, "input_value", &h);
   /* Read block from channel */
   /* During channel I/O, concurrent [caml_input_val] operations
@@ -903,7 +933,7 @@ value caml_input_val(struct channel *chan)
     caml_failwith("input_value: truncated object");
   }
   /* Initialize global state */
-  intern_init(s, block, block);
+  intern_init(s, block, h.data_len, block);
   intern_decompress_input(s, "input_value", &h);
   intern_alloc_storage(s, h.whsize, h.num_objects);
   /* Fill it in - obj must NOT be registered as a GC root */
@@ -939,13 +969,14 @@ CAMLexport value caml_input_val_from_bytes(value str, intnat ofs)
   struct caml_intern_state* s = init_intern_state ();
 
   /* Initialize global state */
-  intern_init(s, &Byte_u(str, ofs), NULL);
+  intern_init(s, &Byte_u(str, ofs), caml_string_length(str) - ofs, NULL);
   caml_parse_header(s, "input_val_from_string", &h);
   if (ofs + h.header_len + h.data_len > caml_string_length(str))
     caml_failwith("input_val_from_string: bad length");
   /* Allocate result */
   intern_alloc_storage(s, h.whsize, h.num_objects);
   s->intern_src = &Byte_u(str, ofs + h.header_len); /* If a GC occurred */
+  s->intern_src_end = s->intern_src + h.data_len;
   /* Decompress if needed */
   intern_decompress_input(s, "input_val_from_string", &h);
   /* Fill it in - obj must NOT be registered as a GC root */
@@ -977,8 +1008,9 @@ CAMLexport value caml_input_value_from_malloc(char * data, intnat ofs)
   struct marshal_header h;
   struct caml_intern_state* s = init_intern_state ();
 
-  intern_init(s, data + ofs, data);
+  intern_init(s, data + ofs, MAX_INTEXT_HEADER_SIZE, data);
   caml_parse_header(s, "input_value_from_malloc", &h);
+  s->intern_src_end = s->intern_src + h.data_len;
   return input_val_from_block(s, &h);
 }
 
@@ -989,10 +1021,11 @@ CAMLexport value caml_input_value_from_block(const char * data, intnat len)
   struct caml_intern_state* s = init_intern_state ();
 
   /* Initialize global state */
-  intern_init(s, data, NULL);
+  intern_init(s, data, len, NULL);
   caml_parse_header(s, "input_value_from_block", &h);
   if (h.header_len + h.data_len > len)
     caml_failwith("input_val_from_block: bad length");
+  s->intern_src_end = s->intern_src + h.data_len;
   return input_val_from_block(s, &h);
 }
 
@@ -1019,6 +1052,7 @@ CAMLprim value caml_marshal_data_size(value buff, value ofs)
   struct caml_intern_state *s = init_intern_state ();
 
   s->intern_src = &Byte_u(buff, Long_val(ofs));
+  s->intern_src_end = s->intern_src + caml_string_length(buff) - Long_val(ofs);
   magic = read32u(s);
   switch(magic) {
   case Intext_magic_number_small:
@@ -1142,6 +1176,7 @@ CAMLexport double caml_deserialize_float_8(void)
 CAMLexport void caml_deserialize_block_1(void * data, intnat len)
 {
   struct caml_intern_state* s = get_intern_state ();
+  intern_check_read(s, len);
   memcpy(data, s->intern_src, len);
   s->intern_src += len;
 }
@@ -1149,6 +1184,7 @@ CAMLexport void caml_deserialize_block_1(void * data, intnat len)
 CAMLexport void caml_deserialize_block_2(void * data, intnat len)
 {
   struct caml_intern_state* s = get_intern_state ();
+  intern_check_read(s, len * 2);
 #ifndef ARCH_BIG_ENDIAN
   const unsigned char * p, * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 2, q += 2)
@@ -1163,6 +1199,7 @@ CAMLexport void caml_deserialize_block_2(void * data, intnat len)
 CAMLexport void caml_deserialize_block_4(void * data, intnat len)
 {
   struct caml_intern_state* s = get_intern_state ();
+  intern_check_read(s, len * 4);
 #ifndef ARCH_BIG_ENDIAN
   const unsigned char * p, * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 4, q += 4)
@@ -1177,6 +1214,7 @@ CAMLexport void caml_deserialize_block_4(void * data, intnat len)
 CAMLexport void caml_deserialize_block_8(void * data, intnat len)
 {
   struct caml_intern_state* s = get_intern_state ();
+  intern_check_read(s, len * 8);
 #ifndef ARCH_BIG_ENDIAN
   const unsigned char * p, * q;
   for (p = s->intern_src, q = data; len > 0; len--, p += 8, q += 8)
@@ -1191,6 +1229,7 @@ CAMLexport void caml_deserialize_block_8(void * data, intnat len)
 CAMLexport void caml_deserialize_block_float_8(void * data, intnat len)
 {
   struct caml_intern_state* s = get_intern_state ();
+  intern_check_read(s, len * 8);
 #if ARCH_FLOAT_ENDIANNESS == 0x01234567
   memcpy(data, s->intern_src, len * 8);
   s->intern_src += len * 8;
