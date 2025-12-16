@@ -705,6 +705,12 @@ static void intern_rec(struct caml_intern_state* s,
       case CODE_CUSTOM_FIXED: {
         uintnat expected_size, temp_size;
         const char * name = (const char *) s->intern_src;
+        const unsigned char * name_end =
+          memchr(name, 0, s->intern_src_end - s->intern_src);
+        if (name_end == NULL) {
+          intern_cleanup(s);
+          intern_failwith2(fun_name, "unterminated custom block identifier");
+        }
         ops = caml_find_custom_operations(name);
         if (ops == NULL) {
           intern_cleanup_failwith3
@@ -714,7 +720,7 @@ static void intern_rec(struct caml_intern_state* s,
           intern_cleanup_failwith3
             (s, fun_name, "expected a fixed-size custom block", name);
         }
-        while (*s->intern_src++ != 0) /*nothing*/;  /*skip identifier*/
+        s->intern_src = name_end + 1; /*skip identifier*/
 #ifdef ARCH_SIXTYFOUR
         if (code == CODE_CUSTOM_FIXED) {
           expected_size = ops->fixed_length->bsize_64;
