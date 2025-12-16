@@ -79,6 +79,9 @@ struct caml_intern_state {
   value * intern_obj_table;
   /* The pointers to objects already seen */
 
+  uintnat intern_num_objects;
+  /* How many objects are expected (from the header) */
+
   struct intern_item intern_stack_init[INTERN_STACK_INIT_SIZE];
   /* The initial intern stack */
 
@@ -116,6 +119,7 @@ static struct caml_intern_state* init_intern_state (void)
   s->intern_src_end = NULL;
   s->intern_input = NULL;
   s->obj_counter = 0;
+  s->intern_num_objects = 0;
   s->intern_obj_table = NULL;
   s->intern_dest = NULL;
   init_intern_stack(s);
@@ -157,6 +161,17 @@ Caml_inline void intern_check_read(struct caml_intern_state* s, uintnat len)
                    len + s->intern_src > s->intern_src_end)) {
     intern_cleanup(s);
     caml_failwith("input_value: invalid read");
+  }
+}
+
+Caml_inline void intern_record_obj(struct caml_intern_state* s, value v)
+{
+  if (s->intern_obj_table != NULL) {
+    if (CAMLunlikely(s->obj_counter >= s->intern_num_objects)) {
+      intern_cleanup(s);
+      caml_failwith("input_value: too many objects");
+    }
+    s->intern_obj_table[s->obj_counter++] = v;
   }
 }
 
@@ -281,6 +296,7 @@ static void intern_cleanup(struct caml_intern_state* s)
   if (s->intern_obj_table != NULL) {
     caml_stat_free(s->intern_obj_table);
     s->intern_obj_table = NULL;
+    s->intern_num_objects = 0;
   }
   s->intern_dest = NULL;
   /* free the recursion stack */
@@ -430,6 +446,7 @@ static void intern_alloc_storage(struct caml_intern_state* s, mlsize_t whsize,
   } else {
     CAMLassert (s->intern_dest == NULL);
   }
+  s->intern_num_objects = num_objects;
   s->obj_counter = 0;
   if (num_objects > 0) {
     s->intern_obj_table =
@@ -532,8 +549,7 @@ static void intern_rec(struct caml_intern_state* s,
         v = Atom(tag);
       } else {
         v = intern_alloc_obj (s, d, size, tag);
-        if (s->intern_obj_table != NULL)
-          s->intern_obj_table[s->obj_counter++] = v;
+        intern_record_obj(s, v);
         /* For objects, we need to freshen the oid */
         if (tag == Object_tag) {
           CAMLassert(size >= 2);
@@ -561,8 +577,7 @@ static void intern_rec(struct caml_intern_state* s,
     read_string:
       size = (len + sizeof(value)) / sizeof(value);
       v = intern_alloc_obj (s, d, size, String_tag);
-      if (s->intern_obj_table != NULL)
-        s->intern_obj_table[s->obj_counter++] = v;
+      intern_record_obj(s, v);
       Field(v, size - 1) = 0;
       ofs_ind = Bsize_wsize(size) - 1;
       Byte(v, ofs_ind) = ofs_ind - len;
@@ -632,8 +647,7 @@ static void intern_rec(struct caml_intern_state* s,
       case CODE_DOUBLE_LITTLE:
       case CODE_DOUBLE_BIG:
         v = intern_alloc_obj (s, d, Double_wosize, Double_tag);
-        if (s->intern_obj_table != NULL)
-          s->intern_obj_table[s->obj_counter++] = v;
+        intern_record_obj(s, v);
         readfloat(s, (double *) v, code);
         break;
       case CODE_DOUBLE_ARRAY8_LITTLE:
@@ -642,8 +656,7 @@ static void intern_rec(struct caml_intern_state* s,
       read_double_array:
         size = len * Double_wosize;
         v = intern_alloc_obj (s, d, size, Double_array_tag);
-        if (s->intern_obj_table != NULL)
-          s->intern_obj_table[s->obj_counter++] = v;
+        intern_record_obj(s, v);
         readfloats(s, (double *) v, len, code);
         break;
       case CODE_DOUBLE_ARRAY32_LITTLE:
@@ -725,8 +738,7 @@ static void intern_rec(struct caml_intern_state* s,
           intern_cleanup_failwith3
             (s, fun_name, "error while deserializing custom block", name);
         }
-        if (s->intern_obj_table != NULL)
-          s->intern_obj_table[s->obj_counter++] = v;
+        intern_record_obj(s, v);
         if (ops->finalize != NULL && Is_young(v)) {
           /* Remember that the block has a finalizer. */
           add_to_custom_table (&d->minor_tables->custom, v, 0, 1);
