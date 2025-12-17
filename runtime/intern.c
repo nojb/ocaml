@@ -615,8 +615,10 @@ static void intern_rec(struct caml_intern_state* s,
         ofs = read8u(s);
       read_shared:
         if (!s->compressed) ofs = s->obj_counter - ofs;
-        CAMLassert (ofs < s->obj_counter);
-        CAMLassert (s->intern_obj_table != NULL);
+        if (ofs >= s->obj_counter || s->intern_obj_table == NULL) {
+          intern_cleanup(s);
+          intern_failwith2(fun_name, "invalid shared reference");
+        }
         v = s->intern_obj_table[ofs];
         break;
       case CODE_SHARED16:
