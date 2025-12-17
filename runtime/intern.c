@@ -94,6 +94,8 @@ struct caml_intern_state {
   /* Writing pointer in destination block. Only used when the object fits in
      the minor heap. */
 
+  header_t * intern_dest_end;
+
   char compressed;
   /* 1 if the compressed format is in use, 0 otherwise */
 };
@@ -122,6 +124,7 @@ static struct caml_intern_state* init_intern_state (void)
   s->intern_num_objects = 0;
   s->intern_obj_table = NULL;
   s->intern_dest = NULL;
+  s->intern_dest_end = NULL;
   init_intern_stack(s);
 
   Caml_state->intern_state = s;
@@ -299,6 +302,7 @@ static void intern_cleanup(struct caml_intern_state* s)
     s->intern_num_objects = 0;
   }
   s->intern_dest = NULL;
+  s->intern_dest_end = NULL;
   /* free the recursion stack */
   intern_free_stack(s);
 }
@@ -443,6 +447,7 @@ static void intern_alloc_storage(struct caml_intern_state* s, mlsize_t whsize,
      * individual block allocations are tracked instead */
     Alloc_small(v, wosize, String_tag, Alloc_small_enter_GC_no_track);
     s->intern_dest = (header_t *) Hp_val(v);
+    s->intern_dest_end = s->intern_dest + whsize;
   } else {
     CAMLassert (s->intern_dest == NULL);
   }
@@ -475,6 +480,10 @@ static value intern_alloc_obj(struct caml_intern_state* s, caml_domain_state* d,
     caml_memprof_sample_block(Val_hp(p), wosize, 1 + wosize,
                               CAML_MEMPROF_SRC_MARSHAL);
     s->intern_dest += 1 + wosize;
+    if (CAMLunlikely(s->intern_dest_end < s->intern_dest)) {
+      intern_cleanup(s);
+      caml_failwith("input_value: invalid allocation");
+    }
   } else {
     p = caml_shared_try_alloc(d->shared_heap, wosize, tag,
                               0 /* no reserved bits */);
