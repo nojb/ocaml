@@ -472,6 +472,10 @@ static value intern_alloc_obj(struct caml_intern_state* s, caml_domain_state* d,
 {
   void* p;
 
+  if (CAMLunlikely(wosize > Max_wosize)) {
+    intern_cleanup(s);
+    caml_failwith("input_value: block size too large");
+  }
   if (s->intern_dest) {
     CAMLassert ((value*)s->intern_dest >= d->young_start &&
                 (value*)s->intern_dest < d->young_end);
