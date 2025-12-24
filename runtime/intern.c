@@ -588,6 +588,10 @@ static void intern_rec(struct caml_intern_state* s,
       /* Small string */
       len = (code & 0x1F);
     read_string:
+      if (len > UINTPTR_MAX - sizeof(value)) {
+        intern_cleanup(s);
+        intern_failwith2(fun_name, "string too large");
+      }
       size = (len + sizeof(value)) / sizeof(value);
       v = intern_alloc_obj (s, d, size, String_tag);
       intern_record_obj(s, v);
