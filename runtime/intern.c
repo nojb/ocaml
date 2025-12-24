@@ -313,6 +313,21 @@ CAMLnoret static void intern_failwith2(const char * fun_name, const char * msg)
 }
 
 CAMLnoret static void
+intern_cleanup_failwith(struct caml_intern_state* s, const char * msg)
+{
+  intern_cleanup(s);
+  caml_failwith(msg);
+}
+
+CAMLnoret static void
+intern_cleanup_failwith2(struct caml_intern_state* s, const char * fun_name,
+                         const char * msg)
+{
+  intern_cleanup(s);
+  intern_failwith2(fun_name, msg);
+}
+
+CAMLnoret static void
 intern_cleanup_failwith3(struct caml_intern_state* s, const char * fun_name,
                          const char * msg, const char * arg)
 {
@@ -473,8 +488,7 @@ static value intern_alloc_obj(struct caml_intern_state* s, caml_domain_state* d,
   void* p;
 
   if (CAMLunlikely(wosize > Max_wosize)) {
-    intern_cleanup(s);
-    caml_failwith("input_value: block size too large");
+    intern_cleanup_failwith(s, "input_value: block size too large");
   }
   if (s->intern_dest) {
     CAMLassert ((value*)s->intern_dest >= d->young_start &&
@@ -485,8 +499,7 @@ static value intern_alloc_obj(struct caml_intern_state* s, caml_domain_state* d,
                               CAML_MEMPROF_SRC_MARSHAL);
     s->intern_dest += 1 + wosize;
     if (CAMLunlikely(s->intern_dest_end < s->intern_dest)) {
-      intern_cleanup(s);
-      caml_failwith("input_value: invalid allocation");
+      intern_cleanup_failwith(s, "input_value: invalid allocation");
     }
   } else {
     p = caml_shared_try_alloc(d->shared_heap, wosize, tag,
@@ -589,8 +602,7 @@ static void intern_rec(struct caml_intern_state* s,
       len = (code & 0x1F);
     read_string:
       if (len > UINTPTR_MAX - sizeof(value)) {
-        intern_cleanup(s);
-        intern_failwith2(fun_name, "string too large");
+        intern_cleanup_failwith2(s, fun_name, "string too large");
       }
       size = (len + sizeof(value)) / sizeof(value);
       v = intern_alloc_obj (s, d, size, String_tag);
@@ -615,8 +627,7 @@ static void intern_rec(struct caml_intern_state* s,
         v = Val_long((intnat) (read64u(s)));
         break;
 #else
-        intern_cleanup(s);
-        intern_failwith2(fun_name, "integer too large");
+        intern_cleanup_failwith2(s, fun_name, "integer too large");
         break;
 #endif
       case CODE_SHARED8:
@@ -624,8 +635,7 @@ static void intern_rec(struct caml_intern_state* s,
       read_shared:
         if (!s->compressed) ofs = s->obj_counter - ofs;
         if (ofs >= s->obj_counter || s->intern_obj_table == NULL) {
-          intern_cleanup(s);
-          intern_failwith2(fun_name, "invalid shared reference");
+          intern_cleanup_failwith2(s, fun_name, "invalid shared reference");
         }
         v = s->intern_obj_table[ofs];
         break;
@@ -716,9 +726,8 @@ static void intern_rec(struct caml_intern_state* s,
         ReadItems(s, dest, 1);
         continue;  /* with next iteration of main loop, skipping *dest = v */
       case OLD_CODE_CUSTOM:
-        intern_cleanup(s);
-        intern_failwith2(fun_name, "custom blocks serialized with "
-                         "OCaml 4.08.0 (or prior) are no longer supported");
+        intern_cleanup_failwith2(s, fun_name, "custom blocks serialized with "
+                                 "OCaml 4.08.0 (or prior) are no longer supported");
         break;
       case CODE_CUSTOM_LEN:
       case CODE_CUSTOM_FIXED: {
@@ -727,8 +736,7 @@ static void intern_rec(struct caml_intern_state* s,
         const unsigned char * name_end =
           memchr(name, 0, s->intern_src_end - s->intern_src);
         if (name_end == NULL) {
-          intern_cleanup(s);
-          intern_failwith2(fun_name, "unterminated custom block identifier");
+          intern_cleanup_failwith2(s, fun_name, "unterminated custom block identifier");
         }
         ops = caml_find_custom_operations(name);
         if (ops == NULL) {
@@ -773,8 +781,7 @@ static void intern_rec(struct caml_intern_state* s,
         break;
       }
       default:
-        intern_cleanup(s);
-        intern_failwith2(fun_name, "ill-formed message");
+        intern_cleanup_failwith2(s, fun_name, "ill-formed message");
       }
     }
   }
@@ -908,16 +915,14 @@ static void intern_decompress_input(struct caml_intern_state * s,
                                    h->data_len);
     if (res != h->uncompressed_data_len) {
       free(blk);
-      intern_cleanup(s);
-      intern_failwith2(fun_name, "decompression error");
+      intern_cleanup_failwith2(s, fun_name, "decompression error");
     }
     if (s->intern_input != NULL) free(s->intern_input);
     s->intern_input = blk;  /* to be freed at end of demarshaling */
     s->intern_src = blk;
     s->intern_src_end = s->intern_src + h->uncompressed_data_len;
   } else {
-    intern_cleanup(s);
-    intern_failwith2(fun_name, "compressed object, cannot decompress");
+    intern_cleanup_failwith2(s, fun_name, "compressed object, cannot decompress");
   }
 }
 
@@ -1288,6 +1293,5 @@ CAMLexport void caml_deserialize_block_float_8(void * data, intnat len)
 CAMLexport void caml_deserialize_error(const char * msg)
 {
   struct caml_intern_state* s = get_intern_state ();
-  intern_cleanup(s);
-  caml_failwith(msg);
+  intern_cleanup_failwith(s, msg);
 }
