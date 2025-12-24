@@ -744,6 +744,7 @@ static void intern_rec(struct caml_intern_state* s,
         if (code == CODE_CUSTOM_FIXED) {
           expected_size = ops->fixed_length->bsize_64;
         } else {
+          intern_check_read(s, 4);
           s->intern_src += 4;
           expected_size = read64u(s);
         }
@@ -752,6 +753,7 @@ static void intern_rec(struct caml_intern_state* s,
           expected_size = ops->fixed_length->bsize_32;
         } else {
           expected_size = read32u(s);
+          intern_check_read(s, 8);
           s->intern_src += 8;
         }
 #endif
