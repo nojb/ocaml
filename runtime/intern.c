@@ -160,8 +160,7 @@ CAMLnoret static void intern_bad_code_pointer(unsigned char digest[16]);
 
 Caml_inline void intern_check_read(struct caml_intern_state* s, uintnat len)
 {
-  if (CAMLunlikely(s->intern_src > s->intern_src_end ||
-                   len + s->intern_src > s->intern_src_end)) {
+  if (CAMLunlikely(len > s->intern_src_end - s->intern_src)) {
     intern_cleanup(s);
     caml_failwith("input_value: invalid read");
   }
