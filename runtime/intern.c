@@ -152,7 +152,7 @@ void caml_free_intern_state (void)
   }
 }
 
-static void intern_cleanup(struct caml_intern_state* s);
+CAMLnoret static void intern_cleanup_failwith(struct caml_intern_state* s, const char * msg);
 static char * intern_resolve_code_pointer(unsigned char digest[16],
                                           asize_t offset);
 
@@ -161,8 +161,7 @@ CAMLnoret static void intern_bad_code_pointer(unsigned char digest[16]);
 Caml_inline void intern_check_read(struct caml_intern_state* s, uintnat len)
 {
   if (CAMLunlikely(len > s->intern_src_end - s->intern_src)) {
-    intern_cleanup(s);
-    caml_failwith("input_value: invalid read");
+    intern_cleanup_failwith(s, "input_value: invalid read");
   }
 }
 
@@ -170,8 +169,7 @@ Caml_inline void intern_record_obj(struct caml_intern_state* s, value v)
 {
   if (s->intern_obj_table != NULL) {
     if (CAMLunlikely(s->obj_counter >= s->intern_num_objects)) {
-      intern_cleanup(s);
-      caml_failwith("input_value: too many objects");
+      intern_cleanup_failwith(s, "input_value: too many objects");
     }
     s->intern_obj_table[s->obj_counter++] = v;
   }
