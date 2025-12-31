@@ -2322,6 +2322,7 @@ ocamlprof_SOURCES = \
   builtin_attributes.mli builtin_attributes.ml \
   camlinternalMenhirLib.mli camlinternalMenhirLib.ml \
   parser.mli parser.ml \
+  parser2.mli parser2.ml \
   lexer.mli lexer.ml \
   pprintast.mli pprintast.ml \
   parse.mli parse.ml \
