@@ -1044,12 +1044,12 @@ static value input_val_from_block(struct caml_intern_state* s,
   return (intern_end(s, obj));
 }
 
-CAMLexport value caml_input_value_from_malloc(char * data, intnat ofs)
+CAMLexport value caml_input_value_from_malloc(char * data, intnat ofs, intnat len)
 {
   struct marshal_header h;
   struct caml_intern_state* s = init_intern_state ();
 
-  intern_init(s, data + ofs, MAX_INTEXT_HEADER_SIZE, data);
+  intern_init(s, data + ofs, len, data);
   caml_parse_header(s, "input_value_from_malloc", &h);
   s->intern_src_end = s->intern_src + h.data_len;
   return input_val_from_block(s, &h);

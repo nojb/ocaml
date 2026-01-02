@@ -166,11 +166,13 @@ CAMLextern intnat caml_output_value_to_block(value v, value flags,
 CAMLextern value caml_input_val_from_string (value str, intnat ofs);
   /* Read a structured value from the OCaml string [str], starting
      at offset [ofs]. */
-CAMLextern value caml_input_value_from_malloc(char * data, intnat ofs);
-  /* Read a structured value from a malloced buffer.  [data] points
-     to the beginning of the buffer, and [ofs] is the offset of the
-     beginning of the externed data in this buffer.  The buffer is
-     deallocated with [free] on return, or if an exception is raised. */
+CAMLextern value caml_input_value_from_malloc(char * data, intnat ofs,
+                                              intnat len);
+  /* Read a structured value from a malloced buffer.  [data] points to the
+     beginning of the buffer, [ofs] is the offset of the beginning of the
+     externed data in this buffer, and [len] is the length in bytes of valid
+     data in this buffer. The buffer is deallocated with [free] on return, or if
+     an exception is raised. */
 CAMLextern value caml_input_value_from_block(const char * data, intnat len);
   /* Read a structured value from a user-provided buffer.  [data] points
      to the beginning of the externed data in this buffer,
