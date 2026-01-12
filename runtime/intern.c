@@ -494,10 +494,10 @@ static value intern_alloc_obj(struct caml_intern_state* s, caml_domain_state* d,
     *s->intern_dest = Make_header (wosize, tag, 0);
     caml_memprof_sample_block(Val_hp(p), wosize, 1 + wosize,
                               CAML_MEMPROF_SRC_MARSHAL);
-    s->intern_dest += 1 + wosize;
-    if (CAMLunlikely(s->intern_dest_end < s->intern_dest)) {
+    if (CAMLunlikely(wosize >= s->intern_dest_end - s->intern_dest)) {
       intern_cleanup_failwith(s, "input_value: invalid allocation");
     }
+    s->intern_dest += 1 + wosize;
   } else {
     p = caml_shared_try_alloc(d->shared_heap, wosize, tag,
                               0 /* no reserved bits */);
