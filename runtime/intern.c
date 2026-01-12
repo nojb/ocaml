@@ -1044,32 +1044,29 @@ static value input_val_from_block(struct caml_intern_state* s,
   return (intern_end(s, obj));
 }
 
-CAMLexport value caml_input_value_from_malloc(char * data, intnat ofs, intnat len)
+/* [len] is a number of bytes */
+static value caml_input_value_from_buffer(const char * fun_name, const char * src,
+                                          intnat len, void * input)
 {
   struct marshal_header h;
   struct caml_intern_state* s = init_intern_state ();
 
-  intern_init(s, data + ofs, len, data);
-  caml_parse_header(s, "input_value_from_malloc", &h);
+  intern_init(s, src, len, input);
+  caml_parse_header(s, fun_name, &h);
   if (h.header_len + h.data_len > len)
-    caml_failwith("input_val_from_malloc: bad length");
+    intern_failwith2(fun_name, "bad length");
   s->intern_src_end = s->intern_src + h.data_len;
   return input_val_from_block(s, &h);
 }
 
-/* [len] is a number of bytes */
+CAMLexport value caml_input_value_from_malloc(char * data, intnat ofs, intnat len)
+{
+  return caml_input_value_from_buffer("input_value_from_malloc", data + ofs, len, data);
+}
+
 CAMLexport value caml_input_value_from_block(const char * data, intnat len)
 {
-  struct marshal_header h;
-  struct caml_intern_state* s = init_intern_state ();
-
-  /* Initialize global state */
-  intern_init(s, data, len, NULL);
-  caml_parse_header(s, "input_value_from_block", &h);
-  if (h.header_len + h.data_len > len)
-    caml_failwith("input_val_from_block: bad length");
-  s->intern_src_end = s->intern_src + h.data_len;
-  return input_val_from_block(s, &h);
+  return caml_input_value_from_buffer("input_value_from_block", data, len, NULL);
 }
 
 /* [ofs] is a [value] that represents a number of bytes
