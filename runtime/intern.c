@@ -1051,6 +1051,8 @@ CAMLexport value caml_input_value_from_malloc(char * data, intnat ofs, intnat le
 
   intern_init(s, data + ofs, len, data);
   caml_parse_header(s, "input_value_from_malloc", &h);
+  if (h.header_len + h.data_len > len)
+    caml_failwith("input_val_from_malloc: bad length");
   s->intern_src_end = s->intern_src + h.data_len;
   return input_val_from_block(s, &h);
 }
