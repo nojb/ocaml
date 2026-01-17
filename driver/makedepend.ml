@@ -22,24 +22,26 @@ let stderr = Format.err_formatter
 
 type file_kind = ML | MLI
 
-let ml_synonyms = ref [".ml"]
-let mli_synonyms = ref [".mli"]
-let shared = ref false
-let native_only = ref false
-let bytecode_only = ref false
-let raw_dependencies = ref false
-let sort_files = ref false
-let all_dependencies = ref false
-let nocwd = ref false
-let one_line = ref false
-let allow_approximation = ref false
-let debug = ref false
+let s_ref = Local_store.s_ref
+
+let ml_synonyms = s_ref [".ml"]
+let mli_synonyms = s_ref [".mli"]
+let shared = s_ref false
+let native_only = s_ref false
+let bytecode_only = s_ref false
+let raw_dependencies = s_ref false
+let sort_files = s_ref false
+let all_dependencies = s_ref false
+let nocwd = s_ref false
+let one_line = s_ref false
+let allow_approximation = s_ref false
+let debug = s_ref false
 
 (* [(dir, contents)] where [contents] is returned by [Sys.readdir dir]. *)
-let load_path = ref ([] : (string * string array) list)
+let load_path = s_ref ([] : (string * string array) list)
 let files =
-  ref ([] : (string * file_kind * String.Set.t * string list) list)
-let module_map = ref String.Map.empty
+  s_ref ([] : (string * file_kind * String.Set.t * string list) list)
+let module_map = s_ref String.Map.empty
 
 module Error_occurred : sig
   val set : unit -> unit
@@ -47,7 +49,7 @@ module Error_occurred : sig
 end = struct
   (* Once set to [true], [error_occurred] should never be set to
      [false]. *)
-  let error_occurred = ref false
+  let error_occurred = s_ref false
   let get () = !error_occurred
   let set () = error_occurred := true
 end
@@ -63,7 +65,7 @@ let fix_slash s =
 
 (* Since we reinitialize load_path after reading OCAMLCOMP,
   we must use a cache instead of calling Sys.readdir too often. *)
-let dirs = ref String.Map.empty
+let dirs = s_ref String.Map.empty
 let readdir dir =
   try
     String.Map.find dir !dirs
@@ -160,6 +162,15 @@ let find_dependency target_kind modname (byt_deps, opt_deps) =
       (bytenames @ byt_deps, optnames @  opt_deps)
 
 let (depends_on, escaped_eol) = (":", " \\\n    ")
+
+let print_string =
+  Misc.Out.print_string
+
+let print_char c =
+  Misc.Out.print_string (String.make 1 c)
+
+let print_bytes b =
+  Misc.Out.print_string (Bytes.to_string b)
 
 let print_filename s =
   let s = if !Clflags.force_slash then fix_slash s else s in
@@ -468,7 +479,7 @@ let sort_files_by_dependencies files =
       ) set;
       if !deps = [] then begin
         printed := true;
-        Printf.printf "%s " file;
+        Misc.Out.printf "%s " file;
         Hashtbl.remove h key;
       end else
         prepend_to_list worklist key
@@ -489,10 +500,10 @@ let sort_files_by_dependencies files =
         Format.eprintf "%s.%s " modname (if kind=ML then "ml" else "mli")
       ) !deps;
       Format.eprintf "@]@.";
-      Printf.printf "%s " file) sorted_deps;
+      Misc.Out.printf "%s " file) sorted_deps;
     Error_occurred.set ()
   end;
-  Printf.printf "\n%!";
+  Misc.Out.printf "\n%!";
   ()
 
 (* Map *)
@@ -555,14 +566,14 @@ let process_dep_args dep_args = List.iter process_dep_arg dep_args
 
 let print_version () =
   Format.printf "ocamldep, version %s@." Sys.ocaml_version;
-  exit 0
+  Misc.exit 0
 
 let print_version_num () =
   Format.printf "%s@." Sys.ocaml_version;
-  exit 0
+  Misc.exit 0
 
 
-let run_main argv =
+let rec run_main argv =
   let dep_args_rev : dep_arg list ref = ref [] in
   let add_dep_arg f s = prepend_to_list dep_args_rev (f s) in
   Clflags.classic := false;
@@ -570,6 +581,8 @@ let run_main argv =
     Compenv.readenv stderr Before_args;
     Clflags.reset_arguments (); (* reset arguments from ocamlc/ocamlopt *)
     Clflags.add_arguments __LOC__ [
+      "-server", Arg.Set Clflags.server_mode,
+        " Run in server mode";
       "-absname", Arg.Set Clflags.absname,
         " Show absolute filenames in error messages";
       "-no-absname", Arg.Clear Clflags.absname,
@@ -641,13 +654,15 @@ let run_main argv =
     let program = Filename.basename Sys.argv.(0) in
     Compenv.parse_arguments (ref argv)
       (add_dep_arg (fun f -> Src (f, None))) program;
+    if !Clflags.server_mode then
+      Misc.Server.run (fun argv -> run_main argv) argv.(0);
     process_dep_args (List.rev !dep_args_rev);
     Compenv.readenv stderr Before_link;
     if !sort_files then sort_files_by_dependencies !files
     else List.iter print_file_dependencies (List.sort compare !files);
     (if Error_occurred.get () then 2 else 0)
   with
-  | Compenv.Exit_with_status n ->
+  | Misc.Exit_with_status n ->
       n
   | exn ->
       Location.report_exception stderr exn;

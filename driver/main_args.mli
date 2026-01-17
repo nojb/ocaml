@@ -169,6 +169,7 @@ module type Bytecomp_options = sig
   val _launch_method : string -> unit
   val _search_method : string -> unit
   val _output_complete_exe : unit -> unit
+  val _server : unit -> unit
 
   val _dinstr : unit -> unit
   val _dcamlprimc : unit -> unit
@@ -242,6 +243,7 @@ module type Optcomp_options = sig
   include Core_options
   include Compiler_options
   include Optcommon_options
+  val _server : unit -> unit
   val _nodynlink : unit -> unit
   val _p : unit -> unit
   val _pp : string -> unit

@@ -29,7 +29,7 @@ let error_fmt () =
 
 let action_on_suberror b =
   if not b && not !Sys.interactive then
-    raise (Compenv.Exit_with_status 125)
+    Misc.exit 125
 
 (* Directive sections (used in #help) *)
 let section_general = "General"
@@ -63,7 +63,7 @@ let order_of_sections =
 
 (* To quit *)
 
-let dir_quit () = raise (Compenv.Exit_with_status 0)
+let dir_quit () = Misc.exit 0
 
 let _ = add_directive "quit" (Directive_none dir_quit)
     {

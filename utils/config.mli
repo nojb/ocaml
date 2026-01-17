@@ -428,7 +428,7 @@ val native_runtime_id : string
     @since 5.5 *)
 
 (** Access to configuration values *)
-val print_config : out_channel -> unit
+val print_config : (string -> unit) -> unit
 
 val config_var : string -> string option
 (** the configuration value of a variable, if it exists *)
