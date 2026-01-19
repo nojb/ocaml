@@ -18,6 +18,8 @@
    - man/ocamlc.m
 *)
 
+let s_ref = Local_store.s_ref
+
 type loc = {
   loc_start: Lexing.position;
   loc_end: Lexing.position;
@@ -603,7 +605,7 @@ type state =
   }
 
 let current =
-  ref
+  s_ref
     {
       active = Array.make (last_warning_number + 1) true;
       error = Array.make (last_warning_number + 1) false;
@@ -611,7 +613,7 @@ let current =
       alert_errors = (Misc.Stdlib.String.Set.empty, true); (* all soft *)
     }
 
-let disabled = ref false
+let disabled = s_ref false
 
 let without_warnings f =
   Misc.protect_refs [Misc.R(disabled, true)] f
@@ -1264,7 +1266,7 @@ let message = function
         Style.inline_code ".."
 ;;
 
-let nerrors = ref 0
+let nerrors = s_ref 0
 
 type reporting_information =
   { id : string

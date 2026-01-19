@@ -15,7 +15,7 @@
 
 open Clflags
 
-exception Exit_with_status of int
+let s_ref = Local_store.s_ref
 
 let output_prefix name =
   let oname =
@@ -25,23 +25,23 @@ let output_prefix name =
   Filename.remove_extension oname
 
 let print_version_and_library compiler =
-  Printf.printf "The OCaml %s, version " compiler;
-  print_string Config.version; print_newline();
-  print_string "Standard library directory: ";
-  print_string Config.standard_library; print_newline();
-  raise (Exit_with_status 0)
+  Misc.Out.printf "The OCaml %s, version " compiler;
+  Misc.Out.print_string Config.version; Misc.Out.print_newline ();
+  Misc.Out.print_string "Standard library directory: ";
+  Misc.Out.print_string Config.standard_library; Misc.Out.print_newline ();
+  Misc.exit 0
 
 let print_version_string () =
-  print_string Config.version; print_newline();
-  raise (Exit_with_status 0)
+  Misc.Out.print_endline Config.version;
+  Misc.exit 0
 
 let print_standard_library () =
-  print_string Config.standard_library; print_newline();
-  raise (Exit_with_status 0)
+  Misc.Out.print_endline Config.standard_library;
+  Misc.exit 0
 
 let fatal err =
-  prerr_endline err;
-  raise (Exit_with_status 2)
+  Misc.Out.prerr_endline err;
+  Misc.exit 2
 
 let extract_output = function
   | Some s -> s
@@ -52,15 +52,15 @@ let default_output = function
   | Some s -> s
   | None -> Config.default_executable_name
 
-let first_include_dirs = ref []
-let last_include_dirs = ref []
-let first_ccopts = ref []
-let last_ccopts = ref []
-let first_ppx = ref []
-let last_ppx = ref []
-let first_objfiles = ref []
-let last_objfiles = ref []
-let stop_early = ref false
+let first_include_dirs = s_ref []
+let last_include_dirs = s_ref []
+let first_ccopts = s_ref []
+let last_ccopts = s_ref []
+let first_ppx = s_ref []
+let last_ppx = s_ref []
+let first_objfiles = s_ref []
+let last_objfiles = s_ref []
+let stop_early = s_ref false
 
 
 type filename = string
@@ -207,7 +207,7 @@ let handle_dump_option ppf v =
 
 (* 'can-discard=' specifies which arguments can be discarded without warning
    because they are not understood by some versions of OCaml. *)
-let can_discard = ref []
+let can_discard = s_ref []
 
 let parse_warnings error v =
   Option.iter Location.(prerr_alert none) @@ Warnings.parse_options error v
@@ -612,7 +612,7 @@ let get_objfiles ~with_ocamlparam =
   else
     List.rev !objfiles
 
-let has_linker_inputs = ref false
+let has_linker_inputs = s_ref false
 
 
 
@@ -653,7 +653,7 @@ let process_action
         | Some n -> n
       in
       if Ccomp.compile_file ?output:!output_name name <> 0
-      then raise (Exit_with_status 2);
+      then Misc.exit 2;
       ccobjs := obj_name :: !ccobjs
   | ProcessObjects names ->
       ccobjs := names @ !ccobjs
@@ -691,7 +691,7 @@ let action_of_file name =
   else
     ProcessOtherFile name
 
-let deferred_actions = ref []
+let deferred_actions = s_ref []
 let defer action =
   deferred_actions := action :: !deferred_actions
 
@@ -751,8 +751,8 @@ let parse_arguments ?(current=ref 0) argv f program =
       |> String.split_on_char '\000'
       |> List.hd
       |> String.trim in
-      Printf.eprintf "%s\n%s\n" err_msg usage_msg;
-      raise (Exit_with_status 2)
+      Misc.Out.eprintf "%s\n%s\n" err_msg usage_msg;
+      Misc.exit 2
     | Arg.Help msg ->
       let err_msg =
         msg
@@ -760,5 +760,5 @@ let parse_arguments ?(current=ref 0) argv f program =
         |> String.concat "" in
       let help_msg =
         Printf.sprintf "Usage: %s <options> <files>\nOptions are:" program in
-      Printf.printf "%s\n%s" help_msg err_msg;
-      raise (Exit_with_status 0)
+      Misc.Out.printf "%s\n%s" help_msg err_msg;
+      Misc.exit 0

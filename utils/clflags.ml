@@ -15,6 +15,8 @@
 
 (* Command-line parameters *)
 
+let s_ref = Local_store.s_ref
+
 module Int_arg_helper = Arg_helper.Make (struct
   module Key = struct
     include Numbers.Int
@@ -38,129 +40,129 @@ module Float_arg_helper = Arg_helper.Make (struct
   end
 end)
 
-let objfiles = ref ([] : string list)   (* .cmo and .cma files *)
-and ccobjs = ref ([] : string list)     (* .o, .a, .so and -cclib -lxxx *)
-and dllibs = ref ([] : string list)     (* .so and -dllib -lxxx *)
+let objfiles = s_ref ([] : string list)   (* .cmo and .cma files *)
+and ccobjs = s_ref ([] : string list)     (* .o, .a, .so and -cclib -lxxx *)
+and dllibs = s_ref ([] : string list)     (* .so and -dllib -lxxx *)
 
-let cmi_file = ref None
+let cmi_file = s_ref None
 
-let compile_only = ref false            (* -c *)
-and output_name = ref (None : string option) (* -o *)
-and include_dirs = ref ([] : string list) (* -I *)
-and hidden_include_dirs = ref ([] : string list) (* -H *)
-and no_std_include = ref false          (* -nostdlib *)
-and no_cwd = ref false                  (* -nocwd *)
-and print_types = ref false             (* -i *)
-and print_variance = ref false          (* -i-variance *)
-and make_archive = ref false            (* -a *)
-and debug = ref false                   (* -g *)
-and debug_full = ref false              (* For full DWARF support *)
-and unsafe = ref false                  (* -unsafe *)
-and use_linscan = ref false             (* -linscan *)
-and link_everything = ref false         (* -linkall *)
-and custom_runtime = ref false          (* -custom *)
-and no_check_prims = ref false          (* -no-check-prims *)
-and bytecode_compatible_32 = ref false  (* -compat-32 *)
-and output_c_object = ref false         (* -output-obj *)
-and output_complete_object = ref false  (* -output-complete-obj *)
-and output_complete_executable = ref false  (* -output-complete-exe *)
-and all_ccopts = ref ([] : string list)     (* -ccopt *)
-and classic = ref false                 (* -nolabels *)
-and nopervasives = ref false            (* -nopervasives *)
-and match_context_rows = ref 32         (* -match-context-rows *)
-and safer_matching = ref false          (* -safer-matching *)
-and preprocessor = ref(None : string option) (* -pp *)
-and all_ppx = ref ([] : string list)        (* -ppx *)
-let absname = ref false                 (* -absname *)
-let annotations = ref false             (* -annot *)
-let binary_annotations = ref false      (* -bin-annot *)
-let store_occurrences = ref false       (* -bin-annot-occurrences *)
-and use_threads = ref false             (* -thread *)
-and noassert = ref false                (* -noassert *)
-and verbose = ref false                 (* -verbose *)
-and noversion = ref false               (* -no-version *)
-and noprompt = ref false                (* -noprompt *)
-and nopromptcont = ref false            (* -nopromptcont *)
-and init_file = ref (None : string option)   (* -init *)
-and noinit = ref false                  (* -noinit *)
-and open_modules = ref []               (* -open *)
-and use_prims = ref ""                  (* -use-prims ... *)
-and use_runtime = ref ""                (* -use-runtime ... *)
-and plugin = ref false                  (* -plugin ... *)
-and principal = ref false               (* -principal *)
-and real_paths = ref true               (* -short-paths *)
-and recursive_types = ref false         (* -rectypes *)
-and strict_sequence = ref false         (* -strict-sequence *)
-and strict_formats = ref true           (* -strict-formats *)
-and applicative_functors = ref true     (* -no-app-funct *)
-and make_runtime = ref false            (* -make-runtime *)
-and c_compiler = ref (None: string option) (* -cc *)
-and no_auto_link = ref false            (* -noautolink *)
-and dllpaths = ref ([] : string list)   (* -dllpath *)
-and make_package = ref false            (* -pack *)
-and for_package = ref (None: string option) (* -for-pack *)
-and error_size = ref 500                (* -error-size *)
-and float_const_prop = ref true         (* -no-float-const-prop *)
-and no_alias_deps = ref false           (* -no-alias-deps *)
-let unique_ids = ref true               (* -d(no-)unique-ids *)
-let canonical_ids = ref false           (* -d(no-)canonical-ids *)
-let locations = ref true                (* -d(no-)locations *)
-let dump_source = ref false             (* -dsource *)
-let dump_parsetree = ref false          (* -dparsetree *)
-and dump_typedtree = ref false          (* -dtypedtree *)
-and dump_shape = ref false              (* -dshape *)
-and dump_matchcomp = ref false          (* -dmatchcomp *)
-and dump_rawlambda = ref false          (* -drawlambda *)
-and dump_lambda = ref false             (* -dlambda *)
-and dump_rawclambda = ref false         (* -drawclambda *)
-and dump_clambda = ref false            (* -dclambda *)
-and dump_rawflambda = ref false            (* -drawflambda *)
-and dump_flambda = ref false            (* -dflambda *)
-and dump_flambda_let = ref (None : int option) (* -dflambda-let=... *)
-and dump_flambda_verbose = ref false    (* -dflambda-verbose *)
-and dump_instr = ref false              (* -dinstr *)
-and keep_camlprimc_file = ref false     (* -dcamlprimc *)
+let compile_only = s_ref false            (* -c *)
+and output_name = s_ref (None : string option) (* -o *)
+and include_dirs = s_ref ([] : string list) (* -I *)
+and hidden_include_dirs = s_ref ([] : string list) (* -H *)
+and no_std_include = s_ref false          (* -nostdlib *)
+and no_cwd = s_ref false                  (* -nocwd *)
+and print_types = s_ref false             (* -i *)
+and print_variance = s_ref false          (* -i-variance *)
+and make_archive = s_ref false            (* -a *)
+and debug = s_ref false                   (* -g *)
+and debug_full = s_ref false              (* For full DWARF support *)
+and unsafe = s_ref false                  (* -unsafe *)
+and use_linscan = s_ref false             (* -linscan *)
+and link_everything = s_ref false         (* -linkall *)
+and custom_runtime = s_ref false          (* -custom *)
+and no_check_prims = s_ref false          (* -no-check-prims *)
+and bytecode_compatible_32 = s_ref false  (* -compat-32 *)
+and output_c_object = s_ref false         (* -output-obj *)
+and output_complete_object = s_ref false  (* -output-complete-obj *)
+and output_complete_executable = s_ref false  (* -output-complete-exe *)
+and all_ccopts = s_ref ([] : string list)     (* -ccopt *)
+and classic = s_ref false                 (* -nolabels *)
+and nopervasives = s_ref false            (* -nopervasives *)
+and match_context_rows = s_ref 32         (* -match-context-rows *)
+and safer_matching = s_ref false          (* -safer-matching *)
+and preprocessor = s_ref(None : string option) (* -pp *)
+and all_ppx = s_ref ([] : string list)        (* -ppx *)
+let absname = s_ref false                 (* -absname *)
+let annotations = s_ref false             (* -annot *)
+let binary_annotations = s_ref false      (* -bin-annot *)
+let store_occurrences = s_ref false       (* -bin-annot-occurrences *)
+and use_threads = s_ref false             (* -thread *)
+and noassert = s_ref false                (* -noassert *)
+and verbose = s_ref false                 (* -verbose *)
+and noversion = s_ref false               (* -no-version *)
+and noprompt = s_ref false                (* -noprompt *)
+and nopromptcont = s_ref false            (* -nopromptcont *)
+and init_file = s_ref (None : string option)   (* -init *)
+and noinit = s_ref false                  (* -noinit *)
+and open_modules = s_ref []               (* -open *)
+and use_prims = s_ref ""                  (* -use-prims ... *)
+and use_runtime = s_ref ""                (* -use-runtime ... *)
+and plugin = s_ref false                  (* -plugin ... *)
+and principal = s_ref false               (* -principal *)
+and real_paths = s_ref true               (* -short-paths *)
+and recursive_types = s_ref false         (* -rectypes *)
+and strict_sequence = s_ref false         (* -strict-sequence *)
+and strict_formats = s_ref true           (* -strict-formats *)
+and applicative_functors = s_ref true     (* -no-app-funct *)
+and make_runtime = s_ref false            (* -make-runtime *)
+and c_compiler = s_ref (None: string option) (* -cc *)
+and no_auto_link = s_ref false            (* -noautolink *)
+and dllpaths = s_ref ([] : string list)   (* -dllpath *)
+and make_package = s_ref false            (* -pack *)
+and for_package = s_ref (None: string option) (* -for-pack *)
+and error_size = s_ref 500                (* -error-size *)
+and float_const_prop = s_ref true         (* -no-float-const-prop *)
+and no_alias_deps = s_ref false           (* -no-alias-deps *)
+let unique_ids = s_ref true               (* -d(no-)unique-ids *)
+let canonical_ids = s_ref false           (* -d(no-)canonical-ids *)
+let locations = s_ref true                (* -d(no-)locations *)
+let dump_source = s_ref false             (* -dsource *)
+let dump_parsetree = s_ref false          (* -dparsetree *)
+and dump_typedtree = s_ref false          (* -dtypedtree *)
+and dump_shape = s_ref false              (* -dshape *)
+and dump_matchcomp = s_ref false          (* -dmatchcomp *)
+and dump_rawlambda = s_ref false          (* -drawlambda *)
+and dump_lambda = s_ref false             (* -dlambda *)
+and dump_rawclambda = s_ref false         (* -drawclambda *)
+and dump_clambda = s_ref false            (* -dclambda *)
+and dump_rawflambda = s_ref false            (* -drawflambda *)
+and dump_flambda = s_ref false            (* -dflambda *)
+and dump_flambda_let = s_ref (None : int option) (* -dflambda-let=... *)
+and dump_flambda_verbose = s_ref false    (* -dflambda-verbose *)
+and dump_instr = s_ref false              (* -dinstr *)
+and keep_camlprimc_file = s_ref false     (* -dcamlprimc *)
 
-let keyword_edition: string option ref = ref None
+let keyword_edition: string option ref = s_ref None
 
-let keep_asm_file = ref false           (* -S *)
-let optimize_for_speed = ref true       (* -compact *)
-and opaque = ref false                  (* -opaque *)
+let keep_asm_file = s_ref false         (* -S *)
+let optimize_for_speed = s_ref true     (* -compact *)
+and opaque = s_ref false                (* -opaque *)
 
-and dump_cmm = ref false                (* -dcmm *)
-let dump_selection = ref false          (* -dsel *)
-let dump_combine = ref false            (* -dcombine *)
-let dump_cse = ref false                (* -dcse *)
-let dump_live = ref false               (* -dlive *)
-let dump_spill = ref false              (* -dspill *)
-let dump_split = ref false              (* -dsplit *)
-let dump_interf = ref false             (* -dinterf *)
-let dump_prefer = ref false             (* -dprefer *)
-let dump_interval = ref false           (* -dinterval *)
-let dump_regalloc = ref false           (* -dalloc *)
-let dump_reload = ref false             (* -dreload *)
-let dump_scheduling = ref false         (* -dscheduling *)
-let dump_linear = ref false             (* -dlinear *)
-let keep_startup_file = ref false       (* -dstartup *)
-let profile_columns : Profile.column list ref = ref [] (* -dprofile/-dtimings *)
+and dump_cmm = s_ref false              (* -dcmm *)
+let dump_selection = s_ref false        (* -dsel *)
+let dump_combine = s_ref false          (* -dcombine *)
+let dump_cse = s_ref false              (* -dcse *)
+let dump_live = s_ref false             (* -dlive *)
+let dump_spill = s_ref false            (* -dspill *)
+let dump_split = s_ref false            (* -dsplit *)
+let dump_interf = s_ref false           (* -dinterf *)
+let dump_prefer = s_ref false           (* -dprefer *)
+let dump_interval = s_ref false         (* -dinterval *)
+let dump_regalloc = s_ref false         (* -dalloc *)
+let dump_reload = s_ref false           (* -dreload *)
+let dump_scheduling = s_ref false       (* -dscheduling *)
+let dump_linear = s_ref false           (* -dlinear *)
+let keep_startup_file = s_ref false     (* -dstartup *)
+let profile_columns : Profile.column list ref = s_ref [] (* -dprofile/-dtimings *)
 
-let native_code = ref false             (* set to true under ocamlopt *)
+let native_code = s_ref false           (* set to true under ocamlopt *)
 
-let force_slash = ref false             (* for ocamldep *)
-let clambda_checks = ref false          (* -clambda-checks *)
+let force_slash = s_ref false           (* for ocamldep *)
+let clambda_checks = s_ref false        (* -clambda-checks *)
 let cmm_invariants =
-  ref Config.with_cmm_invariants        (* -dcmm-invariants *)
+  s_ref Config.with_cmm_invariants      (* -dcmm-invariants *)
 
-let parsetree_ghost_loc_invariant = ref false
+let parsetree_ghost_loc_invariant = s_ref false
   (* -dparsetree-ghost-loc-invariant *)
 
 let flambda_invariant_checks =
-  ref Config.with_flambda_invariants    (* -flambda-(no-)invariants *)
+  s_ref Config.with_flambda_invariants  (* -flambda-(no-)invariants *)
 
-let dont_write_files = ref false        (* set to true under ocamldoc *)
+let dont_write_files = s_ref false      (* set to true under ocamldoc *)
 
 let insn_sched_default = true
-let insn_sched = ref insn_sched_default (* -[no-]insn-sched *)
+let insn_sched = s_ref insn_sched_default (* -[no-]insn-sched *)
 
 let std_include_flag prefix =
   if !no_std_include then ""
@@ -169,30 +171,31 @@ let std_include_flag prefix =
 let std_include_dir () =
   if !no_std_include then [] else [Config.standard_library]
 
-let shared = ref false (* -shared *)
-let dlcode = ref true (* not -nodynlink *)
+let shared = s_ref false (* -shared *)
+let dlcode = s_ref true (* not -nodynlink *)
 
-let pic_code = ref (match Config.architecture with (* -fPIC *)
+let pic_code = s_ref (match Config.architecture with (* -fPIC *)
                      | "amd64" | "s390x" -> true
                      | _                 -> false)
 
-let runtime_variant = ref ""
+let runtime_variant = s_ref ""
 
-let with_runtime = ref true         (* -with-runtime *)
+let with_runtime = s_ref true         (* -with-runtime *)
 
-let keep_docs = ref false              (* -keep-docs *)
-let keep_locs = ref true               (* -keep-locs *)
+let keep_docs = s_ref false            (* -keep-docs *)
+let keep_locs = s_ref true             (* -keep-locs *)
+let server_mode = Misc.Server.enable   (* -server *)
 
-let classic_inlining = ref false       (* -Oclassic *)
-let inlining_report = ref false    (* -inlining-report *)
+let classic_inlining = s_ref false     (* -Oclassic *)
+let inlining_report = s_ref false      (* -inlining-report *)
 
-let afl_instrument = ref Config.afl_instrument (* -afl-instrument *)
-let afl_inst_ratio = ref 100           (* -afl-inst-ratio *)
+let afl_instrument = s_ref Config.afl_instrument (* -afl-instrument *)
+let afl_inst_ratio = s_ref 100         (* -afl-inst-ratio *)
 
-let function_sections = ref false      (* -function-sections *)
+let function_sections = s_ref false    (* -function-sections *)
 
-let simplify_rounds = ref None        (* -rounds *)
-let default_simplify_rounds = ref 1        (* -rounds *)
+let simplify_rounds = s_ref None      (* -rounds *)
+let default_simplify_rounds = s_ref 1 (* -rounds *)
 let rounds () =
   match !simplify_rounds with
   | None -> !default_simplify_rounds
@@ -212,33 +215,33 @@ let default_inline_lifting_benefit = 1300
 let default_inline_max_unroll = 0
 let default_inline_max_depth = 1
 
-let inline_threshold = ref (Float_arg_helper.default default_inline_threshold)
+let inline_threshold = s_ref (Float_arg_helper.default default_inline_threshold)
 let inline_toplevel_threshold =
-  ref (Int_arg_helper.default default_inline_toplevel_threshold)
-let inline_call_cost = ref (Int_arg_helper.default default_inline_call_cost)
-let inline_alloc_cost = ref (Int_arg_helper.default default_inline_alloc_cost)
-let inline_prim_cost = ref (Int_arg_helper.default default_inline_prim_cost)
+  s_ref (Int_arg_helper.default default_inline_toplevel_threshold)
+let inline_call_cost = s_ref (Int_arg_helper.default default_inline_call_cost)
+let inline_alloc_cost = s_ref (Int_arg_helper.default default_inline_alloc_cost)
+let inline_prim_cost = s_ref (Int_arg_helper.default default_inline_prim_cost)
 let inline_branch_cost =
-  ref (Int_arg_helper.default default_inline_branch_cost)
+  s_ref (Int_arg_helper.default default_inline_branch_cost)
 let inline_indirect_cost =
-  ref (Int_arg_helper.default default_inline_indirect_cost)
+  s_ref (Int_arg_helper.default default_inline_indirect_cost)
 let inline_branch_factor =
-  ref (Float_arg_helper.default default_inline_branch_factor)
+  s_ref (Float_arg_helper.default default_inline_branch_factor)
 let inline_lifting_benefit =
-  ref (Int_arg_helper.default default_inline_lifting_benefit)
+  s_ref (Int_arg_helper.default default_inline_lifting_benefit)
 let inline_max_unroll =
-  ref (Int_arg_helper.default default_inline_max_unroll)
+  s_ref (Int_arg_helper.default default_inline_max_unroll)
 let inline_max_depth =
-  ref (Int_arg_helper.default default_inline_max_depth)
+  s_ref (Int_arg_helper.default default_inline_max_depth)
 
 
-let unbox_specialised_args = ref true   (* -no-unbox-specialised-args *)
-let unbox_free_vars_of_closures = ref true
-let unbox_closures = ref false          (* -unbox-closures *)
+let unbox_specialised_args = s_ref true   (* -no-unbox-specialised-args *)
+let unbox_free_vars_of_closures = s_ref true
+let unbox_closures = s_ref false          (* -unbox-closures *)
 let default_unbox_closures_factor = 10
 let unbox_closures_factor =
-  ref default_unbox_closures_factor      (* -unbox-closures-factor *)
-let remove_unused_arguments = ref false (* -remove-unused-arguments *)
+  s_ref default_unbox_closures_factor    (* -unbox-closures-factor *)
+let remove_unused_arguments = s_ref false (* -remove-unused-arguments *)
 
 type inlining_arguments = {
   inline_call_cost : int option;
@@ -364,8 +367,8 @@ let o3_arguments = {
   inline_toplevel_threshold = Some (50 * inline_toplevel_multiplier);
 }
 
-let all_passes = ref []
-let dumped_passes_list = ref []
+let all_passes = s_ref []
+let dumped_passes_list = s_ref []
 let dumped_pass s =
   assert(List.mem s !all_passes);
   List.mem s !dumped_passes_list
@@ -382,8 +385,8 @@ let set_dumped_pass s enabled =
     dumped_passes_list := dumped_passes
   end
 
-let dump_into_file = ref false (* -dump-into-file *)
-let dump_dir: string option ref = ref None (* -dump-dir *)
+let dump_into_file = s_ref false (* -dump-into-file *)
+let dump_dir: string option ref = s_ref None (* -dump-dir *)
 
 type 'a env_reader = {
   parse : string -> 'a option;
@@ -392,7 +395,7 @@ type 'a env_reader = {
   env_var : string;
 }
 
-let color = ref None (* -color *)
+let color = s_ref None (* -color *)
 
 let color_reader = {
   parse = (function
@@ -408,7 +411,7 @@ let color_reader = {
   env_var = "OCAML_COLOR";
 }
 
-let error_style = ref None (* -error-style *)
+let error_style = s_ref None (* -error-style *)
 
 let error_style_reader = {
   parse = (function
@@ -422,7 +425,7 @@ let error_style_reader = {
   env_var = "OCAML_ERROR_STYLE";
 }
 
-let unboxed_types = ref false
+let unboxed_types = s_ref false
 
 (* This is used by the -save-ir-after option. *)
 module Compiler_ir = struct
@@ -535,7 +538,7 @@ module Compiler_pass = struct
     | None -> None
 end
 
-let stop_after = ref None (* -stop-after *)
+let stop_after = s_ref None (* -stop-after *)
 
 let should_stop_after pass =
   if Compiler_pass.(rank Typing <= rank pass) && !print_types then true
@@ -544,7 +547,7 @@ let should_stop_after pass =
     | None -> false
     | Some stop -> Compiler_pass.rank stop <= Compiler_pass.rank pass
 
-let save_ir_after = ref []
+let save_ir_after = s_ref []
 
 let should_save_ir_after pass =
   List.mem pass !save_ir_after
@@ -769,8 +772,8 @@ let parse_keyword_edition s =
 
 module String = Misc.Stdlib.String
 
-let arg_spec = ref []
-let arg_names = ref String.Map.empty
+let arg_spec = s_ref []
+let arg_names = s_ref String.Map.empty
 
 let reset_arguments () =
   arg_spec := [];
@@ -780,10 +783,10 @@ let add_arguments loc args =
   List.iter (function (arg_name, _, _) as arg ->
     try
       let loc2 = String.Map.find arg_name !arg_names in
-      Printf.eprintf
+      Misc.Out.eprintf
         "Warning: compiler argument %s is already defined:\n" arg_name;
-      Printf.eprintf "   First definition: %s\n" loc2;
-      Printf.eprintf "   New definition: %s\n" loc;
+      Misc.Out.eprintf "   First definition: %s\n" loc2;
+      Misc.Out.eprintf "   New definition: %s\n" loc;
     with Not_found ->
       arg_spec := !arg_spec @ [ arg ];
       arg_names := String.Map.add arg_name loc !arg_names
@@ -795,4 +798,5 @@ let create_usage_msg program =
 
 
 let print_arguments program =
-  Arg.usage !arg_spec (create_usage_msg program)
+  let usage = Arg.usage_string !arg_spec (create_usage_msg program) in
+  Misc.Out.print_string usage

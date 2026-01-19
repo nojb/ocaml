@@ -16,6 +16,7 @@
 (* Errors *)
 
 exception Fatal_error
+exception Exit_with_status of int
 
 let fatal_errorf fmt =
   Format.kfprintf
@@ -24,6 +25,80 @@ let fatal_errorf fmt =
     ("@?>> Fatal error: " ^^ fmt ^^ "@.")
 
 let fatal_error msg = fatal_errorf "%s" msg
+
+let exit n = raise (Exit_with_status n)
+
+(* Console Output *)
+
+module Out = struct
+  type capture =
+    {
+      stdout : Buffer.t;
+      stderr : Buffer.t;
+    }
+
+  let current : capture option ref = ref None
+
+  let print_string s =
+    match !current with
+    | Some cap -> Buffer.add_string cap.stdout s
+    | None -> output_string stdout s; flush stdout
+
+  let print_endline s =
+    print_string (s ^ "\n")
+
+  let print_newline () =
+    print_string "\n"
+
+  let prerr_string s =
+    match !current with
+    | Some cap -> Buffer.add_string cap.stderr s
+    | None -> output_string stderr s; flush stderr
+
+  let prerr_endline s =
+    prerr_string (s ^ "\n")
+
+  let prerr_newline () =
+    prerr_string "\n"
+
+  let printf fmt =
+    Printf.ksprintf print_string fmt
+
+  let eprintf fmt =
+    Printf.ksprintf prerr_string fmt
+
+  let with_capture f =
+    let cap = {stdout = Buffer.create 4096; stderr = Buffer.create 4096} in
+    let previous = !current in
+    current := Some cap;
+    let std_out, std_flush =
+      Format.pp_get_formatter_output_functions
+        Format.std_formatter ()
+    in
+    let err_out, err_flush =
+      Format.pp_get_formatter_output_functions
+        Format.err_formatter ()
+    in
+    let out_fun s ofs len = print_string (String.sub s ofs len) in
+    let err_fun s ofs len = prerr_string (String.sub s ofs len) in
+    let finally () =
+      current := previous;
+      Format.pp_set_formatter_output_functions Format.std_formatter
+        std_out std_flush;
+      Format.pp_set_formatter_output_functions Format.err_formatter
+        err_out err_flush
+    in
+    Format.pp_set_formatter_output_functions Format.std_formatter
+       out_fun ignore;
+    Format.pp_set_formatter_output_functions Format.err_formatter
+      err_fun ignore;
+    Fun.protect ~finally (fun () ->
+      let res = f () in
+      Format.pp_print_flush Format.std_formatter ();
+      Format.pp_print_flush Format.err_formatter ();
+      res, Buffer.contents cap.stdout, Buffer.contents cap.stderr
+    )
+end
 
 (* Exceptions *)
 
@@ -1093,7 +1168,7 @@ let delete_eol_spaces src =
 
 (* showing configuration and configuration variables *)
 let show_config_and_exit () =
-  Config.print_config stdout;
+  Config.print_config Out.print_string;
   exit 0
 
 let show_config_variable_and_exit x =
@@ -1105,7 +1180,7 @@ let show_config_variable_and_exit x =
          remain if printing a newline under Windows and scripts would
          have to use $(ocamlc -config-var foo | tr -d '\r')
          for portability. Ugh. *)
-      print_string v;
+      Out.print_string v;
       exit 0
   | None ->
       exit 2
@@ -1414,4 +1489,87 @@ module Magic_number = struct
          match check_current kind info with
            | Error err -> Error (Unexpected_error err)
            | Ok () -> Ok info
+end
+
+module Server = struct
+  type request =
+    {
+      id: string;
+      cwd: string;
+      args: string list;
+    }
+
+  type response =
+    {
+      id: string;
+      code: int;
+      stdout: string;
+      stderr: string;
+    }
+
+  let read_request ic =
+    match input_line ic with
+    | exception End_of_file -> Ok None
+    | line ->
+        begin match String.split_on_char ' ' line with
+        | [ "REQ"; id; argc ] ->
+            begin match int_of_string_opt argc with
+            | None -> Error "invalid argc"
+            | Some argc ->
+                if argc < 0 then
+                  Error "invalid argc"
+                else
+                  let cwd =
+                    match input_line ic with
+                    | line -> line
+                    | exception End_of_file -> ""
+                  in
+                  let rec read_args n acc =
+                    if n = 0 then
+                      Ok (List.rev acc)
+                    else
+                      match input_line ic with
+                      | line -> read_args (n - 1) (line :: acc)
+                      | exception End_of_file -> Error "unexpected EOF"
+                  in
+                  begin match read_args argc [] with
+                  | Error _ as err -> err
+                  | Ok args -> Ok (Some {id; cwd; args})
+                  end
+            end
+        | _ ->
+            Error "invalid request header"
+        end
+
+  let write_response oc {id; code; stdout; stderr} =
+    let out_len = String.length stdout in
+    let err_len = String.length stderr in
+    Printf.fprintf oc "RES %s %d %d %d\n%s%s%!"
+      id code out_len err_len stdout stderr
+
+  let enable = ref false
+
+  let run f prog =
+    In_channel.set_binary_mode stdin true;
+    Out_channel.set_binary_mode stdout true;
+    enable := false;
+    let rec loop () =
+      match read_request stdin with
+      | Ok None ->
+          exit 0
+      | Ok (Some {id; cwd; args}) ->
+          let code, stdout, stderr =
+            Out.with_capture @@ fun () ->
+            Local_store.with_store (Local_store.fresh ()) @@ fun () ->
+            let old_cwd = Sys.getcwd () in
+            Fun.protect ~finally:(fun () -> Sys.chdir old_cwd) @@ fun () ->
+            Sys.chdir cwd;
+            f (Array.of_list (prog :: args))
+          in
+          write_response Out_channel.stdout {id; code; stdout; stderr};
+          loop ()
+      | Error msg ->
+          fatal_errorf "Error reading request: %s" msg
+    in
+    loop ()
 end

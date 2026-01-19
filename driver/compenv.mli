@@ -13,8 +13,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-exception Exit_with_status of int
-
 val output_prefix : string -> string
 val extract_output : string option -> string
 val default_output : string option -> string

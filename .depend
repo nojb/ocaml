@@ -32,6 +32,7 @@ utils/clflags.cmo : \
     utils/profile.cmi \
     utils/numbers.cmi \
     utils/misc.cmi \
+    utils/local_store.cmi \
     utils/config.cmi \
     utils/arg_helper.cmi \
     utils/clflags.cmi
@@ -39,6 +40,7 @@ utils/clflags.cmx : \
     utils/profile.cmx \
     utils/numbers.cmx \
     utils/misc.cmx \
+    utils/local_store.cmx \
     utils/config.cmx \
     utils/arg_helper.cmx \
     utils/clflags.cmi
@@ -157,11 +159,13 @@ utils/local_store.cmx : \
     utils/local_store.cmi
 utils/local_store.cmi :
 utils/misc.cmo : \
+    utils/local_store.cmi \
     utils/format_doc.cmi \
     utils/config.cmi \
     utils/build_path_prefix_map.cmi \
     utils/misc.cmi
 utils/misc.cmx : \
+    utils/local_store.cmx \
     utils/format_doc.cmx \
     utils/config.cmx \
     utils/build_path_prefix_map.cmx \
@@ -212,10 +216,12 @@ utils/terminfo.cmx : \
 utils/terminfo.cmi :
 utils/warnings.cmo : \
     utils/misc.cmi \
+    utils/local_store.cmi \
     utils/format_doc.cmi \
     utils/warnings.cmi
 utils/warnings.cmx : \
     utils/misc.cmx \
+    utils/local_store.cmx \
     utils/format_doc.cmx \
     utils/warnings.cmi
 utils/warnings.cmi : \
@@ -6950,6 +6956,7 @@ driver/compenv.cmo : \
     utils/profile.cmi \
     utils/misc.cmi \
     parsing/location.cmi \
+    utils/local_store.cmi \
     utils/config.cmi \
     utils/clflags.cmi \
     utils/ccomp.cmi \
@@ -6959,6 +6966,7 @@ driver/compenv.cmx : \
     utils/profile.cmx \
     utils/misc.cmx \
     parsing/location.cmx \
+    utils/local_store.cmx \
     utils/config.cmx \
     utils/clflags.cmx \
     utils/ccomp.cmx \
@@ -7113,6 +7121,7 @@ driver/main_args.cmi :
 driver/maindriver.cmo : \
     utils/warnings.cmi \
     utils/profile.cmi \
+    utils/misc.cmi \
     driver/makedepend.cmi \
     driver/main_args.cmi \
     parsing/location.cmi \
@@ -7128,6 +7137,7 @@ driver/maindriver.cmo : \
 driver/maindriver.cmx : \
     utils/warnings.cmx \
     utils/profile.cmx \
+    utils/misc.cmx \
     driver/makedepend.cmx \
     driver/main_args.cmx \
     parsing/location.cmx \
@@ -7228,6 +7238,7 @@ driver/optmaindriver.cmo : \
     utils/profile.cmi \
     asmcomp/proc.cmi \
     driver/optcompile.cmi \
+    utils/misc.cmi \
     driver/makedepend.cmi \
     driver/main_args.cmi \
     parsing/location.cmi \
@@ -7248,6 +7259,7 @@ driver/optmaindriver.cmx : \
     utils/profile.cmx \
     asmcomp/proc.cmx \
     driver/optcompile.cmx \
+    utils/misc.cmx \
     driver/makedepend.cmx \
     driver/main_args.cmx \
     parsing/location.cmx \
@@ -7474,7 +7486,6 @@ toplevel/topdirs.cmo : \
     typing/data_types.cmi \
     typing/ctype.cmi \
     utils/config.cmi \
-    driver/compenv.cmi \
     utils/clflags.cmi \
     typing/btype.cmi \
     parsing/asttypes.cmi \
@@ -7501,7 +7512,6 @@ toplevel/topdirs.cmx : \
     typing/data_types.cmx \
     typing/ctype.cmx \
     utils/config.cmx \
-    driver/compenv.cmx \
     utils/clflags.cmx \
     typing/btype.cmx \
     parsing/asttypes.cmx \
@@ -7670,6 +7680,7 @@ toplevel/byte/topmain.cmo : \
     toplevel/topcommon.cmi \
     typing/printtyp.cmi \
     typing/path.cmi \
+    utils/misc.cmi \
     driver/main_args.cmi \
     parsing/location.cmi \
     typing/env.cmi \
@@ -7686,6 +7697,7 @@ toplevel/byte/topmain.cmx : \
     toplevel/topcommon.cmx \
     typing/printtyp.cmx \
     typing/path.cmx \
+    utils/misc.cmx \
     driver/main_args.cmx \
     parsing/location.cmx \
     typing/env.cmx \
@@ -7825,6 +7837,7 @@ toplevel/native/tophooks.cmi : \
 toplevel/native/topmain.cmo : \
     toplevel/toploop.cmi \
     toplevel/topcommon.cmi \
+    utils/misc.cmi \
     driver/main_args.cmi \
     parsing/location.cmi \
     driver/compmisc.cmi \
@@ -7834,6 +7847,7 @@ toplevel/native/topmain.cmo : \
 toplevel/native/topmain.cmx : \
     toplevel/toploop.cmx \
     toplevel/topcommon.cmx \
+    utils/misc.cmx \
     driver/main_args.cmx \
     parsing/location.cmx \
     driver/compmisc.cmx \
@@ -8138,13 +8152,13 @@ tools/ocamlcp.cmx : \
     tools/ocamlcp.cmi
 tools/ocamlcp.cmi :
 tools/ocamlcp_common.cmo : \
+    utils/misc.cmi \
     driver/main_args.cmi \
-    driver/compenv.cmi \
     utils/clflags.cmi \
     tools/ocamlcp_common.cmi
 tools/ocamlcp_common.cmx : \
+    utils/misc.cmx \
     driver/main_args.cmx \
-    driver/compenv.cmx \
     utils/clflags.cmx \
     tools/ocamlcp_common.cmi
 tools/ocamlcp_common.cmi : \
@@ -9015,9 +9029,9 @@ ocamldoc/odoc_args.cmo : \
     ocamldoc/odoc_gen.cmi \
     ocamldoc/odoc_dot.cmi \
     ocamldoc/odoc_config.cmi \
+    utils/misc.cmi \
     driver/main_args.cmi \
     utils/config.cmi \
-    driver/compenv.cmi \
     ocamldoc/odoc_args.cmi
 ocamldoc/odoc_args.cmx : \
     otherlibs/str/str.cmx \
@@ -9031,9 +9045,9 @@ ocamldoc/odoc_args.cmx : \
     ocamldoc/odoc_gen.cmx \
     ocamldoc/odoc_dot.cmx \
     ocamldoc/odoc_config.cmx \
+    utils/misc.cmx \
     driver/main_args.cmx \
     utils/config.cmx \
-    driver/compenv.cmx \
     ocamldoc/odoc_args.cmi
 ocamldoc/odoc_args.cmi : \
     ocamldoc/odoc_gen.cmi
@@ -10379,10 +10393,8 @@ ocamltest/ocamltest_stdlib.cmi : \
     ocamltest/ocamltest_unix.cmi \
     utils/misc.cmi
 ocamltest/ocamltest_unix.cmo : \
-    otherlibs/unix/unix.cmi \
     ocamltest/ocamltest_unix.cmi
 ocamltest/ocamltest_unix.cmx : \
-    otherlibs/unix/unix.cmx \
     ocamltest/ocamltest_unix.cmi
 ocamltest/ocamltest_unix.cmi :
 ocamltest/ocamltest_unix_dummy.cmo :

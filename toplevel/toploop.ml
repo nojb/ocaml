@@ -408,7 +408,7 @@ let loop ppf =
       let phrs = get_phrases ppf lb [] in
       process_phrases ppf snap phrs
     with
-    | End_of_file -> raise (Compenv.Exit_with_status 0)
+    | End_of_file -> Misc.exit 0
     | Sys.Break -> fprintf ppf "Interrupted.@."; Btype.backtrack !snap
     | PPerror -> ()
     | x -> Location.report_exception ppf x; Btype.backtrack !snap
@@ -423,7 +423,7 @@ let prepare ppf ?input () =
   begin try
     initialize_toplevel_env ()
   with Env.Error _ | Typetexp.Error _ as exn ->
-    Location.report_exception ppf exn; raise (Compenv.Exit_with_status 2)
+    Location.report_exception ppf exn; Misc.exit 2
   end;
   try
     let res =

@@ -91,7 +91,7 @@ module Make(T: OCAMLCP) = struct
   let main () =
     begin try
       Arg.parse_expand optlist anon usage
-    with Compenv.Exit_with_status n -> exit n
+    with Misc.Exit_with_status n -> exit n
     end;
     let cannot_deal_with a b =
       Printf.eprintf

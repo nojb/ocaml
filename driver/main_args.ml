@@ -83,6 +83,10 @@ let mk_config_var f =
   " Print the value of a configuration variable, without a newline, and exit\n\
 \    (print nothing and exit with error value if the variable does not exist)"
 
+let mk_server f =
+  "-server", Arg.Unit f,
+  " Run in server mode"
+
 let mk_custom f =
   "-custom", Arg.Unit f, " Link in custom mode"
 
@@ -938,6 +942,7 @@ module type Bytecomp_options = sig
   val _vmthread : unit -> unit
   val _use_runtime : string -> unit
   val _output_complete_exe : unit -> unit
+  val _server : unit -> unit
 
   val _dinstr : unit -> unit
   val _dcamlprimc : unit -> unit
@@ -1011,6 +1016,7 @@ module type Optcomp_options = sig
   include Core_options
   include Compiler_options
   include Optcommon_options
+  val _server : unit -> unit
   val _nodynlink : unit -> unit
   val _p : unit -> unit
   val _pp : string -> unit
@@ -1065,6 +1071,7 @@ struct
     mk_compat_32 F._compat_32;
     mk_config F._config;
     mk_config_var F._config_var;
+    mk_server F._server;
     mk_custom F._custom;
     mk_dllib F._dllib;
     mk_dllpath F._dllpath;
@@ -1274,6 +1281,7 @@ struct
     mk_compact F._compact;
     mk_config F._config;
     mk_config_var F._config_var;
+    mk_server F._server;
     mk_dtypes F._annot;
     mk_for_pack_opt F._for_pack;
     mk_g_opt F._g;
@@ -1868,12 +1876,12 @@ module Default = struct
 
     let print_version () =
       Printf.printf "The OCaml toplevel, version %s\n" Sys.ocaml_version;
-      raise (Compenv.Exit_with_status 0);
+      Misc.exit 0
     ;;
 
     let print_version_num () =
       Printf.printf "%s\n" Sys.ocaml_version;
-      raise (Compenv.Exit_with_status 0);
+      Misc.exit 0
     ;;
 
     let _args (_:string) = (* placeholder: wrap_expand Arg.read_arg *) [||]
@@ -1922,6 +1930,7 @@ module Default = struct
          OCaml 4.08.0"
     let _shared () = shared := true; dlcode := true
     let _v () = Compenv.print_version_and_library "native-code compiler"
+    let _server () = Clflags.server_mode := true
   end
 
   module Odoc_args = struct
@@ -1982,6 +1991,7 @@ third-party libraries such as Lwt, but with a different API."
     let _output_obj () = output_c_object := true; custom_runtime := true
     let _use_prims s = use_prims := s
     let _use_runtime s = use_runtime := s
+    let _server () = Clflags.server_mode := true
     let _v () = Compenv.print_version_and_library "compiler"
     let _vmthread () = Compenv.fatal vmthread_removed_message
   end

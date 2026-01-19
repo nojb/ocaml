@@ -287,7 +287,7 @@ val tsan : bool
 (** Whether ThreadSanitizer instrumentation is enabled *)
 
 (** Access to configuration values *)
-val print_config : out_channel -> unit
+val print_config : (string -> unit) -> unit
 
 val config_var : string -> string option
 (** the configuration value of a variable, if it exists *)

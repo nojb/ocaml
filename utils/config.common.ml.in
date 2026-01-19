@@ -141,19 +141,18 @@ let configuration_variables () =
   p "linear_magic_number" linear_magic_number;
 ]
 
-let print_config_value oc = function
+let print_config_value () = function
   | String s ->
-      Printf.fprintf oc "%s" s
+      s
   | Int n ->
-      Printf.fprintf oc "%d" n
+      Printf.sprintf "%d" n
   | Bool p ->
-      Printf.fprintf oc "%B" p
+      Printf.sprintf "%B" p
 
-let print_config oc =
+let print_config print_string =
   let print (x, v) =
-    Printf.fprintf oc "%s: %a\n" x print_config_value v in
-  List.iter print (configuration_variables ());
-  flush oc
+    Printf.ksprintf print_string "%s: %a\n" x print_config_value v in
+  List.iter print (configuration_variables ())
 
 let config_var x =
   match List.assoc_opt x (configuration_variables()) with

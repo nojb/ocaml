@@ -30,6 +30,23 @@ val fatal_errorf: ('a, Format.formatter, unit, 'b) format4 -> 'a
       and raise [Fatal_error] with the resulting string. *)
 
 exception Fatal_error
+exception Exit_with_status of int
+
+val exit: int -> 'a
+(** Raise the [Exit_with_status] exception. *)
+
+(** {1 Console Output} *)
+
+module Out : sig
+  val print_string : string -> unit
+  val print_endline : string -> unit
+  val print_newline : unit -> unit
+  val prerr_string : string -> unit
+  val prerr_endline : string -> unit
+  val prerr_newline : unit -> unit
+  val printf : ('a, unit, string, unit) format4 -> 'a
+  val eprintf : ('a, unit, string, unit) format4 -> 'a
+end
 
 (** {1 Exceptions and finalization} *)
 
@@ -875,3 +892,8 @@ type modname = string
 type crcs = (modname * Digest.t option) list
 
 type alerts = string Stdlib.String.Map.t
+
+module Server : sig
+  val enable: bool ref
+  val run: (string array -> int) -> string -> unit
+end

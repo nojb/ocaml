@@ -18,7 +18,7 @@ open Clflags
 
 module Options = Main_args.Make_bytecomp_options (Main_args.Default.Main)
 
-let main argv ppf =
+let rec main argv ppf =
   let program = "ocamlc" in
   Clflags.add_arguments __LOC__ Options.list;
   Clflags.add_arguments __LOC__
@@ -31,6 +31,11 @@ let main argv ppf =
     Compmisc.read_clflags_from_env ();
     if !Clflags.plugin then
       Compenv.fatal "-plugin is only supported up to OCaml 4.08.0";
+    if !Clflags.server_mode then begin
+      Clflags.server_mode := false;
+      Clflags.reset_arguments ();
+      Misc.Server.run (fun argv -> main argv ppf) argv.(0)
+    end;
     begin try
       Compenv.process_deferred_actions
         (ppf,
@@ -40,9 +45,9 @@ let main argv ppf =
          ".cma");
     with Arg.Bad msg ->
       begin
-        prerr_endline msg;
+        Misc.Out.prerr_endline msg;
         Clflags.print_arguments program;
-        exit 2
+        Misc.exit 2
       end
     end;
     if Clflags.(should_stop_after Compiler_pass.Lambda)
@@ -107,7 +112,7 @@ let main argv ppf =
       Warnings.check_fatal ();
     end;
   with
-  | exception (Compenv.Exit_with_status n) ->
+  | exception Misc.Exit_with_status n ->
     n
   | exception Continue
   | () ->
