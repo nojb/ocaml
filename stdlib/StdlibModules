@@ -64,7 +64,6 @@ STDLIB_MODULE_BASENAMES = \
   nativeint \
   lexing \
   parsing \
-  repr \
   set \
   map \
   stack \
@@ -88,6 +87,8 @@ STDLIB_MODULE_BASENAMES = \
   hashtbl \
   weak \
   format \
+  camlinternalRepr \
+  repr \
   scanf \
   callback \
   camlinternalOO \

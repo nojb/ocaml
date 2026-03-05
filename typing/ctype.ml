@@ -6599,3 +6599,139 @@ let immediacy env typ =
       else
         Type_immediacy.Always
   | _ -> Type_immediacy.Unknown
+
+let desc_of_type env ty : CamlinternalRepr.type_desc =
+  let module Repr = CamlinternalRepr in
+  let defs = Hashtbl.create 17 in
+  let defs_by_path = ref Path.Map.empty in
+  let next_def = ref 0 in
+  let rec desc_of_type_expr params ty =
+    match List.assoc_opt (get_id ty) params with
+    | Some i ->
+        Repr.Tparam i
+    | None ->
+        begin match get_desc ty with
+        | Tconstr (path, ty_list, _) ->
+            begin match builtin_desc params path ty_list with
+            | Some d -> d
+            | None ->
+                let id = ensure_type_def path in
+                Repr.Tconstr (id, Iarray.of_list (List.map (desc_of_type_expr params) ty_list))
+            end
+        | Ttuple labeled_tys ->
+            Repr.Ttuple
+              (Iarray.of_list (List.map (fun (_lbl, ty) -> desc_of_type_expr params ty) labeled_tys))
+        | Tarrow (_lbl, ty1, ty2, _commu) ->
+            Repr.Tarrow (desc_of_type_expr params ty1, desc_of_type_expr params ty2)
+        | Tpoly (ty, _vars) ->
+            desc_of_type_expr params ty
+        | Tvar _ | Tunivar _ | Tobject _ | Tfield _ | Tnil | Tvariant _
+        | Tpackage _ | Tfunctor _ | Tsubst _ | Tlink _ ->
+            Repr.Tabstract
+        end
+
+  and builtin_desc params path ty_list =
+    match ty_list with
+    | [] when Path.same_unsafe path Predef.path_int -> Some Repr.Tint
+    | [] when Path.same_unsafe path Predef.path_char -> Some Repr.Tchar
+    | [] when Path.same_unsafe path Predef.path_string -> Some Repr.Tstring
+    | [] when Path.same_unsafe path Predef.path_bytes -> Some Repr.Tbytes
+    | [] when Path.same_unsafe path Predef.path_float -> Some Repr.Tfloat
+    | [] when Path.same_unsafe path Predef.path_nativeint -> Some Repr.Tnativeint
+    | [] when Path.same_unsafe path Predef.path_int32 -> Some Repr.Tint32
+    | [] when Path.same_unsafe path Predef.path_int64 -> Some Repr.Tint64
+    | [ty] when Path.same_unsafe path Predef.path_array ->
+        Some (Repr.Tarray (desc_of_type_expr params ty))
+    | [ty] when Path.same_unsafe path Predef.path_iarray ->
+        Some (Repr.Tiarray (desc_of_type_expr params ty))
+    | [ty] when Path.same_unsafe path Predef.path_list ->
+        Some (Repr.Tlist (desc_of_type_expr params ty))
+    | [ty] when Path.same_unsafe path Predef.path_lazy_t ->
+        Some (Repr.Tlazy (desc_of_type_expr params ty))
+    | [] when Path.same_unsafe path Predef.path_floatarray ->
+        Some Repr.Tfloatarray
+    | _ -> None
+
+  and ensure_type_def path =
+    match Path.Map.find_opt path !defs_by_path with
+    | Some id -> id
+    | None ->
+        let id = !next_def in
+        incr next_def;
+        defs_by_path := Path.Map.add path id !defs_by_path;
+        let def =
+          ref { Repr.td_name = Path.name path;
+                td_params = 0;
+                td_desc = Repr.Tabstract;
+              }
+        in
+        Hashtbl.add defs id def;
+        begin match Env.find_type path env with
+        | exception Not_found -> ()
+        | decl ->
+            def := desc_of_type_decl path decl
+        end;
+        id
+
+  and desc_of_type_decl path decl =
+    let params =
+      List.mapi (fun i ty -> (get_id ty, i)) decl.type_params
+    in
+    let desc ty = desc_of_type_expr params ty in
+    let td_desc =
+      let field ld =
+        { Repr.fld_name = Ident.name ld.ld_id; fld_type = desc ld.ld_type }
+      in
+      match decl.type_kind with
+      | Type_abstract _ ->
+          begin match decl.type_manifest with
+          | None -> Repr.Tabstract
+          | Some ty -> desc ty
+          end
+      | Type_variant (cstrs, repr) ->
+          if List.exists (fun cd -> cd.cd_res <> None) cstrs then
+            Repr.Tabstract
+          else
+            let var_const, var_nonconst =
+              let rec loop const nonconst = function
+                | [] ->
+                    Iarray.of_list (List.rev const), Iarray.of_list (List.rev nonconst)
+                | cd :: cds ->
+                    let cstr_name = Ident.name cd.cd_id in
+                    begin match cd.cd_args with
+                    | Cstr_tuple [] ->
+                        loop (cstr_name :: const) nonconst cds
+                    | Cstr_tuple tys ->
+                        loop const ({Repr.cstr_name; cstr_args = Cstr_tuple (Iarray.of_list (List.map desc tys))} :: nonconst) cds
+                    | Cstr_record fields ->
+                        loop const ({Repr.cstr_name; cstr_args = Cstr_record (Repr.Trecord {rec_repr = Record_regular; rec_fields = Iarray.of_list (List.map field fields)})} :: nonconst) cds
+                    end
+              in
+              loop [] [] cstrs
+            in
+            let var_repr =
+              match repr with
+              | Variant_unboxed -> Repr.Variant_unboxed
+              | _ -> Repr.Variant_regular
+            in
+            Repr.Tvariant {var_repr; var_const; var_nonconst}
+      | Type_record (fields, _repr) ->
+          Repr.Trecord
+            { rec_repr =
+                begin match _repr with
+                | Record_unboxed _ -> Repr.Record_unboxed
+                | Record_extension _ -> Repr.Record_extension
+                | Record_regular | Record_inlined _ -> Repr.Record_regular
+                | Record_float -> Record_float
+                end;
+              rec_fields = Iarray.of_list (List.map field fields);
+            }
+      | Type_open | Type_external _ ->
+          Repr.Tabstract
+    in
+    {Repr.td_name = Path.name path; td_params = decl.type_arity; td_desc}
+  in
+  let root = desc_of_type_expr [] ty in
+  if !next_def = 0 then root
+  else
+    Repr.Tlet (List.init !next_def (fun id -> !(Hashtbl.find defs id)), root)

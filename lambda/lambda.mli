@@ -533,3 +533,5 @@ val merge_inline_attributes
   -> inline_attribute option
 
 val reset: unit -> unit
+
+val const_of_obj: Obj.t -> structured_constant

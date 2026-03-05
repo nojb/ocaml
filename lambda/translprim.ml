@@ -105,6 +105,7 @@ type prim =
   | Revapply
   | Atomic of atomic_op * atomic_kind
   | Todo
+  | Pp
 
 let used_primitives = Hashtbl.create 7
 let add_used_primitive loc env path =
@@ -404,6 +405,7 @@ let primitives_table =
     "%resume", Primitive (Presume, 3);
     "%dls_get", Primitive (Pdls_get, 1);
     "%poll", Primitive (Ppoll, 1);
+    "%pp", Pp;
     "%todo", Todo;
   ]
 
@@ -788,6 +790,9 @@ let raise_todo ~loc arg arg_exps =
                  [Const_immstring fname;
                   Const_int line]))], loc)], loc))
 
+let path_print_obj =
+  Path.Pdot (Path.Pident (Ident.create_persistent "CamlinternalRepr"), "print_obj")
+
 let lambda_of_prim prim_name prim loc args arg_exps =
   match prim, args with
   | Primitive (prim, arity), args when arity = List.length args ->
@@ -870,7 +875,7 @@ let lambda_of_prim prim_name prim loc args arg_exps =
   | (Raise _ | Raise_with_backtrace
     | Lazy_force | Loc _ | Primitive _ | Sys_argv | Comparison _
     | Send | Send_self | Send_cache | Frame_pointers | Identity
-    | Apply | Revapply | Todo
+    | Apply | Revapply | Todo | Pp
     ), _ ->
       raise(Error(to_location loc, Wrong_arity_builtin_primitive prim_name))
 
@@ -893,6 +898,7 @@ let check_primitive_arity loc p =
     | Apply | Revapply -> p.prim_arity = 2
     | Atomic (op, kind) -> p.prim_arity = atomic_arity op kind
     | Todo -> p.prim_arity = 1
+    | Pp -> p.prim_arity = 2
   in
   if not ok then raise(Error(loc, Wrong_arity_builtin_primitive p.prim_name))
 
@@ -900,6 +906,38 @@ let check_primitive_arity loc p =
 
 let transl_primitive loc p env ty path =
   let prim = lookup_primitive_and_mark_used (to_location loc) p env path in
+  match prim with
+  | Pp ->
+      let ppf = Ident.create_local "ppf" in
+      let arg = Ident.create_local "arg" in
+      let ty_arg =
+        let rec loop n ty =
+          match Types.get_desc ty with
+          | Types.Tpoly (ty, _) -> loop n ty
+          | Types.Tarrow (_, ty_arg, ty_res, _) ->
+              if n = 0 then ty_arg else loop (n - 1) ty_res
+          | _ -> raise (Error (to_location loc, Wrong_arity_builtin_primitive p.prim_name))
+        in
+        loop 1 ty
+      in
+      let arg_ty = const_of_obj (Obj.repr (Ctype.desc_of_type env ty_arg)) in
+      let body =
+        Lapply {
+          ap_func = transl_value_path loc env path_print_obj;
+          ap_args = [Lvar ppf; Lconst arg_ty; Lvar arg];
+          ap_loc = loc;
+          ap_tailcall = Default_tailcall;
+          ap_inlined = Default_inline;
+          ap_specialised = Default_specialise;
+        }
+      in
+      lfunction ~kind:Curried
+                ~params:[ppf, Pgenval; arg, Pgenval]
+                ~return:Pgenval
+                ~body
+                ~attr:default_stub_attribute
+                ~loc
+  | _ ->
   let has_constant_constructor = false in
   let prim =
     match specialize_primitive env ty ~has_constant_constructor prim with
@@ -972,12 +1010,37 @@ let primitive_needs_event_after = function
   | Raise _ | Raise_with_backtrace
   | Loc _
   | Frame_pointers | Identity
-  | Atomic (_, _) | Todo
+  | Atomic (_, _) | Todo | Pp
     -> false
 
 let transl_primitive_application loc p env ty path exp args arg_exps =
   let prim =
     lookup_primitive_and_mark_used (to_location loc) p env (Some path) in
+  match prim with
+  | Pp ->
+      begin match args, arg_exps with
+      | [ppf; arg], [_; arg_exp] ->
+          let arg_ty = const_of_obj (Obj.repr (Ctype.desc_of_type env arg_exp.exp_type)) in
+          let lam =
+            Lapply {
+              ap_func = transl_value_path loc env path_print_obj;
+              ap_args = [ppf; Lconst arg_ty; arg];
+              ap_loc = loc;
+              ap_tailcall = Default_tailcall;
+              ap_inlined = Default_inline;
+              ap_specialised = Default_specialise;
+            }
+          in
+          begin match exp with
+          | None -> lam
+          | Some exp -> event_after loc exp lam
+          end
+      | _ ->
+          raise
+            (Error
+               (to_location loc, Wrong_arity_builtin_primitive p.prim_name))
+      end
+  | _ ->
   let has_constant_constructor =
     match arg_exps with
     | [_; {exp_desc = Texp_construct(_, {cstr_tag = Cstr_constant _}, _)}]

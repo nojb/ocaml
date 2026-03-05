@@ -178,6 +178,23 @@ camlinternalOO.cmx : \
     camlinternalOO.cmi
 camlinternalOO.cmi : \
     stdlib__Obj.cmi
+camlinternalRepr.cmo : \
+    stdlib__Obj.cmi \
+    stdlib__Iarray.cmi \
+    stdlib__Format.cmi \
+    stdlib__Float.cmi \
+    stdlib__Array.cmi \
+    camlinternalRepr.cmi
+camlinternalRepr.cmx : \
+    stdlib__Obj.cmx \
+    stdlib__Iarray.cmx \
+    stdlib__Format.cmx \
+    stdlib__Float.cmx \
+    stdlib__Array.cmx \
+    camlinternalRepr.cmi
+camlinternalRepr.cmi : \
+    stdlib__Obj.cmi \
+    stdlib__Format.cmi
 stdlib__Char.cmo : char.ml \
     stdlib__Char.cmi
 stdlib__Char.cmx : char.ml \
@@ -713,11 +730,14 @@ stdlib__Random.cmi : random.mli \
     stdlib__Int32.cmi
 stdlib__Repr.cmo : repr.ml \
     stdlib.cmi \
+    stdlib__Format.cmi \
     stdlib__Repr.cmi
 stdlib__Repr.cmx : repr.ml \
     stdlib.cmx \
+    stdlib__Format.cmx \
     stdlib__Repr.cmi
-stdlib__Repr.cmi : repr.mli
+stdlib__Repr.cmi : repr.mli \
+    stdlib__Format.cmi
 stdlib__Result.cmo : result.ml \
     stdlib__Seq.cmi \
     stdlib__Result.cmi

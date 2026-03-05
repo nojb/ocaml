@@ -1086,3 +1086,18 @@ let find_exact_application kind ~arity args =
 
 let reset () =
   raise_count := 0
+
+let rec const_of_obj (obj : Obj.t) : structured_constant =
+  if Obj.is_int obj then Const_int (Obj.obj obj) else
+  let tag = Obj.tag obj in
+  if tag = Obj.string_tag then
+    Const_immstring (Obj.obj obj : string)
+  else if tag = Obj.double_tag then
+    Const_float (string_of_float (Obj.obj obj : float))
+  else if tag = Obj.double_array_tag then
+    Const_float_array
+      (List.init (Obj.size obj) (fun i -> string_of_float (Obj.double_field obj i)))
+  else if tag >= Obj.no_scan_tag then
+    fatal_error __FUNCTION__
+  else
+    Const_block (tag, List.init (Obj.size obj) (fun i -> const_of_obj (Obj.field obj i)))
