@@ -67,3 +67,5 @@ val max : 'a -> 'a -> 'a
 (** Return the greater of the two arguments.
     The result is unspecified if one of the arguments contains
     the float value {!Stdlib.nan}. *)
+
+external pp : Format.formatter -> 'a -> unit = "%pp"

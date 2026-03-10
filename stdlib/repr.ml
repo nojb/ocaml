@@ -19,3 +19,5 @@ external compare : 'a -> 'a -> int = "%compare"
 
 let min = Stdlib.min
 let max = Stdlib.max
+
+external pp : Format.formatter -> 'a -> unit = "%pp"
