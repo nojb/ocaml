@@ -43,7 +43,11 @@ val runtime_executable : string
 *)
 
 external file_exists : string -> bool = "caml_sys_file_exists"
-(** Test if a file with the given name exists. *)
+(** Test if a file with the given name exists.
+
+    Note that unlike other functions in this module, if the underlying system
+    call fails (eg due to permission errors), the function returns [false] and
+    does not raise [Sys_error]. *)
 
 external is_directory : string -> bool = "caml_sys_is_directory"
 (** Returns [true] if the given name refers to a directory,
