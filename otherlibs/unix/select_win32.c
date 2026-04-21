@@ -1081,15 +1081,14 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
          to watch */
       DEBUG_PRINT("Dispatch read fd");
       handle_set_init(&hds, hdsData, hdsMax);
-      i=0;
-      for (l = readfds; l != Val_emptylist; l = Field(l, 1))
+      for (l = readfds, i = 0; l != Val_emptylist; l = Field(l, 1), i++)
         {
           fd = Field(l, 0);
           if (!handle_set_mem(&hds, Handle_val(fd)))
             {
               handle_set_add(&hds, Handle_val(fd));
               lpSelectData = select_data_dispatch(lpSelectData,
-                                                  SELECT_MODE_READ, fd, i++);
+                                                  SELECT_MODE_READ, fd, i);
             }
           else
             {
@@ -1101,15 +1100,14 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
 
       DEBUG_PRINT("Dispatch write fd");
       handle_set_init(&hds, hdsData, hdsMax);
-      i=0;
-      for (l = writefds; l != Val_emptylist; l = Field(l, 1))
+      for (l = writefds, i = 0; l != Val_emptylist; l = Field(l, 1), i++)
         {
           fd = Field(l, 0);
           if (!handle_set_mem(&hds, Handle_val(fd)))
             {
               handle_set_add(&hds, Handle_val(fd));
               lpSelectData = select_data_dispatch(lpSelectData,
-                                                  SELECT_MODE_WRITE, fd, i++);
+                                                  SELECT_MODE_WRITE, fd, i);
             }
           else
             {
@@ -1121,15 +1119,14 @@ CAMLprim value caml_unix_select(value readfds, value writefds, value exceptfds,
 
       DEBUG_PRINT("Dispatch exceptional fd");
       handle_set_init(&hds, hdsData, hdsMax);
-      i=0;
-      for (l = exceptfds; l != Val_emptylist; l = Field(l, 1))
+      for (l = exceptfds, i = 0; l != Val_emptylist; l = Field(l, 1), i++)
         {
           fd = Field(l, 0);
           if (!handle_set_mem(&hds, Handle_val(fd)))
             {
               handle_set_add(&hds, Handle_val(fd));
               lpSelectData = select_data_dispatch(lpSelectData,
-                                                  SELECT_MODE_EXCEPT, fd, i++);
+                                                  SELECT_MODE_EXCEPT, fd, i);
             }
           else
             {
