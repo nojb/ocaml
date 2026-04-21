@@ -110,6 +110,26 @@ typedef enum _SELECTMODE {
   SELECT_MODE_EXCEPT = 4,
 } SELECTMODE;
 
+/* We pack the three indices in the input lists (read, write, except) in a
+   single integer. Each index is at most MAXIMUM_WAIT_OBJECTS (= 64) so can fit
+   in a single byte. The read list index is packed in the first byte, the write
+   list index in the second byte, and the except list index in the third byte.
+   The macro below maps the values 1, 2, 4 from SELECTMODE to 0, 8, 16, which
+   are the corresponding bit offsets in the integer. */
+#define SELECTMODEOFS(EMode) ((EMode >> 1) << 3)
+
+static inline int get_orig_idx(int lpOrigIdx, SELECTMODE EMode)
+{
+  return (lpOrigIdx >> SELECTMODEOFS(EMode)) & 0xFFu;
+}
+
+static inline int set_orig_idx(int lpOrigIdx, SELECTMODE EMode, int idx)
+{
+  CAMLassert(0 <= idx && idx < 0xFFu);
+  int ofs = SELECTMODEOFS(EMode);
+  return (lpOrigIdx & ~(0xFFu << ofs)) | (idx << ofs);
+}
+
 typedef enum _SELECTSTATE {
   SELECT_STATE_NONE = 0,
   SELECT_STATE_INITFAILED,
@@ -129,6 +149,7 @@ typedef enum _SELECTTYPE {
 typedef struct _SELECTRESULT {
   LIST       lst;
   SELECTMODE EMode;
+  /* Index into one of (read, write, except) lists */
   int        lpOrigIdx;
 } SELECTRESULT;
 
@@ -139,6 +160,7 @@ typedef struct _SELECTQUERY {
   LIST         lst;
   SELECTMODE   EMode;
   HANDLE       hFileDescr;
+  /* Packed indices into (read, write, except) lists */
   int          lpOrigIdx;
   unsigned int uFlagsFd; /* Copy of filedescr->flags_fd */
 } SELECTQUERY;
@@ -237,7 +259,7 @@ static DWORD select_data_result_add (LPSELECTDATA lpSelectData,
   {
     i = lpSelectData->nResultsCount;
     lpSelectData->aResults[i].EMode  = EMode;
-    lpSelectData->aResults[i].lpOrigIdx = lpOrigIdx;
+    lpSelectData->aResults[i].lpOrigIdx = get_orig_idx(lpOrigIdx, EMode);
     lpSelectData->nResultsCount++;
     res = 1;
   }
@@ -261,7 +283,7 @@ static DWORD select_data_query_add (LPSELECTDATA lpSelectData,
     i = lpSelectData->nQueriesCount;
     lpSelectData->aQueries[i].EMode      = EMode;
     lpSelectData->aQueries[i].hFileDescr = hFileDescr;
-    lpSelectData->aQueries[i].lpOrigIdx  = lpOrigIdx;
+    lpSelectData->aQueries[i].lpOrigIdx  = set_orig_idx(-1, EMode, lpOrigIdx);
     lpSelectData->aQueries[i].uFlagsFd   = uFlagsFd;
     lpSelectData->nQueriesCount++;
     res = 1;
@@ -685,13 +707,14 @@ static LPSELECTDATA socket_poll_add (LPSELECTDATA lpSelectData,
     }
     aQueries->EMode = EMode;
     aQueries->hFileDescr = hFileDescr;
-    aQueries->lpOrigIdx = lpOrigIdx;
+    aQueries->lpOrigIdx = set_orig_idx(-1, EMode, lpOrigIdx);
     aQueries->uFlagsFd = uFlagsFd;
     DEBUG_PRINT("Socket %x added", hFileDescr);
   }
   else
   {
     aQueries->EMode |= EMode;
+    aQueries->lpOrigIdx = set_orig_idx(aQueries->lpOrigIdx, EMode, lpOrigIdx);
     DEBUG_PRINT("Socket %x updated to %d", hFileDescr, aQueries->EMode);
   }
 
