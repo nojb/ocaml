@@ -202,6 +202,9 @@ module Bytecode = struct
         let lib = (input_value ic : library) in
         Symtable.open_dlls lib.lib_dllibs;
         handle, lib.lib_units
+      end else
+      if buffer = Config.cma_thin_magic_number then begin
+        raise (DT.Error (Thin_bytecode_library file_name))
       end else begin
         raise (DT.Error (Not_a_bytecode_file file_name))
       end
@@ -243,6 +246,7 @@ type linking_error = DT.linking_error =
 
 type error = DT.error =
   | Not_a_bytecode_file of string
+  | Thin_bytecode_library of string
   | Inconsistent_import of string
   | Unavailable_unit of string
   | Unsafe_file

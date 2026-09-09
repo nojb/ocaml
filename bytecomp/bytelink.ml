@@ -32,6 +32,8 @@ module DepSet = Set.Make (Dep)
 type error =
   | File_not_found of filepath
   | Not_an_object_file of filepath
+  | Thin_member_not_found of filepath * filepath
+  | Thin_member_not_an_object_file of filepath * filepath
   | Wrong_object_name of filepath
   | Symbol_error of filepath * Symtable.error
   | Inconsistent_import of modname * filepath * filepath
@@ -72,6 +74,23 @@ let add_ccobjs obj_name origin l =
     end else if l.lib_custom then
       raise(Error(Needs_custom_runtime obj_name));
     lib_dllibs := l.lib_dllibs @ !lib_dllibs
+  end
+
+let add_thin_ccobjs obj_name origin l =
+  if not !Clflags.no_auto_link then begin
+    if
+      String.length !Clflags.use_runtime = 0
+      && String.length !Clflags.use_prims = 0
+    then begin
+      if l.tlib_custom then Clflags.custom_runtime := true;
+      lib_ccobjs := l.tlib_ccobjs @ !lib_ccobjs;
+      let replace_origin =
+        Misc.replace_substring ~before:"$CAMLORIGIN" ~after:origin
+      in
+      lib_ccopts := List.map replace_origin l.tlib_ccopts @ !lib_ccopts;
+    end else if l.tlib_custom then
+      raise(Error(Needs_custom_runtime obj_name));
+    lib_dllibs := l.tlib_dllibs @ !lib_dllibs
   end
 
 (* A note on ccobj ordering:
@@ -116,6 +135,28 @@ let linkdeps_unit ldeps ~filename compunit =
   let Compunit compunit = compunit.cu_name in
   Linkdeps.add ldeps ~filename ~compunit ~requires ~provides
 
+(* Read the descriptor of a member of a thin archive.  Members are .cmo
+   files: a thin archive is flattened when it is built, so it never refers
+   to another archive. *)
+let read_thin_member ~archive file_name =
+  if not (Sys.file_exists file_name) then
+    raise(Error(Thin_member_not_found(archive, file_name)));
+  let ic = open_in_bin file_name in
+  try
+    let buffer = really_input_string ic (String.length cmo_magic_number) in
+    if buffer <> cmo_magic_number then
+      raise(Error(Thin_member_not_an_object_file(archive, file_name)));
+    let compunit_pos = input_binary_int ic in
+    seek_in ic compunit_pos;
+    let compunit = (input_value ic : compilation_unit) in
+    close_in ic;
+    compunit
+  with
+    End_of_file ->
+      close_in ic;
+      raise(Error(Thin_member_not_an_object_file(archive, file_name)))
+  | x -> close_in ic; raise x
+
 let scan_file ldeps obj_name tolink =
   let file_name =
     try
@@ -158,6 +199,29 @@ let scan_file ldeps obj_name tolink =
               reqd)
           toc.lib_units [] in
       Link_archive(file_name, required) :: tolink
+    end
+    else if buffer = cma_thin_magic_number then begin
+      (* This is a thin archive.  Its members are files of their own; each
+         of them will be linked in only if needed. *)
+      let toc = (input_value ic : thin_library) in
+      close_in ic;
+      let dir = Filename.dirname file_name in
+      add_thin_ccobjs obj_name dir toc;
+      List.fold_right
+        (fun u tolink ->
+           let member = Misc.path_from ~dir u.tu_path in
+           let compunit = read_thin_member ~archive:file_name member in
+           let Compunit name = compunit.cu_name in
+           if compunit.cu_force_link
+           || u.tu_force_link
+           || !Clflags.link_everything
+           || Linkdeps.required ldeps name
+           then begin
+             linkdeps_unit ldeps ~filename:member compunit;
+             Link_object(member, compunit) :: tolink
+           end else
+             tolink)
+        toc.tlib_units tolink
     end
     else raise(Error(Not_an_object_file file_name))
   with
@@ -1064,6 +1128,17 @@ let report_error_doc ppf = function
   | Not_an_object_file name ->
       fprintf ppf "The file %a is not a bytecode object file"
         Location.Doc.quoted_filename name
+  | Thin_member_not_found(archive, name) ->
+      fprintf ppf
+        "@[<hov>Cannot find %a,@ which is a member of the thin library %a.@]"
+        Location.Doc.quoted_filename name
+        Location.Doc.quoted_filename archive
+  | Thin_member_not_an_object_file(archive, name) ->
+      fprintf ppf
+        "@[<hov>The file %a,@ which is a member of the thin library %a,@ \
+         is not a bytecode object file.@]"
+        Location.Doc.quoted_filename name
+        Location.Doc.quoted_filename archive
   | Wrong_object_name name ->
       fprintf ppf "The output file %a has the wrong name. The extension implies\
                   \ an object file but the link step was requested"

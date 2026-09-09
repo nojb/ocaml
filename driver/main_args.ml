@@ -496,6 +496,11 @@ let mk_strict_sequence f =
   "-strict-sequence", Arg.Unit f,
   " Left-hand part of a sequence must have type unit"
 
+let mk_thin f =
+  "-thin", Arg.Unit f,
+  " Build a thin library (with -a): record the paths of the member\n\
+  \    files instead of a copy of their contents"
+
 let mk_thread f =
   "-thread", Arg.Unit f,
   " (deprecated) same as -I +threads"
@@ -889,6 +894,7 @@ end
 
 module type Compiler_options = sig
   val _a : unit -> unit
+  val _thin : unit -> unit
   val _annot : unit -> unit
   val _binannot : unit -> unit
   val _binannot_occurrences : unit -> unit
@@ -1170,6 +1176,7 @@ struct
     mk_no_strict_sequence F._no_strict_sequence;
     mk_strict_formats F._strict_formats;
     mk_no_strict_formats F._no_strict_formats;
+    mk_thin F._thin;
     mk_thread F._thread;
     mk_unboxed_types F._unboxed_types;
     mk_no_unboxed_types F._no_unboxed_types;
@@ -1400,6 +1407,7 @@ struct
     mk_no_strict_sequence F._no_strict_sequence;
     mk_strict_formats F._strict_formats;
     mk_no_strict_formats F._no_strict_formats;
+    mk_thin F._thin;
     mk_thread F._thread;
     mk_unbox_closures F._unbox_closures;
     mk_unbox_closures_factor F._unbox_closures_factor;
@@ -1851,6 +1859,7 @@ module Default = struct
 
   module Compiler = struct
     let _a = set make_archive
+    let _thin = set thin_archive
     let _annot = set annotations
     let _args = Arg.read_arg
     let _args0 = Arg.read_arg0

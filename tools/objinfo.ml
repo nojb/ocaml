@@ -93,6 +93,18 @@ let print_cma_infos (lib : Cmo_format.library) =
   printf "\n";
   List.iter print_cmo_infos lib.lib_units
 
+let print_thin_cma_infos (lib : Cmo_format.thin_library) =
+  printf "Force custom: %a\n" yesno_of_bool lib.tlib_custom;
+  printf "Extra C object files:";
+  (* PR#4949: print in linking order *)
+  List.iter print_spaced_string (List.rev lib.tlib_ccobjs);
+  printf "\nExtra C options:";
+  List.iter print_spaced_string (List.rev lib.tlib_ccopts);
+  printf "\n";
+  print_string "Extra dynamically-loaded libraries:";
+  List.iter print_spaced_string (List.rev_map dllib lib.tlib_dllibs);
+  printf "\n"
+
 let print_cmi_infos name crcs =
   if not !quiet then begin
     printf "Unit name: %s\n" name;
@@ -275,6 +287,13 @@ let print_cmxa_infos (lib : Cmx_format.library_infos) =
   printf "\n";
   List.iter print_cmx_infos lib.lib_units
 
+let print_thin_cmxa_infos (lib : Cmx_format.thin_library_infos) =
+  printf "Extra C object files:";
+  List.iter print_spaced_string (List.rev lib.tlib_ccobjs);
+  printf "\nExtra C options:";
+  List.iter print_spaced_string (List.rev lib.tlib_ccopts);
+  printf "\n"
+
 let print_cmxs_infos header =
   List.iter
     (fun ui ->
@@ -413,7 +432,7 @@ let exit_magic_error ~expected_kind err =
 (* assume that 'ic' is already positioned at the right place
    depending on the format (usually right after the magic number,
    but Exec and Cmxs differ) *)
-let dump_obj_by_kind filename ic obj_kind =
+let rec dump_obj_by_kind filename ic obj_kind =
   let open Magic_number in
   match obj_kind with
     | Cmo ->
@@ -428,6 +447,13 @@ let dump_obj_by_kind filename ic obj_kind =
        let toc = (input_value ic : library) in
        close_in ic;
        print_cma_infos toc
+    | Cma_thin ->
+       let toc = (input_value ic : Cmo_format.thin_library) in
+       close_in ic;
+       print_thin_cma_infos toc;
+       List.iter
+         (fun (u : Cmo_format.thin_unit) -> dump_member filename u.tu_path)
+         toc.tlib_units
     | Cmi | Cmt ->
        close_in ic;
        let cmi, cmt = Cmt_format.read filename in
@@ -449,6 +475,13 @@ let dump_obj_by_kind filename ic obj_kind =
        let li = (input_value ic : library_infos) in
        close_in ic;
        print_cmxa_infos li
+    | Cmxa_thin _config ->
+       let li = (input_value ic : Cmx_format.thin_library_infos) in
+       close_in ic;
+       print_thin_cmxa_infos li;
+       List.iter
+         (fun (u : Cmx_format.thin_unit) -> dump_member filename u.tu_path)
+         li.tlib_units
     | Exec ->
        (* no assumptions on [ic] position,
           [dump_byte] will seek at the right place *)
@@ -465,7 +498,12 @@ let dump_obj_by_kind filename ic obj_kind =
                   is currently unsupported by this tool."
          (human_name_of_kind obj_kind)
 
-let dump_obj filename =
+(* Members of a thin library are dumped in turn; a relative member path is
+   resolved against the directory holding the library. *)
+and dump_member archive path =
+  dump_obj (Misc.path_from ~dir:(Filename.dirname archive) path)
+
+and dump_obj filename =
   let open Magic_number in
   let dump_standard ic =
     match read_current_info ~expected_kind:None ic with

@@ -47,7 +47,27 @@ let read_info name =
   info.ui_export_info <- default_ui_export_info;
   filename, (info, crc)
 
-let create_archive file_list lib_name =
+let object_file_of_unit file_name =
+  Filename.chop_suffix file_name ".cmx" ^ ext_obj
+
+let check_units units =
+  List.iter
+    (fun (file_name, (unit, crc)) ->
+       Asmlink.check_consistency file_name unit crc)
+    units;
+  let ldeps = Linkdeps.create ~complete:false in
+  List.iter
+    (fun (filename, (unit, _crc)) ->
+       Linkdeps.add ldeps
+         ~filename ~compunit:unit.ui_name
+         ~provides:[unit.ui_name]
+         ~requires:(List.map fst unit.ui_imports_cmx))
+    (List.rev units);
+  match Linkdeps.check ldeps with
+  | None -> ()
+  | Some e -> raise (Error (Link_error e))
+
+let create_plain_archive file_list lib_name =
   let archive_name = Filename.remove_extension lib_name ^ ext_lib in
   let outchan = open_out_bin lib_name in
   Misc.try_finally
@@ -56,24 +76,9 @@ let create_archive file_list lib_name =
     (fun () ->
        output_string outchan cmxa_magic_number;
        let units = List.map read_info file_list in
-       let objfiles = List.map (fun (filename,_) ->
-           Filename.chop_suffix filename ".cmx" ^ ext_obj)
-           units in
-       List.iter
-         (fun (file_name, (unit, crc)) ->
-            Asmlink.check_consistency file_name unit crc)
-         units;
-       let ldeps = Linkdeps.create ~complete:false in
-       List.iter
-         (fun (filename, (unit, _crc)) ->
-            Linkdeps.add ldeps
-              ~filename ~compunit:unit.ui_name
-              ~provides:[unit.ui_name]
-              ~requires:(List.map fst unit.ui_imports_cmx))
-         (List.rev units);
-       (match Linkdeps.check ldeps with
-        | None -> ()
-        | Some e -> raise (Error (Link_error e)));
+       let objfiles =
+         List.map (fun (file_name, _) -> object_file_of_unit file_name) units in
+       check_units units;
        let infos =
          { lib_units = List.map snd units;
            lib_ccobjs = !Clflags.ccobjs;
@@ -82,6 +87,40 @@ let create_archive file_list lib_name =
        if Ccomp.create_archive archive_name objfiles <> 0
        then raise(Error(Archiver_error archive_name));
     )
+
+(* A thin library records where its members are to be found instead of a copy
+   of their infos, and has no matching .a library: the linker passes the
+   object files of the members it selects to the C linker itself. *)
+
+let create_thin_archive file_list lib_name =
+  let units = List.map read_info file_list in
+  check_units units;
+  List.iter
+    (fun (file_name, _) ->
+       let obj = object_file_of_unit file_name in
+       if not (Sys.file_exists obj) then raise(Error(File_not_found obj)))
+    units;
+  let dir = Filename.dirname lib_name in
+  let infos =
+    { tlib_units =
+        List.map
+          (fun (file_name, _) ->
+             { tu_path = Misc.path_relative_to ~dir file_name;
+               tu_force_link = !Clflags.link_everything })
+          units;
+      tlib_ccobjs = !Clflags.ccobjs;
+      tlib_ccopts = !Clflags.all_ccopts } in
+  let outchan = open_out_bin lib_name in
+  Misc.try_finally
+    ~always:(fun () -> close_out outchan)
+    ~exceptionally:(fun () -> remove_file lib_name)
+    (fun () ->
+       output_string outchan cmxa_thin_magic_number;
+       output_value outchan infos)
+
+let create_archive file_list lib_name =
+  if !Clflags.thin_archive then create_thin_archive file_list lib_name
+  else create_plain_archive file_list lib_name
 
 module Style = Misc.Style
 open Format_doc

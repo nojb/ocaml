@@ -63,8 +63,10 @@ let exec_magic_number = {magic|@EXEC_MAGIC_NUMBER@|magic}
 and cmi_magic_number = {magic|@CMI_MAGIC_NUMBER@|magic}
 and cmo_magic_number = {magic|@CMO_MAGIC_NUMBER@|magic}
 and cma_magic_number = {magic|@CMA_MAGIC_NUMBER@|magic}
+and cma_thin_magic_number = {magic|@CMA_THIN_MAGIC_NUMBER@|magic}
 and cmx_magic_number = {magic|@CMX_MAGIC_NUMBER@|magic}
 and cmxa_magic_number = {magic|@CMXA_MAGIC_NUMBER@|magic}
+and cmxa_thin_magic_number = {magic|@CMXA_THIN_MAGIC_NUMBER@|magic}
 and ast_impl_magic_number = {magic|@AST_IMPL_MAGIC_NUMBER@|magic}
 and ast_intf_magic_number = {magic|@AST_INTF_MAGIC_NUMBER@|magic}
 and cmxs_magic_number = {magic|@CMXS_MAGIC_NUMBER@|magic}
@@ -188,8 +190,10 @@ let configuration_variables () =
   p "cmi_magic_number" cmi_magic_number;
   p "cmo_magic_number" cmo_magic_number;
   p "cma_magic_number" cma_magic_number;
+  p "cma_thin_magic_number" cma_thin_magic_number;
   p "cmx_magic_number" cmx_magic_number;
   p "cmxa_magic_number" cmxa_magic_number;
+  p "cmxa_thin_magic_number" cmxa_thin_magic_number;
   p "ast_impl_magic_number" ast_impl_magic_number;
   p "ast_intf_magic_number" ast_intf_magic_number;
   p "cmxs_magic_number" cmxs_magic_number;

@@ -33,6 +33,8 @@ val extract_crc_interfaces: unit -> crcs
 type error =
   | File_not_found of filepath
   | Not_an_object_file of filepath
+  | Thin_member_not_found of filepath * filepath
+  | Thin_member_not_an_object_file of filepath * filepath
   | Wrong_object_name of filepath
   | Symbol_error of filepath * Symtable.error
   | Inconsistent_import of modname * filepath * filepath

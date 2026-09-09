@@ -127,6 +127,7 @@ type linking_error = private
 
 type error = private
   | Not_a_bytecode_file of string
+  | Thin_bytecode_library of string
   | Inconsistent_import of string
   | Unavailable_unit of string
   | Unsafe_file

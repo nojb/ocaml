@@ -808,6 +808,24 @@ implementations. You should use this flag to detect and fix such
 invalid formats, as they will be rejected by future OCaml versions.
 
 \notop{%
+\item["-thin"]
+Build a \emph{thin} library. Only meaningful together with "-a".
+Instead of a copy of its members, the resulting {\qcma} library records
+their paths\nat{, and no ".a"/".lib" library is created: the linker passes
+the object files of the members it selects to the C linker itself}. A member
+path relative to the directory holding the {\qcma} file is resolved against
+that directory, so a library and its members can be moved together.
+The other information stored in a library, such as the
+\comp{"-custom", }"-cclib" and "-ccopt" options, is recorded as usual.
+
+The members are read again at link time, so they must still be
+present\nat{, both their ".cmx" files and their object files}, and a member
+that has been recompiled in the meantime is linked in its current state.
+\comp{A thin library cannot be loaded by "Dynlink" or by "#load", and it
+cannot be a member of another library unless that library is thin too.}
+}%notop
+
+\notop{%
 \item["-typing-recovery"]
 Try to collect all typing errors.
 }

@@ -59,3 +59,32 @@ type library_infos =
        how they end up being used on the command line. *)
     lib_ccobjs: string list;            (* C object files needed *)
     lib_ccopts: string list }           (* Extra opts to C compiler *)
+
+(* A thin .cmxa library has no matching .a library: instead of a copy of
+   the infos of its members it records where to find them, and the linker
+   passes the member object files to the C linker itself. *)
+
+type thin_unit =
+  { tu_path: string;                    (* Path of the member .cmx file.
+                                           A relative path is interpreted
+                                           relative to the directory holding
+                                           the .cmxa file.  The object file of
+                                           a member is obtained by replacing
+                                           the .cmx suffix by the object file
+                                           suffix. *)
+    tu_force_link: bool }               (* Must be linked even if unref'ed,
+                                           because the library holding this
+                                           member was built with -linkall *)
+
+type thin_library_infos =
+  { tlib_units: thin_unit list;         (* Members of the library *)
+    (* In the following fields the lists are reversed with respect to
+       how they end up being used on the command line. *)
+    tlib_ccobjs: string list;           (* C object files needed *)
+    tlib_ccopts: string list }          (* Extra opts to C compiler *)
+
+(* What a .cmxa file may contain, as told by its magic number. *)
+
+type library_file =
+  | Plain of library_infos
+  | Thin of thin_library_infos

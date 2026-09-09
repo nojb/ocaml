@@ -295,6 +295,12 @@ and really_load_file recursive ppf name filename ic =
           lib.lib_dllibs;
         List.iter (load_compunit ic filename ppf) lib.lib_units;
         true
+      end else
+      if buffer = Config.cma_thin_magic_number then begin
+        fprintf ppf
+          "File %s is a thin bytecode library, which cannot be loaded.@."
+          name;
+        false
       end else begin
         fprintf ppf "File %s is not a bytecode object file.@." name;
         false

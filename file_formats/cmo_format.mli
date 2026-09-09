@@ -79,3 +79,28 @@ type library =
      ...
      object code for last library member
      library descriptor *)
+
+(* Descriptor for thin libraries.  A thin library does not contain a copy
+   of its members: it only records where to find them. *)
+
+type thin_unit =
+  { tu_path: string;                    (* Path of the member .cmo file.
+                                           A relative path is interpreted
+                                           relative to the directory holding
+                                           the .cma file. *)
+    tu_force_link: bool }               (* Must be linked even if unref'ed,
+                                           because the archive holding this
+                                           member was built with -linkall *)
+
+type thin_library =
+  { tlib_units: thin_unit list;         (* Members of the library *)
+    tlib_custom: bool;                  (* Requires custom mode linking? *)
+    (* In the following fields the lists are reversed with respect to
+       how they end up being used on the command line. *)
+    tlib_ccobjs: string list;           (* C object files needed for -custom *)
+    tlib_ccopts: string list;           (* Extra opts to C compiler *)
+    tlib_dllibs: (suffixed:bool * string) list }  (* DLLs needed *)
+
+(* Format of a thin .cma file:
+     magic number (Config.cma_thin_magic_number)
+     thin library descriptor *)

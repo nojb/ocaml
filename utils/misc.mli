@@ -250,6 +250,19 @@ val expand_directory: string -> string -> string
        (** [expand_directory alt file] eventually expands a [+] at the
            beginning of file into [alt] (an alternate root directory) *)
 
+val path_relative_to: dir:string -> string -> string
+       (** [path_relative_to ~dir path] returns a path [p] such that
+           [path_from ~dir p] denotes the same file as [path]. The result is
+           relative when [dir] and [path] share a filesystem root, and
+           absolute otherwise. Both arguments are interpreted relative to the
+           current working directory when they are relative. Symbolic links
+           are not resolved, so the result may denote a different file than
+           [path] if [dir] is reached through one. *)
+
+val path_from: dir:string -> string -> string
+       (** [path_from ~dir path] is [path] itself when it is absolute, and
+           [Filename.concat dir path] otherwise. *)
+
 val split_path_contents: ?sep:char -> string -> string list
       (** [split_path_contents ?sep s] interprets [s] as the value of
           a "PATH"-like variable and returns the corresponding list of
@@ -701,8 +714,9 @@ module Magic_number : sig
 
   type kind =
     | Exec
-    | Cmi | Cmo | Cma
+    | Cmi | Cmo | Cma | Cma_thin
     | Cmx of native_obj_config | Cmxa of native_obj_config
+    | Cmxa_thin of native_obj_config
     | Cmxs
     | Cmt | Ast_impl | Ast_intf
 

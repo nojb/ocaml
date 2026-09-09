@@ -33,6 +33,9 @@ val extract_crc_implementations: unit -> crcs
 type error =
   | File_not_found of filepath
   | Not_an_object_file of filepath
+  | Thin_member_not_found of filepath * filepath
+  | Thin_member_not_an_object_file of filepath * filepath
+  | Thin_member_object_not_found of filepath * filepath
   | Inconsistent_interface of modname * filepath * filepath
   | Inconsistent_implementation of modname * filepath * filepath
   | Assembler_error of filepath

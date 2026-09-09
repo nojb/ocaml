@@ -38,7 +38,7 @@ let scan_info cu =
   if !used then List.iter scan_reloc cu.cu_reloc;
   if !defined then List.iter scan_prim cu.cu_primitives
 
-let scan_obj filename =
+let rec scan_obj filename =
   let ic = open_in_bin filename in
   let buffer = really_input_string ic (String.length cmo_magic_number) in
   if buffer = cmo_magic_number then begin
@@ -54,6 +54,14 @@ let scan_obj filename =
     let toc = (input_value ic : library) in
     close_in ic;
     List.iter scan_info toc.lib_units
+  end else
+  if buffer = cma_thin_magic_number then begin
+    let toc = (input_value ic : thin_library) in
+    close_in ic;
+    let dir = Filename.dirname filename in
+    List.iter
+      (fun u -> scan_obj (Misc.path_from ~dir u.tu_path))
+      toc.tlib_units
   end else begin
     prerr_endline "Not an object file"; exit 2
   end

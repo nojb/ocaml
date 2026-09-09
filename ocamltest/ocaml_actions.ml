@@ -206,19 +206,25 @@ let cmas_need what directories libraries =
       try
         let len_magic_number = String.length Config.cma_magic_number in
         let magic_number = really_input_string ic len_magic_number in
-        if magic_number = Config.cma_magic_number then
-          let toc_pos = input_binary_int ic in
-          seek_in ic toc_pos;
-          let toc = (input_value ic : Cmo_format.library) in
-          close_in ic;
-          let found =
+        let found =
+          if magic_number = Config.cma_magic_number then begin
+            let toc_pos = input_binary_int ic in
+            seek_in ic toc_pos;
+            let toc = (input_value ic : Cmo_format.library) in
+            close_in ic;
             match what with
             | Dynamic_loading -> toc.Cmo_format.lib_dllibs <> []
             | Custom_runtime -> toc.Cmo_format.lib_custom
-          in
-          if found then Some (Ok ()) else None
-        else
-          raise End_of_file
+          end else if magic_number = Config.cma_thin_magic_number then begin
+            let toc = (input_value ic : Cmo_format.thin_library) in
+            close_in ic;
+            match what with
+            | Dynamic_loading -> toc.Cmo_format.tlib_dllibs <> []
+            | Custom_runtime -> toc.Cmo_format.tlib_custom
+          end else
+            raise End_of_file
+        in
+        if found then Some (Ok ()) else None
       with End_of_file
          | Sys_error _ ->
            begin try close_in ic with Sys_error _ -> () end;

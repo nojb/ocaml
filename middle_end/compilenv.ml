@@ -175,12 +175,16 @@ let read_unit_info filename =
 
 let read_library_info filename =
   let ic = open_in_bin filename in
-  let buffer = really_input_string ic (String.length cmxa_magic_number) in
-  if buffer <> cmxa_magic_number then
-    raise(Error(Not_a_unit_info filename));
-  let infos = (input_value ic : library_infos) in
-  close_in ic;
-  infos
+  Misc.try_finally ~always:(fun () -> close_in ic) (fun () ->
+    let buffer =
+      try really_input_string ic (String.length cmxa_magic_number)
+      with End_of_file -> raise(Error(Not_a_unit_info filename)) in
+    if buffer = cmxa_magic_number then
+      Plain (input_value ic : library_infos)
+    else if buffer = cmxa_thin_magic_number then
+      Thin (input_value ic : thin_library_infos)
+    else
+      raise(Error(Not_a_unit_info filename)))
 
 
 (* Read and cache info on global identifiers *)

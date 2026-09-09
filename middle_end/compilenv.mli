@@ -156,7 +156,7 @@ val require_global: Ident.t -> unit
         (* Enforce a link dependency of the current compilation
            unit to the required module *)
 
-val read_library_info: string -> library_infos
+val read_library_info: string -> library_file
 
 type error =
     Not_a_unit_info of string

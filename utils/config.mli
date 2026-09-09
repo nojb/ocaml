@@ -180,11 +180,17 @@ val cmo_magic_number: string
 val cma_magic_number: string
 (** Magic number for archive files *)
 
+val cma_thin_magic_number: string
+(** Magic number for thin archive files *)
+
 val cmx_magic_number: string
 (** Magic number for compilation unit descriptions *)
 
 val cmxa_magic_number: string
 (** Magic number for libraries of compilation unit descriptions *)
+
+val cmxa_thin_magic_number: string
+(** Magic number for thin libraries of compilation unit descriptions *)
 
 val ast_intf_magic_number: string
 (** Magic number for file holding an interface syntax tree *)

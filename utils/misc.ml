@@ -357,6 +357,44 @@ let expand_directory alt s =
                        (String.sub s 1 (String.length s - 1))
   else s
 
+(* Split a path into its components, dropping the "." components that
+   [Filename.concat] leaves behind. The root, if any, is returned separately. *)
+let explode_path path =
+  let rec loop path acc =
+    let dir = Filename.dirname path in
+    if dir = path then (path, acc)
+    else
+      let base = Filename.basename path in
+      loop dir (if base = Filename.current_dir_name then acc else base :: acc)
+  in
+  loop path []
+
+let absolute_path path =
+  if Filename.is_relative path then Filename.concat (Sys.getcwd ()) path
+  else path
+
+let path_relative_to ~dir path =
+  let dir_root, dir_comps = explode_path (absolute_path dir) in
+  let path_root, path_comps = explode_path (absolute_path path) in
+  if dir_root <> path_root then absolute_path path
+  else begin
+    (* Drop the longest common prefix, then climb out of what is left of
+       [dir] before descending into what is left of [path]. *)
+    let rec strip_common d p =
+      match d, p with
+      | dh :: dt, ph :: pt when dh = ph -> strip_common dt pt
+      | d, p -> d, p
+    in
+    let dir_comps, path_comps = strip_common dir_comps path_comps in
+    let up = List.map (fun _ -> Filename.parent_dir_name) dir_comps in
+    match up @ path_comps with
+    | [] -> Filename.current_dir_name
+    | comps -> List.fold_left Filename.concat (List.hd comps) (List.tl comps)
+  end
+
+let path_from ~dir path =
+  if Filename.is_relative path then Filename.concat dir path else path
+
 let path_separator =
   match Sys.os_type with
   | "Win32" -> ';'
@@ -986,8 +1024,9 @@ module Magic_number = struct
 
   type kind =
     | Exec
-    | Cmi | Cmo | Cma
+    | Cmi | Cmo | Cma | Cma_thin
     | Cmx of native_obj_config | Cmxa of native_obj_config
+    | Cmxa_thin of native_obj_config
     | Cmxs
     | Cmt
     | Ast_impl | Ast_intf
@@ -999,10 +1038,11 @@ module Magic_number = struct
     ]
   let all_kinds = [
     Exec;
-    Cmi; Cmo; Cma;
+    Cmi; Cmo; Cma; Cma_thin;
   ]
   @ List.map (fun conf -> Cmx conf) all_native_obj_configs
   @ List.map (fun conf -> Cmxa conf) all_native_obj_configs
+  @ List.map (fun conf -> Cmxa_thin conf) all_native_obj_configs
   @ [
     Cmt;
     Ast_impl; Ast_intf;
@@ -1021,10 +1061,13 @@ module Magic_number = struct
     | "Caml1999I" -> Some Cmi
     | "Caml1999O" -> Some Cmo
     | "Caml1999A" -> Some Cma
+    | "Caml1999B" -> Some Cma_thin
     | "Caml1999y" -> Some (Cmx {flambda = true})
     | "Caml1999Y" -> Some (Cmx {flambda = false})
     | "Caml1999z" -> Some (Cmxa {flambda = true})
     | "Caml1999Z" -> Some (Cmxa {flambda = false})
+    | "Caml1999c" -> Some (Cmxa_thin {flambda = true})
+    | "Caml1999C" -> Some (Cmxa_thin {flambda = false})
 
     (* Caml2007D and Caml2012T were used instead of the common Caml1999 prefix
        between the introduction of those magic numbers and October 2017
@@ -1047,6 +1090,7 @@ module Magic_number = struct
     | Cmi -> "Caml1999I"
     | Cmo -> "Caml1999O"
     | Cma -> "Caml1999A"
+    | Cma_thin -> "Caml1999B"
     | Cmx config ->
        if config.flambda
        then "Caml1999y"
@@ -1055,6 +1099,10 @@ module Magic_number = struct
        if config.flambda
        then "Caml1999z"
        else "Caml1999Z"
+    | Cmxa_thin config ->
+       if config.flambda
+       then "Caml1999c"
+       else "Caml1999C"
     | Cmxs -> "Caml1999D"
     | Cmt -> "Caml1999T"
     | Ast_impl -> "Caml1999M"
@@ -1065,8 +1113,10 @@ module Magic_number = struct
     | Cmi -> "cmi"
     | Cmo -> "cmo"
     | Cma -> "cma"
+    | Cma_thin -> "cma"
     | Cmx _ -> "cmx"
     | Cmxa _ -> "cmxa"
+    | Cmxa_thin _ -> "cmxa"
     | Cmxs -> "cmxs"
     | Cmt -> "cmt"
     | Ast_impl -> "ast_impl"
@@ -1081,11 +1131,15 @@ module Magic_number = struct
     | Cmi -> "compiled interface file"
     | Cmo -> "bytecode object file"
     | Cma -> "bytecode library"
+    | Cma_thin -> "thin bytecode library"
     | Cmx config ->
        Printf.sprintf "native compilation unit description (%s)"
          (human_description_of_native_obj_config config)
     | Cmxa config ->
        Printf.sprintf "static native library (%s)"
+         (human_description_of_native_obj_config config)
+    | Cmxa_thin config ->
+       Printf.sprintf "thin static native library (%s)"
          (human_description_of_native_obj_config config)
     | Cmxs -> "dynamic native library"
     | Cmt -> "compiled typedtree file"
@@ -1152,6 +1206,7 @@ module Magic_number = struct
       | Cmi -> cmi_magic_number
       | Cmo -> cmo_magic_number
       | Cma -> cma_magic_number
+      | Cma_thin -> cma_thin_magic_number
       | Cmx config ->
          (* the 'if' guarantees that in the common case
             we return the "trusted" value from Config. *)
@@ -1167,6 +1222,13 @@ module Magic_number = struct
            raw_kind ^ String.sub reference len (String.length reference - len)
       | Cmxa config ->
          let reference = cmxa_magic_number in
+         if config = native_obj_config then reference
+         else
+           let raw_kind = raw_kind kind in
+           let len = String.length raw_kind in
+           raw_kind ^ String.sub reference len (String.length reference - len)
+      | Cmxa_thin config ->
+         let reference = cmxa_thin_magic_number in
          if config = native_obj_config then reference
          else
            let raw_kind = raw_kind kind in

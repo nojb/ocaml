@@ -415,6 +415,15 @@ Working version
   and Daniel Bünzli)
 
 ### Compiler user-interface and warnings:
+- New option `-thin`, to be used together with `-a`, which builds a "thin"
+  library: instead of a copy of its members, the resulting `.cma` or `.cmxa`
+  file records their paths, and no `.a` library is created in the native case.
+  A member path relative to the directory holding the library is resolved
+  against that directory. A thin bytecode library is rejected by `Dynlink` and
+  by the toplevel's `#load`, which report the new error
+  `Dynlink.Thin_bytecode_library`.
+  (Nicolás Ojeda Bär)
+
 - #14887: More concise messages for the non-exhaustiveness warning.
   (Luc Maranget, review by Florian Angeletti)
 

@@ -1,0 +1,4 @@
+File "_none_", line 1:
+Error: The bytecode library plain.cma cannot be a member of a thin library,
+       because it holds a copy of its own members instead of separate files.
+       Rebuild it with -thin.

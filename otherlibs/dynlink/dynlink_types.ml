@@ -31,6 +31,7 @@ type linking_error =
 
 type error =
   | Not_a_bytecode_file of string
+  | Thin_bytecode_library of string
   | Inconsistent_import of string
   | Unavailable_unit of string
   | Unsafe_file
@@ -47,6 +48,8 @@ exception Error of error
 let error_message = function
   | Not_a_bytecode_file name ->
     name ^ " is not an object file"
+  | Thin_bytecode_library name ->
+    name ^ " is a thin bytecode library, which cannot be loaded"
   | Inconsistent_import name ->
     "interface mismatch on " ^ name
   | Unavailable_unit name ->
@@ -83,6 +86,8 @@ let () =
     | Error err ->
       let msg = match err with
       | Not_a_bytecode_file s -> Printf.sprintf "Not_a_bytecode_file %S" s
+      | Thin_bytecode_library s ->
+        Printf.sprintf "Thin_bytecode_library %S" s
       | Inconsistent_import s -> Printf.sprintf "Inconsistent_import %S" s
       | Unavailable_unit s -> Printf.sprintf "Unavailable_unit %S" s
       | Unsafe_file -> "Unsafe_file"

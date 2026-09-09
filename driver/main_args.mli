@@ -81,6 +81,7 @@ end
 
 module type Compiler_options = sig
   val _a : unit -> unit
+  val _thin : unit -> unit
   val _annot : unit -> unit
   val _binannot : unit -> unit
   val _binannot_occurrences : unit -> unit

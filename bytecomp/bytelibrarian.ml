@@ -22,6 +22,7 @@ open Cmo_format
 type error =
     File_not_found of string
   | Not_an_object_file of string
+  | Full_archive_member of string
   | Link_error of Linkdeps.error
 
 exception Error of error
@@ -94,7 +95,91 @@ let copy_object_file oc name =
     End_of_file -> close_in ic; raise(Error(Not_an_object_file file_name))
   | x -> close_in ic; raise x
 
-let create_archive file_list lib_name =
+(* Build a thin archive.  Instead of copying the members into the archive we
+   only record where to find them; the members of a thin archive given as
+   input are spliced in, as they are files of their own too.  Members of a
+   plain archive cannot be, so those are rejected. *)
+
+let add_thin_ccobjs l =
+  if not !Clflags.no_auto_link then begin
+    if l.tlib_custom then Clflags.custom_runtime := true;
+    lib_ccobjs := !lib_ccobjs @ l.tlib_ccobjs;
+    lib_ccopts := !lib_ccopts @ l.tlib_ccopts;
+    lib_dllibs := !lib_dllibs @ l.tlib_dllibs
+  end
+
+(* Members are accumulated in reverse order.  [force_link] tells whether the
+   archive the member comes from was built with -linkall. *)
+let rec scan_thin_member accu ~force_link file_name =
+  let ic = open_in_bin file_name in
+  try
+    let buffer = really_input_string ic (String.length cmo_magic_number) in
+    if buffer = cmo_magic_number then begin
+      let compunit_pos = input_binary_int ic in
+      seek_in ic compunit_pos;
+      let compunit = (input_value ic : compilation_unit) in
+      close_in ic;
+      Bytelink.check_consistency file_name compunit;
+      (file_name, force_link, compunit) :: accu
+    end else
+    if buffer = cma_thin_magic_number then begin
+      let toc = (input_value ic : thin_library) in
+      close_in ic;
+      add_thin_ccobjs toc;
+      let dir = Filename.dirname file_name in
+      List.fold_left
+        (fun accu u ->
+           scan_thin_member accu
+             ~force_link:(force_link || u.tu_force_link)
+             (Misc.path_from ~dir u.tu_path))
+        accu toc.tlib_units
+    end else
+    if buffer = cma_magic_number then
+      raise(Error(Full_archive_member file_name))
+    else
+      raise(Error(Not_an_object_file file_name))
+  with
+    End_of_file -> close_in ic; raise(Error(Not_an_object_file file_name))
+  | x -> close_in ic; raise x
+
+let create_thin_archive file_list lib_name =
+  let members_rev =
+    List.fold_left
+      (fun accu name ->
+         let file_name =
+           try Load_path.find name
+           with Not_found -> raise(Error(File_not_found name)) in
+         scan_thin_member accu ~force_link:!Clflags.link_everything file_name)
+      [] file_list in
+  let ldeps = Linkdeps.create ~complete:false in
+  List.iter
+    (fun (filename, _, compunit) ->
+       Bytelink.linkdeps_unit ldeps ~filename compunit)
+    members_rev;
+  (match Linkdeps.check ldeps with
+   | None -> ()
+   | Some e -> raise (Error (Link_error e)));
+  let dir = Filename.dirname lib_name in
+  let toc =
+    { tlib_units =
+        List.rev_map
+          (fun (file_name, force_link, _) ->
+             { tu_path = Misc.path_relative_to ~dir file_name;
+               tu_force_link = force_link })
+          members_rev;
+      tlib_custom = !Clflags.custom_runtime;
+      tlib_ccobjs = !Clflags.ccobjs @ !lib_ccobjs;
+      tlib_ccopts = !Clflags.all_ccopts @ !lib_ccopts;
+      tlib_dllibs = !Clflags.dllibs @ !lib_dllibs } in
+  let outchan = open_out_bin lib_name in
+  Misc.try_finally
+    ~always:(fun () -> close_out outchan)
+    ~exceptionally:(fun () -> remove_file lib_name)
+    (fun () ->
+       output_string outchan cma_thin_magic_number;
+       output_value outchan toc)
+
+let create_plain_archive file_list lib_name =
   let outchan = open_out_bin lib_name in
   Misc.try_finally
     ~always:(fun () -> close_out outchan)
@@ -126,6 +211,10 @@ let create_archive file_list lib_name =
        output_binary_int outchan pos_toc;
     )
 
+let create_archive file_list lib_name =
+  if !Clflags.thin_archive then create_thin_archive file_list lib_name
+  else create_plain_archive file_list lib_name
+
 open Format_doc
 module Style = Misc.Style
 
@@ -135,6 +224,13 @@ let report_error_doc ppf = function
   | Not_an_object_file name ->
       fprintf ppf "The file %a is not a bytecode object file"
         Location.Doc.quoted_filename name
+  | Full_archive_member name ->
+      fprintf ppf
+        "@[<hov>The bytecode library %a@ cannot be a member of a thin \
+         library,@ because it holds a copy of its own members@ instead of \
+         separate files.@ Rebuild it with %a.@]"
+        Location.Doc.quoted_filename name
+        Style.inline_code "-thin"
   | Link_error e ->
       Linkdeps.report_error_doc ~print_filename:Location.Doc.filename ppf e
 

@@ -736,6 +736,8 @@ let process_deferred_actions env =
             fatal "Options -c -o are incompatible with compiling multiple files"
         end;
   end;
+  if !thin_archive && not !make_archive then
+    fatal "Option -thin can only be used with -a.";
   if !make_archive then begin
     if List.exists (function
         | ProcessOtherFile name -> Filename.check_suffix name ".cmxa"

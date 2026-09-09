@@ -25,6 +25,9 @@ module String = Misc.Stdlib.String
 type error =
   | File_not_found of filepath
   | Not_an_object_file of filepath
+  | Thin_member_not_found of filepath * filepath
+  | Thin_member_not_an_object_file of filepath * filepath
+  | Thin_member_object_not_found of filepath * filepath
   | Inconsistent_interface of modname * filepath * filepath
   | Inconsistent_implementation of modname * filepath * filepath
   | Assembler_error of filepath
@@ -104,6 +107,15 @@ let add_ccobjs origin l =
     lib_ccopts := List.map replace_origin l.lib_ccopts @ !lib_ccopts
   end
 
+let add_thin_ccobjs origin l =
+  if not !Clflags.no_auto_link then begin
+    lib_ccobjs := l.tlib_ccobjs @ !lib_ccobjs;
+    let replace_origin =
+      Misc.replace_substring ~before:"$CAMLORIGIN" ~after:origin
+    in
+    lib_ccopts := List.map replace_origin l.tlib_ccopts @ !lib_ccopts
+  end
+
 let runtime_lib () =
   if !Clflags.runtime_variant = "_shared" then
     if Config.suffixing then
@@ -120,20 +132,39 @@ let runtime_lib () =
 
 (* First pass: determine which units are needed *)
 
+(* A thin library has no .a file: the object files of the members that are
+   selected by [scan_file] are passed to the C linker instead. *)
+type thin_lib =
+  { tl_filename: string;                       (* the .cmxa file *)
+    tl_infos: thin_library_infos;
+    tl_units: thin_member list;
+    mutable tl_selected: string list }
+      (* object files of the selected members, in library order *)
+
+and thin_member =
+  { tm_filename: string;                       (* the member .cmx file *)
+    tm_info: unit_infos;
+    tm_crc: Digest.BLAKE128.t;
+    tm_force_link: bool }
+
 type file =
   | Unit of string * unit_infos * Digest.BLAKE128.t
   | Library of string * library_infos
+  | Thin_library of thin_lib
 
-let object_file_name_of_file = function
-  | Unit (fname, _, _) -> Some (Filename.chop_suffix fname ".cmx" ^ ext_obj)
+let object_file_of_unit fname = Filename.chop_suffix fname ".cmx" ^ ext_obj
+
+let object_files_of_file = function
+  | Unit (fname, _, _) -> [object_file_of_unit fname]
   | Library (fname, infos) ->
       let obj_file = Filename.chop_suffix fname ".cmxa" ^ ext_lib in
       (* MSVC doesn't support empty .lib files, and macOS struggles to make
          them (#6550), so there shouldn't be one if the .cmxa contains no
          units. The file_exists check is added to be ultra-defensive for the
          case where a user has manually added things to the .a/.lib file *)
-      if infos.lib_units = [] && not (Sys.file_exists obj_file) then None else
-      Some obj_file
+      if infos.lib_units = [] && not (Sys.file_exists obj_file) then [] else
+      [obj_file]
+  | Thin_library tl -> tl.tl_selected
 
 let read_file obj_name =
   let file_name =
@@ -153,7 +184,28 @@ let read_file obj_name =
       with Compilenv.Error(Not_a_unit_info _) ->
         raise(Error(Not_an_object_file file_name))
     in
-    Library (file_name,infos)
+    match infos with
+    | Plain infos -> Library (file_name, infos)
+    | Thin infos ->
+        (* The members of a thin library are read now, so that the infos
+           used at link time are always those of the files that are about
+           to be linked in. *)
+        let dir = Filename.dirname file_name in
+        let read_member u =
+          let member = Misc.path_from ~dir u.tu_path in
+          if not (Sys.file_exists member) then
+            raise(Error(Thin_member_not_found(file_name, member)));
+          let (info, crc) =
+            try read_unit_info member
+            with Compilenv.Error _ ->
+              raise(Error(Thin_member_not_an_object_file(file_name, member)))
+          in
+          { tm_filename = member; tm_info = info; tm_crc = crc;
+            tm_force_link = u.tu_force_link }
+        in
+        Thin_library { tl_filename = file_name; tl_infos = infos;
+                       tl_units = List.map read_member infos.tlib_units;
+                       tl_selected = [] }
   end
   else raise(Error(Not_an_object_file file_name))
 
@@ -183,6 +235,36 @@ let scan_file ldeps file tolink = match file with
            end else
            reqd)
         infos.lib_units tolink
+  | Thin_library tl ->
+      (* This is a thin library. Each member will be linked in only if
+         needed, and its object file passed to the C linker. *)
+      add_thin_ccobjs (Filename.dirname tl.tl_filename) tl.tl_infos;
+      let selected = ref [] in
+      let tolink =
+        List.fold_right
+          (fun m reqd ->
+             let info = m.tm_info in
+             if info.ui_force_link
+             || m.tm_force_link
+             || !Clflags.link_everything
+             || Linkdeps.required ldeps info.ui_name
+             then begin
+               Linkdeps.add ldeps
+                 ~filename:m.tm_filename ~compunit:info.ui_name
+                 ~provides:[info.ui_name]
+                 ~requires:(List.map fst info.ui_imports_cmx);
+               let obj = object_file_of_unit m.tm_filename in
+               if not (Sys.file_exists obj) then
+                 raise(Error(Thin_member_object_not_found
+                               (tl.tl_filename, obj)));
+               selected := obj :: !selected;
+               (info, m.tm_filename, m.tm_crc) :: reqd
+             end else
+               reqd)
+          tl.tl_units tolink
+      in
+      tl.tl_selected <- !selected;
+      tolink
 
 (* Second pass: generate the startup file and link it with everything else *)
 
@@ -287,7 +369,7 @@ let link_shared ~ppf_dump objfiles output_name =
     Clflags.ccobjs := !Clflags.ccobjs @ !lib_ccobjs;
     Clflags.all_ccopts := !lib_ccopts @ !Clflags.all_ccopts;
     let objfiles =
-      List.rev (List.filter_map object_file_name_of_file obj_infos) @
+      List.rev (List.concat_map object_files_of_file obj_infos) @
       (List.rev !Clflags.ccobjs) in
     let startup =
       if !Clflags.keep_startup_file || !Emitaux.binary_backend_available
@@ -363,7 +445,7 @@ let link ~ppf_dump objfiles output_name =
       (fun () -> make_startup_file ~ppf_dump units_tolink ~crc_interfaces);
     Misc.try_finally
       (fun () ->
-         call_linker (List.filter_map object_file_name_of_file obj_infos)
+         call_linker (List.concat_map object_files_of_file obj_infos)
            startup_obj output_name)
       ~always:(fun () -> remove_file startup_obj)
   )
@@ -379,6 +461,23 @@ let report_error_doc ppf = function
   | Not_an_object_file name ->
       fprintf ppf "The file %a is not a compilation unit description"
         Location.Doc.quoted_filename name
+  | Thin_member_not_found(archive, name) ->
+      fprintf ppf
+        "@[<hov>Cannot find %a,@ which is a member of the thin library %a.@]"
+        Location.Doc.quoted_filename name
+        Location.Doc.quoted_filename archive
+  | Thin_member_not_an_object_file(archive, name) ->
+      fprintf ppf
+        "@[<hov>The file %a,@ which is a member of the thin library %a,@ \
+         is not a compilation unit description.@]"
+        Location.Doc.quoted_filename name
+        Location.Doc.quoted_filename archive
+  | Thin_member_object_not_found(archive, name) ->
+      fprintf ppf
+        "@[<hov>Cannot find the object file %a,@ which is needed by the \
+         thin library %a.@]"
+        Location.Doc.quoted_filename name
+        Location.Doc.quoted_filename archive
   | Inconsistent_interface(intf, file1, file2) ->
       fprintf ppf
        "@[<hov>Files %a@ and %a@ make inconsistent assumptions \
