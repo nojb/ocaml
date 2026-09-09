@@ -61,6 +61,7 @@ let builtin_attrs =
   ; "boxed"
   ; "deprecated"
   ; "deprecated_mutable"
+  ; "deprecated_unlabelled"
   ; "explicit_arity"
   ; "immediate"
   ; "immediate64"
@@ -274,6 +275,14 @@ let check_deprecated_mutable_inclusion ~def ~use loc attrs1 attrs2 s =
       Location.deprecated ~def ~use loc
         (Printf.sprintf "mutating field %s" (cat s txt))
 
+let deprecated_unlabelled_of_attrs l =
+  List.filter_map
+    (fun attr ->
+       if attr_equals_builtin attr "deprecated_unlabelled" then
+         kind_and_message attr.attr_payload
+       else None)
+    l
+
 let rec attrs_of_sig = function
   | {psig_desc = Psig_attribute a} :: tl ->
       a :: attrs_of_sig tl
@@ -298,6 +307,18 @@ let alerts_of_str ~mark str =
 
 let warn_payload loc txt msg =
   Location.prerr_warning loc (Warnings.Attribute_payload (txt, msg))
+
+let check_deprecated_unlabelled_payloads l =
+  List.iter
+    (fun attr ->
+       if attr_equals_builtin attr "deprecated_unlabelled" then begin
+         mark_used attr.attr_name;
+         if kind_and_message attr.attr_payload = None then
+           warn_payload attr.attr_loc attr.attr_name.txt
+             "A label name, optionally followed by a string literal, \
+              is expected"
+       end)
+    l
 
 let warning_attribute ?(ppwarning = true) =
   let process loc name errflag payload =

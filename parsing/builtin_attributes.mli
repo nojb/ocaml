@@ -19,6 +19,7 @@
     - ocaml.boxed
     - ocaml.deprecated
     - ocaml.deprecated_mutable
+    - ocaml.deprecated_unlabelled
     - ocaml.explicit_arity
     - ocaml.immediate
     - ocaml.immediate64
@@ -125,6 +126,11 @@ val check_deprecated_mutable:
 val check_deprecated_mutable_inclusion:
   def:Location.t -> use:Location.t -> Location.t -> Parsetree.attributes ->
   Parsetree.attributes -> string -> unit
+
+val deprecated_unlabelled_of_attrs:
+  Parsetree.attributes -> (string * string) list
+
+val check_deprecated_unlabelled_payloads: Parsetree.attributes -> unit
 
 val error_of_extension: Parsetree.extension -> Location.error
 
