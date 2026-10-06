@@ -26,7 +26,9 @@ Working version
 - #?????: Prevent some target-specific compiler and linker flags (-linkall,
   -opaque) of the root Makefile from also applying to the prerequisites
   built on behalf of these targets, which made the build depend on the order
-  in which targets are built.
+  in which targets are built. As a consequence, ocamltoplevel.cma and
+  ocamltoplevel.cmxa are now both explicitly linked with -linkall (since
+  OCaml 5.2, they were linked with -linkall or not depending on the build).
   (Nicolás Ojeda Bär, review by ??)
 
 ### Bug fixes:

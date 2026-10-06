@@ -475,10 +475,14 @@ partialclean::
 	      compilerlibs/ocamloptcomp.a compilerlibs/ocamloptcomp.lib
 
 
+# All the units of ocamltoplevel are always linked, both in bytecode and native
+# code, since some of them (like Topdirs, which registers the toplevel
+# directives) provide functionality through the side effects of their
+# initialisation
+$(addprefix compilerlibs/ocamltoplevel., cma cmxa): \
+  private OC_COMMON_LINKFLAGS += -linkall
+
 compilerlibs/ocamltoplevel.cma: VPATH += toplevel/byte
-# ocamltoplevel.cma used to be linked with -linkall because it inherited the
-# linking flags of ocaml.tmp; this is kept explicitly
-compilerlibs/ocamltoplevel.cma: private OC_COMMON_LINKFLAGS += -linkall
 partialclean::
 	rm -f compilerlibs/ocamltoplevel.cma
 
