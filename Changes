@@ -23,6 +23,12 @@ Working version
 
 ### Build system:
 
+- #?????: Prevent some target-specific compiler and linker flags (-linkall,
+  -opaque) of the root Makefile from also applying to the prerequisites
+  built on behalf of these targets, which made the build depend on the order
+  in which targets are built.
+  (Nicolás Ojeda Bär, review by ??)
+
 ### Bug fixes:
 
 OCaml 5.6.0

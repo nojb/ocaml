@@ -427,15 +427,20 @@ utils/config_%.mli: utils/config.mli
 
 beforedepend:: utils/config_main.mli utils/config_boot.mli
 
+# Note: the flags which apply to linking a single target, here and below, are
+# declared private so that they do not also apply to the prerequisites of the
+# target which happen to be built on its behalf (which would make the result
+# of the build depend on the order in which make considers targets).
+
 $(addprefix compilerlibs/ocamlcommon., cma cmxa): \
-  OC_COMMON_LINKFLAGS += -linkall
+  private OC_COMMON_LINKFLAGS += -linkall
 
 COMPRESSED_MARSHALING_FLAGS=-cclib -lcomprmarsh \
            $(patsubst %, -ccopt %, $(filter-out -l%,$(ZSTD_LIBS))) \
            $(patsubst %, -cclib %, $(filter -l%,$(ZSTD_LIBS))) \
 
 compilerlibs/ocamlcommon.cmxa: \
-  OC_NATIVE_LINKFLAGS += $(COMPRESSED_MARSHALING_FLAGS)
+  private OC_NATIVE_LINKFLAGS += $(COMPRESSED_MARSHALING_FLAGS)
 
 compilerlibs/ocamlcommon.cmxa: stdlib/libcomprmarsh.$(A)
 
@@ -471,6 +476,9 @@ partialclean::
 
 
 compilerlibs/ocamltoplevel.cma: VPATH += toplevel/byte
+# ocamltoplevel.cma used to be linked with -linkall because it inherited the
+# linking flags of ocaml.tmp; this is kept explicitly
+compilerlibs/ocamltoplevel.cma: private OC_COMMON_LINKFLAGS += -linkall
 partialclean::
 	rm -f compilerlibs/ocamltoplevel.cma
 
@@ -1016,7 +1024,7 @@ ocaml_SOURCES = toplevel/topstart.mli toplevel/topstart.ml
 ocaml_CMO_FILES = toplevel/topstart.cmo
 
 .INTERMEDIATE: ocaml.tmp
-ocaml.tmp: OC_BYTECODE_LINKFLAGS += -I toplevel/byte -linkall -g
+ocaml.tmp: private OC_BYTECODE_LINKFLAGS += -I toplevel/byte -linkall -g
 ocaml.tmp: $(ocaml_CMA_FILES) $(ocaml_CMO_FILES)
 	$(V_LINKC)$(LINK_BYTECODE_PROGRAM) -o $@ $^
 
@@ -2052,7 +2060,7 @@ testing_SOURCES = testsuite/lib/testing.mli testsuite/lib/testing.ml
 testing_LIBRARIES =
 
 $(addprefix testsuite/lib/testing., cma cmxa): \
-  OC_COMMON_LINKFLAGS += -linkall
+  private OC_COMMON_LINKFLAGS += -linkall
 
 testsuite/tools/%: VPATH += testsuite/tools
 
@@ -2139,9 +2147,11 @@ ocamltest/ocamltest$(EXE) ocamltest/ocamltest.opt$(EXE): \
   VPATH += $(unix_directory)
 
 # For flambda mode, it is necessary for Ocamltest_unix to be compiled with
-# -opaque to prevent errors compiling the other modules of ocamltest.
+# -opaque to prevent errors compiling the other modules of ocamltest. This
+# must not apply to its prerequisites (in particular, the other libraries,
+# which it may cause to be built).
 ocamltest/ocamltest_unix.%: \
-  OC_COMMON_COMPFLAGS += -opaque
+  private OC_COMMON_COMPFLAGS += -opaque
 ifeq "$(build_ocamltest)" "true"
 ocamltest: ocamltest/ocamltest$(EXE) \
   testsuite/lib/lib.cmo testsuite/lib/testing.cma testsuite/tools/expect$(EXE) \
@@ -2596,10 +2606,10 @@ ocamltex_SOURCES = tools/ocamltex.mli tools/ocamltex.ml
 # $(ROOTDIR)/ocamlc rather than with $(ROOTDIR)/boot/ocamlc since the boot
 # compiler does not necessarily have the correct shared library
 # configuration.
-# Note: the following definitions apply to all the prerequisites
+# Note: the definitions of CAMLC and VPATH apply to all the prerequisites
 # of ocamltex.
 $(ocamltex): CAMLC = $(OCAMLRUN) $(ROOTDIR)/ocamlc$(EXE) $(STDLIBFLAGS)
-$(ocamltex): OC_COMMON_LINKFLAGS += -linkall
+$(ocamltex): private OC_COMMON_LINKFLAGS += -linkall
 $(ocamltex): VPATH += $(addprefix otherlibs/,str unix)
 
 tools/ocamltex.cmo: OC_COMMON_COMPFLAGS += -no-alias-deps
