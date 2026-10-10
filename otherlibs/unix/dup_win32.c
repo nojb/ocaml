@@ -86,6 +86,23 @@ CAMLprim value caml_unix_dup2(value cloexec, value fd1, value fd2)
 
   switch (Descr_kind_val(fd1)) {
   case KIND_HANDLE: {
+    if (caml_win32_get_CRT_fd(fd1) != NO_CRT_FD ||
+        caml_win32_get_CRT_fd(fd2) != NO_CRT_FD) {
+      /* A CRT fd owns its handle, and other file_descr values (e.g.
+         Unix.stdout, or the result of descr_of_out_channel) may share that
+         very handle. Let _dup2 close and replace it, and make fd2 point to
+         the handle installed by _dup2, so that fd2 and its CRT fd agree. */
+      int crt_fd1 = caml_win32_CRT_fd_of_filedescr(fd1);
+      int crt_fd2 = caml_win32_CRT_fd_of_filedescr(fd2);
+      HANDLE newh;
+      if (_dup2(crt_fd1, crt_fd2) != 0)
+        caml_uerror("dup2", Nothing);
+      newh = (HANDLE) _get_osfhandle(crt_fd2);
+      Handle_val(fd2) = newh;
+      /* _dup2 always creates an inheritable handle */
+      caml_win32_set_cloexec(newh, cloexec);
+      CAMLreturn(Val_unit);
+    }
     HANDLE oldh = Handle_val(fd2),
       newh = duplicate_handle(! caml_unix_cloexec_p(cloexec),
                               Handle_val(fd1));
@@ -109,7 +126,8 @@ CAMLprim value caml_unix_dup2(value cloexec, value fd1, value fd2)
     caml_invalid_argument("Invalid file descriptor type");
   }
 
-  /* Reflect the dup2 on the CRT fds, if any */
+  /* Reflect the dup2 on the CRT fds, if any (only reached for sockets
+     here, handles with CRT fds are dealt with above) */
   if (caml_win32_get_CRT_fd(fd1) != NO_CRT_FD ||
       caml_win32_get_CRT_fd(fd2) != NO_CRT_FD)
     _dup2(caml_win32_CRT_fd_of_filedescr(fd1),
